@@ -154,13 +154,53 @@
   transition: opacity .25s;
 }
 #page-codex.codex-node-focus .cdxfield-elec-path,
-#page-codex.codex-node-focus .cdxfield-mag-path { opacity: 0.85; }
+#page-codex.codex-node-focus .cdxfield-mag-path,
+#page-codex.codex-node-focus .cdxfield-double-path,
+#page-codex.codex-node-focus .cdxfield-tesla-inf-track { opacity: 0.85; }
 @keyframes cdxfield-flowElec { to { stroke-dashoffset: -45; } }
 @keyframes cdxfield-flowMag {
   0%   { stroke-dasharray: 0 400; stroke-dashoffset: 0; }
   50%  { stroke-dasharray: 200 400; }
   100% { stroke-dasharray: 0 400; stroke-dashoffset: -400; }
 }
+
+/* Doubling sequence — solid root circuit 1→2→4→8→7→5→1 */
+#page-codex .cdxfield-double-path {
+  fill: none;
+  stroke: rgba(245, 200, 66, 0.88);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: url(#cdxfield-glow-amber);
+  opacity: 0.72;
+  transition: opacity .25s;
+}
+
+/* Tesla 3↔6 alteration — infinity behind singularity 9 */
+#page-codex .cdxfield-tesla-inf-track {
+  fill: none;
+  stroke: rgba(168, 85, 247, 0.32);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  transition: opacity .25s;
+}
+#page-codex .cdxfield-tesla-inf-flow {
+  fill: none;
+  stroke: rgba(196, 132, 252, 0.92);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 12 20;
+  filter: url(#cdxfield-glow-violet);
+  opacity: 0.85;
+}
+#page-codex .cdxfield-tesla-inf-flow-right {
+  animation: cdxfield-teslaInfFlow 5s linear infinite;
+}
+#page-codex .cdxfield-tesla-inf-flow-left {
+  animation: cdxfield-teslaInfFlow 5s linear infinite reverse;
+  animation-delay: 1.2s;
+}
+@keyframes cdxfield-teslaInfFlow { to { stroke-dashoffset: -64; } }
 
 #page-codex .cdxfield-node-group {
   opacity: 0.72;
@@ -442,6 +482,8 @@
   #page-codex .cdxfield-spiral-in-rev,
   #page-codex .cdxfield-elec-path,
   #page-codex .cdxfield-mag-path,
+  #page-codex .cdxfield-tesla-inf-flow-right,
+  #page-codex .cdxfield-tesla-inf-flow-left,
   #page-codex .cdx-spiral-bang-core.is-active,
   #page-codex .cdx-spiral-bang-shock.is-active,
   #page-codex .cdx-spiral-bang-flash.is-active { animation: none !important; opacity: 0 !important; }
@@ -828,6 +870,22 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   <polyline class="cdxfield-elec-path"
     points="230,60 150,130 380,250 150,370"
     filter="url(#cdxfield-glow-amber)"/>
+
+  <!-- DOUBLING SEQUENCE — solid gold — 1→2→4→8→7→5→1 -->
+  <polyline class="cdxfield-double-path"
+    points="150,130 310,130 80,250 310,370 150,370 380,250 150,130"/>
+
+  <!-- TESLA 3↔6 ALTERATION — infinity; crossing sits behind singularity 9 -->
+  <g class="cdxfield-tesla-inf">
+    <path class="cdxfield-tesla-inf-track cdxfield-tesla-inf-right"
+      d="M230,60 C345,60 345,250 230,250 C345,250 345,440 230,440"/>
+    <path class="cdxfield-tesla-inf-track cdxfield-tesla-inf-left"
+      d="M230,60 C115,60 115,250 230,250 C115,250 115,440 230,440"/>
+    <path class="cdxfield-tesla-inf-flow cdxfield-tesla-inf-flow-right"
+      d="M230,60 C345,60 345,250 230,250 C345,250 345,440 230,440"/>
+    <path class="cdxfield-tesla-inf-flow cdxfield-tesla-inf-flow-left"
+      d="M230,60 C115,60 115,250 230,250 C115,250 115,440 230,440"/>
+  </g>
 
   <!-- ═══════════════════════════════════
        NODES

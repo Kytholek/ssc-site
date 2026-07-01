@@ -26,6 +26,8 @@ function initCodexMatrix(wrap) {
     struct: svg.querySelector('.cdxfield-struct-line'),
     magPath: svg.querySelector('.cdxfield-mag-path'),
     elecPath: svg.querySelector('.cdxfield-elec-path'),
+    doublePath: svg.querySelector('.cdxfield-double-path'),
+    teslaInf: svg.querySelector('.cdxfield-tesla-inf'),
     center: svg.querySelector('.cdxfield-node-aetheric')
   };
 
@@ -89,6 +91,8 @@ function initCodexMatrix(wrap) {
     });
     prepPath(layers.magPath);
     prepPath(layers.elecPath);
+    prepPath(layers.doublePath);
+    setGroupState(layers.teslaInf, 0, 0);
     outerNodes.forEach(function(el) { setGroupState(el, 0, 0); });
     hitNodes.forEach(function(el) {
       el.style.opacity = '0';
@@ -110,12 +114,19 @@ function initCodexMatrix(wrap) {
     }, delay);
   }
 
-  function drawPath(path, delay, duration) {
+  function drawPath(path, delay, duration, solidAfter) {
     if (!path) return;
     var len = prepPath(path);
     setTimeout(function() {
       path.style.transition = 'stroke-dashoffset ' + duration + 'ms cubic-bezier(.22,1,.36,1)';
       path.style.strokeDashoffset = '0';
+      if (solidAfter) {
+        setTimeout(function() {
+          path.style.strokeDasharray = '';
+          path.style.strokeDashoffset = '';
+          path.style.transition = '';
+        }, duration + 40);
+      }
     }, delay);
   }
 
@@ -126,6 +137,12 @@ function initCodexMatrix(wrap) {
         .forEach(function(el) { setGroupState(el, 1, 1); });
       if (layers.magPath) layers.magPath.style.strokeDashoffset = '0';
       if (layers.elecPath) layers.elecPath.style.strokeDashoffset = '0';
+      if (layers.doublePath) {
+        layers.doublePath.style.strokeDasharray = '';
+        layers.doublePath.style.strokeDashoffset = '0';
+        layers.doublePath.style.opacity = '1';
+      }
+      setGroupState(layers.teslaInf, 1, 1);
       outerNodes.forEach(function(el) { setGroupState(el, 1, 1); });
       hitNodes.forEach(function(el) { el.style.opacity = '1'; });
       extras.forEach(function(el) { el.style.opacity = '1'; });
@@ -147,6 +164,8 @@ function initCodexMatrix(wrap) {
     revealGroup(layers.torus, 600, 700, 1);
     drawPath(layers.magPath, 680, 900);
     drawPath(layers.elecPath, 760, 900);
+    drawPath(layers.doublePath, 840, 850, true);
+    revealGroup(layers.teslaInf, 900, 700, 1);
     revealGroup(layers.halo, 820, 800, 1);
     revealGroup(layers.polarTop, 900, 650, 1);
     revealGroup(layers.polarBot, 960, 650, 1);

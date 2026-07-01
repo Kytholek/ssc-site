@@ -787,9 +787,31 @@
   100% { background-position: 40px 40px, 60px 60px; }
 }
 .hp-hero-content,
-.hp-codex-link {
+.hp-codex-link,
+.hp-hero-codex-arrow {
   position: relative;
   z-index: 1;
+}
+
+/* Arrow cue — points from headline toward the Codex matrix */
+.hp-hero-codex-arrow {
+  flex-shrink: 0;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  color: rgba(201,168,76,0.5);
+  font-size: 30px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  animation: sscFadeIn .8s ease 1s forwards, hpCodexArrowDrift 2.8s ease-in-out infinite 1.8s;
+}
+@keyframes hpCodexArrowDrift {
+  0%, 100% { transform: translateX(0); opacity: 0.42; }
+  50% { transform: translateX(10px); opacity: 0.78; }
 }
 
 /* â”€â”€ Scroll reveal â”€â”€ */
@@ -1159,6 +1181,13 @@
   .hp-hero-actions { justify-content: center; flex-wrap: wrap; }
   .hp-proof-row { justify-content: center; }
   .hp-hero-img { max-width: 360px; }
+  .hp-hero-codex-arrow {
+    width: auto;
+    height: 28px;
+    margin: 4px 0 0;
+    transform: rotate(90deg);
+    animation: sscFadeIn .8s ease 1s forwards, hpCodexArrowDriftDown 2.8s ease-in-out infinite 1.8s;
+  }
   .hp-codex-link { max-width: 360px; }
   .hp-scroll-hint { bottom: 20px; }
   .hp-main-row { flex-direction: column; padding: 100px 40px 120px; }
@@ -1172,6 +1201,13 @@
 @media (max-width: 700px) {
   .hp-freq-row { grid-template-columns: 1fr; }
   .hp-freq-connector { display: none; }
+}
+@keyframes hpCodexArrowDriftDown {
+  0%, 100% { transform: rotate(90deg) translateY(0); opacity: 0.42; }
+  50% { transform: rotate(90deg) translateY(8px); opacity: 0.78; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hp-hero-codex-arrow { animation: sscFadeIn .8s ease 1s forwards; opacity: 1; }
 }
 @media (max-width: 600px) {
   .hp-hero { padding: 90px 24px 72px; }
@@ -1226,20 +1262,21 @@
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="hp-hero">
   <div class="hp-hero-content">
-    <div class="hp-hero-eyebrow">// SEVEN FREQUENCIES ENCODED</div>
-    <h1 class="hp-hero-title">Understand Your Life Pattern in <span>7 Numbers</span></h1>
-    <p class="hp-hero-sub">Enter your birth date and full name to decode the seven frequencies shaping your path, strengths, and repeating life lessons.</p>
+    <div class="hp-hero-eyebrow">// THE ARCHITECTURE OF CONSCIOUSNESS</div>
+    <h1 class="hp-hero-title">The Codex Maps Transformation. <span>Your Blueprint Marks You.</span></h1>
+    <p class="hp-hero-sub">Nine positions describe how consciousness moves — through mind, body, and spirit toward integration. Seven frequencies from your birth date and name reveal which positions you inhabit, and what the simulation keeps asking you to build.</p>
     <div class="hp-hero-actions">
-      <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode Your Blueprint</a>
+      <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_blueprint" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
     </div>
-    <p class="hp-hero-micro">Free in 60 seconds · No email required</p>
+    <p class="hp-hero-micro">Free calculator · 60 seconds · No email required</p>
     <div class="hp-proof-row">
+      <div class="hp-proof-pill">Consciousness Matrix</div>
+      <div class="hp-proof-pill">Individual Blueprint</div>
       <div class="hp-proof-pill">Private by Design</div>
-      <div class="hp-proof-pill">7-Frequency System</div>
-      <div class="hp-proof-pill">Instant Results</div>
     </div>
     <p class="hp-trust-line">Your data stays private. We never store your personal information.</p>
   </div>
+  <div class="hp-hero-codex-arrow" aria-hidden="true">&#8594;</div>
   <a href="/codex" class="hp-codex-link" aria-label="Explore the Codex" onclick="if(document.getElementById('page-home')){event.preventDefault();var lnk=this;lnk.classList.add('hp-codex-expanding');setTimeout(function(){showPage('codex');},350);setTimeout(function(){lnk.classList.remove('hp-codex-expanding');},700);}">
     <svg class="hp-codex-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 

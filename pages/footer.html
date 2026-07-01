@@ -37,16 +37,16 @@
       <div class="footer-logo-text">Simulation Source Code</div>
       <p class="footer-tagline" data-i18n="footer.tagline">Decode Experience &nbsp;·&nbsp; Discover Your Path &nbsp;·&nbsp; Embody Your Purpose</p>
       <div class="social-row">
-        <a href="https://www.instagram.com/simulationsourcecode" target="_blank" class="social-btn">
+        <a href="https://www.instagram.com/kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
           <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://www.youtube.com/@kytholek" target="_blank" class="social-btn">
+        <a href="https://www.youtube.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
           <i class="fab fa-youtube"></i>
         </a>
-        <a href="https://www.tiktok.com/@kytholek" target="_blank" class="social-btn">
+        <a href="https://www.tiktok.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
           <i class="fab fa-tiktok"></i>
         </a>
-        <a href="https://substack.com/@kyelthomas" target="_blank" class="social-btn">
+        <a href="https://substack.com/@kyelthomas" target="_blank" rel="noopener noreferrer" class="social-btn">
           <img src="/Images/substack logo.png" alt="Substack" class="social-logo">
         </a>
       </div>
@@ -54,11 +54,11 @@
     <div>
       <div class="footer-col-title" data-i18n="footer.nav.title">Navigate</div>
       <div class="footer-links">
-        <button class="footer-link" onclick="showPage('home')"       data-i18n="footer.nav.home">Home</button>
-        <button class="footer-link" onclick="showPage('calculator')" data-i18n="footer.nav.calculator">Calculator</button>
-        <button class="footer-link" onclick="showPage('books')"      data-i18n="footer.nav.books">Books</button>
-        <a class="footer-link" href="/blog/"                          data-i18n="footer.nav.blog">Blog</a>
-        <button class="footer-link" onclick="showPage('about')"      data-i18n="footer.nav.about">About</button>
+        <a class="footer-link" href="/"            onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('home');}"       data-i18n="footer.nav.home">Home</a>
+        <a class="footer-link" href="/calculator/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}" data-i18n="footer.nav.calculator">Calculator</a>
+        <a class="footer-link" href="/books/"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}"      data-i18n="footer.nav.books">Books</a>
+        <a class="footer-link" href="/blog/"                                                                                                              data-i18n="footer.nav.blog">Blog</a>
+        <a class="footer-link" href="/about/"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}"      data-i18n="footer.nav.about">About</a>
       </div>
     </div>
     <div>

@@ -26,26 +26,6 @@ Soul Urge 33 is extremely rare. Most people who encounter the number 33 in their
     
 The Soul Urge is one of three numbers in the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the framework that shows how inner frequency becomes outer output.
 
-    
-      
-        Soul Urge
-        The Vowels
-        What you privately crave
-      
-      +
-      
-        Outer Persona
-        The Consonants
-        How the world first sees you
-      
-      =
-      
-        Expression
-        All Letters
-        Your total creative output
-      
-    
-    
 These three numbers form what the SSC system calls the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the complete architecture of how your inner essence becomes output in the world. The Soul Urge is the hidden driver: the frequency beneath the frequency.
 
     

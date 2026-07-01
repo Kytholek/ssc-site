@@ -929,7 +929,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
     <div class="q-bn">Simulation Source Code</div>
     <div class="q-bu">simulationsourcecode.com</div>
     <div class="q-sc">
-      <a href="https://www.instagram.com/simulationsourcecode">Instagram</a>
+      <a href="https://www.instagram.com/kytholek">Instagram</a>
       <a href="https://www.youtube.com/@kytholek">YouTube</a>
       <a href="https://substack.com/@kyelthomas">Substack</a>
       <a href="https://www.tiktok.com/@kytholek">TikTok</a>

@@ -5,21 +5,13 @@ date: 2026-03-25
 category: soul-urge
 glyph: 8
 eyebrow: Soul Urge Numbers  ·  March 2026  ·  The Private Drive
-excerpt: Home
+excerpt: Soul Urge 8 — the heart's desire for power, abundance, and material mastery. What this inner frequency craves and where the shadow of control and avoidance runs.
 description: Soul Urge 8 — the heart's desire for power, abundance, and material mastery. What this inner frequency craves and where the shadow of control and avoidance runs.
 keywords: soul urge number 8, heart's desire number 8, soul urge 8 meaning, soul urge 8 numerology, heart's desire 8
 breadcrumb-name: Soul Urge 8
 cta: Your Soul Urge number is one component of seven encoded frequencies. The Full Blueprint reveals the complete map — how your inner craving for power and mastery interacts with your visible output, your life's external curriculum, and the compound story running beneath each number.
 ---
 
-Home
-      ·
-      Blog
-      ·
-      Soul Urge 8
-    
-
-    
 ## What Is the Soul Urge Number?
 
     
@@ -28,27 +20,6 @@ The Soul Urge number — also called the heart's desire number — is calculated
     
 It is the frequency you feel most acutely when no one is watching. The thing you need in order to feel that life is worth engaging with. It does not show on the surface — that is the domain of the Outer Persona, calculated from consonants. The Soul Urge is hidden inside the name, encoded in the vowels alone. Read more about how these three numbers work together in the [Trinity of Expression](/blog/trinity-of-expression-numerology/).
 
-    
-      
-        Soul Urge
-        The Vowels
-        What you privately crave
-      
-      +
-      
-        Outer Persona
-        The Consonants
-        How the world first sees you
-      
-      =
-      
-        Expression
-        All Letters
-        Your total creative output
-      
-    
-
-    
 These three numbers form what the SSC system calls the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the complete architecture of how your inner essence becomes output in the world. The Soul Urge is the hidden driver: the frequency beneath the frequency.
 
     

@@ -2339,6 +2339,12 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
    ABOUT PAGE — Photo + Book
    ══════════════════════════════════════════════════════════ */
 
+.about-photo,
+.about-book-cover-wrap picture {
+  display: block;
+  margin: 0 auto;
+}
+
 .about-photo {
   width: 140px;
   height: 140px;

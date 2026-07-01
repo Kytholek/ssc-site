@@ -26,26 +26,6 @@ Soul Urge 11 operates as both 11 and 2 at once. The 2 does not disappear — it 
     
 Understanding where the Soul Urge sits within the broader name map requires knowing the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the three-part architecture that governs how your inner frequency becomes outer output.
 
-    
-      
-        Soul Urge
-        The Vowels
-        What you privately crave
-      
-      +
-      
-        Outer Persona
-        The Consonants
-        How the world first sees you
-      
-      =
-      
-        Expression
-        All Letters
-        Your total creative output
-      
-    
-    
 These three numbers form what the SSC system calls the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the complete architecture of how your inner essence becomes output in the world. The Soul Urge is the hidden driver: the frequency beneath the frequency.
 
     

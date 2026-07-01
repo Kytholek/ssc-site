@@ -5,17 +5,13 @@ date: 2026-03-25
 category: soul-urge
 glyph: 2
 eyebrow: Soul Numbers  ·  March 2026  ·  Internal Circuit
-excerpt: Home·Blog·Soul Urge 2
+excerpt: Soul Urge 2 — the heart's desire for harmony, partnership, and deep connection. What this inner frequency craves beneath the surface and how it shapes your private world.
 description: Soul Urge 2 — the heart's desire for harmony, partnership, and deep connection. What this inner frequency craves beneath the surface and how it shapes your private world.
 keywords: soul urge number 2, heart's desire number 2, soul urge 2 meaning, soul urge 2 numerology, heart's desire 2
 breadcrumb-name: Soul Urge 2
 cta: Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
 ---
 
-Home·Blog·Soul Urge 2
-    
-
-    
 ## What Is the Soul Urge Number?
 
     
@@ -24,26 +20,6 @@ The Soul Urge number — also called the heart's desire number — is derived fr
     
 The Soul Urge sits at the interior layer of the [Trinity of Expression](/blog/trinity-of-expression-numerology/). Where the [Expression number](/blog/expression-2-numerology/) describes the architecture of how you move through life, the Soul Urge describes what you are attempting to satisfy through that movement. Most people experience their Soul Urge as a persistent, low-frequency ache — something that, when absent from their life, produces a specific quality of emptiness that is difficult to explain to others precisely because it operates below the level of logic.
 
-    
-      
-        Soul Urge
-        The Vowels
-        What you privately crave
-      
-      +
-      
-        Outer Persona
-        The Consonants
-        How the world first sees you
-      
-      =
-      
-        Expression
-        All Letters
-        Your total creative output
-      
-    
-    
 These three numbers form what the SSC system calls the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the complete architecture of how your inner essence becomes output in the world. The Soul Urge is the hidden driver: the frequency beneath the frequency.
 
     

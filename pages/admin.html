@@ -217,7 +217,7 @@ Regular paragraph text."></textarea>
     ════════════════════════════════════════════════════ -->
     <div class="admin-tab" id="tab-export">
       <div style="padding:24px 0">
-        <p style="color:var(--text-dim);font-size:14px;margin-bottom:16px">Copy this code and paste it into your <code style="color:var(--gold);font-size:12px">pages/blog.html</code> to make browser posts permanent — cards into <code style="color:var(--gold);font-size:12px">#blog-grid</code>.</p>
+        <p style="color:var(--text-dim);font-size:14px;margin-bottom:16px">Copy exported cards into <code style="color:var(--gold);font-size:12px">blog/index.html</code> between the <code style="color:var(--gold);font-size:12px">GENERATED_POSTS</code> markers, or add a new <code style="color:var(--gold);font-size:12px">content/*.md</code> file and run <code style="color:var(--gold);font-size:12px">node build.js</code>.</p>
         <button class="admin-btn-primary" onclick="adminSystem.exportCode()" style="margin-bottom:16px">&#8635; Generate Export Code</button>
         <textarea id="admin-export-output" readonly style="height:420px;font-size:11px;font-family:'Courier New',monospace;color:var(--teal-light);width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border-dim);border-radius:4px;padding:14px 16px;outline:none;resize:vertical;line-height:1.6" placeholder="Click Generate to produce the HTML code for your posts…"></textarea>
       </div>

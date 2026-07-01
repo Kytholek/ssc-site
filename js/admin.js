@@ -430,7 +430,8 @@ var adminSystem = (function () {
   }
 
   function openDynPost(id) {
-    $('blog-listing').style.display = 'none';
+    var listing = $('blog-listing');
+    if (listing) listing.style.display = 'none';
     document.querySelectorAll('.blog-post').forEach(function (p) { p.classList.remove('active'); });
     var post = $('dyn-post-' + id);
     if (post) { post.classList.add('active'); window.scrollTo({ top:0, behavior:'smooth' }); }
@@ -782,10 +783,10 @@ var adminSystem = (function () {
       ].join('\n');
     }).join('\n\n');
 
-    var out = '<!-- PASTE CARDS into #blog-grid -->\n' + cardsHtml +
-              '\n\n<!-- PASTE POSTS before closing </div> of page-blog -->\n' + postsHtml;
+    var out = '<!-- PASTE CARDS into blog/index.html (GENERATED_POSTS section) -->\n' + cardsHtml +
+              '\n\n<!-- Dynamic post preview HTML (legacy export) -->\n' + postsHtml;
     $('admin-export-output').value = out;
-    showToast('Export ready — copy and paste into blog.html');
+    showToast('Export ready — copy cards into blog/index.html');
   }
 
   // ── IN-PLACE PAGE EDITOR ───────────────────────────────────
@@ -812,7 +813,6 @@ var adminSystem = (function () {
     'page-about'     : 'about.html',
     'page-books'     : 'books.html',
     'page-calculator': 'calculator.html',
-    'page-blog'      : 'blog.html',
     'page-privacy'   : 'privacy.html',
   };
 

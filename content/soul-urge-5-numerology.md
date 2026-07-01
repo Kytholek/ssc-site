@@ -5,21 +5,13 @@ date: 2026-03-25
 category: soul-urge
 glyph: 5
 eyebrow: Soul Urge Numbers  ·  March 2026  ·  The Private Drive
-excerpt: Home
+excerpt: Soul Urge 5 — the heart's desire for freedom, experience, and constant renewal. What this inner craving means, how it shapes your choices, and where the shadow runs.
 description: Soul Urge 5 — the heart's desire for freedom, experience, and constant renewal. What this inner craving means, how it shapes your choices, and where the shadow runs.
 keywords: soul urge number 5, heart's desire number 5, soul urge 5 meaning, soul urge 5 numerology, heart's desire 5
 breadcrumb-name: Soul Urge 5
 cta: Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the tension between them is running on autopilot.
 ---
 
-Home
-      ·
-      Blog
-      ·
-      Soul Urge 5
-    
-
-    
 ## What Is the Soul Urge Number?
 
     
@@ -28,26 +20,6 @@ The Soul Urge number — also called the heart's desire number — is extracted 
     
 Your Life Path encodes the external curriculum the simulation keeps presenting. Your Expression number encodes how you are built to move through it. The Soul Urge encodes the *why* beneath both: the inner hunger that shapes which experiences feel alive and which feel like going through the motions. [The Trinity of Expression](/blog/trinity-of-expression-numerology/) places the Soul Urge at the root — the hidden driver feeding everything above it.
 
-    
-      
-        Soul Urge
-        The Vowels
-        What you privately crave
-      
-      +
-      
-        Outer Persona
-        The Consonants
-        How the world first sees you
-      
-      =
-      
-        Expression
-        All Letters
-        Your total creative output
-      
-    
-    
 These three numbers form what the SSC system calls the [Trinity of Expression](/blog/trinity-of-expression-numerology/) — the complete architecture of how your inner essence becomes output in the world. The Soul Urge is the hidden driver: the frequency beneath the frequency.
 
     

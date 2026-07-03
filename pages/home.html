@@ -1235,7 +1235,7 @@
   .hp-freq-calling-wrap { padding: 14px 16px; }
   .hp-freq-calling-inner { gap: 12px; }
   .hp-freq-calling-glyph { font-size: 28px; }
-  .hp-how-section, .hp-stats-section, .hp-email-section { padding: 60px 24px; }
+  .hp-how-section, .hp-email-section { padding: 60px 24px; }
   .hp-stat-num { font-size: clamp(28px, 3.5vw, 44px); }
   .hp-email-title { font-size: 22px; }
   .hp-sticky-calc-cta { display: flex; }
@@ -1268,27 +1268,27 @@
 }
 </style>
 
-<!-- â”€â”€ Load SCL fonts for this section â”€â”€ -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"></noscript>
+<!-- ── Load SCL fonts removed — loaded in index.html ── -->
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     HERO
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ════ HERO ════ -->
 <section class="hp-hero">
   <div class="hp-hero-content">
-    <div class="hp-hero-eyebrow">// THE ARCHITECTURE OF CONSCIOUSNESS</div>
-    <h1 class="hp-hero-title">The Codex Maps Transformation. <span>Your Blueprint Marks You.</span></h1>
-    <p class="hp-hero-sub hp-hero-sub--full">Nine positions describe how consciousness moves — through mind, body, and spirit toward integration. Seven frequencies from your birth date and name reveal which positions you inhabit, and what the simulation keeps asking you to build.</p>
-    <p class="hp-hero-sub hp-hero-sub--short">Nine positions map how consciousness transforms. Seven frequencies from your birth date and name mark where you stand.</p>
-    <div class="hp-hero-actions">
-      <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_blueprint" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
+    <div class="hp-hero-eyebrow" data-i18n="home.revamp.hero.eyebrow">// THE ARCHITECTURE OF CONSCIOUSNESS</div>
+    <h1 class="hp-hero-title" data-i18n="home.revamp.hero.title">The Codex Maps Transformation. <span>Your Blueprint Marks You.</span></h1>
+    <p class="hp-hero-sub hp-hero-sub--full" data-i18n="home.revamp.hero.sub.full">Nine positions describe how consciousness moves — through mind, body, and spirit toward integration. Seven frequencies from your birth date and name reveal which positions you inhabit, and what the simulation keeps asking you to build.</p>
+    <p class="hp-hero-sub hp-hero-sub--short" data-i18n="home.revamp.hero.sub.short">Nine positions map how consciousness transforms. Seven frequencies from your birth date and name mark where you stand.</p>
+    <div class="hp-hero-actions hp-hero-actions--balanced">
+      <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
+      <a href="/codex" class="hp-cta-text js-track-cta" data-cta="hero_codex" data-i18n="home.revamp.hero.cta.codex" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Explore the Codex</a>
     </div>
-    <p class="hp-hero-micro">Free calculator · 60 seconds · Private by design</p>
+    <div class="hp-hero-tertiary">
+      <a href="https://portal.simulationsourcecode.com" class="hp-cta-text js-track-cta" data-cta="hero_app" data-i18n="home.revamp.hero.cta.app" target="_blank" rel="noopener noreferrer">Launch App</a>
+    </div>
+    <p class="hp-hero-micro" data-i18n="home.revamp.hero.micro">Free calculator · 60 seconds · Private by design</p>
     <div class="hp-proof-row">
-      <div class="hp-proof-pill">Consciousness Matrix</div>
-      <div class="hp-proof-pill">Individual Blueprint</div>
-      <div class="hp-proof-pill">Instant Results</div>
+      <div class="hp-proof-pill" data-i18n="home.revamp.proof.matrix">Consciousness Matrix</div>
+      <div class="hp-proof-pill" data-i18n="home.revamp.proof.blueprint">Individual Blueprint</div>
+      <div class="hp-proof-pill" data-i18n="home.revamp.proof.instant">Instant Results</div>
     </div>
   </div>
   <div class="hp-hero-codex-arrow" aria-hidden="true">&#8594;</div>
@@ -1337,7 +1337,7 @@
         </g>
       </g>
     </svg>
-    <span class="hp-codex-caption">Explore the Codex</span>
+    <span class="hp-codex-caption" data-i18n="home.revamp.codex.caption">Explore the Codex</span>
   </a>
   <div class="hp-scroll-hint">
     <span class="hp-scroll-arrow">&#8595;</span>
@@ -1346,26 +1346,9 @@
 
 <section class="hp-codex-bridge hp-reveal">
   <div class="hp-codex-bridge-inner">
-    <div class="hp-codex-bridge-eyebrow">// THE UNIVERSAL MAP</div>
-    <p class="hp-codex-bridge-body">Hidden in plain sight on every phone dial pad is a 3&times;3 grid — a structural map of how consciousness evolves, organises, and transforms.</p>
-    <a href="/codex" class="hp-codex-bridge-cta js-track-cta" data-cta="codex_bridge" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Enter the Consciousness Matrix &#8594;</a>
-  </div>
-</section>
-
-<section class="hp-stats-section hp-reveal">
-  <div class="hp-stats-inner">
-    <div class="hp-stat">
-      <span class="hp-stat-num">9</span>
-      <span class="hp-stat-label">Codex Nodes</span>
-    </div>
-    <div class="hp-stat">
-      <span class="hp-stat-num">7</span>
-      <span class="hp-stat-label">Blueprint Frequencies</span>
-    </div>
-    <div class="hp-stat">
-      <span class="hp-stat-num">Free</span>
-      <span class="hp-stat-label">Calculator</span>
-    </div>
+    <div class="hp-codex-bridge-eyebrow" data-i18n="home.revamp.bridge.eyebrow">// THE UNIVERSAL MAP</div>
+    <p class="hp-codex-bridge-body" data-i18n="home.revamp.bridge.body">Hidden in plain sight on every phone dial pad is a 3&times;3 grid — a structural map of how consciousness evolves, organises, and transforms.</p>
+    <a href="/codex" class="hp-codex-bridge-cta js-track-cta" data-cta="codex_bridge" data-i18n="home.revamp.bridge.cta" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Enter the Consciousness Matrix &#8594;</a>
   </div>
 </section>
 
@@ -1373,23 +1356,38 @@
   <div class="hp-how-inner">
     <div class="hp-how-step">
       <div class="hp-how-num">01</div>
-      <div class="hp-how-label">Step One</div>
-      <div class="hp-how-title">Explore the Codex</div>
-      <p class="hp-how-desc">The nine-node consciousness field — mind, body, and spirit — maps how awareness moves, integrates, and returns.</p>
-      <a href="/codex" class="hp-how-link" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Open the Codex &#8594;</a>
+      <div class="hp-how-label" data-i18n="home.revamp.how.step1.label">Step One</div>
+      <div class="hp-how-title" data-i18n="home.revamp.how.step1.title">Explore the Codex</div>
+      <p class="hp-how-desc" data-i18n="home.revamp.how.step1.desc">The nine-node consciousness field — mind, body, and spirit — maps how awareness moves, integrates, and returns.</p>
+      <a href="/codex" class="hp-how-link js-track-cta" data-cta="how_codex" data-i18n="home.revamp.how.step1.link" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Open the Codex &#8594;</a>
     </div>
     <div class="hp-how-step">
       <div class="hp-how-num">02</div>
-      <div class="hp-how-label">Step Two</div>
-      <div class="hp-how-title">Find Your Blueprint</div>
-      <p class="hp-how-desc">Seven frequencies from your birth date and name mark which positions you inhabit inside the field.</p>
-      <a href="/calculator" class="hp-how-link" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Find Your Blueprint &#8594;</a>
+      <div class="hp-how-label" data-i18n="home.revamp.how.step2.label">Step Two</div>
+      <div class="hp-how-title" data-i18n="home.revamp.how.step2.title">Find Your Blueprint</div>
+      <p class="hp-how-desc" data-i18n="home.revamp.how.step2.desc">Seven frequencies from your birth date and name mark which positions you inhabit inside the field.</p>
+      <a href="/calculator" class="hp-how-link js-track-cta" data-cta="how_calculator" data-i18n="home.revamp.how.step2.link" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Find Your Blueprint &#8594;</a>
     </div>
     <div class="hp-how-step">
       <div class="hp-how-num">03</div>
-      <div class="hp-how-label">Step Three</div>
-      <div class="hp-how-title">Read the Patterns</div>
-      <p class="hp-how-desc">Explore your circuits, lessons, and the patterns the simulation keeps asking you to build.</p>
+      <div class="hp-how-label" data-i18n="home.revamp.how.step3.label">Step Three</div>
+      <div class="hp-how-title" data-i18n="home.revamp.how.step3.title">Read the Patterns</div>
+      <p class="hp-how-desc" data-i18n="home.revamp.how.step3.desc">Explore your circuits, lessons, and the patterns the simulation keeps asking you to build.</p>
+      <a href="/blog/how-to-read-numerology-blueprint/" class="hp-how-link js-track-cta" data-cta="how_read_patterns" data-i18n="home.revamp.how.step3.link">How to read your blueprint &#8594;</a>
+    </div>
+  </div>
+</section>
+
+<section class="hp-scl-teaser hp-reveal" id="hp-scl-teaser">
+  <div class="hp-scl-teaser-inner">
+    <div class="hp-scl-teaser-copy">
+      <div class="hp-scl-teaser-eyebrow" data-i18n="home.revamp.scl.teaser.eyebrow">&gt; SOURCE CODE: LIFE — BETA LIVE</div>
+      <h2 class="hp-scl-teaser-title" data-i18n="home.revamp.scl.teaser.title">Play your blueprint as an RPG</h2>
+      <p class="hp-scl-teaser-body" data-i18n="home.revamp.scl.teaser.body">Quest lines, journaling, and character-sheet decoding — seven frequencies turned into a living game.</p>
+    </div>
+    <div class="hp-scl-teaser-actions">
+      <a href="#hp-scl-section" class="hp-scl-teaser-cta hp-scl-teaser-cta--primary js-track-cta" data-cta="scl_teaser_beta" data-i18n="home.revamp.scl.teaser.beta">Join Android Beta</a>
+      <a href="https://portal.simulationsourcecode.com" class="hp-scl-teaser-cta hp-scl-teaser-cta--ghost js-track-cta" data-cta="scl_teaser_prototype" data-i18n="home.revamp.scl.teaser.prototype" target="_blank" rel="noopener noreferrer">Try Prototype</a>
     </div>
   </div>
 </section>
@@ -1410,15 +1408,15 @@
       <!-- Row 1: External Circuit -->
       <div class="hp-freq-circuit-label">External Circuit &mdash; Date of Birth</div>
       <div class="hp-freq-row">
-        <a href="/blog/trinity-of-lessons-numerology/" class="hp-freq-chip">
+        <a href="/blog/trinity-of-lessons-numerology/" class="hp-freq-chip js-track-cta" data-cta="freq_achievement">
           <strong>Achievement</strong>
           <span>How You Build</span>
         </a>
-        <a href="/blog/life-path-number-explained/" class="hp-freq-chip">
+        <a href="/blog/life-path-number-explained/" class="hp-freq-chip js-track-cta" data-cta="freq_life_path">
           <strong>Life Path</strong>
           <span>External Curriculum</span>
         </a>
-        <a href="/blog/trinity-of-lessons-numerology/" class="hp-freq-chip">
+        <a href="/blog/theme-number-birth-year-numerology/" class="hp-freq-chip js-track-cta" data-cta="freq_theme">
           <strong>Theme</strong>
           <span>Backdrop Frequency</span>
         </a>
@@ -1456,15 +1454,15 @@
       <!-- Row 3: Internal Circuit -->
       <div class="hp-freq-circuit-label">Internal Circuit &mdash; Birth Name</div>
       <div class="hp-freq-row">
-        <a href="/blog/soul-urge-1-numerology/" class="hp-freq-chip">
+        <a href="/blog/trinity-of-expression-numerology/" class="hp-freq-chip js-track-cta" data-cta="freq_soul_urge">
           <strong>Soul Urge</strong>
           <span>Inner Drive</span>
         </a>
-        <a href="/blog/expression-1-numerology/" class="hp-freq-chip">
+        <a href="/blog/trinity-of-expression-numerology/" class="hp-freq-chip js-track-cta" data-cta="freq_expression">
           <strong>Expression</strong>
           <span>Internal Circuit</span>
         </a>
-        <a href="/blog/how-to-read-numerology-blueprint/" class="hp-freq-chip">
+        <a href="/blog/trinity-of-expression-numerology/" class="hp-freq-chip js-track-cta" data-cta="freq_outer_self">
           <strong>Outer Self</strong>
           <span>First Impression</span>
         </a>
@@ -1528,9 +1526,38 @@
   <a href="/blog/" class="hp-view-all-link">View All Articles &#8594;</a>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     SCL APP SECTION
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section class="hp-services-section hp-reveal">
+  <div class="hp-services-inner">
+    <header class="hp-services-header">
+      <div class="hp-services-eyebrow" data-i18n="home.revamp.services.eyebrow">// GO DEEPER</div>
+      <h2 class="hp-services-title" data-i18n="home.revamp.services.title">Beyond the Free Calculator</h2>
+      <p class="hp-services-sub" data-i18n="home.revamp.services.sub">Every path starts with your seven frequencies. Choose how far you want to go.</p>
+    </header>
+    <div class="hp-services-grid">
+      <a href="/services" class="hp-service-card js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
+        <span class="hp-service-tier">Written Reading</span>
+        <span class="hp-service-name" data-i18n="home.revamp.services.guidebook">Guidebook Report</span>
+        <p class="hp-service-desc" data-i18n="home.revamp.services.guidebook.desc">All seven frequencies decoded in a written guidebook you keep forever.</p>
+        <span class="hp-service-link" data-i18n="home.revamp.services.link">Learn more &#8594;</span>
+      </a>
+      <a href="/services" class="hp-service-card hp-service-card--featured js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
+        <span class="hp-service-tier">Live Session</span>
+        <span class="hp-service-name" data-i18n="home.revamp.services.consult">Live Reading</span>
+        <p class="hp-service-desc" data-i18n="home.revamp.services.consult.desc">A one-on-one session decoding your complete blueprint in real time.</p>
+        <span class="hp-service-link" data-i18n="home.revamp.services.link">Learn more &#8594;</span>
+      </a>
+      <a href="/services" class="hp-service-card js-track-cta" data-cta="services_membership" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
+        <span class="hp-service-tier">Membership</span>
+        <span class="hp-service-name" data-i18n="home.revamp.services.membership">Learn the System</span>
+        <p class="hp-service-desc" data-i18n="home.revamp.services.membership.desc">Monthly membership to decode patterns yourself — the full SSC framework.</p>
+        <span class="hp-service-link" data-i18n="home.revamp.services.link">Learn more &#8594;</span>
+      </a>
+    </div>
+    <a href="/services" class="hp-services-all js-track-cta" data-cta="services_all" data-i18n="home.revamp.services.all" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">View All Services &#8594;</a>
+  </div>
+</section>
+
+<!-- SCL APP SECTION -->
 <section class="hp-scl-section hp-reveal" id="hp-scl-section">
   <div class="hp-scl-inner">
 
@@ -1586,24 +1613,26 @@
         </div>
       </div>
 
+      <details class="hp-scl-install-details">
+        <summary class="hp-scl-install-summary" data-i18n="home.revamp.install.summary">Android beta — three steps</summary>
       <div class="hp-scl-install">
-        <div class="hp-scl-install-label">Android beta — three steps</div>
-        <a href="https://groups.google.com/g/source-codelife-app-testing" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step">
+        <a href="https://groups.google.com/g/source-codelife-app-testing" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step js-track-cta" data-cta="scl_install_1">
           <span class="hp-scl-install-num">01</span>
           <span class="hp-scl-install-text">Join the Google Group</span>
           <span class="hp-scl-install-arrow">&#8594;</span>
         </a>
-        <a href="https://play.google.com/apps/testing/com.sourcecodelife.app" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step">
+        <a href="https://play.google.com/apps/testing/com.sourcecodelife.app" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step js-track-cta" data-cta="scl_install_2">
           <span class="hp-scl-install-num">02</span>
           <span class="hp-scl-install-text">Opt in to testing on Google Play</span>
           <span class="hp-scl-install-arrow">&#8594;</span>
         </a>
-        <a href="https://play.google.com/store/apps/details?id=com.sourcecodelife.app" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step">
+        <a href="https://play.google.com/store/apps/details?id=com.sourcecodelife.app" target="_blank" rel="noopener noreferrer" class="hp-scl-install-step js-track-cta" data-cta="scl_install_3">
           <span class="hp-scl-install-num">03</span>
           <span class="hp-scl-install-text">Install Source Code: Life</span>
           <span class="hp-scl-install-arrow">&#8594;</span>
         </a>
       </div>
+      </details>
 
       <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_prototype">&gt; Try the Prototype</a>
     </div>
@@ -1616,14 +1645,51 @@
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section class="hp-email-section hp-reveal">
   <div class="hp-email-inner">
-    <div class="hp-email-label">From the Void</div>
-    <h2 class="hp-email-title">Get Weekly Frequency Insights</h2>
-    <p class="hp-email-desc" style="font-family:'EB Garamond',serif;font-size:17px;line-height:1.7;color:var(--text-dim);margin:0 0 24px;">Essays on the Codex, blueprint patterns, and consciousness architecture — delivered on Substack.</p>
-    <a href="https://substack.com/@kyelthomas/subscribe" target="_blank" rel="noopener noreferrer" class="hp-email-submit js-track-cta" data-cta="substack_subscribe" style="display:inline-block;text-decoration:none;">Subscribe on Substack</a>
+    <div class="hp-email-label" data-i18n="home.revamp.email.label">From the Void</div>
+    <h2 class="hp-email-title" data-i18n="home.revamp.email.title">Get Weekly Frequency Insights</h2>
+    <p class="hp-email-desc" style="font-family:'EB Garamond',serif;font-size:17px;line-height:1.7;color:var(--text-dim);margin:0 0 24px;" data-i18n="home.revamp.email.desc">Essays on the Codex, blueprint patterns, and consciousness architecture — delivered on Substack.</p>
+    <a href="https://substack.com/@kyelthomas/subscribe" target="_blank" rel="noopener noreferrer" class="hp-email-submit js-track-cta" data-cta="substack_subscribe" data-i18n="home.revamp.email.cta" style="display:inline-block;text-decoration:none;">Subscribe on Substack</a>
   </div>
 </section>
 
-<a href="/calculator" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
+<section class="hp-faq-section hp-reveal" aria-labelledby="hp-faq-heading">
+  <div class="hp-faq-inner">
+    <div class="hp-faq-eyebrow" data-i18n="home.revamp.faq.eyebrow">// COMMON QUESTIONS</div>
+    <h2 class="hp-faq-title" id="hp-faq-heading" data-i18n="home.revamp.faq.title">Numerology, Decoded</h2>
+    <div class="hp-faq-list">
+      <div class="hp-faq-item">
+        <button type="button" class="hp-faq-q" aria-expanded="false" aria-controls="hp-faq-a1" id="hp-faq-q1">
+          <span data-i18n="home.revamp.faq.q1">What is a Life Path number?</span>
+          <span class="hp-faq-icon" aria-hidden="true">+</span>
+        </button>
+        <p class="hp-faq-a" id="hp-faq-a1" role="region" aria-labelledby="hp-faq-q1" hidden data-i18n="home.revamp.faq.a1">Your Life Path is calculated from your full date of birth. It represents the core theme and curriculum of your life — the lessons the simulation has designed for you to learn and embody.</p>
+      </div>
+      <div class="hp-faq-item">
+        <button type="button" class="hp-faq-q" aria-expanded="false" aria-controls="hp-faq-a2" id="hp-faq-q2">
+          <span data-i18n="home.revamp.faq.q2">What is numerology?</span>
+          <span class="hp-faq-icon" aria-hidden="true">+</span>
+        </button>
+        <p class="hp-faq-a" id="hp-faq-a2" role="region" aria-labelledby="hp-faq-q2" hidden data-i18n="home.revamp.faq.a2">Numerology studies the symbolic meaning of numbers and their relationship to personality and life patterns. SSC uses the Pythagorean system to calculate seven distinct frequencies from your birth date and full birth name.</p>
+      </div>
+      <div class="hp-faq-item">
+        <button type="button" class="hp-faq-q" aria-expanded="false" aria-controls="hp-faq-a3" id="hp-faq-q3">
+          <span data-i18n="home.revamp.faq.q3">What is the Life Calling number?</span>
+          <span class="hp-faq-icon" aria-hidden="true">+</span>
+        </button>
+        <p class="hp-faq-a" id="hp-faq-a3" role="region" aria-labelledby="hp-faq-q3" hidden data-i18n="home.revamp.faq.a3">Life Calling fuses your Life Path and Expression numbers — the specific directive when your external curriculum and internal frequency combine.</p>
+      </div>
+      <div class="hp-faq-item">
+        <button type="button" class="hp-faq-q" aria-expanded="false" aria-controls="hp-faq-a4" id="hp-faq-q4">
+          <span data-i18n="home.revamp.faq.q4">What are master numbers?</span>
+          <span class="hp-faq-icon" aria-hidden="true">+</span>
+        </button>
+        <p class="hp-faq-a" id="hp-faq-a4" role="region" aria-labelledby="hp-faq-q4" hidden data-i18n="home.revamp.faq.a4">Master numbers 11, 22, 33, and 44 are not reduced to a single digit. They carry amplified potential — 11 from 2, 22 from 4, 33 from 6, and 44 from 8.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<a href="/calculator" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" data-i18n="home.revamp.sticky" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
   Find Your Blueprint
 </a>
 
@@ -1644,6 +1710,51 @@
       });
     });
   });
+
+  document.querySelectorAll('.hp-faq-q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      if (!panel) return;
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.hp-faq-q').forEach(function (other) {
+        if (other === btn) return;
+        other.setAttribute('aria-expanded', 'false');
+        var otherPanel = document.getElementById(other.getAttribute('aria-controls'));
+        if (otherPanel) otherPanel.hidden = true;
+        var icon = other.querySelector('.hp-faq-icon');
+        if (icon) icon.textContent = '+';
+      });
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      panel.hidden = open;
+      var icon = btn.querySelector('.hp-faq-icon');
+      if (icon) icon.textContent = open ? '+' : '−';
+    });
+  });
+
+  var sticky = document.querySelector('.hp-sticky-calc-cta');
+  if (sticky && window.matchMedia('(max-width: 600px)').matches) {
+    function updateSticky() {
+      var onHome = document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active');
+      if (!onHome) {
+        sticky.classList.remove('is-visible');
+        return;
+      }
+      if (window.scrollY > 420) {
+        sticky.classList.add('is-visible');
+      } else {
+        sticky.classList.remove('is-visible');
+      }
+    }
+    window.addEventListener('scroll', updateSticky, { passive: true });
+    var origShowPage = window.showPage;
+    if (origShowPage) {
+      window.showPage = function (name, pushState) {
+        origShowPage(name, pushState);
+        updateSticky();
+      };
+    }
+    updateSticky();
+  }
 })();
 </script>
 

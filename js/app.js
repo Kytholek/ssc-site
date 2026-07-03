@@ -316,7 +316,8 @@ function showPage(name, pushState = true) {
   if (name === 'codex' && pushState) {
     setTimeout(function() {
       var params = new URLSearchParams(window.location.search);
-      var view = params.get('view') === 'spiral' ? 'spiral' : 'matrix';
+      var vp = params.get('view');
+      var view = vp === 'spiral' ? 'spiral' : vp === 'journey' ? 'journey' : 'matrix';
       setCodexView(view, true);
     }, 0);
   }
@@ -415,19 +416,39 @@ async function handleDeepLink() {
       await window.ensureCodexPageLoaded();
     }
     showPage(pageId, false);
-    history.replaceState({ page: pageId, post: null }, document.title, '/' + pageId + '/');
+    if (pageId === 'codex') {
+      const legacyView = params.get('view');
+      const legacyCodexView = legacyView === 'spiral' ? 'spiral' : legacyView === 'journey' ? 'journey' : 'matrix';
+      const legacyNode = params.get('node');
+      setCodexView(legacyCodexView, false);
+      history.replaceState(
+        { page: 'codex', post: null, codexView: legacyCodexView === 'spiral' ? 'spiral' : 'matrix' },
+        document.title,
+        legacyCodexView === 'spiral' ? '/codex/?view=spiral'
+          : legacyCodexView === 'journey' ? '/codex/?view=journey'
+          : legacyNode ? '/codex/?node=' + encodeURIComponent(legacyNode)
+          : '/codex/'
+      );
+    } else {
+      history.replaceState({ page: pageId, post: null }, document.title, '/' + pageId + '/');
+    }
   } else if (pathname && PAGE_META[pathname]) {
     if (pathname === 'codex' && typeof window.ensureCodexPageLoaded === 'function') {
       await window.ensureCodexPageLoaded();
     }
     showPage(pathname, false);
     if (pathname === 'codex') {
-      const codexView = params.get('view') === 'spiral' ? 'spiral' : 'matrix';
+      const viewParam = params.get('view');
+      const codexView = viewParam === 'spiral' ? 'spiral' : viewParam === 'journey' ? 'journey' : 'matrix';
+      const nodeParam = params.get('node');
       setCodexView(codexView, false);
       history.replaceState(
-        { page: 'codex', post: null, codexView: codexView },
+        { page: 'codex', post: null, codexView: codexView === 'spiral' ? 'spiral' : 'matrix' },
         document.title,
-        codexView === 'spiral' ? '/codex/?view=spiral' : '/codex/'
+        codexView === 'spiral' ? '/codex/?view=spiral'
+          : codexView === 'journey' ? '/codex/?view=journey'
+          : nodeParam ? '/codex/?node=' + encodeURIComponent(nodeParam)
+          : '/codex/'
       );
     } else {
       history.replaceState({ page: pathname, post: null }, document.title, '/' + pathname + '/');
@@ -459,13 +480,19 @@ async function initApp() {
 //  HOME PAGE — scroll reveal, chip stagger, SCL boot, parallax
 // ────────────────────────────────────────────────────────────
 var _homePageInited = false;
+var _homeRevealInited = false;
+var _homeChipsInited = false;
 
 function initHomePage() {
   var page = document.getElementById('page-home');
   if (!page) return;
 
-  // Reveal animations (desktop only — mobile sees content immediately via CSS)
-  var revealEls = page.querySelectorAll('.hp-reveal, .hp-reveal-left, .hp-reveal-right');
+  if (_homeRevealInited) {
+    page.querySelectorAll('.hp-reveal, .hp-reveal-left, .hp-reveal-right').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+  }
+  var revealEls = _homeRevealInited ? [] : page.querySelectorAll('.hp-reveal, .hp-reveal-left, .hp-reveal-right');
   var revealObs = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (e.isIntersecting) {
@@ -475,8 +502,8 @@ function initHomePage() {
     });
   }, { threshold: 0, rootMargin: '0px 0px -60px 0px' });
   revealEls.forEach(function (el) { revealObs.observe(el); });
+  if (revealEls.length) _homeRevealInited = true;
 
-  // Frequency chips — staggered pop-in
   function revealChips(block) {
     block.querySelectorAll('.hp-freq-chip').forEach(function (chip, i) {
       setTimeout(function () { chip.classList.add('is-visible'); }, i * 90);
@@ -485,8 +512,7 @@ function initHomePage() {
     if (calling) calling.classList.add('is-visible');
   }
   var freqBlock = document.getElementById('hp-freq-block');
-  if (freqBlock) {
-    // Mark for animation only if IntersectionObserver is supported
+  if (freqBlock && !_homeChipsInited) {
     freqBlock.querySelectorAll('.hp-freq-chip').forEach(function (chip) {
       chip.classList.add('pre-animate');
     });
@@ -501,6 +527,9 @@ function initHomePage() {
       });
     }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
     chipObs.observe(freqBlock);
+    _homeChipsInited = true;
+  } else if (freqBlock && _homeChipsInited) {
+    revealChips(freqBlock);
   }
 
   // SCL terminal boot sequence
@@ -536,98 +565,7 @@ function initHomePage() {
 var NATURE_COLORS_CDX = { electric: '#F5C842', magnetic: '#378ADD', aetheric: '#C0C0E0' };
 var PLANE_COLORS_CDX  = { mind: '#7ec8c8', body: '#e8c96b', spirit: '#a96ed4', pivot: '#e8c96b' };
 
-var CODEX_NODES = {
-  '1': {
-    name: 'The Initiator',
-    position: 'Mind Axis · Upper Left',
-    essence: 'Electric · Original Force',
-    body: 'The spark that begins every cycle. Bold self-direction, pioneer instinct, original creative force.',
-    links: [
-      { href: '/blog/life-path-1-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-1-numerology/', label: 'Expression' }
-    ]
-  },
-  '2': {
-    name: 'Duality',
-    position: 'Body Axis · Upper Right',
-    essence: 'Magnetic · Bridge & Balance',
-    body: 'The consciousness that unifies opposites. The magnitism that brings things together Diplomacy, relational awareness, the art of genuine union. The bridge between the polarities of the world.',
-    links: [
-      { href: '/blog/life-path-2-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-2-numerology/', label: 'Expression' }
-    ]
-  },
-  '3': {
-    name: 'The Mental Child within the World',
-    position: 'Spirit Gate · Upper Centre',
-    essence: 'Electric · Expression & Joy',
-    body: 'Creative force finding its voice. Authentic self-expression, joy, and the courage to be heard without apology.',
-    links: [
-      { href: '/blog/life-path-3-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-3-numerology/', label: 'Expression' }
-    ]
-  },
-  '4': {
-    name: 'Structure',
-    position: 'Mind Axis · Left Meridian',
-    essence: 'Magnetic · Structure & Stability',
-    body: 'The consciousness that manifests. Discipline, order, patient building of foundations that outlast their maker. The structuring of Imaginative Spirit into the physicality of the world.',
-    links: [
-      { href: '/blog/life-path-4-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-4-numerology/', label: 'Expression' }
-    ]
-  },
-  '5': {
-    name: 'Vessal for Experience',
-    position: 'Body Axis · Right Meridian',
-    essence: 'Electric · Freedom Through Presence',
-    body: 'The explorer on the body meridian. Every path of transformation passes through 5. Freedom through full presence, not escape.',
-    links: [
-      { href: '/blog/life-path-5-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-5-numerology/', label: 'Expression' }
-    ]
-  },
-  '6': {
-    name: 'Integration',
-    position: 'Spirit Gate · Lower Centre',
-    essence: 'Magnetic · Service & Responsibility',
-    body: 'Integration through worldly action. Nothing completes until it reaches 6. Love requiring boundaries, service from wholeness.',
-    links: [
-      { href: '/blog/life-path-6-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-6-numerology/', label: 'Expression' }
-    ]
-  },
-  '7': {
-    name: 'Knowledge',
-    position: 'Mind Axis · Lower Left',
-    essence: 'Electric · Wisdom & Inner Knowing',
-    body: 'The questioner of all appearances. Truth through direct experience, the sacred quest beneath the noise of the world. The seeking of knowledge, and ultimate knowledge is knowledge of self.',
-    links: [
-      { href: '/blog/life-path-7-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-7-numerology/', label: 'Expression' }
-    ]
-  },
-  '8': {
-    name: 'Self-Empowerment',
-    position: 'Body Axis · Lower Right',
-    essence: 'Magnetic · Authority & Manifestation',
-    body: 'True power is self-mastery. Authority earned, not assumed. Manifestation through disciplined alignment of will and integrity.',
-    links: [
-      { href: '/blog/life-path-8-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-8-numerology/', label: 'Expression' }
-    ]
-  },
-  '9': {
-    name: 'Dissolution of Temporal Self',
-    position: 'Aetheric Centre · Singularity',
-    essence: 'Aetheric · Completion & Universal Service',
-    body: 'The aetheric singularity at the heart of the matrix. Completion, release, and universal compassion — the portal back to Void.',
-    links: [
-      { href: '/blog/life-path-9-numerology/', label: 'Life Path' },
-      { href: '/blog/expression-9-numerology/', label: 'Expression' }
-    ]
-  }
-};
+var CODEX_NODES = window.CODEX_NODES || {};
 
 function _codexNodeColor(node) {
   var nature = node.dataset.nature;
@@ -689,10 +627,20 @@ function hudReset() {
 }
 
 function setCodexView(view, pushState) {
+  var journey = view === 'journey';
   view = view === 'spiral' ? 'spiral' : 'matrix';
   var page = document.getElementById('page-codex');
   if (!page) return;
-  if (page.dataset.cdxActiveView === view) return;
+  if (page.dataset.cdxActiveView === view) {
+    if (journey) {
+      if (typeof window._startCodexJourney === 'function') window._startCodexJourney(page);
+      if (pushState) {
+        var jMeta = PAGE_META.codex || { title: 'Codex' };
+        history.pushState({ page: 'codex', post: null, codexView: 'matrix' }, jMeta.title, '/codex/?view=journey');
+      }
+    }
+    return;
+  }
   page.dataset.cdxActiveView = view;
 
   var matrixPanel = page.querySelector('.cdx-view-matrix');
@@ -715,7 +663,7 @@ function setCodexView(view, pushState) {
   if (instruction) {
     instruction.textContent = view === 'spiral'
       ? 'Tracing 0\u219239 \u00b7 Unified 36\u00b0 grid'
-      : 'Hover to explore \u00b7 Click to pin';
+      : 'Hover to explore \u00b7 Click to pin \u00b7 Keys 0\u20139 \u00b7 Arrows follow the flow';
   }
 
   if (view === 'matrix') {
@@ -726,11 +674,14 @@ function setCodexView(view, pushState) {
       _ensureCodexMatrix(page);
       requestAnimationFrame(function() {
         if (typeof triggerCodexMatrixConstruct === 'function') triggerCodexMatrixConstruct(page);
+        if (journey && typeof window._startCodexJourney === 'function') window._startCodexJourney(page);
       });
     });
   }
 
   if (view === 'spiral') {
+    if (typeof window._exitCodexJourney === 'function') window._exitCodexJourney();
+    if (typeof window._cdxStopTrace === 'function') window._cdxStopTrace();
     hudReset();
     requestAnimationFrame(function() {
       _ensureCodexSpiral(page);
@@ -742,7 +693,7 @@ function setCodexView(view, pushState) {
 
   if (pushState) {
     var meta = PAGE_META.codex || { title: 'Codex' };
-    var url  = view === 'spiral' ? '/codex/?view=spiral' : '/codex/';
+    var url  = journey ? '/codex/?view=journey' : view === 'spiral' ? '/codex/?view=spiral' : '/codex/';
     history.pushState({ page: 'codex', post: null, codexView: view }, meta.title, url);
   }
 }
@@ -764,6 +715,31 @@ function navigateCodex(view, e) {
   }
 }
 window.navigateCodex = navigateCodex;
+
+function navigateCodexNode(num, e) {
+  var isSpa = !!document.getElementById('page-home');
+  if (!isSpa) return;
+  if (e) e.preventDefault();
+  num = String(parseInt(num, 10));
+  if (!num || num === 'NaN') return;
+  var go = function() {
+    showPage('codex', false);
+    setCodexView('matrix', true);
+    var meta = PAGE_META.codex || { title: 'Codex' };
+    history.pushState({ page: 'codex', post: null, codexView: 'matrix' }, meta.title, '/codex/?node=' + encodeURIComponent(num));
+    var pin = function() {
+      if (typeof window.pinCodexNode === 'function') window.pinCodexNode(num);
+    };
+    setTimeout(pin, 1800);
+    setTimeout(pin, 2800);
+  };
+  if (!document.getElementById('page-codex') && typeof window.ensureCodexPageLoaded === 'function') {
+    window.ensureCodexPageLoaded().then(go);
+  } else {
+    go();
+  }
+}
+window.navigateCodexNode = navigateCodexNode;
 
 function _ensureCodexMatrix(page, attempt) {
   attempt = attempt || 0;
@@ -795,6 +771,18 @@ function _bindCodexViews(page) {
   /* Tab clicks handled via document delegation below */
 }
 
+function _ensureCodexLearn(page, attempt) {
+  attempt = attempt || 0;
+  if (!page) return;
+  if (typeof initCodexLearn === 'function') {
+    initCodexLearn(page);
+    return;
+  }
+  if (attempt < 40) {
+    setTimeout(function() { _ensureCodexLearn(page, attempt + 1); }, 50);
+  }
+}
+
 (function() {
   if (document.documentElement.dataset.codexTabsDelegated === '1') return;
   document.documentElement.dataset.codexTabsDelegated = '1';
@@ -819,7 +807,7 @@ function initCodexPage() {
   page.dataset.codexBound = '1';
 
   // Fixed overlays must sit on body — position:fixed breaks inside transformed .page.active
-  ['node-card', 'modal-666', 'modal-369'].forEach(function(id) {
+  ['node-card', 'modal-666', 'modal-369', 'modal-alternator'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && el.parentElement !== document.body) document.body.appendChild(el);
   });
@@ -862,11 +850,13 @@ function initCodexPage() {
 
   document.addEventListener('keydown', function codexEscape(e) {
     if (e.key !== 'Escape') return;
-    ['modal-666', 'modal-369'].forEach(function(id) {
+    ['modal-666', 'modal-369', 'modal-alternator'].forEach(function(id) {
       var m = document.getElementById(id);
       if (m) { m.classList.remove('open'); document.body.style.overflow = ''; }
     });
   });
+
+  _ensureCodexLearn(page);
 
   if (window._initiateCodex) window._initiateCodex();
 }
@@ -1039,8 +1029,9 @@ if (document.readyState !== 'loading') initTheme();
 
 // Swap to a language and re-render all keyed elements
 function setLang(lang) {
+  var prev = getLang();
   localStorage.setItem(I18N_KEY, lang);
-  applyLanguage(lang);
+  applyLanguage(lang, { recalcIfReading: prev !== lang });
   _updateLangToggle(lang);
 }
 
@@ -1051,7 +1042,8 @@ function toggleLang() {
 
 // Apply translations to every [data-i18n] element in the DOM
 // Fades elements out, swaps text, fades back in
-function applyLanguage(lang) {
+function applyLanguage(lang, opts) {
+  opts = opts || {};
   lang = lang || getLang();
   if (typeof SSC_TRANSLATIONS === 'undefined') return;
 
@@ -1085,15 +1077,17 @@ function applyLanguage(lang) {
       requestAnimationFrame(() => els.forEach(el => el.classList.remove('lang-switching')));
     }
 
-    // If a reading is currently on screen, re-render it in the new language
-    const resultsArea = document.getElementById('results-area');
-    const hasReading  = resultsArea && !resultsArea.querySelector('.results-placeholder-icon');
-    if (hasReading && typeof calculateReading === 'function') {
-      const month = document.getElementById('calc-month')?.value;
-      const day   = document.getElementById('calc-day')?.value;
-      const year  = document.getElementById('calc-year')?.value;
-      const name  = document.getElementById('calc-fullname')?.value;
-      if (month && day && year && name) calculateReading();
+    // Re-render an active reading only when the user switched language
+    if (opts.recalcIfReading) {
+      const resultsArea = document.getElementById('results-area');
+      const hasReading  = resultsArea && !resultsArea.querySelector('.results-placeholder-icon');
+      if (hasReading && typeof calculateReading === 'function') {
+        const month = document.getElementById('calc-month')?.value;
+        const day   = document.getElementById('calc-day')?.value;
+        const year  = document.getElementById('calc-year')?.value;
+        const name  = document.getElementById('calc-fullname')?.value;
+        if (month && day && year && name) calculateReading();
+      }
     }
   };
 

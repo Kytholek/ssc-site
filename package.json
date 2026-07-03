@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Simulation Source Code — Cloudflare deploy manifest (wrangler only)",
   "scripts": {
+    "preview": "python -m http.server 8377 --bind 127.0.0.1",
     "deploy": "wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {

@@ -55,6 +55,7 @@
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 460 / 500;
+  scroll-margin-top: 90px;
 }
 #page-codex .codex-spirit-wrap.cdx-matrix-building .codex-hit-layer {
   pointer-events: none;
@@ -379,33 +380,37 @@
 
 #modal-666,
 #modal-369,
+#modal-alternator,
 #page-codex .pattern-modal-backdrop { display:none; position:fixed; inset:0; z-index:500; background:rgba(5,4,10,.85); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:24px; }
 #modal-666.open,
 #modal-369.open,
+#modal-alternator.open,
 #page-codex .pattern-modal-backdrop.open { display:flex; }
 #modal-666 .pattern-modal,
 #modal-369 .pattern-modal,
+#modal-alternator .pattern-modal,
 #page-codex .pattern-modal { position:relative; max-width:480px; width:100%; background:#0d0b18; border-radius:10px; padding:36px 32px 28px; text-align:center; animation:modalIn .25s cubic-bezier(.34,1.56,.64,1) both; }
 @keyframes modalIn { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
-#page-codex .pattern-modal-close { position:absolute; top:12px; right:14px; background:none; border:none; color:#9b9080; font-size:18px; cursor:pointer; transition:color .2s; line-height:1; }
-#page-codex .pattern-modal-close:hover { color:#e8dfc8; }
-#page-codex .pattern-modal-eyebrow { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.45em; text-transform:uppercase; margin-bottom:12px; opacity:.7; }
-#page-codex .pattern-modal.gold-modal { border:1px solid rgba(245,200,66,.3); }
-#page-codex .pattern-modal.gold-modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#F5C842,transparent); }
-#page-codex .pattern-modal.gold-modal .pattern-modal-eyebrow { color:#7a6330; }
-#page-codex .pattern-modal.teal-modal { border:1px solid rgba(55,138,221,.3); }
-#page-codex .pattern-modal.teal-modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#378ADD,transparent); }
-#page-codex .pattern-modal.teal-modal .pattern-modal-eyebrow { color:#378ADD; }
-#page-codex .pattern-modal-num { font-family:'Cinzel Decorative',serif; font-size:32px; letter-spacing:.15em; margin-bottom:16px; line-height:1; }
-#page-codex .gold-modal .pattern-modal-num { color:#F5C842; text-shadow:0 0 30px rgba(245,200,66,.4); }
-#page-codex .teal-modal .pattern-modal-num { color:#7ec8c8; text-shadow:0 0 30px rgba(55,138,221,.4); }
-#page-codex .pattern-modal-body { font-size:15px; line-height:1.8; color:#9b9080; margin-bottom:20px; text-align:left; }
-#page-codex .pattern-modal-body strong { color:#e8dfc8; }
-#page-codex .pattern-modal-link { display:inline-block; font-family:'Cinzel',serif; font-size:9px; letter-spacing:.25em; text-transform:uppercase; padding:10px 22px; border-radius:4px; text-decoration:none; transition:all .2s; }
-#page-codex .gold-modal .pattern-modal-link { color:#F5C842; border:1px solid rgba(245,200,66,.3); background:rgba(245,200,66,.04); }
-#page-codex .gold-modal .pattern-modal-link:hover { background:rgba(245,200,66,.12); border-color:#F5C842; }
-#page-codex .teal-modal .pattern-modal-link { color:#7ec8c8; border:1px solid rgba(55,138,221,.3); background:rgba(55,138,221,.04); }
-#page-codex .teal-modal .pattern-modal-link:hover { background:rgba(55,138,221,.14); border-color:#7ec8c8; }
+/* Modals are moved onto <body> at init — scope inner styles by id as well as page */
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-close { position:absolute; top:12px; right:14px; background:none; border:none; color:#9b9080; font-size:18px; cursor:pointer; transition:color .2s; line-height:1; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-close:hover { color:#e8dfc8; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-eyebrow { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.45em; text-transform:uppercase; margin-bottom:12px; opacity:.7; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.gold-modal { border:1px solid rgba(245,200,66,.3); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.gold-modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#F5C842,transparent); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.gold-modal .pattern-modal-eyebrow { color:#7a6330; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.teal-modal { border:1px solid rgba(55,138,221,.3); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.teal-modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#378ADD,transparent); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal.teal-modal .pattern-modal-eyebrow { color:#378ADD; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-num { font-family:'Cinzel Decorative',serif; font-size:32px; letter-spacing:.15em; margin-bottom:16px; line-height:1; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .gold-modal .pattern-modal-num { color:#F5C842; text-shadow:0 0 30px rgba(245,200,66,.4); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .teal-modal .pattern-modal-num { color:#7ec8c8; text-shadow:0 0 30px rgba(55,138,221,.4); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body { font-size:15px; line-height:1.8; color:#9b9080; margin-bottom:20px; text-align:left; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body strong { color:#e8dfc8; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-link { display:inline-block; font-family:'Cinzel',serif; font-size:9px; letter-spacing:.25em; text-transform:uppercase; padding:10px 22px; border-radius:4px; text-decoration:none; transition:all .2s; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .gold-modal .pattern-modal-link { color:#F5C842; border:1px solid rgba(245,200,66,.3); background:rgba(245,200,66,.04); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .gold-modal .pattern-modal-link:hover { background:rgba(245,200,66,.12); border-color:#F5C842; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .teal-modal .pattern-modal-link { color:#7ec8c8; border:1px solid rgba(55,138,221,.3); background:rgba(55,138,221,.04); }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .teal-modal .pattern-modal-link:hover { background:rgba(55,138,221,.14); border-color:#7ec8c8; }
 
 #node-card,
 #page-codex .node-card {
@@ -461,9 +466,11 @@
   #page-codex .nc-actions { flex-direction:row; }
   #modal-666,
   #modal-369,
+  #modal-alternator,
   #page-codex .pattern-modal-backdrop { align-items:flex-end; padding:0; }
   #modal-666 .pattern-modal,
   #modal-369 .pattern-modal,
+  #modal-alternator .pattern-modal,
   #page-codex .pattern-modal { border-radius:12px 12px 0 0; max-width:100%; animation:slideUp .3s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
 }
@@ -527,13 +534,18 @@
 }
 #page-codex .cdx-matrix-cta {
   margin: 48px auto 20px;
-  max-width: 560px;
-  padding: 36px 28px;
+  max-width: 460px;
+  padding: 24px 22px 22px;
   background: linear-gradient(135deg, rgba(13,11,24,.9), rgba(24,21,48,.8));
   border: 1px solid rgba(245,200,66,.2);
   border-radius: 10px;
   text-align: center;
 }
+#page-codex .cdx-matrix-cta-eyebrow { color:rgba(245,200,66,.55); }
+#page-codex .cdx-matrix-cta-lead { color:rgba(245,200,66,.7); margin-bottom:10px; }
+#page-codex .cdx-matrix-cta-text { margin-bottom:16px; }
+#page-codex .cdx-matrix-cta-btn { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.3em; text-transform:uppercase; padding:12px 22px; border-radius:5px; background:rgba(55,138,221,.15); border:1px solid rgba(126,200,200,.35); color:rgba(126,200,200,.85); text-decoration:none; display:inline-block; transition:background .2s,border-color .2s,color .2s; }
+#page-codex .cdx-matrix-cta-btn:hover { background:rgba(55,138,221,.25); border-color:rgba(126,200,200,.55); color:rgba(126,200,200,1); }
 #page-codex .cdx-view-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -703,6 +715,90 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   border-color: rgba(120,100,60,.35);
   color: #5a4a20;
 }
+
+/* Trace pulse + node flash (journey chapter animations) */
+#page-codex .cdx-trace-pulse { pointer-events:none; }
+#page-codex .cdxfield-node-group.cdx-trace-flash { opacity:1 !important; filter:url(#cdxfield-glow-soft); }
+#page-codex .cdxfield-node-group.cdx-trace-flash .cdxfield-node-label { fill:#fff; }
+
+/* ── Node 0 — Void gate on the ring ── */
+#page-codex .cdxfield-node-void .cdxfield-node-ring { stroke:rgba(192,192,216,.65); fill:#0a0a16; stroke-dasharray:4 3; stroke-width:1.5; }
+#page-codex .cdxfield-node-void .cdxfield-node-label { fill:rgba(214,214,234,.8); font-size:14px; }
+#page-codex .cdxfield-node-void.is-active { filter:url(#cdxfield-glow-soft); }
+#page-codex .cdxfield-node-void.is-active .cdxfield-node-label { fill:#fff; }
+
+/* ── Codex meta text (intro, journey chapters, blueprint CTA) ── */
+#page-codex .cdx-meta-eyebrow { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.45em; text-transform:uppercase; margin-bottom:10px; }
+#page-codex .cdx-meta-lead { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.18em; line-height:1.85; margin:0 auto 10px; max-width:340px; }
+#page-codex .cdx-meta-text { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.14em; line-height:1.85; color:rgba(192,192,216,.45); margin:0 auto 14px; max-width:340px; }
+#page-codex .cdx-meta-text strong { color:rgba(232,223,200,.75); font-weight:400; }
+#page-codex .cdx-meta-text a { color:rgba(126,200,200,.75); text-decoration:none; }
+#page-codex .cdx-meta-text a:hover { color:rgba(126,200,200,1); }
+
+/* ── Journey mode ── */
+#page-codex .cdx-journey-intro { width:100%; max-width:460px; margin:0 auto 4px; text-align:center; }
+#page-codex .cdx-journey-intro-eyebrow { color:rgba(192,132,252,.5); }
+#page-codex .cdx-journey-intro-text { margin-bottom:14px; }
+#page-codex .cdx-journey-launch { display:inline-flex; align-items:center; gap:8px; font-family:'Cinzel',serif; font-size:9px; letter-spacing:.3em; text-transform:uppercase; padding:12px 26px; margin-bottom:18px; border-radius:5px; border:1px solid rgba(192,192,224,.3); background:rgba(124,58,237,.08); color:rgba(214,214,234,.85); cursor:pointer; transition:all .25s; }
+#page-codex .cdx-journey-launch:hover { border-color:rgba(192,132,252,.6); background:rgba(124,58,237,.16); color:#e9d5ff; box-shadow:0 0 18px rgba(124,58,237,.2); }
+#page-codex.cdx-journey-active .cdx-matrix-extra { display:none !important; }
+#page-codex .cdx-journey-panel { margin-top:22px; width:100%; max-width:460px; background:rgba(9,8,20,.94); border:1px solid rgba(192,192,224,.18); border-radius:10px; padding:20px 18px 18px; text-align:center; animation:cdxViewIn .4s ease both; }
+#page-codex .cdx-journey-eyebrow { color:rgba(192,132,252,.5); }
+#page-codex .cdx-journey-title { color:rgba(214,214,234,.65); }
+#page-codex .cdx-journey-body { text-align:center; margin-bottom:14px; }
+#page-codex .cdx-journey-dots { display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
+#page-codex .cdx-journey-dot { width:9px; height:9px; padding:0; border-radius:50%; border:1px solid rgba(192,192,224,.4); background:transparent; cursor:pointer; transition:all .2s; }
+#page-codex .cdx-journey-dot.is-current { background:#c084fc; border-color:#c084fc; box-shadow:0 0 8px rgba(192,132,252,.5); }
+#page-codex .cdx-journey-nav { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+#page-codex .cdx-journey-nav .cdx-spiral-btn { font-size:9px; letter-spacing:.28em; padding:10px 18px; }
+#page-codex .cdx-journey-nav .cdx-spiral-btn:disabled { opacity:.35; cursor:default; }
+#page-codex .cdx-journey-exit { border-color:rgba(192,192,216,.25); color:rgba(192,192,216,.6); }
+#page-codex .cdx-journey-exit:hover { border-color:rgba(192,192,216,.5); background:rgba(192,192,216,.06); }
+#page-codex[data-journey-ch="1"] .cdxfield-void-ring-inner { stroke:rgba(226,226,244,.85); stroke-width:1.5; }
+
+/* ── Alternator trigger + violet modal ── */
+#page-codex .alt-trigger { display:flex; flex-direction:column; align-items:center; gap:4px; border-radius:6px; padding:12px 20px; cursor:pointer; transition:all .25s; flex:1; min-width:160px; max-width:280px; background:rgba(124,58,237,.05); border:1px solid rgba(168,85,247,.22); }
+#page-codex .alt-trigger:hover { background:rgba(124,58,237,.12); border-color:rgba(168,85,247,.55); }
+#page-codex .alt-trigger-num { font-family:'Cinzel Decorative',serif; font-size:20px; color:#c084fc; letter-spacing:.15em; text-shadow:0 0 20px rgba(168,85,247,.4); }
+#page-codex .alt-trigger-label { font-family:'Cinzel',serif; font-size:7px; letter-spacing:.25em; text-transform:uppercase; color:rgba(192,132,252,.55); }
+:is(#page-codex,#modal-alternator) .pattern-modal.violet-modal { border:1px solid rgba(168,85,247,.35); }
+:is(#page-codex,#modal-alternator) .pattern-modal.violet-modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#a855f7,transparent); }
+:is(#page-codex,#modal-alternator) .pattern-modal.violet-modal .pattern-modal-eyebrow { color:#a855f7; }
+:is(#page-codex,#modal-alternator) .violet-modal .pattern-modal-num { color:#c084fc; text-shadow:0 0 30px rgba(168,85,247,.45); }
+:is(#page-codex,#modal-alternator) .violet-modal .pattern-modal-link { color:#c084fc; border:1px solid rgba(168,85,247,.35); background:rgba(168,85,247,.05); cursor:pointer; font-family:'Cinzel',serif; }
+:is(#page-codex,#modal-alternator) .violet-modal .pattern-modal-link:hover { background:rgba(168,85,247,.14); border-color:#c084fc; }
+
+/* ── Node-card prev/next ── */
+#node-card .nc-nav,
+#page-codex .nc-nav { display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+#node-card .nc-nav-btn,
+#page-codex .nc-nav-btn { width:32px; height:32px; border-radius:50%; border:1px solid rgba(192,192,216,.25); background:none; color:rgba(192,192,216,.7); font-size:17px; line-height:1; cursor:pointer; transition:all .2s; }
+#node-card .nc-nav-btn:hover,
+#page-codex .nc-nav-btn:hover { color:#F5C842; border-color:rgba(245,200,66,.5); }
+
+/* ── Accessibility + mobile ── */
+#page-codex .codex-hit-node:focus-visible { outline:2px solid rgba(245,200,66,.55); outline-offset:2px; }
+#page-codex .cdx-tap-hint { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:none; font-family:'Cinzel',serif; font-size:8px; letter-spacing:.3em; text-transform:uppercase; color:rgba(232,223,200,.85); background:rgba(9,8,20,.85); border:1px solid rgba(245,200,66,.3); border-radius:20px; padding:8px 18px; white-space:nowrap; pointer-events:none; z-index:15; }
+#page-codex .cdx-tap-hint.show { display:block; animation:cdxChipIn .4s ease both; }
+@media(max-width:640px) {
+  #page-codex .sixes-trigger,
+  #page-codex .tesla-trigger,
+  #page-codex .alt-trigger { min-height:64px; justify-content:center; }
+  #node-card .nc-nav { flex-direction:row; }
+  #node-card .nc-nav-btn { width:40px; height:40px; }
+  #page-codex .cdx-meta-text,
+  #page-codex .cdx-meta-lead { max-width:300px; letter-spacing:.12em; }
+  #page-codex .cdx-journey-nav .cdx-spiral-btn { min-height:44px; padding:10px 22px; }
+  #page-codex .cdx-journey-dot { width:14px; height:14px; }
+}
+/* Block interaction with extras while the construct animation is running */
+#page-codex .cdx-view-matrix:has(.cdx-matrix-building) .cdx-matrix-extra { pointer-events:none; }
+/* Journey panel stays dark in light theme */
+html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border-color:rgba(201,168,76,.35); color:rgba(245,200,66,.85); }
+@media(prefers-reduced-motion: reduce) {
+  #page-codex .cdx-journey-panel,
+  #page-codex .cdx-tap-hint.show { animation: none !important; }
+}
 </style>
 
 <div class="cdx-wrap">
@@ -718,11 +814,17 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
       <button type="button" class="cdx-view-tab" data-cdx-view="spiral">Evolution of Energy</button>
     </nav>
 
-    <div class="codex-instruction" id="codex-instruction">Hover to explore &nbsp;·&nbsp; Click to pin</div>
+    <div class="codex-instruction" id="codex-instruction">Hover to explore &nbsp;·&nbsp; Click to pin &nbsp;·&nbsp; Keys 0&#8211;9 &nbsp;·&nbsp; Arrows follow the flow</div>
 
     <div class="cdx-view-stage">
 
     <div class="cdx-view cdx-view-matrix is-active">
+
+    <div class="cdx-journey-intro cdx-matrix-extra">
+      <div class="cdx-journey-intro-eyebrow cdx-meta-eyebrow">Guided learning</div>
+      <p class="cdx-journey-intro-text cdx-meta-text">Five chapters from the Void through Mind, Matter, and the Singularity&nbsp;&mdash; to the awareness watching it all. The matrix lights up as you go.</p>
+      <button type="button" class="cdx-journey-launch" id="cdx-journey-launch">&#10022;&nbsp;Begin the Journey&nbsp;&#10022;</button>
+    </div>
 
     <div class="matrix-hud">
       <div class="codex-spirit-wrap" id="codex-spirit-wrap">
@@ -940,6 +1042,12 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
     <text class="cdxfield-node-label" x="230" y="440">6</text>
   </g>
 
+  <!-- NODE 0 — VOID GATE — on the Ring of Void -->
+  <g class="cdxfield-node-group cdxfield-node-void" data-num="0">
+    <circle class="cdxfield-node-ring" cx="76" cy="96" r="15"/>
+    <text class="cdxfield-node-label" x="76" y="96">0</text>
+  </g>
+
   <!-- NODE 9 — AETHERIC SINGULARITY / PORTAL — center -->
   <g class="cdxfield-node-group cdxfield-node-aetheric" data-num="9">
     <!-- Outer halo -->
@@ -990,6 +1098,20 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 <div class="node codex-hit-node" style="left:32.6087%;top:74.0000%" data-num="7" data-plane="mind" data-nature="electric"></div>
 <div class="node codex-hit-node" style="left:67.3913%;top:74.0000%" data-num="8" data-plane="body" data-nature="magnetic"></div>
 <div class="node codex-hit-node" style="left:50.0000%;top:88.0000%" data-num="6" data-plane="spirit" data-nature="magnetic"></div>
+<div class="node codex-hit-node" style="left:16.5217%;top:19.2000%" data-num="0" data-plane="spirit" data-nature="aetheric"></div>
+        </div>
+        <div class="cdx-tap-hint" id="cdx-tap-hint" aria-hidden="true">Tap a number to begin</div>
+      </div>
+
+      <div class="cdx-journey-panel" id="cdx-journey-panel" hidden>
+        <div class="cdx-journey-eyebrow cdx-meta-eyebrow" id="cdx-journey-eyebrow"></div>
+        <p class="cdx-journey-title cdx-meta-lead" id="cdx-journey-title"></p>
+        <p class="cdx-journey-body cdx-meta-text" id="cdx-journey-body"></p>
+        <div class="cdx-journey-dots" id="cdx-journey-dots"></div>
+        <div class="cdx-journey-nav">
+          <button type="button" class="cdx-spiral-btn" id="cdx-journey-back">&#8249; Back</button>
+          <button type="button" class="cdx-spiral-btn" id="cdx-journey-next">Next &#8250;</button>
+          <button type="button" class="cdx-spiral-btn cdx-journey-exit" id="cdx-journey-exit">Exit</button>
         </div>
       </div>
     </div>
@@ -1016,6 +1138,10 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
             <span class="tesla-trigger-num">3 · 6 · 9</span>
             <span class="tesla-trigger-label">The Spirit axis · Tesla's pattern</span>
           </button>
+          <button class="alt-trigger" onclick="window.openModal&&openModal('modal-alternator')">
+            <span class="alt-trigger-num">3 &#8596; 6</span>
+            <span class="alt-trigger-label">The Alternator · Mind &amp; World</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1025,10 +1151,10 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
     </a>
 
     <div class="cdx-matrix-cta cdx-matrix-extra">
-      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:rgba(245,200,66,.6);margin-bottom:12px;">&#10022;&nbsp;&nbsp;Your Blueprint&nbsp;&nbsp;&#10022;</div>
-      <p style="font-family:'Cormorant SC',serif;font-size:20px;color:rgba(245,200,66,.9);margin:0 0 12px;">See Where You Sit in the Codex</p>
-      <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,.55);margin-bottom:24px;">Every node you explored maps to a frequency in your personal blueprint. Calculate yours to see which positions you occupy.</p>
-      <a href="/#calculator" onclick="if(typeof showPage==='function'){event.preventDefault();showPage('calculator');}" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;padding:14px 28px;border-radius:5px;background:rgba(55,138,221,.2);border:1px solid rgba(126,200,200,.4);color:rgba(126,200,200,.9);text-decoration:none;display:inline-block;">&#11042;&nbsp;Calculate My Blueprint&nbsp;&#11042;</a>
+      <div class="cdx-matrix-cta-eyebrow cdx-meta-eyebrow">&#10022;&nbsp;&nbsp;Your Blueprint&nbsp;&nbsp;&#10022;</div>
+      <p class="cdx-matrix-cta-lead cdx-meta-lead">See where you sit in the Codex</p>
+      <p class="cdx-matrix-cta-text cdx-meta-text">Every node you explored maps to a frequency in your personal blueprint. Calculate yours to see which positions you occupy.</p>
+      <a href="/#calculator" class="cdx-matrix-cta-btn" onclick="if(typeof showPage==='function'){event.preventDefault();showPage('calculator');}">&#11042;&nbsp;Calculate My Blueprint&nbsp;&#11042;</a>
     </div>
 
     </div><!-- /.cdx-view-matrix -->
@@ -1080,6 +1206,10 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
     <div class="nc-body"     id="nc-body"></div>
   </div>
   <div class="nc-actions" id="nc-actions"></div>
+  <div class="nc-nav" aria-label="Step through the flow">
+    <button type="button" class="nc-nav-btn" id="nc-prev" aria-label="Previous number in the flow" title="Previous in the flow">&#8249;</button>
+    <button type="button" class="nc-nav-btn" id="nc-next" aria-label="Next number in the flow" title="Next in the flow">&#8250;</button>
+  </div>
 </div>
 
 <div class="pattern-modal-backdrop" id="modal-666" onclick="window.closeModal&&closeModal('modal-666',event)">
@@ -1114,6 +1244,21 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
       Tesla said if you knew the magnificence of 3, 6 and 9 you would have a key to the universe. The Codex shows exactly why — <strong>every column reduces to 3, 6, or 9.</strong> They are the Aetheric axis running through the entire system.
     </div>
     <a class="pattern-modal-link" href="/blog/3-6-9-pattern-tesla-numerology/">Read: Why Tesla Was Right &#8594;</a>
+  </div>
+</div>
+
+<div class="pattern-modal-backdrop" id="modal-alternator" onclick="window.closeModal&&closeModal('modal-alternator',event)">
+  <div class="pattern-modal violet-modal">
+    <button class="pattern-modal-close" onclick="window.closeModal&&closeModal('modal-alternator')">&times;</button>
+    <div class="pattern-modal-eyebrow">The Alternating Charge</div>
+    <div class="pattern-modal-num">3 &#8596; 6</div>
+    <div class="pattern-modal-body">
+      Double 3 and keep reducing the digits:<br>
+      &nbsp;&nbsp;3 &#8594; 6 &#8594; 12 (1+2 = <strong>3</strong>) &#8594; 24 (2+4 = <strong>6</strong>) &#8594; 48 (<strong>3</strong>) &#8594; 96 (<strong>6</strong>) &#8230;<br><br>
+      3 and 6 trade places forever &#8212; an <strong>alternating electromagnetic charge</strong>, the two strokes of the vortex alternator. <strong>3 is Mind</strong>: the realm of thought, where forms first arise. <strong>6 is the World</strong>: the reflection of those thoughts made visible. Thought becomes world; world dissolves back into thought.<br><br>
+      And <strong>9 is the axis</strong> the whole oscillation swings around &#8212; the still singularity all of it flows through and out from.
+    </div>
+    <button type="button" class="pattern-modal-link" onclick="window.closeModal&&closeModal('modal-alternator');if(typeof setCodexView==='function'){setCodexView('journey',true);}else if(window._startCodexJourney){window._startCodexJourney();}">Begin the Journey &#8594;</button>
   </div>
 </div>
 

@@ -296,19 +296,129 @@ const FREQ_DESC = {
 const FREQ_ROOT_KEYS = ['lp', 'ex', null, 'soul', 'outer', 'ach', 'theme'];
 
 /* ═══════════════════════════════════════════════════════════════
-   CODEX PLACEMENT — maps root number to Mind / Body / Spirit grid
-   Master numbers inherit their root: 11→2, 22→4, 33→6, 44→8
+   CODEX — placement helpers live in codex-data.js
 ═══════════════════════════════════════════════════════════════ */
 
-const CODEX_PLACEMENT = {
-  1: 'Mind / Mind',   2: 'Mind / Body',   3: 'Mind / Spirit',
-  4: 'Body / Mind',   5: 'Body / Body',   6: 'Body / Spirit',
-  7: 'Spirit / Mind', 8: 'Spirit / Body', 9: 'Spirit / Spirit'
+function buildCodexCardHtml(n, accentDim, accentLight) {
+  var meta = typeof getCodexNodeMeta === 'function' ? getCodexNodeMeta(n) : {};
+  if (!meta.placement) return '';
+  var codexPrefix = _t('calc.codex.label') || '◈ Codex · Node';
+  var linkTpl = _t('calc.codex.explore') || 'Explore node {n} in the Codex →';
+  var linkText = linkTpl.replace('{n}', meta.root);
+  var line = codexPrefix + ' ' + meta.root + ' · ' + meta.placement + (meta.name ? ' · ' + meta.name : '');
+  var href = '/codex/?node=' + meta.root;
+  var onclick = "if(typeof navigateCodexNode==='function'){event.preventDefault();navigateCodexNode(" + meta.root + ",event);}";
+  return '<div class="ssc-cdx" style="font-family:\'Cinzel\',serif;letter-spacing:.22em;text-transform:uppercase;color:' + accentDim + ';margin-bottom:8px;line-height:1.5">' + line + '</div>'
+    + '<a href="' + href + '" class="ssc-cdx-link" style="display:inline-block;font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:' + accentLight + ';text-decoration:none;margin-bottom:12px;opacity:.85" onclick="' + onclick + '">' + linkText + '</a>';
+}
+
+var CODEX_GRID_XY = {
+  '1': { x: 96, y: 96, r: 16 },
+  '2': { x: 204, y: 96, r: 16 },
+  '3': { x: 150, y: 42, r: 16 },
+  '4': { x: 42, y: 150, r: 16 },
+  '5': { x: 258, y: 150, r: 16 },
+  '6': { x: 150, y: 258, r: 16 },
+  '7': { x: 96, y: 204, r: 16 },
+  '8': { x: 204, y: 204, r: 16 },
+  '9': { x: 150, y: 150, r: 22 }
 };
 
-function getCodexPlacement(n) {
-  const root = n === 11 ? 2 : n === 22 ? 4 : n === 33 ? 6 : n === 44 ? 8 : n;
-  return CODEX_PLACEMENT[root] || '';
+function buildCodexFootprintMap(lp, exp, calling) {
+  var highlights = [
+    { key: 'lp', root: getCodexRoot(lp.root), label: _t('calc.codex.legend_lp') || 'Life Path', color: '#7ec8c8' },
+    { key: 'exp', root: getCodexRoot(exp.root), label: _t('calc.codex.legend_exp') || 'Expression', color: '#c898f0' },
+    { key: 'calling', root: getCodexRoot(calling.root), label: _t('calc.codex.legend_calling') || 'Life Calling', color: '#e8c96b' }
+  ];
+
+  var byNode = {};
+  highlights.forEach(function (h) {
+    var k = String(h.root);
+    if (!byNode[k]) byNode[k] = [];
+    byNode[k].push(h);
+  });
+
+  var lpMeta = getCodexNodeMeta(lp.root);
+  var expMeta = getCodexNodeMeta(exp.root);
+  var callMeta = getCodexNodeMeta(calling.root);
+
+  var narrativeTpl = _t('calc.codex.narrative') ||
+    'Your Life Path sits at Node {lpn} · {lpp}. Your Expression at Node {expn} · {expp}. They converge in Life Calling · Node {calln}.';
+  var narrative = narrativeTpl
+    .replace('{lpn}', lpMeta.root).replace('{lpp}', lpMeta.placement)
+    .replace('{expn}', expMeta.root).replace('{expp}', expMeta.placement)
+    .replace('{calln}', callMeta.root);
+
+  var ariaTpl = _t('calc.codex.map_aria') || 'Codex map: {details}';
+  var ariaDetails = highlights.map(function (h) { return h.label + ' node ' + h.root; }).join(', ');
+  var ariaLabel = ariaTpl.replace('{details}', ariaDetails);
+
+  var title = _t('calc.codex.footprint_title') || 'Your Codex Footprint';
+  var subtitle = _t('calc.codex.footprint_subtitle') || 'Where your Purpose triangle sits in the universal field';
+
+  var lines = [
+    [150, 42, 96, 96], [150, 42, 204, 96], [96, 96, 150, 150], [204, 96, 150, 150],
+    [96, 204, 150, 150], [204, 204, 150, 150], [150, 258, 96, 204], [150, 258, 204, 204],
+    [42, 150, 150, 150], [258, 150, 150, 150]
+  ];
+  var lineHtml = lines.map(function (l) {
+    return '<line class="ssc-cdx-map-line" x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '"/>';
+  }).join('');
+
+  function ringHtml(cx, cy, baseR, colors) {
+    if (colors.length === 1) {
+      return '<circle class="ssc-cdx-map-ring ssc-cdx-map-pulse" cx="' + cx + '" cy="' + cy + '" r="' + (baseR + 5) + '" fill="none" stroke="' + colors[0].color + '" stroke-width="2.5" opacity="0.9"/>';
+    }
+    var seg = Math.PI * (baseR + 5) * 2 / colors.length;
+    var dash = seg.toFixed(1);
+    return colors.map(function (c, i) {
+      var r = baseR + 5 + i * 4;
+      var offset = (seg * i).toFixed(1);
+      return '<circle class="ssc-cdx-map-ring" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + c.color + '" stroke-width="2.5" stroke-dasharray="' + dash + ' ' + dash + '" stroke-dashoffset="' + offset + '" opacity="0.92"/>';
+    }).join('');
+  }
+
+  var nodeOrder = ['3', '4', '5', '6', '1', '2', '7', '8', '9'];
+  var nodesHtml = nodeOrder.map(function (num) {
+    var pos = CODEX_GRID_XY[num];
+    var active = byNode[num];
+    var openLabel = (_t('calc.codex.open_node') || 'Open Node {n} in Codex').replace('{n}', num);
+    var meta = (window.CODEX_NODES && window.CODEX_NODES[num]) || {};
+    var titleAttr = meta.name ? num + ' — ' + meta.name : 'Node ' + num;
+    var fill = active ? 'rgba(8,12,18,0.92)' : 'rgba(5,4,10,0.75)';
+    var stroke = active ? (active.length === 1 ? active[0].color : 'rgba(201,168,76,0.5)') : 'rgba(201,168,76,0.18)';
+    var textFill = active ? (active.length === 1 ? active[0].color : '#e8c96b') : 'rgba(201,168,76,0.35)';
+    var ring = active ? ringHtml(pos.x, pos.y, pos.r, active) : '';
+    var pulseClass = active && active.length === 1 ? ' ssc-cdx-map-node--active' : (active ? ' ssc-cdx-map-node--fusion' : '');
+    var onclick = "if(typeof navigateCodexNode==='function'){event.preventDefault();navigateCodexNode(" + num + ",event);}";
+    return '<a class="ssc-cdx-map-node' + pulseClass + '" href="/codex/?node=' + num + '" aria-label="' + openLabel + '" onclick="' + onclick + '">'
+      + ring
+      + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + pos.r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (active ? 2 : 1) + '"/>'
+      + '<text x="' + pos.x + '" y="' + pos.y + '" fill="' + textFill + '">' + num + '</text>'
+      + '<title>' + titleAttr + (active ? ' · ' + active.map(function (a) { return a.label; }).join(', ') : '') + '</title>'
+      + '</a>';
+  }).join('');
+
+  var legendHtml = highlights.map(function (h) {
+    return '<span class="ssc-cdx-legend-item"><span class="ssc-cdx-legend-dot" style="background:' + h.color + '"></span>' + h.label + '</span>';
+  }).join('');
+
+  return '<section class="ssc-cdx-footprint ssc-mobile-chart" aria-labelledby="ssc-cdx-footprint-title">'
+    + '<div class="ssc-cdx-footprint-head">'
+    + '<div class="ssc-cdx-footprint-eyebrow" data-i18n="calc.codex.footprint_eyebrow">Codex Placement</div>'
+    + '<h3 id="ssc-cdx-footprint-title" class="ssc-cdx-footprint-title" data-i18n="calc.codex.footprint_title">' + title + '</h3>'
+    + '<p class="ssc-cdx-footprint-sub" data-i18n="calc.codex.footprint_subtitle">' + subtitle + '</p>'
+    + '</div>'
+    + '<div class="ssc-cdx-map-wrap">'
+    + '<svg class="ssc-cdx-map-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + ariaLabel + '">'
+    + '<desc>' + ariaLabel + '</desc>'
+    + lineHtml
+    + nodesHtml
+    + '</svg>'
+    + '</div>'
+    + '<div class="ssc-cdx-legend" aria-hidden="false">' + legendHtml + '</div>'
+    + '<p class="ssc-cdx-narrative">' + narrative + '</p>'
+    + '</section>';
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -343,8 +453,8 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
   var compound    = opts.compound;
   var hasCompound = compound && compound !== n && compound > 9;
   var borderStyle = isLast ? '' : 'border-right:1px solid rgba(255,255,255,0.06)';
-  var codexHtml   = showCodex && getCodexPlacement(n)
-    ? '<div class="ssc-cdx" style="font-family:\'Cinzel\',serif;letter-spacing:.22em;text-transform:uppercase;color:' + accentDim + ';margin-bottom:12px">' + getCodexPlacement(n) + '</div>'
+  var codexHtml   = showCodex
+    ? buildCodexCardHtml(n, accentDim, accentLight)
     : '';
   var essenceHtml = displayEssence
     ? '<div class="ssc-ess" style="font-family:\'Cinzel\',serif;letter-spacing:.14em;text-transform:uppercase;color:' + accentDim + ';margin-bottom:10px">' + displayEssence + '</div>'
@@ -383,7 +493,7 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
       accent:      opts.accent,
       accentDim:   opts.accentDim,
       accentLight: opts.accentLight,
-      showCodex:   opts.showCodex || false,
+      showCodex:   c[4] || opts.showCodex || false,
       isLast:      idx === cards.length - 1,
       compound:    c[3]
     });
@@ -406,7 +516,7 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
 ═══════════════════════════════════════════════════════════════ */
 
 function reduceNumber(n) {
-  while (n > 9 && n !== 11 && n !== 22 && n !== 33) {
+  while (n > 9 && n !== 11 && n !== 22 && n !== 33 && n !== 44) {
     n = String(n).split('').reduce((a, d) => a + parseInt(d), 0);
   }
   return n;
@@ -512,28 +622,30 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const lessonsBlock = buildTrinitySection(
     'of Lessons', 'Achievement · Theme · Life Path',
     'rgba(74,148,148,0.22)', 'rgba(8,20,20,0.65)',
-    [[achieve.root, 'ach', 5, achieve.compound], [theme.root, 'theme', 6, theme.compound], [lp.root, 'lp', 0, lp.compound]],
+    [[achieve.root, 'ach', 5, achieve.compound], [theme.root, 'theme', 6, theme.compound], [lp.root, 'lp', 0, lp.compound, true]],
     { accent: '#7ec8c8', accentDim: 'rgba(126,200,200,0.4)', accentLight: '#7ec8c8' }
   );
 
   const expressionBlock = buildTrinitySection(
     'of Expression', 'Soul · Outer · Expression',
     'rgba(123,79,166,0.22)', 'rgba(18,11,26,0.65)',
-    [[soul.root, 'soul', 3, soul.compound], [outer.root, 'outer', 4, outer.compound], [exp.root, 'ex', 1, exp.compound]],
+    [[soul.root, 'soul', 3, soul.compound], [outer.root, 'outer', 4, outer.compound], [exp.root, 'ex', 1, exp.compound, true]],
     { accent: '#c898f0', accentDim: 'rgba(169,110,212,0.4)', accentLight: '#c898f0' }
   );
 
   const purposeBlock = buildTrinitySection(
     'of Purpose', 'Expression · Life Path · Life Calling',
     'rgba(201,168,76,0.22)', 'rgba(26,20,8,0.65)',
-    [[exp.root, 'ex', 1, exp.compound], [lp.root, 'lp', 0, lp.compound], [calling.root, null, 2, calling.compound]],
-    { accent: '#e8c96b', accentDim: 'rgba(201,168,76,0.4)', accentLight: '#e8c96b', showCodex: true }
+    [[exp.root, 'ex', 1, exp.compound, true], [lp.root, 'lp', 0, lp.compound, true], [calling.root, null, 2, calling.compound, true]],
+    { accent: '#e8c96b', accentDim: 'rgba(201,168,76,0.4)', accentLight: '#e8c96b' }
   );
 
   const readingFor = _t('calc.results.reading_for') || 'Reading for';
   const firstName  = fullName.split(' ')[0];
 
   const hookCopy = buildResultHook(firstName, lp.root, exp.root, calling.root);
+
+  const codexFootprint = buildCodexFootprintMap(lp, exp, calling);
 
   resultsTarget.innerHTML = `
     <style>
@@ -584,6 +696,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       <div class="ssc-mobile-chart" style="display:flex;justify-content:center;margin-bottom:44px">
         ${buildFreqChart(numbers)}
       </div>
+      ${codexFootprint}
       ${lessonsBlock}
       ${expressionBlock}
       ${purposeBlock}

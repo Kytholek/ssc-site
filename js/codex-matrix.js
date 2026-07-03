@@ -14,6 +14,18 @@ function initCodexMatrix(wrap) {
   var CY = 250;
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var constructTimer = null;
+  var pendingTimers = [];
+
+  function later(fn, ms) {
+    var id = setTimeout(fn, ms);
+    pendingTimers.push(id);
+    return id;
+  }
+
+  function clearPendingTimers() {
+    pendingTimers.forEach(clearTimeout);
+    pendingTimers = [];
+  }
 
   var layers = {
     voidRing: svg.querySelector('.cdxfield-void-group'),
@@ -82,6 +94,7 @@ function initCodexMatrix(wrap) {
       clearTimeout(constructTimer);
       constructTimer = null;
     }
+    clearPendingTimers();
     wrap.classList.remove('cdx-matrix-building');
     if (flash) flash.classList.remove('is-active');
 
@@ -103,11 +116,11 @@ function initCodexMatrix(wrap) {
 
   function revealGroup(el, delay, duration, scale) {
     if (!el) return;
-    setTimeout(function() {
+    later(function() {
       el.style.transition = 'opacity ' + duration + 'ms cubic-bezier(.22,1,.36,1), transform ' + duration + 'ms cubic-bezier(.22,1,.36,1)';
       el.style.opacity = '1';
       el.style.transform = centerTransform(scale || 1, 1);
-      setTimeout(function() {
+      later(function() {
         el.style.transition = '';
         el.style.transform = '';
       }, duration + 40);
@@ -117,17 +130,61 @@ function initCodexMatrix(wrap) {
   function drawPath(path, delay, duration, solidAfter) {
     if (!path) return;
     var len = prepPath(path);
-    setTimeout(function() {
+    later(function() {
       path.style.transition = 'stroke-dashoffset ' + duration + 'ms cubic-bezier(.22,1,.36,1)';
       path.style.strokeDashoffset = '0';
       if (solidAfter) {
-        setTimeout(function() {
+        later(function() {
           path.style.strokeDasharray = '';
           path.style.strokeDashoffset = '';
           path.style.transition = '';
         }, duration + 40);
       }
     }, delay);
+  }
+
+  /* Instantly complete the construct: cancel staged timers and show the final state.
+     Used by Journey mode so late timers can't overwrite its per-chapter dimming. */
+  function finishConstruct() {
+    if (constructTimer) {
+      clearTimeout(constructTimer);
+      constructTimer = null;
+    }
+    clearPendingTimers();
+    wrap.classList.remove('cdx-matrix-building');
+    if (flash) flash.classList.remove('is-active');
+    [layers.center, layers.voidRing, layers.halo, layers.polarTop, layers.polarBot, layers.torus, layers.loops, layers.waist, layers.struct, layers.teslaInf]
+      .forEach(function(el) {
+        if (!el) return;
+        el.style.transition = '';
+        el.style.transform = '';
+        el.style.opacity = '1';
+      });
+    [layers.magPath, layers.elecPath].forEach(function(path) {
+      if (!path) return;
+      path.style.transition = '';
+      path.style.strokeDashoffset = '0';
+      path.style.opacity = '1';
+    });
+    if (layers.doublePath) {
+      layers.doublePath.style.transition = '';
+      layers.doublePath.style.strokeDasharray = '';
+      layers.doublePath.style.strokeDashoffset = '';
+      layers.doublePath.style.opacity = '1';
+    }
+    outerNodes.forEach(function(el) {
+      el.style.transition = '';
+      el.style.transform = '';
+      el.style.opacity = '1';
+    });
+    hitNodes.forEach(function(el) {
+      el.style.transition = '';
+      el.style.opacity = '1';
+    });
+    extras.forEach(function(el) {
+      el.style.transition = '';
+      el.style.opacity = '1';
+    });
   }
 
   function playConstruct() {
@@ -176,14 +233,14 @@ function initCodexMatrix(wrap) {
     });
 
     hitNodes.forEach(function(el, i) {
-      setTimeout(function() {
+      later(function() {
         el.style.transition = 'opacity .4s ease';
         el.style.opacity = '1';
       }, 1000 + i * 85);
     });
 
     extras.forEach(function(el, i) {
-      setTimeout(function() {
+      later(function() {
         el.style.transition = 'opacity .55s ease';
         el.style.opacity = '1';
       }, 1700 + i * 100);
@@ -197,6 +254,7 @@ function initCodexMatrix(wrap) {
 
   wrap._playMatrixConstruct = playConstruct;
   wrap._resetMatrixVisual = resetVisual;
+  wrap._finishMatrixConstruct = finishConstruct;
 }
 
 function triggerCodexMatrixConstruct(page) {

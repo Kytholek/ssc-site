@@ -30,9 +30,10 @@
   --rose:            #a04070;    /* Soul frequency · Warm accent */
   --rose-light:      #d47aa0;
 
-  --text:            #e8dfc8;    /* Parchment — body text */
-  --text-dim:        #b8ad9c;    /* Dust — descriptions, meta */
-  --text-muted:      #8f8475;
+  --text:            #f6f3ec;    /* Parchment — body text */
+  --text-dim:        #d8d2c8;    /* Dust — descriptions, meta */
+  --text-muted:      #b8b1a6;
+  --text-mid:        #e8e3da;    /* Between body and dim — quotes, secondary emphasis */
   --text-on-panel:   var(--text-dim);
 
   --border:          rgba(201,168,76, 0.22);
@@ -856,10 +857,10 @@ html[data-theme='light'] .field select:focus {
 
 .blog-date, .blog-card-date {
   font-family: 'Cinzel', serif;
-  font-size: 7px;
+  font-size: max(10px, 0.68rem);
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .blog-card-title {
@@ -2419,5 +2420,123 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     flex-basis: 72px;
     width: 72px;
     max-width: 72px;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE TEXT VISIBILITY
+   Brighter text tiers site-wide; light theme untouched.
+   ========================================================================== */
+html:not([data-theme='light']) {
+  --text: #f6f3ec;
+  --text-dim: #d8d2c8;
+  --text-muted: #b8b1a6;
+  --text-mid: #e8e3da;
+}
+
+html:not([data-theme='light']) .footer-link,
+html:not([data-theme='light']) .footer-tagline,
+html:not([data-theme='light']) .lang-toggle {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .footer-copy,
+html:not([data-theme='light']) .footer-link-soon {
+  color: var(--text-muted);
+}
+
+html:not([data-theme='light']) .field label,
+html:not([data-theme='light']) .form-section-label,
+html:not([data-theme='light']) .unlock-email-label {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .calc-page-sub,
+html:not([data-theme='light']) .calc-social-proof,
+html:not([data-theme='light']) .services-hero-body,
+html:not([data-theme='light']) .blog-idx-sub,
+html:not([data-theme='light']) .blog-hero-body,
+html:not([data-theme='light']) .about-col-body,
+html:not([data-theme='light']) .hiw-step-body {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .hp-hero-sub,
+html:not([data-theme='light']) .hp-hero-sub--full,
+html:not([data-theme='light']) .hp-hero-sub--short,
+html:not([data-theme='light']) .hp-hero-micro,
+html:not([data-theme='light']) .hp-proof-pill,
+html:not([data-theme='light']) .hp-faq-a {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .hp-faq-q {
+  color: var(--text);
+}
+
+html:not([data-theme='light']) .svc-feature--muted,
+html:not([data-theme='light']) .svc-delivery-note,
+html:not([data-theme='light']) .unlock-price-label,
+html:not([data-theme='light']) .unlock-reassurance,
+html:not([data-theme='light']) .results-placeholder-text {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+html:not([data-theme='light']) .results-placeholder {
+  opacity: 0.82;
+}
+
+html:not([data-theme='light']) .blog-date,
+html:not([data-theme='light']) .blog-card-date,
+html:not([data-theme='light']) .post-meta,
+html:not([data-theme='light']) .post-hero-meta {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .blog-card-excerpt,
+html:not([data-theme='light']) .blog-idx-card-excerpt,
+html:not([data-theme='light']) .svc-card-tagline,
+html:not([data-theme='light']) .svc-feature {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .nav-link,
+html:not([data-theme='light']) .nav-submenu-link {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .nav-mobile .nav-link {
+  color: var(--text);
+}
+
+html:not([data-theme='light']) .nav-mobile .nav-link.nav-mobile-sub {
+  color: var(--gold-light);
+}
+
+@media (max-width: 679px) {
+  html:not([data-theme='light']) p,
+  html:not([data-theme='light']) li,
+  html:not([data-theme='light']) .section-body,
+  html:not([data-theme='light']) .hero-body,
+  html:not([data-theme='light']) .services-hero-body,
+  html:not([data-theme='light']) .blog-hero-body,
+  html:not([data-theme='light']) .unlock-body,
+  html:not([data-theme='light']) .post-body p,
+  html:not([data-theme='light']) .blog-post p {
+    font-size: max(17px, 1.05rem);
+    line-height: 1.76;
+  }
+
+  html:not([data-theme='light']) .section-eyebrow,
+  html:not([data-theme='light']) .hero-eyebrow,
+  html:not([data-theme='light']) .calc-page-eyebrow,
+  html:not([data-theme='light']) .hp-faq-eyebrow {
+    font-size: max(10px, 0.68rem);
+    color: var(--text-muted);
+  }
+
+  html:not([data-theme='light']) .hp-faq-q {
+    font-size: max(17px, 1.05rem);
   }
 }

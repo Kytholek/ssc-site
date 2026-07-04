@@ -369,11 +369,11 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 }
 #page-home .hp-tester-sub {
   font-family: 'Share Tech Mono', monospace !important;
-  color: rgba(200,216,240,0.35) !important;
+  color: var(--text-dim) !important;
 }
 #page-home .hp-tester-body {
   font-family: 'Share Tech Mono', monospace !important;
-  color: rgba(200,216,240,0.5) !important;
+  color: var(--text-dim) !important;
 }
 #page-home .hp-tester-divider { background: rgba(0,229,204,0.4) !important; }
 #page-home .hp-tester-btn {
@@ -399,8 +399,8 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 }
 #page-home .hp-tester-step-num {
   font-family: 'Press Start 2P', monospace !important;
-  color: var(--teal) !important;
-  opacity: 0.6 !important;
+  color: var(--teal-light) !important;
+  opacity: 1 !important;
 }
 #page-home .hp-tester-step-title {
   font-family: 'Cormorant SC', serif !important;
@@ -411,7 +411,7 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 }
 #page-home .hp-tester-step-desc {
   font-family: 'Share Tech Mono', monospace !important;
-  color: rgba(200,216,240,0.4) !important;
+  color: var(--text-muted) !important;
 }
 #page-home .hp-tester-step-arrow { color: var(--teal) !important; }
 
@@ -592,10 +592,11 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
   --teal-dim: #3f7d7b;
   --amethyst: #8f6bb3;
   --mystic: #5f4784;
-  --text: #f2eee5;
-  --text-dim: #c8c0b3;
-  --text-muted: #a79f93;
-  --white: #f2eee5;
+  --text: #f6f3ec;
+  --text-dim: #d8d2c8;
+  --text-muted: #b8b1a6;
+  --text-mid: #e8e3da;
+  --white: #f6f3ec;
   --border: rgba(242,238,229,0.16);
   --border-glow: rgba(242,238,229,0.22);
 }
@@ -697,4 +698,40 @@ nav.nav-hero .nav-cta {
   color: var(--text-muted) !important;
   font-size: max(11px, 0.72rem) !important;
   letter-spacing: 0.14em !important;
+}
+
+/* Home hero + proof row — brighter secondary copy on dark */
+#page-home .hp-hero-sub,
+#page-home .hp-hero-sub--full,
+#page-home .hp-hero-sub--short,
+#page-home .hp-hero-micro,
+#page-home .hp-proof-pill,
+#page-home .hp-services-all,
+#page-home .hp-ssc-body,
+#page-home .hp-scl-body {
+  color: var(--text-dim) !important;
+}
+
+#page-home .hp-hero-eyebrow,
+#page-home .hp-ssc-eyebrow,
+#page-home .hp-scl-eyebrow {
+  color: var(--text-muted) !important;
+}
+
+@media (max-width: 679px) {
+  #page-home .hp-hero-sub,
+  #page-home .hp-hero-sub--full,
+  #page-home .hp-hero-sub--short {
+    font-size: max(17px, 1.05rem) !important;
+    line-height: 1.72 !important;
+  }
+
+  .nav-mobile .nav-link,
+  .nav-mobile .nav-link.nav-mobile-sub {
+    color: var(--text) !important;
+  }
+
+  .nav-mobile .nav-link.nav-mobile-sub {
+    color: var(--gold-light) !important;
+  }
 }

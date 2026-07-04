@@ -284,3 +284,25 @@ html[data-theme='light'] .related-post-card:hover {
   .post-hero-glyph { font-size: 52px; }
   .related-posts-grid { grid-template-columns: 1fr; }
 }
+
+html:not([data-theme='light']) .post-hero-meta,
+html:not([data-theme='light']) .breadcrumb span {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .post-body p,
+html:not([data-theme='light']) .post-body ul li {
+  color: var(--text-dim);
+}
+
+html:not([data-theme='light']) .post-body h4 {
+  color: var(--text-muted);
+}
+
+@media (max-width: 679px) {
+  html:not([data-theme='light']) .post-body p,
+  html:not([data-theme='light']) .post-body ul li {
+    font-size: max(17px, 1.05rem);
+    line-height: 1.82;
+  }
+}

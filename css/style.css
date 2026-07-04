@@ -18,9 +18,10 @@
   --teal-light: #7ec8c8;
   --rose: #a04070;
   --rose-light: #d47aa0;
-  --text: #e8dfc8;
-  --text-dim: #b8ad9c;
-  --text-muted: #8f8475;
+  --text: #f6f3ec;
+  --text-dim: #d8d2c8;
+  --text-muted: #b8b1a6;
+  --text-mid: #e8e3da;
   --text-on-panel: var(--text-dim);
   --border: rgba(201,168,76,0.22);
   --border-dim: rgba(201,168,76,0.08);
@@ -586,7 +587,7 @@ body { padding-top: 64px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label {
   font-family: 'Cormorant SC', serif; font-size: 8px; letter-spacing: .3em;
-  text-transform: uppercase; color: var(--text-muted);
+  text-transform: uppercase; color: var(--text-dim);
 }
 .field select, .field input {
   background: var(--abyss); border: 1px solid var(--border-dim);
@@ -965,7 +966,7 @@ footer {
   color: var(--gold); margin-bottom: 14px;
   font-variant: small-caps;
 }
-.footer-tagline { font-size: 14px; color: var(--text-muted); font-style: italic; line-height: 1.6; max-width: 240px; }
+.footer-tagline { font-size: 14px; color: var(--text-dim); font-style: italic; line-height: 1.6; max-width: 240px; }
 
 .footer-col-title {
   font-family: 'Cormorant SC', serif; font-size: 8px; letter-spacing: .4em;
@@ -973,7 +974,7 @@ footer {
 }
 .footer-links { display: flex; flex-direction: column; gap: 10px; }
 .footer-link {
-  font-size: 14px; color: var(--text-muted); cursor: pointer;
+  font-size: 14px; color: var(--text-dim); cursor: pointer;
   transition: color .2s; text-decoration: none; background: none; border: none;
   text-align: left;
 }
@@ -988,7 +989,7 @@ footer {
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
 }
 .footer-copy {
-  font-family: 'Cormorant SC', serif; font-size: 8px; letter-spacing: .2em;
+  font-family: 'Cormorant SC', serif; font-size: max(9px, 0.62rem); letter-spacing: .2em;
   text-transform: uppercase; color: var(--text-muted);
 }
 
@@ -3084,10 +3085,10 @@ footer {
 
 .blog-date, .blog-card-date {
   font-family: 'Cormorant SC', serif;
-  font-size: 7px;
+  font-size: max(10px, 0.68rem);
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .blog-card-title {
@@ -3461,7 +3462,7 @@ footer {
   border-radius: 10px;
   padding: 48px 24px;
   text-align: center;
-  opacity: 0.5;
+  opacity: 0.78;
   transition: opacity .3s ease;
 }
 
@@ -4392,7 +4393,7 @@ footer {
 
 .svc-feature--muted {
   color: var(--text-muted);
-  opacity: 0.55;
+  opacity: 1;
 }
 
 .svc-feature-gem {
@@ -4776,9 +4777,10 @@ footer {
   --teal-light: #8bd2cf;
   --rose: #c97896;
   --rose-light: #eca7be;
-  --text: #f2eee5;
-  --text-dim: #c8c0b3;
-  --text-muted: #a79f93;
+  --text: #f6f3ec;
+  --text-dim: #d8d2c8;
+  --text-muted: #b8b1a6;
+  --text-mid: #e8e3da;
   --border: rgba(242,238,229,0.16);
   --border-mid: rgba(242,238,229,0.10);
   --border-dim: rgba(242,238,229,0.06);
@@ -4914,7 +4916,7 @@ nav.nav-hero .nav-cta {
 
 .nav-mobile .nav-link,
 .nav-mobile .nav-link.nav-mobile-sub {
-  color: var(--text-dim) !important;
+  color: var(--text) !important;
   font-size: 18px !important;
   letter-spacing: 0.04em !important;
   padding: 18px 16px;
@@ -4987,6 +4989,7 @@ nav.nav-hero .nav-cta {
 .unlock-price-label,
 .unlock-reassurance {
   color: var(--text-muted) !important;
+  opacity: 1 !important;
 }
 
 input,

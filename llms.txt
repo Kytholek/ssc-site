@@ -1,0 +1,25 @@
+# Simulation Source Code
+
+> Numerology framework decoding seven frequencies from your birth date and full birth name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.
+
+## Primary pages
+
+- Home: https://simulationsourcecode.com/
+- Free Calculator: https://simulationsourcecode.com/calculator/
+- The Codex (nine-frequency consciousness matrix): https://simulationsourcecode.com/codex/
+- Services (readings, guidebook, membership): https://simulationsourcecode.com/services/
+- Consultation: https://simulationsourcecode.com/consultation/
+- Blog: https://simulationsourcecode.com/blog/
+- About: https://simulationsourcecode.com/about/
+
+## Pillar articles
+
+- How to Calculate Your Life Path Number: https://simulationsourcecode.com/blog/how-to-calculate-life-path-number/
+- The Pillar — Numerology as Source Code: https://simulationsourcecode.com/blog/pillar-numerology-source-code/
+- How to Read Your Numerology Blueprint: https://simulationsourcecode.com/blog/how-to-read-numerology-blueprint/
+- Codex Architecture: https://simulationsourcecode.com/blog/codex-architecture-consciousness-matrix/
+
+## Optional
+
+- RSS feed: https://simulationsourcecode.com/feed.xml
+- Sitemap: https://simulationsourcecode.com/sitemap.xml

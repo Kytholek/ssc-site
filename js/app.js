@@ -291,11 +291,16 @@ function showPage(name, pushState = true) {
   if (page) {
     page.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
   } else {
     // SECONDARY pages load async — retry once after they arrive
     setTimeout(function () {
       const p2 = document.getElementById('page-' + name);
-      if (p2) { p2.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      if (p2) {
+        p2.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
+      }
     }, 600);
   }
 
@@ -662,7 +667,7 @@ function setCodexView(view, pushState) {
 
   if (instruction) {
     instruction.textContent = view === 'spiral'
-      ? 'Tracing 0\u219239 \u00b7 Unified 36\u00b0 grid'
+      ? 'Click any number to learn \u00b7 Play traces 0\u219299 in spiral order \u00b7 Root-aligned rays'
       : 'Hover to explore \u00b7 Click to pin \u00b7 Keys 0\u20139 \u00b7 Arrows follow the flow';
   }
 
@@ -686,7 +691,9 @@ function setCodexView(view, pushState) {
     requestAnimationFrame(function() {
       _ensureCodexSpiral(page);
       requestAnimationFrame(function() {
-        if (typeof triggerCodexSpiralAutoPlay === 'function') triggerCodexSpiralAutoPlay(page);
+        if (!window._spiralJourneyActive && typeof triggerCodexSpiralAutoPlay === 'function') {
+          triggerCodexSpiralAutoPlay(page);
+        }
       });
     });
   }

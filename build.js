@@ -144,7 +144,7 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   const title       = meta.title       || '';
   const description = meta.description || meta.excerpt || '';
   const date        = meta.date        || '2026-01-01';
-  const glyph    = meta.glyph   || '?';
+  const glyph    = meta.glyph   || '✦';
   const eyebrow     = meta.eyebrow     || '';
   const ctaText     = meta.cta         || 'The complete blueprint ? including your Expression, Soul Urge, Life Calling, and the compound story behind each number ? is what the Full Blueprint Reading reveals.';
   const breadcrumbName = meta['breadcrumb-name'] || title;
@@ -286,7 +286,7 @@ function buildCardHtml(meta) {
   const slug     = meta.slug;
   const title    = meta.title   || '';
   const excerpt  = meta.excerpt || '';
-  const glyph    = meta.glyph   || '?';
+  const glyph    = meta.glyph   || '✦';
   const category = meta.category || 'system';
   const date     = meta.date     ? formatMonthYear(meta.date) : '';
 

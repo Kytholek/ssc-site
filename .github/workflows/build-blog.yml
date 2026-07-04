@@ -29,16 +29,21 @@ jobs:
       - name: Build generated blog files
         run: node build.js --force
 
+      - name: Regenerate sitemap and RSS
+        run: |
+          node scripts/build-sitemap.js
+          node scripts/build-rss.js
+
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet -- blog content/posts.json; then
+          if git diff --quiet -- blog content/posts.json sitemap.xml feed.xml; then
             echo "No generated changes to commit."
             exit 0
           fi
 
-          git add blog content/posts.json
-          git commit -m "chore(blog): regenerate static blog from markdown"
+          git add blog content/posts.json sitemap.xml feed.xml
+          git commit -m "chore(blog): regenerate static blog, sitemap, and RSS from markdown"
           git push

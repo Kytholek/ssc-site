@@ -149,9 +149,33 @@
     };
   }
 
+  function getSpiralRing(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n) || n === 0) return 0;
+    if (n <= 9) return 1;
+    return Math.floor(n / 10) + 1;
+  }
+
+  /** Outward layer in the 0→99 spiral (nine numbers per full root cycle). */
+  function getSpiralTurn(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n) || n <= 0) return -1;
+    return Math.floor((n - 1) / 9);
+  }
+
+  function getSpiralSpoke(n) {
+    n = parseInt(n, 10);
+    if (n === 0) return -1;
+    return getCodexRoot(n) - 1;
+  }
+
   window.CODEX_PLACEMENT = CODEX_PLACEMENT;
   window.CODEX_NODES = CODEX_NODES;
   window.getCodexRoot = getCodexRoot;
   window.getCodexPlacement = getCodexPlacement;
   window.getCodexNodeMeta = getCodexNodeMeta;
+  window.SPIRAL_MAX = 99;
+  window.getSpiralRing = getSpiralRing;
+  window.getSpiralTurn = getSpiralTurn;
+  window.getSpiralSpoke = getSpiralSpoke;
 })();

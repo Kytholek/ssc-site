@@ -1,6 +1,6 @@
 /**
- * Numerical Spiral (0–39) — Codex view
- * Unified 36° grid; Play traces the path, Reset shows all nodes.
+ * Numerical Spiral (0–99) — Codex view
+ * Sequence 0→99 winds outward; each number sits on its root ray at a spiral layer.
  */
 function initCodexSpiral(container) {
   if (!container || container.dataset.initialized === '1') return;
@@ -9,6 +9,7 @@ function initCodexSpiral(container) {
   var bangG    = container.querySelector('.cdx-spiral-bang-layer');
   var spokeG   = container.querySelector('.cdx-spiral-spokes');
   var ringG    = container.querySelector('.cdx-spiral-rings');
+  var ringLabelG = container.querySelector('.cdx-spiral-ring-labels');
   var nodeG    = container.querySelector('.cdx-spiral-nodes');
   var ap       = container.querySelector('.cdx-spiral-arc');
   var flashEl  = container.querySelector('.cdx-spiral-bang-flash');
@@ -17,29 +18,68 @@ function initCodexSpiral(container) {
 
   if (!svg || !spokeG || !ringG || !nodeG || !ap || !btnPlay || !btnReset) return;
 
-  var CX = 330;
-  var CY = 340;
-  /* Tighter ring spacing → smoother 0→39 energy path */
-  var RADII = [0, 52, 96, 140, 184];
-  var SPOKE_LEN = RADII[4] + 4;
+  var MAX_N = window.SPIRAL_MAX || 99;
+  var CX = 420;
+  var CY = 420;
+  var RING_INNER = 64;
+  var MAX_TURN = Math.floor((MAX_N - 1) / 9);
+  var MAX_RADIUS = 378;
+  var RING_STEP = (MAX_RADIUS - RING_INNER) / Math.max(1, MAX_TURN);
+  var RADII = [0];
+  for (var ri = 0; ri <= MAX_TURN; ri++) {
+    RADII[ri] = RING_INNER + ri * RING_STEP;
+  }
+  var SPOKE_LEN = RADII[MAX_TURN] + 10;
   var NS = 'http://www.w3.org/2000/svg';
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MILESTONES = window.SPIRAL_RING_MILESTONES || [9, 19, 29, 39, 49, 59, 69, 79, 89, 99];
+  var RING_LABELS = [
+    '1–9', '10–18', '19–27', '28–36', '37–45',
+    '46–54', '55–63', '64–72', '73–81', '82–90', '91–99'
+  ];
+  var SPOKE_COUNT = 9;
+  var SPOKE_DEG = 360 / SPOKE_COUNT;
+  var ringR = [18, 15, 14, 13, 12, 11, 10, 10, 9, 9, 8, 8];
+  var ringFS = [13, 11, 10, 10, 9, 9, 8, 8, 7, 7, 7, 6];
 
-  function slotAngle(slot) { return (-90 + slot * 36) * Math.PI / 180; }
+  function spiralRoot(n) {
+    if (typeof window.getCodexRoot === 'function') return window.getCodexRoot(n);
+    var x = n;
+    while (x > 9) {
+      x = String(x).split('').reduce(function (a, d) { return a + parseInt(d, 10); }, 0);
+    }
+    return x;
+  }
+
+  function slotAngle(slot) { return (-90 + slot * SPOKE_DEG) * Math.PI / 180; }
+
+  function spiralTurn(n) {
+    if (typeof window.getSpiralTurn === 'function') return window.getSpiralTurn(n);
+    if (n <= 0) return -1;
+    return Math.floor((n - 1) / 9);
+  }
 
   function nodePos(n) {
-    if (n === 0) return { x: 0, y: 0, ring: 0 };
-    var ring = n <= 9 ? 1 : n <= 19 ? 2 : n <= 29 ? 3 : 4;
-    var slot = (n - 1) % 10;
-    var r = RADII[ring];
-    var a = slotAngle(slot);
-    return { x: Math.cos(a) * r, y: Math.sin(a) * r, ring: ring };
+    if (n === 0) return { x: 0, y: 0, ring: 0, turn: -1, root: 0, a: 0, rad: 0 };
+    var root = spiralRoot(n);
+    var turn = spiralTurn(n);
+    var rad = RADII[turn];
+    var a = slotAngle(root - 1);
+    return {
+      x: Math.cos(a) * rad,
+      y: Math.sin(a) * rad,
+      ring: turn + 1,
+      turn: turn,
+      root: root,
+      a: a,
+      rad: rad
+    };
   }
 
   var pts = [];
-  for (var n = 0; n <= 39; n++) {
+  for (var n = 0; n <= MAX_N; n++) {
     var p = nodePos(n);
-    pts.push({ x: p.x, y: p.y, ring: p.ring, label: String(n), n: n });
+    pts.push({ x: p.x, y: p.y, ring: p.ring, label: String(n), n: n, root: p.root, turn: p.turn, a: p.a, rad: p.rad });
   }
 
   function extrapolate(a, b, t) {
@@ -85,7 +125,8 @@ function initCodexSpiral(container) {
     return d;
   }
 
-  RADII.slice(1).forEach(function(r) {
+  RADII.forEach(function (r, i) {
+    if (i === 0) return;
     var c = document.createElementNS(NS, 'circle');
     c.setAttribute('cx', CX);
     c.setAttribute('cy', CY);
@@ -93,46 +134,91 @@ function initCodexSpiral(container) {
     c.setAttribute('stroke-width', '0.5');
     c.classList.add('cdx-spiral-ring-guide');
     ringG.appendChild(c);
+
+    var labelIdx = i - 1;
+    if (ringLabelG && (labelIdx === 0 || labelIdx % 2 === 1 || labelIdx === RING_LABELS.length - 1)) {
+      var lbl = document.createElementNS(NS, 'text');
+      lbl.setAttribute('x', CX + r + 4);
+      lbl.setAttribute('y', CY);
+      lbl.setAttribute('class', 'cdx-spiral-ring-label');
+      lbl.textContent = RING_LABELS[labelIdx] || '';
+      ringLabelG.appendChild(lbl);
+    }
   });
 
-  for (var s = 0; s < 10; s++) {
+  var spokeEls = [];
+  for (var s = 0; s < SPOKE_COUNT; s++) {
+    var rootNum = s + 1;
+    var rootPts = pts.filter(function (p) { return p.root === rootNum; });
+    if (!rootPts.length) continue;
+    rootPts.sort(function (a, b) { return a.n - b.n; });
+    var outer = rootPts[rootPts.length - 1];
     var a = slotAngle(s);
-    var x2 = CX + Math.cos(a) * SPOKE_LEN;
-    var y2 = CY + Math.sin(a) * SPOKE_LEN;
+    var x2 = CX + Math.cos(a) * (outer.rad + 6);
+    var y2 = CY + Math.sin(a) * (outer.rad + 6);
     var line = document.createElementNS(NS, 'line');
     line.setAttribute('x1', CX);
     line.setAttribute('y1', CY);
     line.setAttribute('x2', x2);
     line.setAttribute('y2', y2);
     line.setAttribute('stroke-width', '0.5');
+    line.setAttribute('data-spoke', String(rootNum));
+    line.setAttribute('data-root', String(rootNum));
     line.classList.add('cdx-spiral-spoke');
     spokeG.appendChild(line);
+    spokeEls.push(line);
+
+    var rootPath = document.createElementNS(NS, 'path');
+    var pd = rootPts.map(function (p, idx) {
+      var wx = CX + p.x;
+      var wy = CY + p.y;
+      return (idx === 0 ? 'M' : 'L') + ' ' + wx.toFixed(1) + ' ' + wy.toFixed(1);
+    }).join(' ');
+    rootPath.setAttribute('d', pd);
+    rootPath.setAttribute('fill', 'none');
+    rootPath.setAttribute('stroke-width', '0.35');
+    rootPath.setAttribute('data-root', String(rootNum));
+    rootPath.classList.add('cdx-spiral-root-ray');
+    spokeG.appendChild(rootPath);
   }
 
   ap.setAttribute('d', buildEnergyPath(pts));
 
-  var ringR = [18, 15, 15, 16, 17];
-  var ringFS = [13, 11, 11, 10, 10];
-  var ringC = ['r0', 'r1', 'r2', 'r3', 'r4'];
+  var halo = document.createElementNS(NS, 'circle');
+  halo.setAttribute('cx', CX);
+  halo.setAttribute('cy', CY);
+  halo.setAttribute('r', SPOKE_LEN + 6);
+  halo.setAttribute('fill', 'url(#cdx-spiral-field-halo)');
+  halo.setAttribute('pointer-events', 'none');
+  ringG.appendChild(halo);
+
+  function ringColorClass(ring) {
+    if (ring === 0) return 'r0';
+    return 'r' + (((ring - 1) % 4) + 1);
+  }
+
   var nodeEls = [];
 
   pts.forEach(function(p) {
     var wx = CX + p.x;
     var wy = CY + p.y;
     var ring = p.ring || 0;
+    var rc = ringColorClass(ring);
     var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'cdx-spiral-node');
+    g.setAttribute('data-num', String(p.n));
     var c = document.createElementNS(NS, 'circle');
     c.setAttribute('cx', wx);
     c.setAttribute('cy', wy);
-    c.setAttribute('r', ringR[ring]);
-    c.setAttribute('stroke-width', '1.5');
-    c.classList.add('cdx-spiral-node-' + ringC[ring] + 'c');
+    c.setAttribute('r', ringR[ring] || 7);
+    c.setAttribute('stroke-width', ring <= 1 ? '1.5' : '1.2');
+    c.classList.add('cdx-spiral-node-' + rc + 'c');
     var t = document.createElementNS(NS, 'text');
     t.setAttribute('x', wx);
     t.setAttribute('y', wy);
-    t.setAttribute('font-size', ringFS[ring]);
+    t.setAttribute('font-size', ringFS[ring] || 6);
     t.classList.add('cdx-spiral-node-label');
-    t.classList.add('cdx-spiral-node-' + ringC[ring] + 't');
+    t.classList.add('cdx-spiral-node-' + rc + 't');
     t.textContent = p.label;
     g.appendChild(c);
     g.appendChild(t);
@@ -141,35 +227,7 @@ function initCodexSpiral(container) {
   });
 
   var totalLen = 0;
-  try { totalLen = ap.getTotalLength(); } catch (e) { totalLen = 3500; }
-
-  function computeNodeDistances() {
-    var distances = [];
-    var next = 0;
-    var samples = 120;
-    for (var si = 0; si <= samples && next < pts.length; si++) {
-      var len = (si / samples) * totalLen;
-      var pt = ap.getPointAtLength(len);
-      while (next < pts.length) {
-        var tx = CX + pts[next].x;
-        var ty = CY + pts[next].y;
-        if (Math.hypot(pt.x - tx, pt.y - ty) < 20) {
-          distances[next] = len;
-          next++;
-        } else {
-          break;
-        }
-      }
-    }
-    for (var i = 0; i < pts.length; i++) {
-      if (distances[i] == null) {
-        distances[i] = totalLen * (i / Math.max(1, pts.length - 1));
-      }
-    }
-    return distances;
-  }
-
-  var nodeDistances = computeNodeDistances();
+  try { totalLen = ap.getTotalLength(); } catch (e) { totalLen = 9000; }
 
   ap.style.strokeDasharray = totalLen;
   ap.style.strokeDashoffset = '0';
@@ -179,7 +237,47 @@ function initCodexSpiral(container) {
   var particleRaf = null;
   var t0 = null;
   var running = false;
-  var DUR = 5200;
+  var paused = false;
+  var resumeCallback = null;
+  var pauseProgress = null;
+  var playOpts = {
+    fromIdx: 0,
+    toIdx: MAX_N,
+    useMilestones: false,
+    bigBang: true
+  };
+  var DUR_FULL = 14000;
+
+  function segmentDuration(fromIdx, toIdx) {
+    var span = Math.max(1, toIdx - fromIdx + 1);
+    return DUR_FULL * (span / pts.length);
+  }
+
+  function pathOffsetForIndex(idx) {
+    return (idx / Math.max(1, pts.length - 1)) * totalLen;
+  }
+
+  function applyFrame(fromIdx, toIdx, progress) {
+    var span = Math.max(0, toIdx - fromIdx);
+    var visibleIdx = Math.min(toIdx, Math.round(fromIdx + progress * span));
+    var drawn = pathOffsetForIndex(fromIdx + progress * span);
+    ap.style.strokeDashoffset = (totalLen - drawn).toFixed(1);
+    nodeEls.forEach(function(el, i) {
+      if (i < fromIdx) {
+        el.style.opacity = '0';
+        el.style.transition = 'none';
+        return;
+      }
+      if (i <= visibleIdx) {
+        el.style.transition = 'opacity 0.35s ease';
+        el.style.opacity = '1';
+      } else {
+        el.style.transition = 'none';
+        el.style.opacity = '0';
+      }
+    });
+    return visibleIdx;
+  }
 
   function showAll() {
     ap.style.strokeDashoffset = '0';
@@ -197,44 +295,71 @@ function initCodexSpiral(container) {
     });
   }
 
+  function resetVisual() {
+    ap.style.strokeDashoffset = String(totalLen);
+    nodeEls.forEach(function(el, i) {
+      el.style.transition = 'none';
+      el.style.opacity = i === 0 ? '1' : '0';
+    });
+    if (bangG) bangG.innerHTML = '';
+    if (flashEl) flashEl.classList.remove('is-active');
+  }
+
   function ease(x) {
     return x < 0.5
       ? 4 * x * x * x
       : 1 - Math.pow(-2 * x + 2, 3) / 2;
   }
 
-  function visibleAtLength(len) {
-    var count = 0;
-    for (var i = 0; i < nodeDistances.length; i++) {
-      if (nodeDistances[i] <= len + 8) count = i + 1;
-    }
-    return count;
+  function checkMilestone(visibleIdx) {
+    if (!playOpts.useMilestones || reducedMotion || paused) return false;
+    var n = pts[visibleIdx] ? pts[visibleIdx].n : visibleIdx;
+    if (MILESTONES.indexOf(n) === -1) return false;
+    if (visibleIdx < playOpts.fromIdx || visibleIdx > playOpts.toIdx) return false;
+    if (visibleIdx === playOpts.fromIdx) return false;
+    return true;
   }
 
   function tick(ts) {
+    if (paused) return;
     if (!t0) t0 = ts;
-    var raw = Math.min((ts - t0) / DUR, 1);
+    var fromIdx = playOpts.fromIdx;
+    var toIdx = playOpts.toIdx;
+    var dur = segmentDuration(fromIdx, toIdx);
+    var raw = Math.min((ts - t0) / dur, 1);
     var e = ease(raw);
-    var drawn = totalLen * e;
+    var visibleIdx = applyFrame(fromIdx, toIdx, e);
 
-    ap.style.strokeDashoffset = (totalLen * (1 - e)).toFixed(1);
-
-    var visible = visibleAtLength(drawn);
-    nodeEls.forEach(function(el, i) {
-      if (i < visible) {
-        el.style.transition = 'opacity 0.35s ease';
-        el.style.opacity = '1';
-      } else {
-        el.style.transition = 'none';
-        el.style.opacity = '0';
+    if (checkMilestone(visibleIdx) && raw < 1) {
+      paused = true;
+      running = false;
+      pauseProgress = raw;
+      btnPlay.textContent = '\u25B6 Play';
+      var milestone = pts[visibleIdx].n;
+      if (typeof container._showSpiralRingMilestone === 'function') {
+        container._showSpiralRingMilestone(milestone);
       }
-    });
+      if (typeof container._showSpiralNode === 'function') {
+        container._showSpiralNode(milestone);
+      }
+      resumeCallback = function () {
+        paused = false;
+        running = true;
+        btnPlay.textContent = '\u25A0 Stop';
+        t0 = performance.now() - (pauseProgress || 0) * dur;
+        pauseProgress = null;
+        raf = requestAnimationFrame(tick);
+      };
+      return;
+    }
 
     if (raw < 1) {
       raf = requestAnimationFrame(tick);
     } else {
+      applyFrame(fromIdx, toIdx, 1);
       running = false;
       btnPlay.textContent = '\u25B6 Play';
+      if (playOpts.onComplete) playOpts.onComplete();
     }
   }
 
@@ -246,7 +371,7 @@ function initCodexSpiral(container) {
       setTimeout(function() {
         c.style.opacity = '';
         c.style.strokeWidth = '';
-      }, 420 + i * 90);
+      }, 420 + i * 60);
     });
   }
 
@@ -308,12 +433,9 @@ function initCodexSpiral(container) {
           }
           alive = true;
           var dist = pt.speed * pt.life;
-          var x = CX + Math.cos(pt.angle) * dist;
-          var y = CY + Math.sin(pt.angle) * dist;
-          var fade = 1 - pt.life / pt.maxLife;
-          pt.el.setAttribute('cx', x.toFixed(1));
-          pt.el.setAttribute('cy', y.toFixed(1));
-          pt.el.setAttribute('opacity', (fade * 0.95).toFixed(2));
+          pt.el.setAttribute('cx', (CX + Math.cos(pt.angle) * dist).toFixed(1));
+          pt.el.setAttribute('cy', (CY + Math.sin(pt.angle) * dist).toFixed(1));
+          pt.el.setAttribute('opacity', ((1 - pt.life / pt.maxLife) * 0.95).toFixed(2));
         });
         if (alive) particleRaf = requestAnimationFrame(particleTick);
       }
@@ -329,29 +451,66 @@ function initCodexSpiral(container) {
     cancelAnimationFrame(raf);
     if (particleRaf) cancelAnimationFrame(particleRaf);
     running = false;
+    paused = false;
+    resumeCallback = null;
+    pauseProgress = null;
     btnPlay.textContent = '\u25B6 Play';
   }
 
-  function startPlayback() {
-    if (running) return;
+  function startPlaybackRange(fromIdx, toIdx, opts) {
+    opts = opts || {};
+    if (running && !opts.force) return;
     stopPlayback();
+
+    playOpts.fromIdx = fromIdx;
+    playOpts.toIdx = toIdx;
+    playOpts.useMilestones = opts.milestones === true && !window._spiralJourneyActive;
+    playOpts.bigBang = opts.bigBang !== false;
+    playOpts.onComplete = opts.onComplete || null;
+
     if (reducedMotion) {
       showAll();
+      if (typeof container._showSpiralNode === 'function') {
+        container._showSpiralNode(pts[toIdx].n);
+      }
+      if (playOpts.onComplete) playOpts.onComplete();
       return;
     }
-    hideAll();
+
+    if (fromIdx === 0 && playOpts.bigBang) {
+      hideAll();
+    } else {
+      applyFrame(fromIdx, fromIdx, 0);
+    }
+
     t0 = null;
     running = true;
+    paused = false;
     btnPlay.textContent = '\u25A0 Stop';
-    playBigBang();
-    setTimeout(function() {
-      if (!running) return;
-      requestAnimationFrame(tick);
-    }, 420);
+
+    if (fromIdx === 0 && playOpts.bigBang) {
+      playBigBang();
+      setTimeout(function() {
+        if (!running) return;
+        raf = requestAnimationFrame(tick);
+      }, 420);
+    } else {
+      raf = requestAnimationFrame(tick);
+    }
+  }
+
+  function startPlayback() {
+    startPlaybackRange(0, MAX_N, { bigBang: true, milestones: false });
   }
 
   container._playSpiral = startPlayback;
   container._stopSpiral = stopPlayback;
+  container._playRange = startPlaybackRange;
+  container._showAll = showAll;
+  container._resetSpiral = resetVisual;
+  container._resumePlayback = function () {
+    if (resumeCallback) resumeCallback();
+  };
 
   btnPlay.addEventListener('click', function() {
     if (running) {
@@ -363,13 +522,19 @@ function initCodexSpiral(container) {
 
   btnReset.addEventListener('click', function() {
     stopPlayback();
-    showAll();
+    resetVisual();
+    if (typeof container._showSpiralNode === 'function') container._showSpiralNode(0);
   });
 
   container.dataset.initialized = '1';
+
+  if (typeof initCodexSpiralLearn === 'function') {
+    initCodexSpiralLearn(container, { nodeEls: nodeEls, spokeEls: spokeEls });
+  }
 }
 
 function triggerCodexSpiralAutoPlay(page) {
+  if (window._spiralJourneyActive) return;
   var root = page && page.querySelector('.cdx-spiral-root');
   if (!root || typeof root._playSpiral !== 'function') return;
   root._playSpiral();

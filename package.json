@@ -5,6 +5,11 @@
   "description": "Simulation Source Code — Cloudflare deploy manifest (wrangler only)",
   "scripts": {
     "preview": "python -m http.server 8377 --bind 127.0.0.1",
+    "build:about": "node scripts/build-about-static.js",
+    "build:static": "node scripts/build-about-static.js && node scripts/build-static-pages.js",
+    "build:sitemap": "node scripts/build-sitemap.js",
+    "build:rss": "node scripts/build-rss.js",
+    "build:seo": "node scripts/build-static-pages.js && node scripts/build-about-static.js && node scripts/build-sitemap.js && node scripts/build-rss.js",
     "deploy": "wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {

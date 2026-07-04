@@ -1113,6 +1113,7 @@ window.handleUnlockPayment = handleUnlockPayment;
 
 window.calculateReading = calculateReading;
 window.buildFreqChart   = buildFreqChart;
+window.COMPOUND_DESC    = COMPOUND_DESC;
 
 window.handleUnlockPayment = handleUnlockPayment;
 

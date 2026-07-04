@@ -759,8 +759,90 @@ body { padding-top: 64px; }
   will-change: opacity, transform;
   transform: translate3d(0,0,0);
 }
-.about-avatar img {
+.about-avatar:not(.about-avatar--photo) img {
   width: 100%; height: 100%; object-fit: contain;
+}
+
+/* Profile photo — separate from sigil .about-avatar (never rotates) */
+.about-hero-photo {
+  margin: 0 auto 28px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: none !important;
+  transform: none !important;
+}
+.about-hero-photo::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(123,79,166,.35) 0%, rgba(201,168,76,.08) 50%, transparent 70%);
+  border-radius: 50%;
+  animation: sigil-pulse 4s ease-in-out infinite;
+  z-index: -1;
+}
+.about-hero-photo img.about-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 1px solid rgba(30,60,120,.8);
+  box-shadow: 0 0 40px rgba(20,40,120,.45), 0 0 80px rgba(10,20,80,.25);
+  display: block;
+  position: relative;
+  z-index: 1;
+  animation: none !important;
+  transform: none !important;
+}
+
+/* Reality/Lost book block */
+.about-book-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  max-width: 720px;
+  margin: 0 auto 48px;
+  padding: 28px 32px;
+  background: rgba(13,11,24,.6);
+  border: 1px solid var(--border-mid);
+  border-radius: 8px;
+}
+.about-book-cover-wrap {
+  flex: 0 0 80px;
+  width: 80px;
+  max-width: 80px;
+}
+.about-book-cover-wrap picture,
+.about-book-cover-wrap img.about-book-cover {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.about-book-cover {
+  border-radius: 4px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.6);
+}
+.about-book-text p {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17px;
+  color: var(--text-dim);
+  line-height: 1.75;
+}
+@media (max-width: 600px) {
+  .about-book-block {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .about-book-cover-wrap {
+    flex-basis: 72px;
+    width: 72px;
+    max-width: 72px;
+  }
 }
 
 .about-section { margin-bottom: 48px; }
@@ -2687,6 +2769,16 @@ footer {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+.about-avatar--photo,
+.about-avatar:has(.about-photo) {
+  width: auto;
+  height: auto;
+  animation: none !important;
+  transform: none !important;
+  will-change: auto;
+}
+.about-avatar:not(.about-avatar--photo):not(:has(.about-photo)) {
   will-change: transform;
   transform: translate3d(0,0,0);
   animation: rotateSlow 32s linear infinite;
@@ -4966,4 +5058,12 @@ article h3 {
   .form-section-label {
     letter-spacing: 0.10em;
   }
+}
+
+/* About hero photo — must never inherit sigil rotation */
+.about-hero-photo,
+.about-hero-photo img,
+.about-hero-photo img.about-photo {
+  animation: none !important;
+  transform: none !important;
 }

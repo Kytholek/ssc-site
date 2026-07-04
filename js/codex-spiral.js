@@ -464,7 +464,7 @@ function initCodexSpiral(container) {
 
     playOpts.fromIdx = fromIdx;
     playOpts.toIdx = toIdx;
-    playOpts.useMilestones = opts.milestones === true && !window._spiralJourneyActive;
+    playOpts.useMilestones = opts.milestones === true;
     playOpts.bigBang = opts.bigBang !== false;
     playOpts.onComplete = opts.onComplete || null;
 
@@ -534,7 +534,6 @@ function initCodexSpiral(container) {
 }
 
 function triggerCodexSpiralAutoPlay(page) {
-  if (window._spiralJourneyActive) return;
   var root = page && page.querySelector('.cdx-spiral-root');
   if (!root || typeof root._playSpiral !== 'function') return;
   root._playSpiral();

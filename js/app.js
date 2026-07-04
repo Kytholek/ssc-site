@@ -691,7 +691,7 @@ function setCodexView(view, pushState) {
     requestAnimationFrame(function() {
       _ensureCodexSpiral(page);
       requestAnimationFrame(function() {
-        if (!window._spiralJourneyActive && typeof triggerCodexSpiralAutoPlay === 'function') {
+        if (typeof triggerCodexSpiralAutoPlay === 'function') {
           triggerCodexSpiralAutoPlay(page);
         }
       });

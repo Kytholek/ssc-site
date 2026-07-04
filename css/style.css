@@ -627,6 +627,38 @@ body { padding-top: 64px; }
   text-transform: uppercase; color: var(--text-muted);
 }
 
+.calc-learn-more {
+  position: static;
+  max-width: 640px;
+  margin: 56px auto 0;
+  padding: 24px 24px 0;
+  border-top: 1px solid rgba(201,168,76,0.15);
+}
+.calc-learn-more-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 12px;
+}
+.calc-learn-more-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.calc-learn-more-links a {
+  color: var(--gold);
+  font-size: 15px;
+  text-decoration: none;
+}
+.calc-learn-more-links a:hover {
+  color: var(--gold-light);
+}
+
 /* ═══════════════════════════════════════
    BOOKS PAGE
 ═══════════════════════════════════════ */

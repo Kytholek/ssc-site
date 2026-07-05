@@ -1,5 +1,5 @@
 /**
- * Triple Trinity Blueprint — frequency metadata, trinity groupings, blog links.
+ * Triune Trinity Blueprint — frequency metadata, trinity groupings, blog links.
  * Used by /blueprint/ interactive star chart and journey.
  */
 
@@ -148,7 +148,7 @@ export const JOURNEY_CHAPTERS = [
 
 export const FAQ_ITEMS = [
   {
-    q: 'What is the Triple Trinity Blueprint?',
+    q: 'What is the Triune Trinity Blueprint?',
     a: 'The SSC blueprint reads seven frequencies from your birth date and full name, grouped into three trinities: Lessons (external curriculum), Expression (internal signal), and Purpose (where they converge).',
   },
   {

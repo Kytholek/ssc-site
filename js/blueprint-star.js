@@ -106,7 +106,7 @@
       .map(function (p) { return ln({ x: cx, y: cy }, p, gold, 0.18, 0.8); }).join('');
 
     return (
-      '<svg class="bp-star-svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Triple Trinity Blueprint star chart">' +
+      '<svg class="bp-star-svg" viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Triune Trinity Blueprint star chart">' +
       '<defs><radialGradient id="bpBgG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a1620" stop-opacity="1"/><stop offset="100%" stop-color="#05040a" stop-opacity="1"/></radialGradient></defs>' +
       '<g class="bp-layer-bg">' + bg + '</g>' +
       '<g class="bp-layer-tri-upper">' + tri(soul, expression, outer, 'rgba(201,168,76,0.07)', gold, 'bp-tri-expression') + '</g>' +

@@ -243,13 +243,13 @@ function blueprintJsonLd() {
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: 'Triple Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
+    name: 'Triune Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
     url: SEO.SITE_ORIGIN + '/blueprint/',
     description: 'Explore the seven numerology frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive star chart journey.',
     isPartOf: { '@type': 'WebSite', name: 'Simulation Source Code', url: SEO.SITE_ORIGIN },
     mainEntity: {
       '@type': 'LearningResource',
-      name: 'Triple Trinity Blueprint',
+      name: 'Triune Trinity Blueprint',
       learningResourceType: 'Interactive Resource',
       teaches: 'Numerology trinities: Lessons, Expression, and Purpose',
     },
@@ -263,7 +263,7 @@ function buildBlueprint() {
   const html = staticShell({
     pageId: 'blueprint',
     marker: 'BLUEPRINT_BODY',
-    title: 'Triple Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
+    title: 'Triune Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
     description: 'Explore the seven numerology frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive star chart journey and links to full articles.',
     canonical: SEO.SITE_ORIGIN + '/blueprint/',
     jsonLd: blueprintJsonLd(),

@@ -282,9 +282,9 @@
   <!-- ════ SCRIPTS ════ -->
   <!-- Core scripts needed before app init — loaded normally so initApp is ready -->
   <script src="js/translations.js"></script>
-  <script src="js/codex-data.js"></script>
-  <script src="js/calculator.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/codex-data.js"></script>
+  <script defer src="js/calculator.js"></script>
+  <script defer src="js/app.js"></script>
   <!-- Non-critical scripts — deferred, don't block rendering -->
   <script src="js/simulation.js" defer></script>
   <script src="js/codex-spiral.js" defer></script>

@@ -30,7 +30,7 @@ function extractPageInner(html, pageId) {
 }
 
 function parseCodexNodes() {
-  const src = fs.readFileSync(path.join(ROOT, 'js', 'codex-data.js'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'js', 'codex-data.mjs'), 'utf8');
   const nodes = [];
   const re = /'(\d+)':\s*\{[\s\S]*?name:\s*'([^']+)'[\s\S]*?body:\s*'((?:\\'|[^'])*)'/g;
   let m;
@@ -111,7 +111,7 @@ function staticShell(opts) {
   }).join('\n');
 
   const extraScripts = (opts.extraScripts || []).map(function (s) {
-    return `  <script src="${s}"></script>`;
+    return `  <script defer src="${s}"></script>`;
   }).join('\n');
 
   const inlineStyle = opts.inlineStyle || '';
@@ -165,10 +165,10 @@ ${opts.body}
 <footer class="footer" id="footer"></footer>
 
 <script src="/js/translations.js"></script>
-<script src="/js/codex-data.js"></script>
-<script src="/js/calculator.js"></script>
+<script type="module" src="/js/codex-data.js"></script>
+<script defer src="/js/calculator.js"></script>
 ${extraScripts}
-<script src="/js/app.js"></script>
+<script defer src="/js/app.js"></script>
 <script>
   (async function () {
     if (typeof loadNav === 'function') await loadNav();

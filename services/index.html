@@ -433,10 +433,10 @@
 <footer class="footer" id="footer"></footer>
 
 <script src="/js/translations.js"></script>
-<script src="/js/codex-data.js"></script>
-<script src="/js/calculator.js"></script>
+<script type="module" src="/js/codex-data.js"></script>
+<script defer src="/js/calculator.js"></script>
 
-<script src="/js/app.js"></script>
+<script defer src="/js/app.js"></script>
 <script>
   (async function () {
     if (typeof loadNav === 'function') await loadNav();

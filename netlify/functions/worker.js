@@ -6,6 +6,8 @@
  *       GET /api/checkout-session, /api/google-reviews, /api/site-config
  */
 
+import { buildCodexFootprintSvg, buildCodexPromptBlock } from '../../js/codex-footprint.mjs';
+
 const GUIDEBOOK_PRICE_CENTS = 1100; // 0 = free, queue directly. Set to 1100 to use Stripe + webhook.
 
 let googleReviewsCache = { data: null, expires: 0 };
@@ -324,7 +326,15 @@ COMPOUND NUMBER MEANINGS (use these when interpreting each frequency):
 59 — Universal Experience: 5 and 9 reducing to 5. The one who has lived fully and releases what is complete.
 
 SSC LANGUAGE TO USE NATURALLY: simulation, holographic blueprint, external circuit, internal circuit, encoded frequency, NPC conditioning, authentic signal, embodiment, integration, the Game, source code.
-Do NOT use: "you are a natural leader", "you have a gift for", "the universe supports you", "this is not an accident".`;
+Do NOT use: "you are a natural leader", "you have a gift for", "the universe supports you", "this is not an accident".
+
+CODEX MATRIX (Purpose Triangle):
+- The Codex is a 3×3 consciousness matrix. Rows: Mind, Body, Spirit. Columns: Witness, Actor, Sage. Each number 1–9 maps to a fixed node position.
+- Grid placement uses the reduced root. Master numbers reduce for placement only: 11→2, 22→4, 33→6, 44→8.
+- The Purpose Triangle highlights three nodes: Life Path (external curriculum), Expression (internal authentic signal), Life Calling (where LP and Expression converge — concatenate their roots, then reduce).
+- When two frequencies share a node, interpret the fusion of those roles on one matrix position. When all three differ, describe how energy moves between the three positions.
+- The Codex Footprint section covers matrix placement only — node names, planes, and spatial relationship. Do NOT re-explain full number meanings there; those belong in the Life Path, Expression, and Life Calling sections later.
+- Keep Codex language grounded and practical. No mystical padding.`;
 
 
 // ════════════════════════════════════════════════════════════
@@ -373,7 +383,8 @@ function calculateFrequencies(name, month, day, year) {
   const rawPersona = chars.filter(c => !VOWELS.has(c)).reduce((a, c) => a + letterValue(c), 0);
   const persona    = reduceToSingle(rawPersona);
 
-  const rawDestiny = expression + lifePath;
+  // Life Calling: concatenate Expression root + Life Path root, then reduce (matches calculator)
+  const rawDestiny = parseInt(String(expression) + String(lifePath), 10);
   const destiny    = reduceToSingle(rawDestiny);
 
   return {
@@ -448,11 +459,22 @@ THEIR COMPOUND FREQUENCIES:
 - Expression (full name):                ${frequencies.rawExpression}/${frequencies.expression}
 - Life Calling (Expression + Life Path): ${frequencies.rawDestiny}/${frequencies.destiny}
 
+${buildCodexPromptBlock(frequencies)}
+
 STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> heading:
 
 1. Opening — address ${firstName} directly. 2-3 sentences only. State what their blueprint encodes.
 
-2. <h2>The External Circuit</h2>
+2. <h2 id="codex-footprint">Your Codex Footprint</h2>
+   One short intro paragraph explaining what the Codex map shows.
+   Then 2–3 paragraphs interpreting THIS person's three highlighted nodes
+   (Life Path node, Expression node, Life Calling node) and how they
+   relate spatially in the consciousness matrix. Reference node names
+   and planes/columns. Do NOT re-explain the whole Codex system.
+   Do NOT duplicate the Life Path / Expression / Life Calling sections
+   that come later — this section is matrix placement only.
+
+3. <h2>The External Circuit</h2>
    Then each as <h3> with the EXACT id attributes shown:
    - <h3 id="theme">Theme ${frequencies.rawTheme}/${frequencies.theme}</h3> — atmospheric frequency of birth year. Include both positive and shadow expressions.
    - <h3 id="lifepath">Life Path ${frequencies.rawLifePath}/${frequencies.lifePath}</h3> — the external curriculum. Write about the positive quest AND the shadow—what happens when this energy is unconstructed. Blend in the Theme (${frequencies.rawTheme}/${frequencies.theme}) to show how the atmospheric frequency colors the quest.
@@ -462,7 +484,7 @@ STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> h
    <h3 id="external-quest">External Circuit Quest Objective</h3>
    ONE powerful paragraph that synthesizes all three (Theme + Life Path + Achievement). Frame it as the specific quest the simulation presents.
 
-3. <h2>The Internal Circuit</h2>
+4. <h2>The Internal Circuit</h2>
    Then each as <h3> with the EXACT id attributes shown:
    - <h3 id="soul">Soul Urge ${frequencies.rawSoul}/${frequencies.soul}</h3> — private inner world, inner compass. Desires and yearnings. Include shadow (repression, self-abandonment).
    - <h3 id="persona">Outer Persona ${frequencies.rawPersona}/${frequencies.persona}</h3> — social mask, how others read them first. First impression vibe. Include shadow (projecting instead of being authentic).
@@ -472,10 +494,10 @@ STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> h
    <h3 id="internal-quest">Internal Circuit Quest Objective</h3>
    ONE powerful paragraph that synthesizes all three (Soul + Outer Persona + Expression). Frame it as the specific signal they are here to express.
 
-4. <h2 id="calling">The Life Calling — ${frequencies.rawDestiny}/${frequencies.destiny}</h2>
+5. <h2 id="calling">The Life Calling — ${frequencies.rawDestiny}/${frequencies.destiny}</h2>
    The fusion of Life Path and Expression. The specific directive that emerges when external curriculum meets internal signal. Compound story, root essence, practical meaning.
 
-5. <h2>Action Guide: Your Quest Objectives</h2>
+6. <h2>Action Guide: Your Quest Objectives</h2>
    Two subsections:
 
    <h3>External Mission</h3>
@@ -484,12 +506,12 @@ STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> h
    <h3>Internal Mission</h3>
    Restate and expand the Internal Circuit Quest Objective. One paragraph explaining the inner work, the authentic frequency to cultivate, the mask patterns to dissolve.
 
-6. <h2>Quest Directive</h2>
+7. <h2>Quest Directive</h2>
    One powerful paragraph. Direct and personal. What ${firstName}'s simulation is asking them to master. Synthesize external mission, internal mission, and the Life Calling into ONE unified directive.
 
 FORMAT: HTML only — <h2>, <h3>, <p>, <ul><li>. No markdown. No preamble. Start directly with the Opening.
-IMPORTANT: Include the exact id attributes on h3 tags as shown above — they are used for navigation.
-LENGTH: 1500-1800 words. Complete all 6 sections. Do not cut sections short.
+IMPORTANT: Include the exact id attributes on h3 and h2 tags as shown above — they are used for navigation.
+LENGTH: 1600-2000 words. Complete all 7 sections. Do not cut sections short.
 DEPTH: Go deep. Explain not just what each frequency means but HOW they apply to ${firstName}. Use the shadow side to show what they are learning to transcend.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -694,6 +716,16 @@ function buildPdfHtml({ name, month, day, year, frequencies, guidebookBody }) {
     frequencies.soul, frequencies.persona, frequencies.achievement, frequencies.theme
   ]);
 
+  const codexMap = buildCodexFootprintSvg(frequencies);
+  const codexSectionMatch = guidebookBody.match(/<h2[^>]*id="codex-footprint"[^>]*>[\s\S]*?(?=<h2|$)/i);
+  const codexNarrativeHtml = codexSectionMatch
+    ? codexSectionMatch[0].replace(/<h2[^>]*>[\s\S]*?<\/h2>/i, '').trim()
+    : '';
+  const mainBody = guidebookBody
+    .replace(/<h2[^>]*id="codex-footprint"[^>]*>[\s\S]*?(?=<h2|$)/i, '')
+    .replace(/<h2[^>]*>[^<]*Quest[^<]*<\/h2>[\s\S]*$/i, '')
+    .trim();
+
   const [lp_pos,lp_shad]     = getRef(frequencies.lifePath);
   const [exp_pos,exp_shad]   = getRef(frequencies.expression);
   const [dst_pos,dst_shad]   = getRef(frequencies.destiny);
@@ -739,6 +771,22 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .chart-wr{width:360px;height:400px;margin:0 auto}
 .chart-pf{position:absolute;bottom:24px;left:52px;right:52px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
 .chart-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
+
+/* ── CODEX FOOTPRINT ── */
+.codex-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;padding:48px 48px 80px;page-break-after:always;position:relative}
+.codex-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px;text-align:center}
+.codex-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:28px;color:#e8c96b;letter-spacing:.05em;margin-bottom:8px;text-align:center}
+.codex-map-wrap{width:320px;margin:24px auto 16px}
+.codex-map-wrap svg{width:100%;height:auto;display:block}
+.codex-legend{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-bottom:20px}
+.codex-legend-item{font-family:"Cinzel",serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:#9b9080;display:inline-flex;align-items:center;gap:6px}
+.codex-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.codex-caption{font-size:15px;line-height:1.75;color:#9b9080;text-align:center;max-width:480px;margin:0 auto 28px;font-style:italic}
+.codex-body{font-size:17px;line-height:2;color:#9b9080;max-width:520px;margin:0 auto;width:100%}
+.codex-body p{margin-bottom:14px}
+.codex-body strong{color:#e8dfc8}
+.codex-pf{position:absolute;bottom:24px;left:52px;right:52px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
+.codex-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── HOW TO READ ── */
 .howto{width:100%;background:#05040a;padding:56px 80px 80px;page-break-after:always;position:relative;min-height:100vh}
@@ -848,6 +896,17 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
   <div class="chart-pf"><span>Simulation Source Code</span><span>${name}</span></div>
 </div>
 
+<!-- CODEX FOOTPRINT -->
+<div class="codex-pg">
+  <div class="codex-ey">Purpose Triangle</div>
+  <div class="codex-ti">Your Codex Footprint</div>
+  <div class="codex-map-wrap">${codexMap.svg}</div>
+  <div class="codex-legend">${codexMap.legend}</div>
+  <p class="codex-caption">${codexMap.narrative}</p>
+  ${codexNarrativeHtml ? `<div class="codex-body">${codexNarrativeHtml}</div>` : ''}
+  <div class="codex-pf"><span>Simulation Source Code</span><span>${name}</span></div>
+</div>
+
 <!-- HOW TO READ -->
 <div class="howto">
   <div class="howto-ey">Before You Begin</div>
@@ -885,7 +944,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 <!-- MAIN CONTENT -->
 <div class="content-pg">
   <div class="pg-hd"><span>Simulation Source Code</span><span>${name}</span></div>
-  <div class="sb">${guidebookBody.replace(/<h2[^>]*>[^<]*Quest[^<]*<\/h2>[\s\S]*$/i, '').trim()}</div>
+  <div class="sb">${mainBody}</div>
   <div class="pg-ft"><span>Holographic Blueprint Reading</span><span>simulationsourcecode.com</span></div>
 </div>
 

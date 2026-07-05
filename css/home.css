@@ -20,6 +20,10 @@
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
+#page-home a.hp-proof-pill:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
 
 #page-home .hp-scl-teaser-cta:focus-visible,
 #page-home .hp-scl-install-step:focus-visible {

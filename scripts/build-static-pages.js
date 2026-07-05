@@ -116,6 +116,15 @@ function staticShell(opts) {
 
   const inlineStyle = opts.inlineStyle || '';
 
+  const dataModule = opts.dataModule || '/js/codex-data.js';
+  const coreScripts = [
+    '<script src="/js/translations.js"></script>',
+    '<script type="module" src="' + dataModule + '"></script>',
+  ];
+  if (opts.includeCalculator !== false) {
+    coreScripts.push('<script defer src="/js/calculator.js"></script>');
+  }
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,17 +173,17 @@ ${opts.body}
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js"></script>
-<script type="module" src="/js/codex-data.js"></script>
-<script defer src="/js/calculator.js"></script>
+${coreScripts.join('\n')}
 ${extraScripts}
 <script defer src="/js/app.js"></script>
 <script>
-  (async function () {
-    if (typeof loadNav === 'function') await loadNav();
-    if (typeof loadFooter === 'function') await loadFooter();
-    ${opts.bootScript || ''}
-  })();
+  document.addEventListener('DOMContentLoaded', function () {
+    (async function () {
+      if (typeof loadNav === 'function') await loadNav();
+      if (typeof loadFooter === 'function') await loadFooter();
+      ${opts.bootScript || ''}
+    })();
+  });
 </script>
 </body>
 </html>
@@ -230,10 +239,56 @@ function buildCodex() {
   console.log('Wrote codex/index.html');
 }
 
+function blueprintJsonLd() {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Triple Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
+    url: SEO.SITE_ORIGIN + '/blueprint/',
+    description: 'Explore the seven numerology frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive star chart journey.',
+    isPartOf: { '@type': 'WebSite', name: 'Simulation Source Code', url: SEO.SITE_ORIGIN },
+    mainEntity: {
+      '@type': 'LearningResource',
+      name: 'Triple Trinity Blueprint',
+      learningResourceType: 'Interactive Resource',
+      teaches: 'Numerology trinities: Lessons, Expression, and Purpose',
+    },
+  }, null, 2);
+}
+
+function buildBlueprint() {
+  const fragment = fs.readFileSync(path.join(ROOT, 'pages', 'blueprint.html'), 'utf8');
+  const body     = extractPageInner(fragment, 'blueprint');
+
+  const html = staticShell({
+    pageId: 'blueprint',
+    marker: 'BLUEPRINT_BODY',
+    title: 'Triple Trinity Blueprint · Numerology Star Chart · Simulation Source Code',
+    description: 'Explore the seven numerology frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive star chart journey and links to full articles.',
+    canonical: SEO.SITE_ORIGIN + '/blueprint/',
+    jsonLd: blueprintJsonLd(),
+    body: body,
+    extraStyles: ['/css/brand-revamp.css', '/css/blueprint.css'],
+    dataModule: '/js/blueprint-data.js',
+    includeCalculator: false,
+    extraScripts: [
+      '/js/blueprint-star.js',
+      '/js/blueprint-journey.js',
+    ],
+    bootScript: "if (typeof initBlueprintPage === 'function') initBlueprintPage();\n    if (typeof applyLanguage === 'function') applyLanguage(getLang());",
+  });
+
+  const outDir = path.join(ROOT, 'blueprint');
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+  console.log('Wrote blueprint/index.html');
+}
+
 function main() {
   const target = process.argv[2] || 'all';
   if (target === 'services' || target === 'all') buildServices();
   if (target === 'codex' || target === 'all') buildCodex();
+  if (target === 'blueprint' || target === 'all') buildBlueprint();
 }
 
 main();

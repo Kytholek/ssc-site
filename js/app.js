@@ -207,19 +207,25 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html');
+    const response = await fetch('/pages/nav.html?v=20260705', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
     
-    // Parse HTML safely
+    // Parse HTML safely — nav bar + mobile menu
     const temp = document.createElement('div');
     temp.innerHTML = navHtml;
-    const newNav = temp.firstElementChild;
+    const frag = document.createDocumentFragment();
+    while (temp.firstChild) {
+      if (temp.firstChild.nodeType === Node.COMMENT_NODE) {
+        temp.removeChild(temp.firstChild);
+        continue;
+      }
+      frag.appendChild(temp.firstChild);
+    }
     
-    // Replace placeholder with the actual nav
-    if (newNav) {
-      navPlaceholder.replaceWith(newNav);
+    if (frag.childNodes.length) {
+      navPlaceholder.replaceWith(frag);
       _updateThemeToggle(getTheme());
       
       // Re-attach event listeners

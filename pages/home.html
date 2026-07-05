@@ -121,6 +121,15 @@
   color: var(--gold-dim);
   background: rgba(201,168,76,0.04);
 }
+a.hp-proof-pill {
+  text-decoration: none;
+  transition: border-color .2s, color .2s, background .2s;
+}
+a.hp-proof-pill:hover {
+  border-color: rgba(201,168,76,0.45);
+  color: var(--gold);
+  background: rgba(201,168,76,0.08);
+}
 .hp-hero-micro {
   margin-top: 12px;
   margin-bottom: 0;
@@ -1282,12 +1291,13 @@
       <a href="/codex" class="hp-cta-text js-track-cta" data-cta="hero_codex" data-i18n="home.revamp.hero.cta.codex" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex');}">Explore the Codex</a>
     </div>
     <div class="hp-hero-tertiary">
+      <a href="/blueprint/" class="hp-cta-text js-track-cta" data-cta="hero_blueprint_tour" data-i18n="home.revamp.hero.cta.blueprint">Triple Trinity Blueprint</a>
       <a href="https://portal.simulationsourcecode.com" class="hp-cta-text js-track-cta" data-cta="hero_app" data-i18n="home.revamp.hero.cta.app" target="_blank" rel="noopener noreferrer">Launch App</a>
     </div>
     <p class="hp-hero-micro" data-i18n="home.revamp.hero.micro">Free calculator · 60 seconds · Private by design</p>
     <div class="hp-proof-row">
       <div class="hp-proof-pill" data-i18n="home.revamp.proof.matrix">Consciousness Matrix</div>
-      <div class="hp-proof-pill" data-i18n="home.revamp.proof.blueprint">Individual Blueprint</div>
+      <a href="/blueprint/" class="hp-proof-pill hp-proof-pill--link js-track-cta" data-cta="hero_proof_blueprint" data-i18n="home.revamp.proof.blueprint">Individual Blueprint</a>
       <div class="hp-proof-pill" data-i18n="home.revamp.proof.instant">Instant Results</div>
     </div>
   </div>

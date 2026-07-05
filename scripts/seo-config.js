@@ -31,6 +31,7 @@ module.exports = {
   CORE_ROUTES: [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/calculator/', priority: '0.9', changefreq: 'monthly' },
+    { path: '/blueprint/', priority: '0.9', changefreq: 'monthly' },
     { path: '/services/', priority: '0.8', changefreq: 'monthly' },
     { path: '/codex/', priority: '0.9', changefreq: 'monthly' },
     { path: '/blog/', priority: '0.8', changefreq: 'weekly' },

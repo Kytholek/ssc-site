@@ -298,7 +298,7 @@
     (function () {
       // Critical pages — fetched immediately, app boots when these are done
       var CRITICAL = [
-        { id: 'include-nav',        src: 'pages/nav.html'        },
+        { id: 'include-nav',        src: 'pages/nav.html?v=20260705'        },
         { id: 'include-home',       src: 'pages/home.html'       },
         { id: 'include-calculator', src: 'pages/calculator.html' },
         { id: 'include-footer',     src: 'pages/footer.html'     },
@@ -319,7 +319,8 @@
       ];
 
       function loadPage(page) {
-        return fetch(page.src)
+        var fetchOpts = page.src.indexOf('nav.html') !== -1 ? { cache: 'no-store' } : {};
+        return fetch(page.src, fetchOpts)
           .then(function (r) { return r.ok ? r.text() : ''; })
           .then(function (html) {
             var el = document.getElementById(page.id);

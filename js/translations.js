@@ -213,6 +213,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.hero.sub.short' : { en: 'Nine positions map how consciousness transforms. Seven frequencies from your birth date and name mark where you stand.', es: 'Nueve posiciones mapean cómo se transforma la conciencia. Siete frecuencias de tu nacimiento y nombre marcan dónde estás.' },
   'home.revamp.hero.cta.primary' : { en: '▶ Find Your Blueprint', es: '▶ Encuentra Tu Plano' },
   'home.revamp.hero.cta.codex' : { en: 'Explore the Codex', es: 'Explorar el Códice' },
+  'home.revamp.hero.cta.blueprint' : { en: 'Triple Trinity Blueprint', es: 'Plano de la Triple Trinidad' },
   'home.revamp.hero.cta.app' : { en: 'Launch App', es: 'Abrir la App' },
   'home.revamp.hero.micro' : { en: 'Free calculator · 60 seconds · Private by design', es: 'Calculadora gratis · 60 segundos · Privada por diseño' },
   'home.revamp.proof.matrix' : { en: 'Consciousness Matrix', es: 'Matriz de Conciencia' },

@@ -438,12 +438,14 @@
 
 <script defer src="/js/app.js"></script>
 <script>
-  (async function () {
-    if (typeof loadNav === 'function') await loadNav();
-    if (typeof loadFooter === 'function') await loadFooter();
-    if (typeof initServicesPage === 'function') initServicesPage();
+  document.addEventListener('DOMContentLoaded', function () {
+    (async function () {
+      if (typeof loadNav === 'function') await loadNav();
+      if (typeof loadFooter === 'function') await loadFooter();
+      if (typeof initServicesPage === 'function') initServicesPage();
     if (typeof applyLanguage === 'function') applyLanguage(getLang());
-  })();
+    })();
+  });
 </script>
 </body>
 </html>

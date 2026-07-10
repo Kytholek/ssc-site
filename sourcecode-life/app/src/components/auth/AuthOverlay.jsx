@@ -1,18 +1,18 @@
 /**
- * AuthOverlay
- *
- * Renders the full-screen authentication wall.
- * Three panels: Login, Register, ForgotPassword.
- * Invite banner floats at the top when an invite was detected.
- *
- * Loading state lives in AppContext.authLoading so native bridge callbacks
- * can clear spinners from outside the component tree.
+ * AuthOverlay — Login, Register, Forgot Password panels
  */
 import { useState } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import NumerologyRain from '../effects/NumerologyRain'
+import OnboardingProgress from '../ui/OnboardingProgress'
 
 const TESTER_EMAIL = 'tester@sourcecode.life'
+const AUTH_UNAVAILABLE_MSG = '⚠ Auth service unavailable. Refresh the page and try again.'
+const AUTH_UNAVAILABLE_DEV_MSG = '⚠ Auth service unavailable. Refresh the page or use the tester account to explore without signing in.'
+
+function authUnavailableMessage() {
+  return import.meta.env.DEV ? AUTH_UNAVAILABLE_DEV_MSG : AUTH_UNAVAILABLE_MSG
+}
 
 function validateEmail(e) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
@@ -22,22 +22,20 @@ function setLoadingField(dispatch, field, value) {
   dispatch({ type: 'SET_AUTH_LOADING', payload: { field, value } })
 }
 
-// ── Invite Banner ─────────────────────────────────────────────────────────────
 function InviteBanner({ name, onDismiss }) {
   return (
     <div className="fixed top-0 left-0 right-0 z-9999 flex items-center gap-3 px-4 py-3"
          style={{ background: 'var(--color-rpg-surface)', borderBottom: '2px solid var(--color-rpg-gold)', fontFamily: 'monospace', fontSize: '11px', color: 'var(--color-rpg-gold)', lineHeight: '1.7' }}>
-      <span style={{ fontSize: 18, flexShrink: 0 }}>✦</span>
+      <span style={{ fontSize: 18, flexShrink: 0 }} aria-hidden="true">✦</span>
       <span style={{ flex: 1 }}>
         <strong>{name}</strong> invited you.<br />
         Complete your character to connect as allies.
       </span>
-      <button onClick={onDismiss} className="bg-transparent border-none text-lg cursor-pointer leading-none px-1" style={{ color: 'var(--color-rpg-muted)' }}>✕</button>
+      <button type="button" onClick={onDismiss} className="bg-transparent border-none text-lg cursor-pointer leading-none px-2 min-w-[44px] min-h-[44px]" style={{ color: 'var(--color-rpg-muted)' }} aria-label="Dismiss invite banner">✕</button>
     </div>
   )
 }
 
-// ── Login Panel ───────────────────────────────────────────────────────────────
 function LoginPanel({ onForgot }) {
   const dispatch = useAppDispatch()
   const { authErrors, authLoading } = useAppState()
@@ -54,7 +52,6 @@ function LoginPanel({ onForgot }) {
     if (!validateEmail(email)) return err('⚠ Enter a valid email address.')
     if (pass.length < 6)       return err('⚠ Password must be at least 6 characters.')
 
-    // Tester shortcut — bypass NativeAuth, go straight to character creation
     if (email === TESTER_EMAIL) {
       dispatch({ type: 'SET_USER', payload: { email: TESTER_EMAIL } })
       dispatch({ type: 'SET_SCREEN', payload: 'charCreate' })
@@ -62,7 +59,7 @@ function LoginPanel({ onForgot }) {
     }
 
     if (typeof window.NativeAuth === 'undefined') {
-      return err('⚠ No Android bridge. Use ' + TESTER_EMAIL + ' to explore in browser.')
+      return err(authUnavailableMessage())
     }
 
     setLoadingField(dispatch, 'loginLoading', true)
@@ -70,8 +67,10 @@ function LoginPanel({ onForgot }) {
   }
 
   return (
-    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit} aria-busy={loading}>
+      <label htmlFor="auth-login-email" className="sr-only">Email</label>
       <input
+        id="auth-login-email"
         type="email"
         placeholder="Email"
         value={email}
@@ -80,7 +79,9 @@ function LoginPanel({ onForgot }) {
         autoComplete="email"
         required
       />
+      <label htmlFor="auth-login-pass" className="sr-only">Password</label>
       <input
+        id="auth-login-pass"
         type="password"
         placeholder="Password"
         value={pass}
@@ -89,15 +90,14 @@ function LoginPanel({ onForgot }) {
         autoComplete="current-password"
         required
       />
-      {authErrors.loginError && <p className="auth-error">{authErrors.loginError}</p>}
-      {loading && <p className="auth-loading">Logging in…</p>}
+      {authErrors.loginError && <p className="auth-error" role="alert">{authErrors.loginError}</p>}
+      {loading && <p className="auth-loading" aria-live="polite">Logging in…</p>}
       <button type="submit" className="auth-btn" disabled={loading}>ENTER THE REALM</button>
       <button type="button" className="auth-link" onClick={onForgot}>Forgot password?</button>
     </form>
   )
 }
 
-// ── Register Panel ────────────────────────────────────────────────────────────
 function RegisterPanel() {
   const dispatch = useAppDispatch()
   const { authErrors, authLoading } = useAppState()
@@ -115,7 +115,7 @@ function RegisterPanel() {
     if (pass.length < 6)       return err('⚠ Password must be at least 6 characters.')
 
     if (typeof window.NativeAuth === 'undefined') {
-      return err('⚠ No Android bridge. Use ' + TESTER_EMAIL + ' on the Login tab to explore in browser.')
+      return err(authUnavailableMessage())
     }
 
     setLoadingField(dispatch, 'regLoading', true)
@@ -124,8 +124,10 @@ function RegisterPanel() {
   }
 
   return (
-    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit} aria-busy={loading}>
+      <label htmlFor="auth-reg-email" className="sr-only">Email</label>
       <input
+        id="auth-reg-email"
         type="email"
         placeholder="Email"
         value={email}
@@ -134,7 +136,9 @@ function RegisterPanel() {
         autoComplete="email"
         required
       />
+      <label htmlFor="auth-reg-pass" className="sr-only">Password</label>
       <input
+        id="auth-reg-pass"
         type="password"
         placeholder="Password (min 6 characters)"
         value={pass}
@@ -143,14 +147,13 @@ function RegisterPanel() {
         autoComplete="new-password"
         required
       />
-      {authErrors.regError && <p className="auth-error">{authErrors.regError}</p>}
-      {loading && <p className="auth-loading">Creating account…</p>}
+      {authErrors.regError && <p className="auth-error" role="alert">{authErrors.regError}</p>}
+      {loading && <p className="auth-loading" aria-live="polite">Creating account…</p>}
       <button type="submit" className="auth-btn" disabled={loading}>CREATE ACCOUNT</button>
     </form>
   )
 }
 
-// ── Forgot Password Panel ─────────────────────────────────────────────────────
 function ForgotPanel({ onBack }) {
   const dispatch = useAppDispatch()
   const { authErrors, authLoading } = useAppState()
@@ -166,7 +169,7 @@ function ForgotPanel({ onBack }) {
     if (!validateEmail(email)) return err('⚠ Enter a valid email address.')
 
     if (typeof window.NativeAuth === 'undefined' || !window.NativeAuth.sendPasswordReset) {
-      return err('⚠ Password reset unavailable outside the Android app.')
+      return err('⚠ Password reset unavailable. Refresh the page and try again.')
     }
 
     setLoadingField(dispatch, 'forgotLoading', true)
@@ -174,9 +177,11 @@ function ForgotPanel({ onBack }) {
   }
 
   return (
-    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form className="auth-form-panel flex flex-col gap-4" onSubmit={handleSubmit} aria-busy={loading}>
       <p className="auth-label">Enter your email to receive a reset link.</p>
+      <label htmlFor="auth-forgot-email" className="sr-only">Email</label>
       <input
+        id="auth-forgot-email"
         type="email"
         placeholder="Email"
         value={email}
@@ -185,24 +190,20 @@ function ForgotPanel({ onBack }) {
         autoComplete="email"
         required
       />
-      {authErrors.forgotError   && <p className="auth-error">{authErrors.forgotError}</p>}
-      {authErrors.forgotSuccess && <p className="auth-success">{authErrors.forgotSuccess}</p>}
-      {loading && <p className="auth-loading">Sending…</p>}
+      {authErrors.forgotError   && <p className="auth-error" role="alert">{authErrors.forgotError}</p>}
+      {authErrors.forgotSuccess && <p className="auth-success" role="status">{authErrors.forgotSuccess}</p>}
+      {loading && <p className="auth-loading" aria-live="polite">Sending…</p>}
       <button type="submit" className="auth-btn" disabled={loading}>SEND RESET LINK</button>
       <button type="button" className="auth-link" onClick={onBack}>← Back to login</button>
     </form>
   )
 }
 
-// ── AuthOverlay (root) ────────────────────────────────────────────────────────
 export default function AuthOverlay() {
   const { inviteBannerName } = useAppState()
   const dispatch = useAppDispatch()
-  const [tab, setTab] = useState('login') // 'login' | 'register' | 'forgot'
-  function switchTab(newTab) {
-    dispatch({ type: 'CLEAR_AUTH_ERRORS' })
-    setTab(newTab)
-  }
+  const [tab, setTab] = useState('login')
+
   return (
     <>
       {inviteBannerName && (
@@ -215,31 +216,28 @@ export default function AuthOverlay() {
       <div className="auth-overlay">
         <NumerologyRain />
         <div className="auth-content">
-          {/* Logo / title */}
           <h1 className="auth-hero-title">SOURCE CODE: LIFE</h1>
           <p className="auth-hero-subtitle">Decode Your Simulation and Find Direction in Life</p>
 
-          {/* Glass card */}
           <div className="auth-glass-card">
-            {/* Tab bar — hidden when on forgot panel */}
+            <OnboardingProgress screen="auth" />
             {tab !== 'forgot' && (
-              <div className="auth-tabs" role="tablist">
+              <nav className="auth-tabs" aria-label="Authentication">
                 <button
-                  role="tab"
-                  aria-selected={tab === 'login'}
+                  type="button"
+                  aria-current={tab === 'login' ? 'page' : undefined}
                   className={`auth-tab ${tab === 'login' ? 'active' : ''}`}
                   onClick={() => { dispatch({ type: 'CLEAR_AUTH_ERRORS' }); setTab('login') }}
                 >LOGIN</button>
                 <button
-                  role="tab"
-                  aria-selected={tab === 'register'}
+                  type="button"
+                  aria-current={tab === 'register' ? 'page' : undefined}
                   className={`auth-tab ${tab === 'register' ? 'active' : ''}`}
                   onClick={() => { dispatch({ type: 'CLEAR_AUTH_ERRORS' }); setTab('register') }}
                 >REGISTER</button>
-              </div>
+              </nav>
             )}
 
-            {/* Active panel */}
             <div className="auth-body">
               {tab === 'login'    && <LoginPanel    onForgot={() => { dispatch({ type: 'CLEAR_AUTH_ERRORS' }); setTab('forgot') }} />}
               {tab === 'register' && <RegisterPanel />}

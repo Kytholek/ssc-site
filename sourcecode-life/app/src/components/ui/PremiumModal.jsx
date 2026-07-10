@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
-import { useAppDispatch } from '../../context/AppContext'
 import PremiumBadge from './PremiumBadge'
+import Modal from './Modal'
 
 const FEATURES = [
   { glyph: '📜', title: 'Full Blueprint', desc: 'Complete shadow + integration reading for every number in your chart' },
-  { glyph: '🌀', title: 'Spiral of Time', desc: 'Visual map of the cyclical seasons in your life; monthly, yearly, 9-year cycles and pinnicles ' },
-  { glyph: '📊', title: 'Insights & Analytics', desc: 'Stat gorwth manager, polarity balance charts, and your Life Quest roadmap' },
+  { glyph: '🌀', title: 'Spiral of Time', desc: 'Visual map of the cyclical seasons in your life; monthly, yearly, 9-year cycles and pinnacles' },
+  { glyph: '📊', title: 'Insights & Analytics', desc: 'Stat growth manager, polarity balance charts, and your Life Quest roadmap' },
   { glyph: '⚔', title: 'Ally Badge', desc: 'A ✦ emblem on your name — visible to allies in the Realm' },
   { glyph: '☁', title: 'Cloud Gear Sync', desc: 'Your character equipment synced across devices when gear launches' },
   { glyph: '🎁', title: 'Premium Gift Codes', desc: 'Earn gift tokens by completing quests and share 3–7 day premium with allies' },
@@ -29,18 +28,9 @@ const PRODUCTS = [
     stripeLink: 'https://buy.stripe.com/9B66oH1uG2135PUdwy53O04',
     days: 365,
   },
-  {
-    id: 'premium_lifetime',
-    label: 'Lifetime',
-    price: '$?? once',
-    badge: 'ONE TIME',
-    stripeLink: 'https://buy.stripe.com/XXXX_lifetime',
-    days: null,
-  },
 ]
 
 export default function PremiumModal({ open, onClose }) {
-  const dispatch = useAppDispatch()
   const [selectedProductId, setSelectedProductId] = useState('premium_annual')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -59,70 +49,72 @@ export default function PremiumModal({ open, onClose }) {
     if (!product) return
 
     if (window.__SCL_WEB) {
-      // Web: redirect to Stripe Payment Link
       window.location.href = product.stripeLink
     } else {
-      // Android: Google Play Billing
       setLoading(true)
       setError(null)
       window.NativePurchase?.startPurchase(selectedProductId)
     }
   }
 
-  if (!open) return null
-
-  return createPortal(
-    <div className="premium-modal-backdrop" onClick={onClose}>
-      <div className="premium-modal" onClick={e => e.stopPropagation()}>
-        <button className="premium-modal-close" onClick={onClose}>✕</button>
-
-        <div className="premium-modal-header">
-          <div className="premium-modal-icon">
-            <PremiumBadge size="lg" />
-          </div>
-          <h2 className="premium-modal-title">UNLOCK PREMIUM</h2>
-          <p className="premium-modal-subtitle">Full decode of your numerology</p>
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Unlock Premium"
+      backdropClassName="premium-modal-backdrop"
+      className="premium-modal"
+    >
+      <div className="premium-modal-header">
+        <div className="premium-modal-icon">
+          <PremiumBadge size="lg" />
         </div>
-
-        <div className="premium-modal-features">
-          {FEATURES.map((f, i) => (
-            <div key={i} className="premium-feature-item">
-              <div className="premium-feature-glyph">{f.glyph}</div>
-              <div className="premium-feature-text">
-                <div className="premium-feature-title">{f.title}</div>
-                <div className="premium-feature-desc">{f.desc}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="premium-modal-products">
-          {PRODUCTS.map(p => (
-            <button
-              key={p.id}
-              className={`premium-product-btn${selectedProductId === p.id ? ' selected' : ''}`}
-              onClick={() => setSelectedProductId(p.id)}
-            >
-              <div className="premium-product-label">{p.label}</div>
-              <div className="premium-product-price">{p.price}</div>
-              {p.badge && <div className="premium-product-badge">{p.badge}</div>}
-            </button>
-          ))}
-        </div>
-
-        {error && <p className="premium-modal-error">{error}</p>}
-
-        <button
-          className="premium-modal-cta"
-          onClick={handlePurchase}
-          disabled={loading}
-        >
-          {loading ? 'PROCESSING…' : window.__SCL_WEB ? 'PAY WITH STRIPE' : 'PURCHASE'}
-        </button>
-
-        <p className="premium-modal-note">Secure payment. Cancel anytime.</p>
+        <h2 className="premium-modal-title" aria-hidden="true">UNLOCK PREMIUM</h2>
+        <p className="premium-modal-subtitle">Full decode of your numerology</p>
       </div>
-    </div>,
-    document.body
+
+      <div className="premium-modal-features">
+        {FEATURES.map((f, i) => (
+          <div key={i} className="premium-feature-item">
+            <div className="premium-feature-glyph" aria-hidden="true">{f.glyph}</div>
+            <div className="premium-feature-text">
+              <div className="premium-feature-title">{f.title}</div>
+              <div className="premium-feature-desc">{f.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="premium-modal-products" role="radiogroup" aria-label="Premium plan">
+        {PRODUCTS.map(p => (
+          <button
+            key={p.id}
+            type="button"
+            role="radio"
+            aria-checked={selectedProductId === p.id}
+            className={`premium-product-btn${selectedProductId === p.id ? ' selected' : ''}`}
+            onClick={() => setSelectedProductId(p.id)}
+          >
+            <div className="premium-product-label">{p.label}</div>
+            <div className="premium-product-price">{p.price}</div>
+            {p.badge && <div className="premium-product-badge">{p.badge}</div>}
+          </button>
+        ))}
+      </div>
+
+      {error && <p className="premium-modal-error" role="alert">{error}</p>}
+
+      <button
+        type="button"
+        className="premium-modal-cta"
+        onClick={handlePurchase}
+        disabled={loading}
+        aria-busy={loading}
+      >
+        {loading ? 'PROCESSING…' : window.__SCL_WEB ? 'PAY WITH STRIPE' : 'PURCHASE'}
+      </button>
+
+      <p className="premium-modal-note">Secure payment. Cancel anytime.</p>
+    </Modal>
   )
 }

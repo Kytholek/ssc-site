@@ -37,6 +37,22 @@ function ensureHistory(history) {
   return history
 }
 
+/** Count consecutive completed days ending today (or yesterday if today not yet done). */
+export function getCurrentStreak() {
+  const history = ensureHistory(getStreakHistory())
+  if (!history.length) return 0
+
+  let streak = 0
+  for (let i = history.length - 1; i >= 0; i--) {
+    if (history[i].completed) {
+      streak++
+    } else if (i < history.length - 1) {
+      break
+    }
+  }
+  return streak
+}
+
 export function markDayCompleted(resonant = false) {
   const history = ensureHistory(getStreakHistory())
   const today = formatDate(new Date())

@@ -16,9 +16,10 @@ import QuestJournals from '../datachunks/QuestJournals'
 import ObjectiveGlyph from '../quests/ObjectiveGlyph'
 import QuestDetailModal from '../quests/QuestDetailModal'
 import FlowDetailPanel from '../flow/FlowDetailPanel'
+import CoachMark from '../ui/CoachMark'
 import { saveFocusQuest } from '../../lib/focusQuests'
-import { buildObjectiveGlyphs } from '../../lib/questHub'
-import { getGeneratedQuests, getActiveMultiDayQuests } from '../../lib/numerologyQuests'
+import { buildObjectiveGlyphs, getLifeMissionTotals } from '../../lib/questHub'
+import { getGeneratedQuests, getActiveMultiDayQuests, ensureDailyQuests } from '../../lib/numerologyQuests'
 
 import {
   NUM_QUESTS, MASTER_QUESTS, MAIN_QUEST_DATA, CALLING,
@@ -28,6 +29,7 @@ import {
 import {
   PLACEMENT_OBJECTIVES,
   getTieredObjectiveTexts,
+  getTierObjectiveCount,
 } from '../../lib/objectives'
 
 const TIER_LABELS = { 1: 'APPRENTICE', 2: 'ADEPT', 3: 'MASTER' }
@@ -36,10 +38,10 @@ import { fmt, reduceToSimple } from '../../lib/numerology'
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
 const SECTIONS = [
-  { id: 'hub',      label: '✦ HUB'      },
-  { id: 'life',     label: '✦ LIFE'     },
-  { id: 'current',  label: '◈ CURRENT'  },
-  { id: 'journals', label: '◇ JOURNALS' },
+  { id: 'hub',      label: '✦ HUB',      subtitle: 'Overview & quick actions' },
+  { id: 'life',     label: '✦ LIFE',     subtitle: 'Your 7 frequency quests' },
+  { id: 'current',  label: '◈ CURRENT',  subtitle: 'Time cycles & seasons' },
+  { id: 'journals', label: '◇ JOURNALS', subtitle: 'Quest reflections' },
 ]
 
 function cv(token) { return `var(${token})` }
@@ -367,6 +369,8 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
   // Modal state
   const [selectedQuest, setSelectedQuest] = useState(null)
   const [selectedQuestType, setSelectedQuestType] = useState(null)
+  const [selectedObjective, setSelectedObjective] = useState(null)
+  const [showAllGlyphs, setShowAllGlyphs] = useState(false)
 
   function openQuestDetail(quest, type = 'hub') {
     setSelectedQuest(quest)
@@ -403,7 +407,7 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
       if (!locked && lqpEntry) {
         for (let t = 1; t <= 3; t++) {
           const prog = lqpEntry[t] || []
-          if (prog.length === 0) { activeTier = t; tierTotal = getTierCount(key, t); break }
+          if (prog.length === 0) { activeTier = t; tierTotal = getTierCount(key, t, playerData); break }
           const done = prog.filter(Boolean).length
           if (done < prog.length) { activeTier = t; tierDone = done; tierTotal = prog.length; break }
           if (t === 3) { activeTier = 3; tierDone = done; tierTotal = prog.length }
@@ -419,8 +423,29 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
     return nodes
   }, [playerData, lqp, freqLevel])
 
+  const lifeMission = useMemo(
+    () => getLifeMissionTotals(lqp, playerData),
+    [lqp, playerData],
+  )
+
   return (
     <div className="quest-hub">
+      {/* ── Life Mission ledger ── */}
+      <section className="quest-hub-section quest-hub-section--mission">
+        <div className="quest-hub-section-head">
+          <h3 className="quest-hub-section-title">◈ Life Mission</h3>
+          <span className="quest-hub-mission-total">
+            {lifeMission.completed} / {lifeMission.total} objectives
+          </span>
+        </div>
+        <div className="quest-hub-mission-bar">
+          <div
+            className="quest-hub-mission-fill"
+            style={{ width: `${lifeMission.total ? Math.round((lifeMission.completed / lifeMission.total) * 100) : 0}%` }}
+          />
+        </div>
+      </section>
+
       {/* ── Life Quest Progress ── */}
       {lifeQuestProgress.length > 0 && (
         <section className="quest-hub-section quest-hub-section--life-progress">
@@ -440,8 +465,7 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
                 node={node}
                 lqp={lqp}
                 onObjectiveClick={(obj) => {
-                  // Handle objective click - open detail or pin to focus
-                  console.log('Objective clicked:', obj)
+                  setSelectedObjective(obj)
                 }}
               />
             ))}
@@ -456,10 +480,15 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
           subtitle={`${activeGlyphs.length} ready · ${doneGlyphs.length} done`}
         >
           <div className="obj-glyph-grid">
-            {activeGlyphs.slice(0, 20).map(glyph => (
+            {(showAllGlyphs ? activeGlyphs : activeGlyphs.slice(0, 20)).map(glyph => (
               <ObjectiveGlyph key={glyph.id} objective={glyph} onClick={() => openQuestDetail(glyph, glyph.type)} />
             ))}
           </div>
+          {activeGlyphs.length > 20 && (
+            <button type="button" className="quest-hub-show-all-btn" onClick={() => setShowAllGlyphs(v => !v)}>
+              {showAllGlyphs ? 'Show fewer' : `Show all ${activeGlyphs.length} objectives`}
+            </button>
+          )}
         </QuestHubSection>
       )}
 
@@ -475,10 +504,13 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
       )}
 
       {/* ── Fallback when no glyphs ── */}
-      {activeGlyphs.length === 0 && (
+      {activeGlyphs.length === 0 && doneGlyphs.length === 0 && (
         <div className="quest-hub-empty">
-          <span className="quest-hub-empty-icon">◎</span>
-          <p className="quest-hub-empty-text">No active objectives. Check your Life and Current quests for new objectives.</p>
+          <span className="quest-hub-empty-icon" aria-hidden="true">◎</span>
+          <p className="quest-hub-empty-text">No active objectives yet.</p>
+          <button type="button" className="quest-hub-empty-cta" onClick={() => onNavigate?.('life')}>
+            Go to Life Quest →
+          </button>
         </div>
       )}
 
@@ -494,6 +526,51 @@ function QuestHub({ playerData, daily, lqp, generatedState, multiDayMap, freqLev
           onNavigate={handleNavigate}
           onClose={closeQuestDetail}
         />
+      )}
+
+      {/* ── Life Quest Objective Detail ── */}
+      {selectedObjective && (
+        <FlowDetailPanel
+          open={!!selectedObjective}
+          onClose={() => setSelectedObjective(null)}
+          color={getPanelColorForQuestKey(selectedObjective.questKey)}
+          title={LIFE_NODE_META[selectedObjective.questKey]?.label || 'Quest Objective'}
+          subtitle={`${TIER_LABELS[selectedObjective.tier]} · Objective ${Number(selectedObjective.objIdx) + 1}`}
+          icon={getIconForQuestKey(selectedObjective.questKey)}
+        >
+          <div className="objective-detail-panel">
+            <div className={`objective-detail-status objective-detail-status--${selectedObjective.done ? 'done' : 'pending'}`}>
+              {selectedObjective.done ? '✓ Complete' : 'In Progress'}
+            </div>
+            <div className="objective-detail-text">{selectedObjective.text}</div>
+            <div className="objective-detail-actions">
+              <button
+                className="objective-detail-btn objective-detail-btn--pin"
+                onClick={() => {
+                  saveFocusQuest({
+                    id: `objective-${selectedObjective.questKey}-t${selectedObjective.tier}-o${selectedObjective.objIdx}`,
+                    type: 'objective',
+                    title: selectedObjective.text,
+                    subtitle: `${LIFE_NODE_META[selectedObjective.questKey]?.label || selectedObjective.questKey} · ${TIER_LABELS[selectedObjective.tier]}`,
+                    sourceLabel: LIFE_NODE_META[selectedObjective.questKey]?.label,
+                    questKey: selectedObjective.questKey,
+                    tier: selectedObjective.tier,
+                    objIdx: selectedObjective.objIdx,
+                  })
+                  setSelectedObjective(null)
+                }}
+              >
+                ◎ Pin to Focus
+              </button>
+            </div>
+            <div className="objective-detail-context">
+              <div className="objective-detail-context-label">Quest Context</div>
+              <div className="objective-detail-context-value">
+                {getQuestDescription(selectedObjective.questKey)}
+              </div>
+            </div>
+          </div>
+        </FlowDetailPanel>
       )}
     </div>
   )
@@ -541,14 +618,9 @@ function getQuestDescription(questKey) {
   return descriptions[questKey] || 'Quest objective'
 }
 
-function getTierCount(questKey, tier) {
-  const COUNTS = {
-    so: { 1: 3, 2: 4, 3: 5 }, ou: { 1: 3, 2: 4, 3: 5 },
-    ac: { 1: 3, 2: 4, 3: 5 }, lp: { 1: 3, 2: 4, 3: 5 },
-    ex: { 1: 3, 2: 4, 3: 5 }, cl: { 1: 4, 2: 5, 3: 6 },
-    th: { 1: 3, 2: 4, 3: 5 },
-  }
-  return COUNTS[questKey]?.[tier] || 4
+function getTierCount(questKey, tier, playerData) {
+  const root = playerData?.[questKey]?.root ?? 1
+  return getTierObjectiveCount(root, tier) || 3
 }
 
 function LifeSection({ playerData, lqp, freqLevel }) {
@@ -586,6 +658,9 @@ function LifeSection({ playerData, lqp, freqLevel }) {
 
   return (
     <div className="lqt-section">
+      <CoachMark storageKey="scl_coach_life_quest" title="Life Quest" afterTour>
+        Tap a node to see your growth path. Click any objective to pin it to your Focus quest.
+      </CoachMark>
       <div className="lqt-hint">Tap a node to reveal your path direction for growth. Click any objective to pin it to focus.</div>
       <LifeQuestFlow
         numMap={numMap}
@@ -658,6 +733,10 @@ export default function QuestsTab() {
   const [hubRefresh, setHubRefresh] = useState(0)
 
   useEffect(() => {
+    if (player) ensureDailyQuests(player)
+  }, [player])
+
+  useEffect(() => {
     const refresh = () => setHubRefresh(v => v + 1)
     window.addEventListener('scl:gen_quests_updated', refresh)
     window.addEventListener('scl:daily_updated', refresh)
@@ -695,12 +774,13 @@ export default function QuestsTab() {
 
   return (
     <div className="tab-panel-content">
-      <div className="profile-navbar" role="tablist">
+      <div className="profile-navbar" role="tablist" aria-label="Quest sections">
         {SECTIONS.map(s => (
-          <button key={s.id} role="tab" aria-selected={section === s.id}
+          <button key={s.id} type="button" role="tab" aria-selected={section === s.id}
             className={`profile-navbar-btn${section === s.id ? ' active' : ''}`}
             onClick={() => setSection(s.id)}>
-            {s.label}
+            <span className="profile-navbar-btn-label">{s.label}</span>
+            {section === s.id && <span className="profile-navbar-btn-sub">{s.subtitle}</span>}
           </button>
         ))}
       </div>

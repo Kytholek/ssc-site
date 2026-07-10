@@ -40,7 +40,8 @@ export function getDigitCounts(playerData) {
 
 // ── Stat values (1–9 only, for skill tree) ────────────────────────────────────
 /**
- * Returns { "1": n, "2": n, ... "9": n } — string keys for SkillTree compat.
+ * Returns { "1": n, "2": n, ... "9": n } — innate digit counts from chart.
+ * Skill-tree unlock gates use earned stat XP from questEngine.getXPState().statXP.
  */
 export function getStatValues(playerData) {
   const counts = getDigitCounts(playerData)

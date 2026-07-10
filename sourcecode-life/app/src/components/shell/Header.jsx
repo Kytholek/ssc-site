@@ -1,16 +1,12 @@
 /**
- * Header
- *
- * Sticky top bar showing character name, DOB, and a sign-out button.
- * The frequency-spike banner sits below it when active.
+ * Header — sticky top bar with menu and frequency spike banner
  */
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { useGameDispatch } from '../../state/GameContext'
 import { ACTIONS } from '../../state/actions'
 import { clearLocalSession } from '../../lib/storage'
 
-// Reduce to single digit or master number
 function reduceUD(n) {
   const masters = new Set([11, 22, 33])
   while (n > 9 && !masters.has(n)) {
@@ -27,14 +23,14 @@ function calcUniversalDay() {
 
 const CORE_LABELS = { lp:'Life Path', ex:'Expression', cl:'Life Calling', so:'Soul', ou:'Outer', ac:'Achievement', th:'Theme' }
 
-export default function Header({ onTabChange }) {
+export default function Header({ onTabChange, hidden = false }) {
   const { playerData } = useAppState()
   const dispatch = useAppDispatch()
   const gameDispatch = useGameDispatch()
   const [menuOpen, setMenuOpen] = useState(false)
   const [spikeDismissed, setSpikeDismissed] = useState(false)
+  const menuBtnRef = useRef(null)
 
-  // Alias overrides character name if saved
   const savedAlias = (() => { try { return localStorage.getItem('scl_char_alias') || '' } catch { return '' } })()
   const displayName = (savedAlias || playerData?.name || '').toUpperCase()
   const m = playerData?.m, d = playerData?.d, y = playerData?.y
@@ -42,7 +38,6 @@ export default function Header({ onTabChange }) {
     ? String(m).padStart(2, '0') + ' / ' + String(d).padStart(2, '0') + ' / ' + y
     : ''
 
-  // Frequency spike detection — derived directly, no side effect needed
   const spikeText = useMemo(() => {
     if (!playerData) return ''
     const ud = calcUniversalDay()
@@ -50,6 +45,18 @@ export default function Header({ onTabChange }) {
     const matches = keys.filter(k => playerData[k]?.root === ud).map(k => CORE_LABELS[k])
     return matches.length ? 'Universal Day ' + ud + ' aligns with your ' + matches.join(' & ') : ''
   }, [playerData])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handleKey(e) {
+      if (e.key === 'Escape') {
+        setMenuOpen(false)
+        menuBtnRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [menuOpen])
 
   function handleSignOut() {
     setMenuOpen(false)
@@ -66,39 +73,43 @@ export default function Header({ onTabChange }) {
     dispatch({ type: 'RESET_CHAR' })
   }
 
+  if (hidden) return null
+
   return (
     <div className="app-header-wrap">
       <header className="app-header">
-        {/* Name + DOB — display only; editing is on Char Card */}
         <div className="app-header-identity">
-          <>
-            <div className="app-header-name rpg-glow-gold">{displayName || 'SET NAME'}</div>
-            {dobText && <div className="app-header-dob">{dobText}</div>}
-          </>
+          <div className="app-header-name rpg-glow-gold">{displayName || 'SET NAME'}</div>
+          {dobText && <div className="app-header-dob">{dobText}</div>}
         </div>
 
-        {/* Menu button */}
-        <button className="app-header-menu-btn" onClick={() => setMenuOpen(v => !v)} aria-label="Menu">
+        <button
+          ref={menuBtnRef}
+          type="button"
+          className="app-header-menu-btn"
+          onClick={() => setMenuOpen(v => !v)}
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          aria-haspopup="true"
+        >
           ☰
         </button>
 
-        {/* Dropdown menu */}
         {menuOpen && (
-          <div className="app-header-menu">
-            <button className="app-menu-item" onClick={handleResetChar}>↺ Reset Character</button>
-            <button className="app-menu-item app-menu-item-danger" onClick={handleSignOut}>⏥ Sign Out</button>
-            <button className="app-menu-item" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('profile') }}>⚙ Profile</button>
-            <a href="https://simulationsourcecode.com" target="_blank" rel="noopener noreferrer" className="app-menu-item">← Back to Site</a>
+          <div className="app-header-menu" role="menu">
+            <button type="button" className="app-menu-item" role="menuitem" onClick={handleResetChar}>↺ Reset Character</button>
+            <button type="button" className="app-menu-item app-menu-item-danger" role="menuitem" onClick={handleSignOut}>⏥ Sign Out</button>
+            <button type="button" className="app-menu-item" role="menuitem" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('profile') }}>◇ Stats</button>
+            <a href="https://simulationsourcecode.com" target="_blank" rel="noopener noreferrer" className="app-menu-item" role="menuitem">← Back to Site</a>
           </div>
         )}
       </header>
 
-      {/* Frequency spike banner */}
       {spikeText && !spikeDismissed && (
-        <div className="freq-spike-banner">
-          <span className="freq-spike-icon">⚡</span>
+        <div className="freq-spike-banner" role="status">
+          <span className="freq-spike-icon" aria-hidden="true">⚡</span>
           <span className="freq-spike-text">{spikeText}</span>
-          <button className="freq-spike-close" onClick={() => setSpikeDismissed(true)}>✕</button>
+          <button type="button" className="freq-spike-close" onClick={() => setSpikeDismissed(true)} aria-label="Dismiss frequency alert">✕</button>
         </div>
       )}
     </div>

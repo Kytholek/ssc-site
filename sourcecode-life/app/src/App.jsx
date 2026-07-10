@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { AppProvider, useAppState, useAppDispatch } from './context/AppContext'
-import { GameProvider } from './state/GameContext'
+import { GameProvider, useGameDispatch } from './state/GameContext'
+import { ACTIONS } from './state/actions'
 import { useAuthBridge } from './hooks/useAuthBridge'
 import { loadSavedTheme } from './lib/theme'
 import { loadLocalSaved } from './lib/storage'
@@ -13,15 +14,18 @@ import CharCreateOverlay from './components/charCreate/CharCreateOverlay'
 import PremiumReveal from './components/onboarding/PremiumReveal'
 import AvatarCreator     from './components/charCreate/AvatarCreator'
 import AppShell from './components/shell/AppShell'
+import { ensureDailyQuests } from './lib/numerologyQuests'
 
 // ── Root component — registered bridges + screen router ──────────────────────
 function AppRoot() {
   const { screen, playerData } = useAppState()
   const dispatch   = useAppDispatch()
+  const gameDispatch = useGameDispatch()
 
   // Keep questEngine's window global in sync with playerData
   useEffect(() => {
     window.__scl_playerData__ = playerData || undefined
+    if (playerData) ensureDailyQuests(playerData)
   }, [playerData])
 
   // Register all NativeAuth_* window callbacks → AppContext dispatch
@@ -37,8 +41,12 @@ function AppRoot() {
       const productId = params.get('product_id')
       window.history.replaceState({}, '', window.location.pathname)
       window.NativePurchase_onPurchaseResult?.(true, productId, '')
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Decode → Blueprint.', color: 'var(--gold)' },
+      })
     }
-  }, [])
+  }, [gameDispatch])
 
   // Boot splash complete: parse invite link, then check session
   function handleBootComplete() {
@@ -57,8 +65,7 @@ function AppRoot() {
 
     if (typeof window.NativeAuth !== 'undefined') {
       window.NativeAuth.checkSession()
-      // NativeAuth_onSessionResult will dispatch SET_USER + loadPlayer, or leave at 'auth'
-      dispatch({ type: 'SET_SCREEN', payload: 'auth' })
+      // NativeAuth_onSessionResult will route to auth, restoring, or loadPlayer
     } else {
       // No native bridge — try offline cached data
       const saved = loadLocalSaved()
@@ -79,6 +86,7 @@ function AppRoot() {
   return (
     <div className="relative min-h-svh">
       {screen === 'boot'       && <BootSplash onComplete={handleBootComplete} />}
+      {screen === 'restoring'  && <BootSplash restoring onComplete={() => {}} />}
       {screen === 'auth'       && <AuthOverlay />}
       {screen === 'onboarding' && <OnboardingFlow onComplete={() => dispatch({ type: 'SET_SCREEN', payload: 'charCreate' })} />}
       {screen === 'charCreate'   && <CharCreateOverlay />}

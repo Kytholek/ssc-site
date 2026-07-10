@@ -110,6 +110,18 @@ export function useQuestRewardToast() {
           </span>
         </div>
 
+        {toast.skillPipFilled && toast.skillStageName && (
+          <div className="quest-reward-row quest-reward-row--bonus">
+            <span className="quest-reward-label">
+              <span className="quest-reward-icon" style={{ color: '#c9a84c' }}>◈</span>
+              Skill Stage
+            </span>
+            <span className="quest-reward-value" style={{ color: '#c9a84c' }}>
+              {toast.skillStageName} ✓
+            </span>
+          </div>
+        )}
+
         {/* Resonance bonus */}
         {toast.isResonant && (
           <div className="quest-reward-row quest-reward-row--bonus">

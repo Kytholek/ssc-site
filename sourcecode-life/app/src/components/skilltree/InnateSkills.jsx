@@ -1,10 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import SkillTree from './SkillTree.jsx'
+import CoachMark from '../ui/CoachMark'
+import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { reduceToSimple } from '../../lib/numerology'
 import { GIFTS, POLARITY_CONFIGS, FIRST_NAME_MEANINGS } from '../../lib/data'
 import {
-  getInnateSeeds, getStatValues, mergeWithSeeds, getPolarity, getFirstNameValue,
+  getInnateSeeds, mergeWithSeeds, getPolarity, getFirstNameValue,
 } from '../../lib/numerologyProfile'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -166,6 +169,7 @@ function saveSkillTreeProgressLocal(progress) {
 // ── Gift sidebar ──────────────────────────────────────────────────────────────
 function GiftSidebar({ gift, cfg, label, n, onClose }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 700)
+  const panelRef = useFocusTrap({ open: true, onClose })
   useEffect(() => {
     const fn = () => setIsMobile(window.innerWidth < 700)
     window.addEventListener('resize', fn)
@@ -189,6 +193,7 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
 
       {/* Panel */}
       <motion.div
+        ref={panelRef}
         initial={isMobile ? { y: '100%' } : { x: '100%', opacity: 0 }}
         animate={{ y: 0, x: 0, opacity: 1 }}
         exit={isMobile ? { y: '100%' } : { x: '100%', opacity: 0 }}
@@ -209,7 +214,7 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
           boxShadow: isMobile
             ? `0 -8px 40px rgba(0,0,0,0.6)`
             : `-8px 0 40px rgba(0,0,0,0.5)`,
-        }} role="dialog" aria-modal="true">
+        }} role="dialog" aria-modal="true" aria-label={`${gift.word} gift details`}>
 
         {/* Drag handle (mobile) */}
         {isMobile && (
@@ -230,7 +235,7 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
             flexShrink: 0,
           }}
         >
-          <button onClick={onClose} style={{
+          <button onClick={onClose} aria-label="Close" style={{
             background: 'none', border: '1px solid rgba(255,255,255,0.15)',
             borderRadius: 4, color: 'rgba(255,255,255,0.5)', fontSize: 16,
             cursor: 'pointer', padding: '2px 8px', lineHeight: 1,
@@ -425,8 +430,14 @@ export function GiftCards({ playerData }) {
 
 // ── Skill tree wrapper ────────────────────────────────────────────────────────
 function SkillTreeSection({ playerData }) {
+  const { xp } = useQuestEngine()
   const seeds      = getInnateSeeds(playerData)
-  const statValues = getStatValues(playerData)
+  const statValues = useMemo(() => {
+    const sv = {}
+    const raw = xp?.statXP || {}
+    for (let i = 1; i <= 9; i++) sv[String(i)] = raw[i] || 0
+    return sv
+  }, [xp?.statXP])
   const [completed, setCompleted] = useState(() =>
     mergeWithSeeds(loadSkillTreeProgressLocal(), seeds)
   )
@@ -469,7 +480,6 @@ function SkillTreeSection({ playerData }) {
     <div style={{ width: '100%', height: '100%' }}>
       <SkillTree
         completed={completed}
-        setCompleted={setCompleted}
         activeNode={activeNode}
         setActiveNode={setActiveNode}
         seeds={seeds}
@@ -486,6 +496,9 @@ function SkillTreeSection({ playerData }) {
 export default function InnateSkills({ playerData }) {
   return (
     <div>
+      <CoachMark storageKey="scl_coach_skill_tree" title="Skill Tree" afterTour>
+        Tap a node to see objectives. Locked nodes show unlock requirements when you hover or tap.
+      </CoachMark>
       <SkillTreeSection playerData={playerData} />
     </div>
   )

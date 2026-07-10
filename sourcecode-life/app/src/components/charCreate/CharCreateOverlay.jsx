@@ -10,9 +10,15 @@ import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { computeAll } from '../../lib/numerology'
 import { saveLocalPlayer } from '../../lib/storage'
 import { setTheme } from '../../lib/theme'
+import OnboardingProgress from '../ui/OnboardingProgress'
 
 const TESTER_EMAIL = 'tester@sourcecode.life'
 const SAVE_TIMEOUT_MS = 15000
+
+function isValidDate(m, d, y) {
+  const date = new Date(y, m - 1, d)
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+}
 
 const THEMES = [
   { id: 'scifi',    label: '◈ SCI-FI' },
@@ -55,6 +61,7 @@ export default function CharCreateOverlay() {
     if (!m || m < 1 || m > 12)          return err('⚠ Enter a valid month (1–12).')
     if (!d || d < 1 || d > 31)          return err('⚠ Enter a valid day (1–31).')
     if (!y || y < 1900 || y > 2099)     return err('⚠ Enter a valid year (1900–2099).')
+    if (!isValidDate(m, d, y))          return err('⚠ That date doesn\'t exist. Check month and day.')
 
     let playerData
     try {
@@ -95,6 +102,7 @@ export default function CharCreateOverlay() {
   return (
     <div className="char-create-overlay">
       <div className="char-create-card">
+        <OnboardingProgress screen="charCreate" />
         <h2 className="char-create-title rpg-glow-gold">CREATE YOUR CHARACTER</h2>
         <p className="char-create-sub">Your birth data decodes your core frequencies.</p>
 

@@ -6,6 +6,7 @@
  * onComplete triggers NativeAuth.checkSession() or offline fallback in App.jsx.
  */
 import { useEffect, useState, useRef } from 'react'
+import OnboardingProgress from './ui/OnboardingProgress'
 
 const BOOT_LINES = [
   'INITIALIZING SIMULATION ENGINE...',
@@ -20,18 +21,35 @@ const LAST_LINE_DELAY_MS = 300  // extra pause before fade
 const FADE_OUT_MS = 500
 const SVG_DURATION_MS = 1200  // time for SVG to fully animate
 
-export default function BootSplash({ onComplete }) {
+export default function BootSplash({ onComplete, restoring = false }) {
   const [visibleLines, setVisibleLines] = useState([])
   const [fadingOut, setFadingOut] = useState(false)
+  const [skipped, setSkipped] = useState(false)
   const indexRef = useRef(0)
 
+  const canSkip = (() => {
+    try { return localStorage.getItem('scl_boot_seen') === '1' } catch { return false }
+  })()
+
+  function finishBoot() {
+    try { localStorage.setItem('scl_boot_seen', '1') } catch { /* ignore */ }
+    onComplete()
+  }
+
+  function handleSkip() {
+    setSkipped(true)
+    setFadingOut(true)
+    setTimeout(finishBoot, 200)
+  }
+
   useEffect(() => {
+    if (restoring || skipped) return
     function nextLine() {
       const i = indexRef.current
       if (i >= BOOT_LINES.length) {
         // All lines shown — begin fade-out
         setFadingOut(true)
-        setTimeout(onComplete, FADE_OUT_MS)
+        setTimeout(finishBoot, FADE_OUT_MS)
         return
       }
       setVisibleLines(prev => [...prev, BOOT_LINES[i]])
@@ -43,7 +61,19 @@ export default function BootSplash({ onComplete }) {
     const timer = setTimeout(nextLine, 300) // initial delay before first line
     return () => clearTimeout(timer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [restoring, skipped])
+
+  if (restoring) {
+    return (
+      <div className="boot-splash" aria-live="polite" aria-label="Restoring your character">
+        <div className="boot-content">
+          <div className="boot-lines" role="status">
+            <div className="boot-line">&gt; RESTORING YOUR CHARACTER…</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -52,12 +82,16 @@ export default function BootSplash({ onComplete }) {
       aria-label="Loading…"
     >
       <div className="boot-content">
+        <OnboardingProgress screen="boot" />
         <div className="boot-lines" role="log">
         {visibleLines.map((line, idx) => (
           <div key={idx} className="boot-line">&gt; {line}</div>
         ))}
       </div>
-      <svg className="hp-codex-svg" viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg">
+      {canSkip && !fadingOut && (
+        <button type="button" className="boot-skip-btn" onClick={handleSkip}>Skip</button>
+      )}
+      <svg className="hp-codex-svg" viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <line className="hp-codex-line" x1="150" y1="40" x2="90" y2="100" style={{ animationDelay: '1.6s' }} />
         <line className="hp-codex-line" x1="150" y1="40" x2="210" y2="100" style={{ animationDelay: '1.7s' }} />
         <line className="hp-codex-line" x1="90" y1="100" x2="150" y2="160" style={{ animationDelay: '1.8s' }} />

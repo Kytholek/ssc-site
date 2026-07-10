@@ -14,6 +14,7 @@ import {
   SKIN_TONES, HAIR_COLORS, EYE_COLORS,
   deriveDefaultAvatar, saveAvatar,
 } from '../../lib/avatarParts'
+import OnboardingProgress from '../ui/OnboardingProgress'
 
 const PREVIEW_SIZE = 320
 const THUMB_SIZE = 54
@@ -596,6 +597,7 @@ export default function AvatarCreator() {
       <div className="av-energy-layer" aria-hidden />
 
       <div className="av-header">
+        <OnboardingProgress screen="avatarCreate" />
         <h2 className="av-title rpg-glow-teal">DESIGN YOUR AVATAR</h2>
         <p className="av-sub">Your image — seeded from your blueprint.</p>
       </div>

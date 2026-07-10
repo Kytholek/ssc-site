@@ -15,8 +15,16 @@
 
 
 import { earnCharXP, earnStatXP, getLQP, QuestEngine_markLQPObjective } from './questEngine.js'
-import { recordDailySnapshot } from './dataHistory.js'
+import {
+  applyQuestSkillReward,
+  resolveSkillMeta,
+  skillTreeNumber,
+  SKILLTREE_LS_KEY,
+} from './skillQuestBridge.js'
+import { recordDailySnapshot, updateDailySummary } from './dataHistory.js'
 import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
+import { resolveBlueprintNode } from './questBlueprint.js'
+import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple } from './numerology.js'
 import { statState } from './achievements.js'
 import { todayStr } from './numerology.js'
 import { NUMBERS } from '../components/skilltree/SkillTree.jsx'
@@ -1055,7 +1063,9 @@ function _checkDailySweep(raw) {
   try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw)) } catch { /* intentional */ }
   earnCharXP(25)
   const cn = raw.cycleNumber
-  if (cn >= 1 && cn <= 9) earnStatXP(cn, 1)
+  if (cn >= 1 && cn <= 9) {
+    applyQuestSkillReward({ root: cn, questKind: 'cycle', difficulty: 'easy' }, earnStatXP, dispatch)
+  }
   dispatch('scl:xp_toast', { msg: '◈ DAILY SWEEP · +25 XP', color: 'var(--teal)' })
 }
 
@@ -1116,35 +1126,6 @@ function activeTierFor(questKey, lqp) {
  */
 // Stage unlock thresholds — must match SkillTree.jsx THRESHOLDS
 const SKILL_STAGE_THRESHOLDS = { stage2: 5, stage3: 10 }
-const SKILLTREE_LS_KEY = 'scl_skilltree_progress_v2'
-
-/** Reduce master numbers to skill tree range 1-9 */
-function _skillTreeNumber(root) {
-  const n = Number(root)
-  if (n === 11) return 2
-  if (n === 22) return 4
-  if (n === 33) return 6
-  return (n >= 1 && n <= 9) ? n : null
-}
-
-/** Update skill tree progress from a quest's skillMeta */
-function _updateSkillTreeProgress(skillMeta) {
-  if (!skillMeta) return
-  const { number, stageIdx } = skillMeta
-  if (!number || stageIdx == null) return
-  try {
-    const raw = localStorage.getItem(SKILLTREE_LS_KEY)
-    const prog = raw ? JSON.parse(raw) : {}
-    const key = String(number)
-    const arr = prog[key] || [false, false, false]
-    if (stageIdx > 0 && !arr[stageIdx - 1]) return  // gate: don't skip stages
-    if (arr[stageIdx]) return  // already done
-    arr[stageIdx] = true
-    prog[key] = arr
-    localStorage.setItem(SKILLTREE_LS_KEY, JSON.stringify(prog))
-    window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: prog }))
-  } catch {}
-}
 
 function isSkillStageUnlocked(numberId, stageIdx, skillProgress, statValues, seeds) {
   if (stageIdx === 0) return true
@@ -1211,7 +1192,7 @@ export function generateDailyQuests(user) {
     type:        'skilltree',
     difficulty:  q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard',
     rewardXP:    (() => { const base = q.stage === 1 ? 5 : q.stage === 2 ? 10 : 20; const diff = q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard'; return Math.round(base * (DIFFICULTY_MULTIPLIER[diff] || 1.0)) })(),
-    skillMeta:   { number: q.number, stageIdx: q.stageIdx },
+    skillMeta:   resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
     completed:   false,
     isNew:       true,
     isRepeated:  false,
@@ -1230,9 +1211,10 @@ export function generateDailyQuests(user) {
   }
 
   const lifePicked = _shuffle(lifePool).slice(0, 2)
+  const multiDayStarts = []
   const lifeQuests = lifePicked.map(c => {
     const diff = c.tier === 3 ? 'hard' : c.tier === 2 ? 'medium' : 'easy'
-    return {
+    const quest = {
       id:        `life-${c.questKey}-${c.tier}-${c.objIdx}-${today}`,
       title:     c.text,
       number:    c.root,
@@ -1240,15 +1222,24 @@ export function generateDailyQuests(user) {
       type:      'objective',
       difficulty: diff,
       rewardXP:  Math.round(BASE_XP[diff] * (DIFFICULTY_MULTIPLIER[diff] || 1.0)),
-      skillMeta: { number: _skillTreeNumber(c.root), stageIdx: Math.min(c.tier - 1, 2) },
+      skillMeta: resolveSkillMeta({ root: c.root, tier: c.tier, questKind: 'life' }),
       completed: false,
       isNew:     false,
       isRepeated:false,
       lqpMeta:   { questKey: c.questKey, tier: c.tier, objIdx: c.objIdx },
     }
+    const multi = detectMultiDay(c.text)
+    if (multi) {
+      quest.multiDay = { totalDays: multi.totalDays }
+      multiDayStarts.push(quest)
+    }
+    return quest
   })
 
   // ── 2 CURRENT quests (personal year + personal month cycle objectives) ────
+  const blueprintKey = user?.blueprintKey || 'cl'
+  const monthLqpTier = activeTierFor(blueprintKey, lqp)
+
   const cyclePool = []
   const cycleTypes = [
     { type: 'personalYear',  root: cycleRoots.personalYear  },
@@ -1257,7 +1248,7 @@ export function generateDailyQuests(user) {
   ]
   for (const { type, root } of cycleTypes) {
     if (!root) continue
-    const objs = getCycleObjectives(type, root)
+    const objs = getCycleObjectives(type, root, 1, type === 'personalMonth' ? monthLqpTier : null)
     objs.forEach((o, i) => cyclePool.push({ type, root, text: o.text, idx: i }))
   }
 
@@ -1271,7 +1262,7 @@ export function generateDailyQuests(user) {
     type:        'cycle',
     difficulty:  'easy',
     rewardXP:    Math.round(BASE_XP.easy * (DIFFICULTY_MULTIPLIER['easy'] || 1.0)),
-    skillMeta:   { number: _skillTreeNumber(c.root), stageIdx: 0 },
+    skillMeta:   resolveSkillMeta({ root: c.root, questKind: 'cycle' }),
     completed:   false,
     isNew:       false,
     isRepeated:  false,
@@ -1300,7 +1291,7 @@ export function generateDailyQuests(user) {
       completed:   false,
       isNew:       true,
       isRepeated:  false,
-      skillMeta:   { number: q.number, stageIdx: q.stageIdx },
+      skillMeta:   resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
     }))
     quests.push(...fillers)
   }
@@ -1308,6 +1299,11 @@ export function generateDailyQuests(user) {
   const record = { date: today, quests, cycleLabel: CYCLE_MODIFIERS?.[cycleNumber]?.label || '', cycleNumber }
   try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(record)) } catch {}
   dispatch('scl:gen_quests_updated', { quests })
+
+  multiDayStarts.forEach((quest) => {
+    try { beginMultiDayQuest(quest) } catch { /* intentional */ }
+  })
+
   return quests
 }
 
@@ -1428,6 +1424,20 @@ export function completeGeneratedQuest(questId, journalText) {
     if (!quest)          return { ok: false, error: 'Quest not found' }
     if (quest.completed) return { ok: false, error: 'Already completed' }
 
+    if (quest.multiDay) {
+      const active = getActiveMultiDayQuests()
+      if (active[questId]) {
+        return { ok: false, error: 'Multi-day commitment — use daily check-ins to progress' }
+      }
+      const beginResult = beginMultiDayQuest(quest)
+      if (beginResult.ok) {
+        saveGenReflection(questId, trimmed, quest)
+        dispatch('scl:gen_quests_updated', { quests: raw.quests })
+        return { ok: true, multiDayStarted: true }
+      }
+      return beginResult
+    }
+
     quest.completed   = true
     quest.completedAt = Date.now()
     localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw))
@@ -1449,14 +1459,20 @@ export function completeGeneratedQuest(questId, journalText) {
       }
     }
 
-    earnStatXP(quest.number, statXPAmount)
-
-    // ── Reflect completion back into skill tree progress ──────────────────────
-    _updateSkillTreeProgress(quest.skillMeta)
+    const skillResult = applyQuestSkillReward({
+      skillMeta: quest.skillMeta || resolveSkillMeta({
+        root: quest.number,
+        tier: quest.lqpMeta?.tier || (quest.stageIdx != null ? quest.stageIdx + 1 : 1),
+        questKind: quest.type === 'skilltree' ? 'skill' : quest.source === 'life' ? 'life' : 'cycle',
+        stageIdx: quest.stageIdx,
+      }),
+      difficulty: quest.difficulty,
+      statXPAmount,
+    }, earnStatXP, dispatch)
 
     if (quest.lqpMeta) {
       const { questKey, tier, objIdx } = quest.lqpMeta
-      QuestEngine_markLQPObjective(questKey, tier, objIdx)
+      QuestEngine_markLQPObjective(questKey, tier, objIdx, { skipSkillReward: true })
     }
 
     // ── History + category affinity update ────────────────────────────────────
@@ -1489,20 +1505,25 @@ export function completeGeneratedQuest(questId, journalText) {
     saveGenReflection(questId, trimmed, quest)
     dispatch('scl:gen_quests_updated', { quests: raw.quests, completed: questId })
 
+    updateDailySummary({
+      xpEarned: quest.rewardXP,
+      questsCompleted: 1,
+    })
+    try { recordDailySnapshot() } catch {}
+
     // ── Detailed reward summary toast ──────────────────────────────────────
     try {
       dispatch('scl:quest_reward', {
         charXP: quest.rewardXP,
         statXP: statXPAmount,
-        statNum: quest.number,
+        statNum: skillResult.meta?.number || skillTreeNumber(quest.number) || quest.number,
         difficulty: quest.difficulty,
         questTitle: quest.title,
         questNumber: quest.number,
+        skillPipFilled: skillResult.pipFilled,
+        skillStageName: skillResult.pipFilled ? ['Initiate', 'Consistency', 'Mastery'][skillResult.meta?.stageIdx] : null,
       })
     } catch {}
-
-    // ── Record daily snapshot for charting ─────────────────────────────────
-    try { recordDailySnapshot() } catch {}
 
     return { ok: true, xpAwarded: quest.rewardXP }
   } catch (e) {
@@ -1551,13 +1572,10 @@ export function beginMultiDayQuest(quest) {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
     if (raw) {
       const q = raw.quests.find(x => x.id === quest.id)
-      // DEBUG: Track multi-day begin
-      console.log('[beginMultiDay] quest.id=', quest.id, 'q=', q ? 'found' : 'NOT FOUND', 'q.multiDay=', q?.multiDay)
       if (q) {
         if (!q.multiDay) q.multiDay = { totalDays: quest.multiDay?.totalDays || 0 }
         q.multiDay.started = true
         localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw))
-        console.log('[beginMultiDay] Saved started=true. Saved quest.multiDay=', raw.quests.find(x => x.id === quest.id)?.multiDay)
       }
     }
   } catch (e) { console.error('[beginMultiDay] Error:', e) }
@@ -1629,12 +1647,15 @@ export function completeMultiDayQuest(questId, journalText) {
   const baseStatXP  = _statXPForDifficulty(quest.difficulty)
   const streakBonus = Math.floor(maxStreak / 7)
   const finalStatXP = baseStatXP + streakBonus + 1
-  earnStatXP(quest.number, finalStatXP)
 
-  _updateSkillTreeProgress(quest.skillMeta)
+  applyQuestSkillReward({
+    skillMeta: quest.skillMeta || resolveSkillMeta({ root: quest.number, tier: 3, questKind: 'multi' }),
+    difficulty: quest.difficulty,
+    statXPAmount: finalStatXP,
+  }, earnStatXP, dispatch)
 
   if (quest.lqpMeta) {
-    QuestEngine_markLQPObjective(quest.lqpMeta.questKey, quest.lqpMeta.tier, quest.lqpMeta.objIdx)
+    QuestEngine_markLQPObjective(quest.lqpMeta.questKey, quest.lqpMeta.tier, quest.lqpMeta.objIdx, { skipSkillReward: true })
   }
 
   if (quest.category !== 'objective') {
@@ -1648,6 +1669,13 @@ export function completeMultiDayQuest(questId, journalText) {
   saveGenReflection(questId + '_complete', trimmed, quest)
   dispatch('scl:xp_toast', { msg: `⚡ ${mult.toFixed(1)}× STREAK · +${finalXP} XP`, color: 'var(--gold)' })
   dispatch('scl:gen_quests_updated', {})
+
+  updateDailySummary({
+    xpEarned: finalXP,
+    questsCompleted: 1,
+  })
+  try { recordDailySnapshot() } catch {}
+
   return { ok: true, xpAwarded: finalXP, multiplier: mult }
 }
 
@@ -1735,4 +1763,64 @@ export function getDifficultyMeta(difficulty) {
 export function calcQuestXP(baseXP, difficulty) {
   const mult = DIFFICULTY_MULTIPLIER[difficulty] || 1.0
   return Math.round(baseXP * mult)
+}
+
+/** Build user profile for generateDailyQuests from playerData. */
+export function buildQuestUserProfile(playerData, statXP = {}) {
+  if (!playerData) return null
+  const { lp, ex, cl, so, ou, ac, th, m, d } = playerData
+  const coreRoots = [lp.root, ex.root, cl.root, so.root, ou.root, ac.root, th.root]
+    .map(r => reduceToSimple(r))
+    .filter(r => r >= 1 && r <= 9)
+  const counts = {}
+  for (let i = 1; i <= 9; i++) counts[i] = 0
+  coreRoots.forEach(n => counts[n]++)
+  const sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort((a, b) => counts[b] - counts[a])
+  const pd = calcPersonalDay(m, d)
+  const pm = calcPersonalMonth(m, d)
+  const py = calcPersonalYear(m, d)
+
+  let freqLevel = 1
+  try {
+    const xpState = JSON.parse(localStorage.getItem('scl_xp') || '{}')
+    freqLevel = xpState.freqLevel || 1
+  } catch {}
+
+  return {
+    dominantNumbers: sorted.filter(n => counts[n] >= 2).length
+      ? sorted.filter(n => counts[n] >= 2) : sorted.slice(0, 2),
+    weakerNumbers: sorted.filter(n => counts[n] === 0).length
+      ? sorted.filter(n => counts[n] === 0) : sorted.slice(-2),
+    outerNumber: reduceToSimple(ou.root),
+    statXP,
+    statValues: statXP,
+    dayRoot: reduceToSimple(pd.root),
+    cycleNumber: reduceToSimple(py.root),
+    cycleRoots: {
+      personalDay: pd.root,
+      personalMonth: pm.root,
+      personalYear: py.root,
+    },
+    bpRoots: coreRoots.filter((v, i, a) => a.indexOf(v) === i),
+    lifeNodes: [
+      { key: 'lp', root: lp.root },
+      { key: 'ex', root: ex.root },
+      { key: 'cl', root: cl.root },
+      { key: 'so', root: so.root },
+      { key: 'ou', root: ou.root },
+      { key: 'ac', root: ac.root },
+      { key: 'th', root: th.root },
+    ],
+    freqLevel,
+    blueprintKey: resolveBlueprintNode(playerData, pd, pm, freqLevel),
+  }
+}
+
+/** Generate today's quests if not already present. */
+export function ensureDailyQuests(playerData) {
+  if (!playerData) return null
+  const existing = getGeneratedQuests()
+  if (existing?.quests?.length) return existing.quests
+  const user = buildQuestUserProfile(playerData)
+  return generateDailyQuests(user)
 }

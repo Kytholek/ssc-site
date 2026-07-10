@@ -5,8 +5,11 @@
  */
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 
 export default function FlowDetailPanel({ open, onClose, color = '#c9a84c', title, subtitle, icon, children }) {
+  const panelRef = useFocusTrap({ open, onClose })
+
   return createPortal(
     <AnimatePresence>
       {open && (
@@ -31,6 +34,7 @@ export default function FlowDetailPanel({ open, onClose, color = '#c9a84c', titl
           {/* Panel - bottom sheet on mobile */}
           <motion.div
             key="panel"
+            ref={panelRef}
             className="flow-side-panel flow-side-panel--mobile"
             style={{
               '--flow-color':          color,

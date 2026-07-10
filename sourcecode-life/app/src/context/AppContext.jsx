@@ -9,7 +9,7 @@ const initialState = {
   playerData: null,
   /** Which top-level overlay is shown: 'boot' | 'auth' | 'charCreate' | 'avatarCreate' | 'app' */
   screen: 'boot',
-  /** Active main tab: 'stats' | 'quests' | 'map' | 'log' | 'settings' */
+  /** Active main tab: 'home' | 'quests' | 'map' | 'profile' | 'config' */
   activeTab: 'home',
   /** Auth form errors: { loginError, regError, charError, forgotError, forgotSuccess, cpError, cpSuccess, deleteError } */
   authErrors: {},

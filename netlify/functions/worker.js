@@ -127,10 +127,10 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    // ── app subdomain → redirect to web app ────────────────────────────
+    // ── app subdomain → redirect to live portal ────────────────────────
     if (url.hostname === 'app.simulationsourcecode.com') {
-      const appPath = url.pathname === '/' ? '/sourcecode-life/profile/' : url.pathname;
-      return Response.redirect('https://simulationsourcecode.com' + appPath + url.search, 301);
+      const appPath = url.pathname === '/' ? '/' : url.pathname;
+      return Response.redirect('https://portal.simulationsourcecode.com' + appPath + url.search, 301);
     }
 
     // ── Route dispatch ──────────────────────────────────────────────────

@@ -464,6 +464,23 @@ export const CYCLE_OBJECTIVES = {
         { id:'cy_mo_22_ma_2', text:'Establish a legacy framework this month that outlives you and serves your highest vision.', duration:'month' },
       ],
     },
+    33: {
+      apprentice: [
+        { id:'cy_mo_33_ap_0', text:'Offer one act of unconditional service this month — not for recognition or reciprocity.', duration:'month' },
+        { id:'cy_mo_33_ap_1', text:'Choose love as a deliberate act in one situation where judgement would be easier.', duration:'month' },
+        { id:'cy_mo_33_ap_2', text:'Teach or share one insight from direct experience with someone who needs it.', duration:'month' },
+      ],
+      adept: [
+        { id:'cy_mo_33_ad_0', text:'Bring your full presence — spiritual, emotional, and creative — into service of someone going through difficulty.', duration:'month' },
+        { id:'cy_mo_33_ad_1', text:'Identify where compassion has become control. Release the outcome you are managing.', duration:'month' },
+        { id:'cy_mo_33_ad_2', text:'Create one environment this month where people feel genuinely safe, seen, and cared for.', duration:'month' },
+      ],
+      master: [
+        { id:'cy_mo_33_ma_0', text:'Embody unconditional love in a situation designed to exhaust it — without martyrdom or resentment.', duration:'month' },
+        { id:'cy_mo_33_ma_1', text:'Create something this month whose sole purpose is the elevation of those who encounter it.', duration:'month' },
+        { id:'cy_mo_33_ma_2', text:'Model healing and teaching this month — let your presence be the lesson.', duration:'month' },
+      ],
+    },
   },
   personalDay: {
     1:  [{ id:'cy_day_1_0',  text:'Do the one thing you have been putting off this morning, before anything else.', duration:'day' },{ id:'cy_day_1_1',  text:'Introduce yourself, your idea, or your work to one new person today.', duration:'day' },{ id:'cy_day_1_2',  text:"Make one decision today without seeking anyone's opinion first.", duration:'day' }],
@@ -711,15 +728,89 @@ export function getTieredObjectiveTexts(root, tier) {
  */
 const CYCLE_OBJECTIVE_TIER_LEVELS = [1, 10, 25]
 
-export function getCycleObjectives(cycleType, root, freqLevel = 1) {
-  const all = CYCLE_OBJECTIVES[cycleType]?.[root] ?? []
+export const TIER_COMMITMENT_DAYS = { 1: 7, 2: 14, 3: 30 }
 
-  // For personalMonth, handle tiered structure: flatten and return first 3
+export function getTierObjectiveCount(root, tier) {
+  return getTieredObjectives(root, tier).length
+}
+
+/**
+ * Returns the tier commitment objective (index 2) with commitmentDays metadata.
+ */
+export function getCommitmentObjective(root, tier) {
+  const objs = getTieredObjectives(root, tier)
+  const obj = objs[2]
+  if (!obj) return null
+  const days = TIER_COMMITMENT_DAYS[tier] || detectCommitmentDays(obj.text) || 7
+  return { ...obj, days, commitmentDays: days, objIdx: 2 }
+}
+
+function detectCommitmentDays(text) {
+  const m = text?.match(/(\d+)\s+consecutive\s+days?/i) || text?.match(/For\s+(\d+)\s+consecutive/i)
+  return m ? parseInt(m[1], 10) : null
+}
+
+export function getCycleObjectives(cycleType, root, freqLevel = 1, lqpTier = null) {
+  const simple = reduceToSimple(root)
+  const all = CYCLE_OBJECTIVES[cycleType]?.[simple] ?? CYCLE_OBJECTIVES[cycleType]?.[root] ?? []
+
   if (cycleType === 'personalMonth' && all.apprentice) {
-    return Object.values(all).flat().slice(0, 3)
+    const tier = lqpTier ?? (freqLevel >= 25 ? 3 : freqLevel >= 10 ? 2 : 1)
+    return getMonthlyObjectivesForTier(simple, tier)
   }
 
-  return all
+  if (!Array.isArray(all)) return []
+
+  const maxTier = CYCLE_OBJECTIVE_TIER_LEVELS.filter(lv => freqLevel >= lv).length
+  return all.slice(0, Math.max(1, maxTier))
+}
+
+export function getPersonalDayGlyphPool(dayRoot) {
+  const simple = reduceToSimple(dayRoot)
+  const pool = CYCLE_OBJECTIVES.personalDay?.[simple]
+    ?? CYCLE_OBJECTIVES.personalDay?.[dayRoot]
+    ?? []
+  return Array.isArray(pool) ? pool : []
+}
+
+/**
+ * Third daily glyph: skill-tree objective matching today's personal day root (1–9).
+ * Rotates through initiate-tier daily objectives for that number.
+ */
+export function getDailySkillGlyph(dayRoot) {
+  const num = reduceToSimple(dayRoot)
+  const now = new Date()
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000)
+  const initiate = getSkillTreeTierObjectives(num, 'initiate')
+  const pool = initiate.filter((o) => o.source === 'daily')
+  const list = pool.length ? pool : initiate
+
+  if (!list.length) {
+    const dayFallback = CYCLE_OBJECTIVES.personalDay?.[num]
+    const flat = Array.isArray(dayFallback)
+      ? dayFallback
+      : Object.values(dayFallback || {}).flat()
+    const picked = flat[dayOfYear % Math.max(flat.length, 1)] || flat[0]
+    if (!picked) return null
+    return {
+      id: picked.id,
+      text: picked.text,
+      duration: picked.duration,
+      icon: '◈',
+      slot: 'skill',
+      skillNumber: num,
+    }
+  }
+
+  const picked = list[dayOfYear % list.length]
+  return {
+    id: picked.id,
+    text: picked.text,
+    duration: picked.duration,
+    icon: '◈',
+    slot: 'skill',
+    skillNumber: num,
+  }
 }
 
 /**

@@ -5,7 +5,6 @@
  */
 import { useState, useEffect } from 'react'
 import { useAppState } from '../../context/AppContext'
-import { useGameState } from '../../state/GameContext'
 import InnateSkills from '../skilltree/InnateSkills.jsx'
 import StatsTab from '../datachunks/StatsTab'
 import NumerologySpiral from '../spirals/NumerologySpiral'
@@ -19,8 +18,7 @@ const PROFILE_TABS = [
 
 export default function SkillsTab() {
   const { playerData } = useAppState()
-  const { user } = useGameState()
-  const [tab, setTab] = useState('spiral') // Default to spiral for direct links
+  const [tab, setTab] = useState('skills')
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -64,10 +62,9 @@ export default function SkillsTab() {
       {tab === 'skills' && <InnateSkills playerData={playerData} />}
       {tab === 'stats'  && <StatsTab playerData={playerData} />}
       {tab === 'spiral' && (
-        <div style={{ position: 'relative' }}>
+        <PremiumLockOverlay feature="Numerology Spiral — Time Spiral visualization">
           <NumerologySpiral playerData={playerData} />
-          {!user.isPremium && <PremiumLockOverlay feature="Numerology Spiral" />}
-        </div>
+        </PremiumLockOverlay>
       )}
     </div>
   )

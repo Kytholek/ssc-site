@@ -1,28 +1,101 @@
 /**
- * Seasons — Personal Month and Year cycles with time-locked engagement
- *
- * - Month: 4 weekly check-ins (min 14 days spread) → 40 XP
- * - Year: 6 months completed → year journal → 120 XP
+ * Seasons — Personal Month and Year cycles with tier-based commitments (7/14/30 days)
  */
 import { useState, useEffect, useRef } from 'react'
-// Note: createPortal was removed since YearJournalPanel is now extracted
-import { calcPersonalYear, calcPersonalMonth, calcPinnacles, reduceToSimple } from '../../lib/numerology'
-import { getCycleObjectives } from '../../lib/objectives'
+import { calcPersonalYear, calcPersonalMonth, calcPinnacles, getCycleAnchor } from '../../lib/numerology'
+import { getCycleObjectives, PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { CYCLE_MEANINGS, CYCLE_QUEST_COLORS } from '../../lib/data'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
+import { getPinnacleProgress } from '../../lib/questEngine'
 import {
   getMonthSeasonState, addMonthCheckin, completeMonthSeason,
   getYearSeasonState, completeYearSeason,
 } from '../../lib/seasonEngine'
+import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 import { showFloatingXP, showParticleBurst } from '../effects/FloatingXP'
 import MonthCheckinPanel from './MonthCheckinPanel'
 import YearJournalPanel from './YearJournalPanel'
 
 // ═══════════════════════════════════════════════════════════════
+//  PINNACLE CREST — contextual chapter banner
+// ═══════════════════════════════════════════════════════════════
+
+function SeasonsPinnacleCrest({
+  currentPinn,
+  pinnacleIndex,
+  pinnacleData,
+  pinnacleColor,
+  pm,
+  pinnacleProgress,
+  monthLens,
+}) {
+  const milestoneCount = pinnacleProgress?.milestones?.length || 0
+  const milestoneRequired = pinnacleProgress?.required || 1
+  const milestonePct = Math.min(100, (milestoneCount / milestoneRequired) * 100)
+
+  return (
+    <div
+      className="seasons-pinnacle-crest"
+      style={{ '--pinnacle-color': pinnacleColor }}
+      aria-label={`Pinnacle chapter ${pinnacleIndex}: ${pinnacleData.theme}`}
+    >
+      <span className="seasons-pinnacle-crest-corner seasons-pinnacle-crest-corner--tl" aria-hidden="true" />
+      <span className="seasons-pinnacle-crest-corner seasons-pinnacle-crest-corner--tr" aria-hidden="true" />
+      <span className="seasons-pinnacle-crest-corner seasons-pinnacle-crest-corner--bl" aria-hidden="true" />
+      <span className="seasons-pinnacle-crest-corner seasons-pinnacle-crest-corner--br" aria-hidden="true" />
+
+      <div className="seasons-pinnacle-crest-header">
+        <div className="seasons-pinnacle-crest-title">
+          <span className="seasons-pinnacle-crest-num">{currentPinn.root}</span>
+          <div className="seasons-pinnacle-crest-info">
+            <span className="seasons-pinnacle-crest-theme">▲ {pinnacleData.theme}</span>
+            <span className="seasons-pinnacle-crest-chapter">Chapter {pinnacleIndex} of 4</span>
+          </div>
+        </div>
+        <div className="seasons-pinnacle-crest-ages">
+          Ages {currentPinn.startAge}–{currentPinn.endAge || '∞'}
+        </div>
+      </div>
+
+      {pinnacleData.summary && (
+        <p className="seasons-pinnacle-crest-summary">{pinnacleData.summary}</p>
+      )}
+
+      <div className="seasons-pinnacle-milestones">
+        <div className="seasons-pinnacle-milestones-label">
+          Chapter milestones · {milestoneCount}/{milestoneRequired}
+        </div>
+        <div className="seasons-pinnacle-milestones-track">
+          <div
+            className="seasons-pinnacle-milestones-fill"
+            style={{ width: `${milestonePct}%` }}
+          />
+        </div>
+      </div>
+
+      {monthLens && (
+        <p className="seasons-pinnacle-lens">{monthLens}</p>
+      )}
+    </div>
+  )
+}
+
+function SeasonCardCorners() {
+  return (
+    <>
+      <span className="seasons-card-corner seasons-card-corner--tl" aria-hidden="true" />
+      <span className="seasons-card-corner seasons-card-corner--tr" aria-hidden="true" />
+      <span className="seasons-card-corner seasons-card-corner--bl" aria-hidden="true" />
+      <span className="seasons-card-corner seasons-card-corner--br" aria-hidden="true" />
+    </>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  MONTH SEASON CARD
 // ═══════════════════════════════════════════════════════════════
 
-function MonthSeasonCard({ playerData, lpRoot, m, d }) {
+function MonthSeasonCard({ playerData, lpRoot, m, d, monthLens }) {
   const [monthState, setMonthState] = useState(null)
   const [checkinPanelOpen, setCheckinPanelOpen] = useState(false)
   const nodeRef = useRef(null)
@@ -34,18 +107,26 @@ function MonthSeasonCard({ playerData, lpRoot, m, d }) {
   const cfg = CYCLE_QUEST_COLORS.personalMonth || {}
   const colorVar = `var(${cfg.color})`
 
-  // Load month state
   useEffect(() => {
-    const state = getMonthSeasonState(lpRoot, m, d, freqLevel)
+    const state = getMonthSeasonState(lpRoot, m, d, freqLevel, playerData)
     setMonthState(state)
-  }, [lpRoot, m, d, freqLevel])
+  }, [lpRoot, m, d, freqLevel, playerData])
 
   if (!monthState) return null
 
+  const tierDays = monthState.tierDays || 7
+  const checkinCount = monthState.checkins.length
+  const today = new Date().toISOString().split('T')[0]
+  const checkedInToday = monthState.checkins.some(c => c.date === today)
+  const multiDay = monthState.multiDayId ? getActiveMultiDayQuests()[monthState.multiDayId] : null
+  const streak = multiDay?.multiDay?.streak || checkinCount
   const daysActive = monthState.startDate
     ? Math.floor((new Date() - new Date(monthState.startDate)) / 86400000)
     : 0
-  const canComplete = monthState.checkins.length >= 4 && daysActive >= 14
+  const canCheckin = !monthState.completed && !checkedInToday && checkinCount < tierDays
+  const canComplete = checkinCount >= tierDays && streak >= tierDays
+  const tierName = ['APPRENTICE', 'ADEPT', 'MASTER'][monthState.lockedObj?.tierAtLock - 1] || 'APPRENTICE'
+  const panelColor = cfg.hex || colorVar
 
   const handleCheckinSubmit = (journal, objectiveIdx) => {
     const result = addMonthCheckin(lpRoot, m, d, journal, objectiveIdx)
@@ -79,6 +160,7 @@ function MonthSeasonCard({ playerData, lpRoot, m, d }) {
   return (
     <>
       <div className="seasons-card seasons-card--month" ref={nodeRef} style={{ '--season-color': colorVar }}>
+        <SeasonCardCorners />
         <div className="seasons-card-header">
           <div className="seasons-card-icon" style={{ color: colorVar }}>◇</div>
           <div className="seasons-card-title">
@@ -89,39 +171,74 @@ function MonthSeasonCard({ playerData, lpRoot, m, d }) {
         </div>
 
         <div className="seasons-card-body">
+          {monthLens && (
+            <p className="seasons-month-lens">{monthLens}</p>
+          )}
+
           {monthState.lockedObj && (
             <div className="seasons-locked-obj">
               <div className="seasons-locked-obj-tier">
-                {['APPRENTICE', 'ADEPT', 'MASTER'][monthState.lockedObj.tierAtLock - 1] || 'APPRENTICE'} MISSION
+                {tierName} MISSION
               </div>
               <div className="seasons-locked-obj-text">{monthState.lockedObj.text}</div>
             </div>
           )}
 
           <div className="seasons-checkins">
-            <div className="seasons-checkins-label">Check-ins</div>
-            <div className="seasons-checkins-pips">
-              {[0, 1, 2, 3].map(i => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`seasons-pip${monthState.checkins[i] ? ' seasons-pip--done' : ''}`}
-                  onClick={() => setCheckinPanelOpen(true)}
-                  disabled={monthState.completed}
-                  aria-label={`Check-in ${i + 1}${monthState.checkins[i] ? ' complete' : ''}`}
-                />
-              ))}
+            <div className="seasons-checkins-header">
+              <span className="seasons-checkins-label">{tierDays}-day commitment</span>
+              <span className="seasons-checkins-tier">{tierName}</span>
             </div>
-            <div className="seasons-checkins-count">
-              {monthState.checkins.length}/4 · {daysActive} days active
-            </div>
-          </div>
 
-          {!canComplete && monthState.checkins.length >= 4 && daysActive < 14 && (
-            <div className="seasons-unlock-banner">
-              ⏱ Minimum 14 days required · {14 - daysActive} more days
+            <div className="seasons-checkins-track" aria-hidden="true">
+              <div
+                className="seasons-checkins-track-fill"
+                style={{ width: `${Math.min(100, (checkinCount / tierDays) * 100)}%` }}
+              />
             </div>
-          )}
+
+            <div className="seasons-checkins-pips">
+              {Array.from({ length: tierDays }, (_, i) => {
+                const isDone = i < checkinCount
+                const isCurrent = i === checkinCount && canCheckin
+                return (
+                  <div
+                    key={i}
+                    className={`seasons-pip${isDone ? ' seasons-pip--done' : ''}${isCurrent ? ' seasons-pip--current' : ''}${!isDone && !isCurrent ? ' seasons-pip--pending' : ''}`}
+                  >
+                    <span className="seasons-pip-mark">{isDone ? '✦' : String(i + 1)}</span>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="seasons-checkins-stats">
+              <span>{checkinCount}/{tierDays} sealed</span>
+              <span>streak {streak}/{tierDays}</span>
+              <span>{daysActive}d active</span>
+            </div>
+
+            {monthState.completed ? (
+              <div className="seasons-completed-badge">✦ MONTH COMPLETE</div>
+            ) : checkedInToday ? (
+              <div className="seasons-checkin-status seasons-checkin-status--done">
+                ✦ Checked in today — return tomorrow
+              </div>
+            ) : canCheckin ? (
+              <button
+                type="button"
+                className="seasons-checkin-btn"
+                onClick={() => setCheckinPanelOpen(true)}
+                style={{ '--season-color': colorVar }}
+              >
+                ▶ CHECK IN TODAY
+              </button>
+            ) : checkinCount >= tierDays ? (
+              <div className="seasons-checkin-status seasons-checkin-status--warn">
+                ⏱ Need {tierDays} consecutive days — streak {streak}/{tierDays}
+              </div>
+            ) : null}
+          </div>
 
           {canComplete && !monthState.completed && (
             <button
@@ -133,8 +250,10 @@ function MonthSeasonCard({ playerData, lpRoot, m, d }) {
             </button>
           )}
 
-          {monthState.completed && (
-            <div className="seasons-completed-badge">✦ MONTH COMPLETE</div>
+          {!canComplete && checkinCount >= tierDays && streak < tierDays && (
+            <div className="seasons-unlock-banner">
+              ⏱ All slots filled — keep your streak consecutive to seal the month
+            </div>
           )}
         </div>
       </div>
@@ -142,12 +261,14 @@ function MonthSeasonCard({ playerData, lpRoot, m, d }) {
       <MonthCheckinPanel
         open={checkinPanelOpen}
         monthTheme={meaning.theme}
+        monthRoot={pm.root}
         objectives={monthState.objectives}
+        color={panelColor}
+        checkinCount={checkinCount}
+        tierDays={tierDays}
+        streak={streak}
         onClose={() => setCheckinPanelOpen(false)}
         onSubmit={handleCheckinSubmit}
-        lpRoot={lpRoot}
-        m={m}
-        d={d}
       />
     </>
   )
@@ -161,13 +282,17 @@ function YearSeasonCard({ playerData, lpRoot, m, d }) {
   const [yearState, setYearState] = useState(null)
   const [yearJournalOpen, setYearJournalOpen] = useState(false)
   const nodeRef = useRef(null)
+  const { xp } = useQuestEngine()
+  const freqLevel = xp?.freqLevel ?? 1
 
   const py = calcPersonalYear(m, d)
+  const pm = calcPersonalMonth(m, d)
+  const { cycleStartYear, daysSinceBd } = getCycleAnchor(m, d)
   const meaning = CYCLE_MEANINGS.personalYear?.[py.root] || {}
   const cfg = CYCLE_QUEST_COLORS.personalYear || {}
   const colorVar = `var(${cfg.color})`
+  const yearObjectives = getCycleObjectives('personalYear', py.root, freqLevel)
 
-  // Load year state
   useEffect(() => {
     const state = getYearSeasonState(lpRoot, m, d)
     setYearState(state)
@@ -175,8 +300,33 @@ function YearSeasonCard({ playerData, lpRoot, m, d }) {
 
   if (!yearState) return null
 
-  const canUnlockJournal = yearState.monthsCompleted.length >= 6
+  const monthState = getMonthSeasonState(lpRoot, m, d, freqLevel, playerData)
+  const monthsSealed = yearState.monthsCompleted.length
+  const currentMonthComplete = monthState?.completed
+  const canUnlockJournal = monthsSealed >= 6
   const isComplete = yearState.journalDone
+  const journalRemaining = Math.max(0, 6 - monthsSealed)
+  const cycleEndYear = cycleStartYear + 1
+
+  let nextStep = null
+  if (isComplete) {
+    nextStep = { tone: 'done', text: 'Year journal sealed — this personal year arc is complete.' }
+  } else if (!currentMonthComplete) {
+    nextStep = {
+      tone: 'action',
+      text: `Seal Month ${pm.monthNum} beside this card — daily check-ins complete the season.`,
+    }
+  } else if (!canUnlockJournal) {
+    nextStep = {
+      tone: 'progress',
+      text: `${journalRemaining} more sealed month${journalRemaining === 1 ? '' : 's'} unlock the year journal.`,
+    }
+  } else {
+    nextStep = {
+      tone: 'action',
+      text: 'Six seasons sealed — write your year journal to complete the arc.',
+    }
+  }
 
   const handleYearComplete = (journal) => {
     const result = completeYearSeason(lpRoot, m, d, journal)
@@ -199,9 +349,21 @@ function YearSeasonCard({ playerData, lpRoot, m, d }) {
     return result
   }
 
+  const objectivesList = yearObjectives.length > 0 && (
+    <div className="seasons-objectives-list seasons-objectives-list--year">
+      {yearObjectives.map((obj, i) => (
+        <div key={obj.id || i} className="seasons-objective-item">
+          <span className="seasons-objective-num">{i + 1}</span>
+          <span className="seasons-objective-text">{obj.text}</span>
+        </div>
+      ))}
+    </div>
+  )
+
   return (
     <>
       <div className="seasons-card seasons-card--year" ref={nodeRef} style={{ '--season-color': colorVar }}>
+        <SeasonCardCorners />
         <div className="seasons-card-header">
           <div className="seasons-card-icon" style={{ color: colorVar }}>◎</div>
           <div className="seasons-card-title">
@@ -212,22 +374,70 @@ function YearSeasonCard({ playerData, lpRoot, m, d }) {
         </div>
 
         <div className="seasons-card-body">
-          <div className="seasons-progress-label">
-            {yearState.monthsCompleted.length} / 12 seasons completed
+          <div className="seasons-year-meta">
+            <span>{cycleStartYear}–{cycleEndYear}</span>
+            <span>Month {pm.monthNum} of 12</span>
+            <span>Day {daysSinceBd + 1}</span>
+          </div>
+
+          {meaning.summary && (
+            <p className="seasons-year-summary">{meaning.summary}</p>
+          )}
+
+          {yearObjectives.length > 0 && (
+            <details className="seasons-year-objectives-toggle">
+              <summary className="seasons-year-objectives-summary">
+                ◈ YEAR OBJECTIVES ({yearObjectives.length})
+              </summary>
+              {objectivesList}
+            </details>
+          )}
+
+          <div className="seasons-year-objectives-desktop">
+            {yearObjectives.length > 0 && (
+              <>
+                <div className="seasons-year-section-label">◈ YEAR OBJECTIVES</div>
+                {objectivesList}
+              </>
+            )}
+          </div>
+
+          <div className="seasons-year-months">
+            <div className="seasons-year-section-label">
+              SEASON MAP · {monthsSealed}/12 sealed
+            </div>
+            <div className="seasons-year-months-grid">
+              {Array.from({ length: 12 }, (_, i) => {
+                const monthNum = i + 1
+                const isSealed = yearState.monthsCompleted.includes(monthNum)
+                const isCurrent = monthNum === pm.monthNum
+                return (
+                  <div
+                    key={monthNum}
+                    className={`seasons-year-month${isSealed ? ' seasons-year-month--sealed' : ''}${isCurrent ? ' seasons-year-month--current' : ''}${!isSealed && !isCurrent ? ' seasons-year-month--pending' : ''}`}
+                    title={`Month ${monthNum}${isSealed ? ' — sealed' : isCurrent ? ' — current' : ''}`}
+                  >
+                    <span className="seasons-year-month-num">{monthNum}</span>
+                    {isSealed && <span className="seasons-year-month-mark" aria-hidden="true">✦</span>}
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           <div className="seasons-progress-bar">
             <div
               className="seasons-progress-fill"
-              style={{ width: `${(yearState.monthsCompleted.length / 12) * 100}%` }}
+              style={{ width: `${(monthsSealed / 12) * 100}%` }}
             />
           </div>
 
-          {!canUnlockJournal && (
-            <div className="seasons-unlock-banner">
-              ◉ Complete 6 seasons to unlock year journal · {6 - yearState.monthsCompleted.length} remaining
-            </div>
-          )}
+          <div className={`seasons-year-next seasons-year-next--${nextStep.tone}`}>
+            {nextStep.tone === 'action' && '→ '}
+            {nextStep.tone === 'done' && '✦ '}
+            {nextStep.tone === 'progress' && '◉ '}
+            {nextStep.text}
+          </div>
 
           {canUnlockJournal && !isComplete && (
             <button
@@ -265,16 +475,9 @@ function YearSeasonCard({ playerData, lpRoot, m, d }) {
 export default function SeasonsSection({ playerData, lpRoot }) {
   if (!playerData) return null
   const { m, d, y, lp } = playerData
-  const [isDesktop, setIsDesktop] = useState(() => (
-    typeof window !== 'undefined' ? window.innerWidth >= 1024 : false
-  ))
 
-  useEffect(() => {
-    const onResize = () => setIsDesktop(window.innerWidth >= 1024)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
+  const py = calcPersonalYear(m, d)
+  const pm = calcPersonalMonth(m, d)
   const pinnacles = calcPinnacles(m, d, y, lp)
   const now = new Date()
   let age = now.getFullYear() - y
@@ -283,48 +486,66 @@ export default function SeasonsSection({ playerData, lpRoot }) {
   }
   const currentPinn = pinnacles.find((p) => {
     return age >= p.startAge && (!p.endAge || age <= p.endAge)
-  })
+  }) || pinnacles[pinnacles.length - 1]
+  const pinnIndex = currentPinn ? pinnacles.indexOf(currentPinn) + 1 : 1
   const pinnacleColor = currentPinn ? CYCLE_QUEST_COLORS.pinnacle?.hex || '#c9a84c' : '#666'
   const pinnacleData = currentPinn ? CYCLE_MEANINGS.pinnacle?.[currentPinn.root] : null
-  const desktopSectionStyle = isDesktop
-    ? { maxWidth: '940px', margin: '8px auto 0', width: '100%', padding: '16px 8px 28px' }
-    : undefined
-  const desktopCardsStyle = isDesktop
-    ? { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: '16px' }
-    : undefined
+  const pinnacleProgress = currentPinn ? getPinnacleProgress(pinnIndex, currentPinn.root) : null
+  const monthLens = PINNACLE_MONTH_LENS[pm.root] || null
+  const yearColor = CYCLE_QUEST_COLORS.personalYear?.hex || '#00e5cc'
+  const monthColor = CYCLE_QUEST_COLORS.personalMonth?.hex || '#f472b6'
 
   return (
-    <section className="seasons-section" aria-labelledby="seasons-heading" style={desktopSectionStyle}>
+    <section className="seasons-section home-section-shell" aria-labelledby="seasons-heading">
       <div className="seasons-header">
-        <h2 id="seasons-heading" className="seasons-heading">
-          <span className="seasons-heading-line" aria-hidden="true" />
-          <span className="seasons-heading-glyph" aria-hidden="true">◇</span>
+        <h2 id="seasons-heading" className="home-section-heading seasons-heading">
+          <span className="seasons-heading-line home-section-heading-line" aria-hidden="true" />
+          <span className="seasons-heading-glyph home-section-heading-glyph" aria-hidden="true">◇</span>
           SEASONS
-          <span className="seasons-heading-glyph" aria-hidden="true">◇</span>
-          <span className="seasons-heading-line" aria-hidden="true" />
+          <span className="seasons-heading-glyph home-section-heading-glyph" aria-hidden="true">◇</span>
+          <span className="seasons-heading-line home-section-heading-line" aria-hidden="true" />
         </h2>
+        <div className="home-pulse-chips seasons-header-chips">
+          <span className="home-pulse-chip" style={{ '--chip-accent': yearColor }}>
+            ◎ PY {py.root}
+          </span>
+          <span className="home-pulse-chip" style={{ '--chip-accent': monthColor }}>
+            ◇ Month {pm.monthNum}/12
+          </span>
+          {currentPinn && (
+            <span className="home-pulse-chip" style={{ '--chip-accent': pinnacleColor }}>
+              ▲ Ch.{pinnIndex}
+            </span>
+          )}
+        </div>
       </div>
 
-      {pinnacleData && currentPinn && (
-        <div className="seasons-pinnacle-banner" style={{ '--pinnacle-color': pinnacleColor }}>
-          <div className="seasons-pinnacle-content">
-            <div className="seasons-pinnacle-header">
-              <div className="seasons-pinnacle-theme">▲ {pinnacleData.theme}</div>
-              <div className="seasons-pinnacle-ages">
-                Ages {currentPinn.startAge}–{currentPinn.endAge || '∞'}
-              </div>
-            </div>
-            <div className="seasons-pinnacle-summary">{pinnacleData.summary}</div>
-          </div>
-        </div>
-      )}
+      <div className="seasons-stack" style={{ '--pinnacle-color': pinnacleColor }}>
+        {pinnacleData && currentPinn && pinnacleProgress && (
+          <>
+            <SeasonsPinnacleCrest
+              currentPinn={currentPinn}
+              pinnacleIndex={pinnIndex}
+              pinnacleData={pinnacleData}
+              pinnacleColor={pinnacleColor}
+              pm={pm}
+              pinnacleProgress={pinnacleProgress}
+              monthLens={monthLens}
+            />
+            <div className="seasons-stack-connector" aria-hidden="true" />
+          </>
+        )}
 
-      <div
-        className="seasons-cards-container"
-        style={{ '--pinnacle-color': pinnacleColor, ...desktopCardsStyle }}
-      >
-        <YearSeasonCard playerData={playerData} lpRoot={lpRoot} m={m} d={d} />
-        <MonthSeasonCard playerData={playerData} lpRoot={lpRoot} m={m} d={d} />
+        <div className="seasons-cards-container">
+          <YearSeasonCard playerData={playerData} lpRoot={lpRoot} m={m} d={d} />
+          <MonthSeasonCard
+            playerData={playerData}
+            lpRoot={lpRoot}
+            m={m}
+            d={d}
+            monthLens={monthLens}
+          />
+        </div>
       </div>
     </section>
   )

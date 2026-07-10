@@ -1,0 +1,14 @@
+{
+  "git.path": "C:\\Program Files\\Git\\cmd\\git.exe",
+  "git.autorefresh": true,
+  "git.confirmSync": false,
+  "git.ignoreLimitWarning": true,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.wrangler/**": true,
+    "**/.netlify/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
+}

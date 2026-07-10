@@ -14,6 +14,7 @@ import {
 } from '../../lib/numerologyQuests'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
+import { resolveDailyBlueprint } from '../../lib/questBlueprint'
 import {
   calcPersonalDay, reduceToSimple, todayStr,
 } from '../../lib/numerology'
@@ -252,31 +253,35 @@ function RuneNode({ quest, isActive, onClick, onJustCompleted }) {
 
   if (quest.completed) {
     return (
-      <div
+      <button
+        type="button"
         className={`rune-node rune-node--done${justIgnited ? ' rune-node--igniting' : ''}`}
         style={{ '--node-color': clr.color }}
         onClick={handleClick}
+        aria-label={`Quest ${quest.number} completed — ${meta?.label || 'quest'}`}
       >
-        <div className="rune-node-done-fill" />
-        <div className="rune-node-type-icon" style={{ color: clr.color }}>{clr.icon}</div>
-        <div className="rune-node-num" style={{ color: clr.color }}>✦</div>
+        <div className="rune-node-done-fill" aria-hidden="true" />
+        <div className="rune-node-type-icon" style={{ color: clr.color }} aria-hidden="true">{clr.icon}</div>
+        <div className="rune-node-num" style={{ color: clr.color }} aria-hidden="true">✦</div>
         <div className="rune-node-label" style={{ color: clr.color }}>IGNITED</div>
-      </div>
+      </button>
     )
   }
 
   return (
-    <div
+    <button
+      type="button"
       className={`rune-node${quest.isResonant ? ' rune-node--resonant' : ''}${isActive ? ' rune-node--active' : ''} quest-state-transition`}
       style={{ '--node-color': clr.color }}
       onClick={handleClick}
+      aria-label={`Quest ${quest.number}${quest.isResonant ? ', resonant' : ''} — ${meta?.label || 'quest'}`}
     >
-      {quest.isResonant && <div className="rune-node-pulse" style={{ background: clr.color }} />}
-      <div className="rune-node-type-icon" style={{ color: clr.color }}>{clr.icon}</div>
+      {quest.isResonant && <div className="rune-node-pulse" style={{ background: clr.color }} aria-hidden="true" />}
+      <div className="rune-node-type-icon" style={{ color: clr.color }} aria-hidden="true">{clr.icon}</div>
       <div className="rune-node-num" style={{ color: clr.color }}>{quest.number}</div>
       <div className="rune-node-label" style={{ color: clr.color }}>{meta?.label || 'QUEST'}</div>
-      {quest.isResonant && <div className="rune-node-tag" style={{ color: clr.color }}>⚡</div>}
-    </div>
+      {quest.isResonant && <div className="rune-node-tag" style={{ color: clr.color }} aria-hidden="true">⚡</div>}
+    </button>
   )
 }
 
@@ -294,7 +299,7 @@ const GLYPH_JOURNAL_PROMPTS = [
 function GlyphJournalPanel({ open, glyph, index, color, onClose, onComplete }) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
-  const panelRef = useRef(null)
+  const panelRef = useFocusTrap({ open: open && !!glyph, onClose })
   const prevOpenRef = useRef(false)
 
   // Reset form when panel opens (using ref to detect transition)
@@ -303,40 +308,6 @@ function GlyphJournalPanel({ open, glyph, index, color, onClose, onComplete }) {
     setError('')
   }
   prevOpenRef.current = open
-
-  // Focus trap
-  useEffect(() => {
-    if (!open) return
-    const panel = panelRef.current
-    if (!panel) return
-
-    const focusableElements = panel.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
-    const firstEl = focusableElements[0]
-    const lastEl = focusableElements[focusableElements.length - 1]
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        onClose()
-        return
-      }
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstEl) {
-          e.preventDefault()
-          lastEl.focus()
-        } else if (!e.shiftKey && document.activeElement === lastEl) {
-          e.preventDefault()
-          firstEl.focus()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    firstEl?.focus()
-
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [open, onClose])
 
   if (!open || !glyph) return null
 
@@ -437,36 +408,37 @@ function GlyphJournalPanel({ open, glyph, index, color, onClose, onComplete }) {
 //  DAY OBJECTIVES PANEL — 3 Personal Day Objectives as Glyphs
 // ═══════════════════════════════════════════════════════════════
 
-function DayObjectiveGlyph({ index, colorVar, onClick, completed }) {
-  if (completed) {
-    return (
-      <div
-        className="rune-node rune-node--done rune-node--day-obj"
-        style={{ '--node-color': colorVar }}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => e.key === 'Enter' && onClick()}
-      >
-        <div className="rune-node-done-fill" />
-        <div className="rune-node-type-icon" style={{ color: colorVar }}>✦</div>
-        <div className="rune-node-num" style={{ color: colorVar }}>✦</div>
-        <div className="rune-node-label" style={{ color: colorVar }}>DONE</div>
-      </div>
-    )
-  }
+const DHR_COLOR_HEX = {
+  'var(--teal)':   '#00e5cc',
+  'var(--gold)':   '#c9a84c',
+  'var(--rose)':   '#f472b6',
+  'var(--sage)':   '#4ade80',
+  'var(--purple)': '#a78bfa',
+}
+
+const DAY_RUNE_MARKS = ['I', 'II', 'III']
+
+function DayObjectiveGlyph({ index, glyph, colorVar, onClick, completed }) {
+  const colorHex = DHR_COLOR_HEX[colorVar] || '#c9a84c'
+  const isSkill = glyph?.slot === 'skill'
+  const mark = completed ? '✦' : (isSkill ? '◈' : DAY_RUNE_MARKS[index] || String(index + 1))
+  const label = completed ? 'SEALED' : (isSkill ? 'SKILL' : 'DAY')
 
   return (
-    <div
-      className="rune-node rune-node--day-obj quest-state-transition"
-      style={{ '--node-color': colorVar }}
+    <button
+      type="button"
+      className={`day-obj-rune quest-state-transition${completed ? ' day-obj-rune--done' : ''}${isSkill ? ' day-obj-rune--skill' : ''}`}
+      style={{ '--node-color': colorHex }}
       onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && onClick()}
+      aria-label={`${isSkill ? 'Skill' : 'Day'} objective ${index + 1}${completed ? ' — sealed' : ''}`}
     >
-      <div className="rune-node-num" style={{ color: colorVar }}>{index + 1}</div>
-    </div>
+      <span className="day-obj-rune-corner day-obj-rune-corner--tl" aria-hidden="true" />
+      <span className="day-obj-rune-corner day-obj-rune-corner--tr" aria-hidden="true" />
+      <span className="day-obj-rune-corner day-obj-rune-corner--bl" aria-hidden="true" />
+      <span className="day-obj-rune-corner day-obj-rune-corner--br" aria-hidden="true" />
+      <span className="day-obj-rune-mark" aria-hidden="true">{mark}</span>
+      <span className="day-obj-rune-label">{label}</span>
+    </button>
   )
 }
 
@@ -476,8 +448,8 @@ function DayObjectivesPanel({ objectives, completed, colorVar, pd, onOpenObjecti
   const allCompleted = completed && completed.every(Boolean)
 
   return (
-    <div className="gq-panel rune-panel-enter">
-      <div className="rune-connector" />
+    <div className="gq-panel gq-panel--day-objs rune-panel-enter">
+      <div className="rune-connector rune-connector--day-objs" />
 
       {/* Header */}
       <div className="gq-panel-header">
@@ -486,11 +458,12 @@ function DayObjectivesPanel({ objectives, completed, colorVar, pd, onOpenObjecti
         </span>
       </div>
 
-      <div className="rune-grid">
+      <div className="rune-grid rune-grid--day-objs">
         {objectives.map((obj, i) => (
           <DayObjectiveGlyph
             key={i}
             index={i}
+            glyph={obj}
             colorVar={colorVar}
             completed={completed?.[i]}
             onClick={() => onOpenObjective(obj, i)}
@@ -502,16 +475,64 @@ function DayObjectivesPanel({ objectives, completed, colorVar, pd, onOpenObjecti
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  DAILY QUEST HERO CARD
+//  DAILY HERO QUEST BOX — Diablo 2-style square glyph
 // ═══════════════════════════════════════════════════════════════
 
-const DHR_COLOR_HEX = {
-  'var(--teal)':   '#00e5cc',
-  'var(--gold)':   '#c9a84c',
-  'var(--rose)':   '#f472b6',
-  'var(--sage)':   '#4ade80',
-  'var(--purple)': '#a78bfa',
+function DailyHeroQuestBox({
+  color,
+  dayRoot,
+  subtitle,
+  icon = '◈',
+  state = 'active',
+  isFocusMatch = false,
+  isSelected = false,
+  onClick,
+}) {
+  const isSealed = state === 'sealed'
+  const isIgniting = state === 'igniting'
+
+  return (
+    <button
+      type="button"
+      className={[
+        'daily-hero-quest-box',
+        isSealed && 'daily-hero-quest-box--sealed',
+        isIgniting && 'daily-hero-quest-box--igniting',
+        isFocusMatch && !isSealed && 'daily-hero-quest-box--resonant',
+        isSelected && !isSealed && 'daily-hero-quest-box--selected',
+      ].filter(Boolean).join(' ')}
+      style={{ '--dq-color': color }}
+      onClick={onClick}
+      disabled={isSealed || isIgniting}
+      aria-label={
+        isSealed
+          ? `Daily quest sealed — Personal Day ${dayRoot}`
+          : `Daily quest — Personal Day ${dayRoot}. Tap to view.`
+      }
+    >
+      <span className="daily-hero-quest-box-frame" aria-hidden="true" />
+      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--tl" aria-hidden="true" />
+      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--tr" aria-hidden="true" />
+      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--bl" aria-hidden="true" />
+      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--br" aria-hidden="true" />
+      <span className="daily-hero-quest-box-glow" aria-hidden="true" />
+
+      <span className="daily-hero-quest-box-icon" aria-hidden="true">
+        {isSealed ? '✦' : icon}
+      </span>
+      <span className="daily-hero-quest-box-num" aria-hidden="true">
+        {isSealed ? '✓' : dayRoot}
+      </span>
+      <span className="daily-hero-quest-box-label">
+        {isSealed ? 'SEALED' : subtitle}
+      </span>
+    </button>
+  )
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  DAILY QUEST HERO CARD
+// ═══════════════════════════════════════════════════════════════
 
 function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, isGated=false, bpRoots=[], onComplete, lpRoot, freqLevel=1 }) {
   const [panelOpen, setPanelOpen] = useState(false)
@@ -522,7 +543,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
   const doComplete = onComplete || eqComplete
 
   const dayRoot = reduceToSimple(pd.root)
-  const isFocusMatch = !!(bpRoots?.filter(r => r === dayRoot).length)
+  const isFocusMatch = daily?.dayRootMatch ?? !!(bpRoots?.filter(r => r === dayRoot).length)
   const panelColorHex = DHR_COLOR_HEX[colorVar] || '#00e5cc'
 
   function handleComplete() {
@@ -572,14 +593,13 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
   if (justCompleted || daily.completed) {
     return (
       <div className="daily-hero-rune-wrap">
-        <div className="daily-hero-rune daily-hero-rune--done" style={{ '--dq-color': colorVar }}>
-          <div className="daily-hero-rune-glow" />
-          <div className="daily-hero-rune-ring-spin" />
-          <div className="daily-hero-rune-ring-outer" />
-          <div className="daily-hero-rune-icon" style={{ color: colorVar }}>✦</div>
-          <div className="daily-hero-rune-num" style={{ color: colorVar }}>✓</div>
-          <div className="daily-hero-rune-label">COMPLETE</div>
-        </div>
+        <DailyHeroQuestBox
+          color={panelColorHex}
+          dayRoot={dayRoot}
+          subtitle={`DAY ${pd.dayNum}`}
+          icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
+          state="sealed"
+        />
       </div>
     )
   }
@@ -587,26 +607,19 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
   return (
     <div className="daily-hero-rune-wrap">
       {igniting && <div className="daily-complete-flash" style={{ '--dq-color': colorVar }} />}
-      <div
-        ref={nodeRef}
-        className={`daily-hero-rune${igniting ? ' daily-hero-rune--igniting' : ''}`}
-        style={{ '--dq-color': colorVar }}
-        onClick={() => setPanelOpen(true)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => e.key === 'Enter' && setPanelOpen(true)}
-        aria-label={`Daily quest: ${meaning.theme || 'Daily Alignment'}. Tap to view details.`}
-      >
-        <div className="daily-hero-rune-glow" />
-        <div className="daily-hero-rune-ring-spin" />
-        <div className="daily-hero-rune-ring-outer" />
-        <div className="daily-hero-rune-icon" style={{ color: colorVar }}>
-          {CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
-        </div>
-        <div className="daily-hero-rune-num" style={{ color: colorVar }}>{dayRoot}</div>
-        <div className="daily-hero-rune-label">DAY {pd.dayNum}</div>
-        {isFocusMatch && (
-          <div className="daily-hero-rune-tag" style={{ color: colorVar }}>⚡</div>
+      <div ref={nodeRef} className="daily-hero-node">
+        <DailyHeroQuestBox
+          color={panelColorHex}
+          dayRoot={dayRoot}
+          subtitle={`DAY ${pd.dayNum}`}
+          icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
+          state={igniting ? 'igniting' : 'active'}
+          isFocusMatch={isFocusMatch}
+          isSelected={panelOpen}
+          onClick={() => setPanelOpen(true)}
+        />
+        {isFocusMatch && !igniting && (
+          <div className="daily-hero-node-tag" style={{ color: colorVar }}>⚡</div>
         )}
       </div>
 
@@ -630,6 +643,18 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
 
         {(meaning.summary || daily.body) && (
           <div className="dhr-panel-summary">{meaning.summary || daily.body}</div>
+        )}
+
+        {daily.blueprintLabel && (
+          <div className="dhr-panel-blueprint" style={{ fontSize: '0.75rem', letterSpacing: '0.1em', color: colorVar, opacity: 0.75, marginBottom: 12 }}>
+            ◈ {daily.blueprintLabel}
+          </div>
+        )}
+
+        {daily.dayObj && (
+          <div className="dhr-panel-hero-obj" style={{ fontFamily: "'Crimson Text', serif", fontSize: '14px', lineHeight: 1.5, marginBottom: 12, color: 'var(--text-mid)' }}>
+            {daily.dayObj}
+          </div>
         )}
 
         <div className="dhr-panel-section-label">◈ OBJECTIVES</div>
@@ -729,7 +754,7 @@ function StreakTooltip({ lines, onClose }) {
   )
 }
 
-function StreakBadge({ streak }) {
+export function StreakBadge({ streak, compact = false }) {
   const [tipVisible, setTipVisible] = useState(false)
   const isChain   = streak >= 3
   const hasStreak = streak > 0
@@ -743,10 +768,30 @@ function StreakBadge({ streak }) {
     '30 days  → Ascendant Mark (permanent title)',
   ]
 
+  if (compact) {
+    return (
+      <>
+        <button
+          type="button"
+          className={`home-pulse-chip home-pulse-chip--streak${isChain ? ' home-pulse-chip--chain' : ''}${!hasStreak ? ' home-pulse-chip--muted' : ''}`}
+          onClick={() => setTipVisible((v) => !v)}
+          aria-label={hasStreak ? `${streak} day streak` : 'No streak yet'}
+        >
+          <span aria-hidden="true">{isChain ? '🔥' : hasStreak ? '⚡' : '◇'}</span>
+          {hasStreak ? `${streak}d streak` : 'No streak'}
+        </button>
+        {tipVisible && <StreakTooltip lines={tipLines} onClose={() => setTipVisible(false)} />}
+      </>
+    )
+  }
+
   return (
     <div
       className={`streak-badge${isChain ? ' streak-badge--chain' : ''}${!hasStreak ? ' streak-badge--empty' : ''}`}
       onPointerDown={() => setTipVisible(v => !v)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTipVisible(v => !v) } }}
     >
       <span className="streak-badge-icon">{isChain ? '🔥' : hasStreak ? '⚡' : '◇'}</span>
       {hasStreak && <span className="streak-badge-count">{streak}</span>}
@@ -778,12 +823,13 @@ export default function DailySection({ playerData, daily, completeDailyQuest, lp
   useEffect(() => {
     if (!lpRoot || !playerData) return
     const state = getDailyGlyphsState(lpRoot)
-    // Always regenerate glyph content from the personal day cycle (matches TimeFlow daily node).
-    // Only completed/journals are preserved from storage.
-    const { m, d } = playerData
-    const pd = calcPersonalDay(m, d)
-    const dayObjs = getCycleObjectives('personalDay', pd.root, xp?.freqLevel ?? 1)
-    state.glyphs = dayObjs.map(o => ({ id: o.id, text: o.text, duration: o.duration, icon: '★' }))
+    // Always refresh glyph content from blueprint (2 day + 1 skill); repair if < 3.
+    const blueprint = resolveDailyBlueprint(playerData, xp?.freqLevel ?? 1)
+    if (blueprint?.glyphs?.length) {
+      state.glyphs = blueprint.glyphs
+      state.completed = [false, false, false].map((_, i) => !!state.completed?.[i])
+      state.journals = ['', '', ''].map((_, i) => state.journals?.[i] || '')
+    }
     try {
       localStorage.setItem('scl_daily_glyphs', JSON.stringify(state))
     } catch {}
@@ -807,7 +853,10 @@ export default function DailySection({ playerData, daily, completeDailyQuest, lp
   const cfg = CYCLE_QUEST_COLORS.personalDay
   const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
   const colorVar = `var(${cfg.color})`
-  const dayObjectives = getCycleObjs('personalDay', pd.root, xp?.freqLevel ?? 1)
+  const blueprintGlyphs = useMemo(
+    () => resolveDailyBlueprint(playerData, xp?.freqLevel ?? 1)?.glyphs || [],
+    [playerData, xp?.freqLevel]
+  )
   const panelColorHex = DHR_COLOR_HEX[colorVar] || '#00e5cc'
 
   const handleOpenObjective = useCallback((text, index) => {
@@ -859,9 +908,11 @@ export default function DailySection({ playerData, daily, completeDailyQuest, lp
 
       <ReminderBanner />
 
-      {/* Day Objectives — 3 glyphs */}
+      {/* Day Objectives — 2 personal day + 1 skill glyph */}
       <DayObjectivesPanel
-        objectives={glyphsState?.glyphs || dayObjectives}
+        objectives={
+          glyphsState?.glyphs?.length >= 3 ? glyphsState.glyphs : blueprintGlyphs
+        }
         completed={glyphsState?.completed}
         colorVar={colorVar}
         pd={pd}

@@ -15,8 +15,14 @@
 'use strict';
 
 import { getTieredObjectiveTexts } from './objectives'
+import { resolveDailyBlueprint } from './questBlueprint'
+import { updateDailySummary, recordDailySnapshot } from './dataHistory'
 import { ACTIONS } from '../state/actions'
-import { todayStr } from './numerology'
+import { todayStr, calcPersonalDay } from './numerology'
+import {
+  applyQuestSkillReward,
+  sanitizeSkillTreeProgress,
+} from './skillQuestBridge'
 
 /* ── GameContext dispatch adapter ───────────────────────────── */
 let _gameDispatch = null
@@ -143,20 +149,49 @@ export function getDailyGlyphsState(lpRoot) {
     glyphsState.completed = glyphsState.completed || [false, false, false];
     glyphsState.journals = glyphsState.journals || ['', '', ''];
     glyphsState.glyphs = glyphsState.glyphs || [];
+    _hydrateDailyGlyphs(glyphsState);
     return glyphsState;
   }
   // New day: generate fresh 3 glyphs
-const glyphs = [] ; // getPersonalDayGlyphs(lpRoot); // Call from UI layer
   glyphsState = {
     date: today,
-    glyphs,
+    glyphs: [],
     completed: [false, false, false],
     journals: ['', '', ''],
   };
+  _hydrateDailyGlyphs(glyphsState);
   try {
     localStorage.setItem(LS_DAILY_GLYPHS, JSON.stringify(glyphsState));
   } catch { /* ignore */ }
   return glyphsState;
+}
+
+function _hydrateDailyGlyphs(glyphsState) {
+  if (!glyphsState || glyphsState.glyphs?.length >= 3) return glyphsState
+  try {
+    const playerData = window.__scl_playerData__
+    if (!playerData) return glyphsState
+    let freqLevel = 1
+    try {
+      const xpState = JSON.parse(localStorage.getItem('scl_xp') || '{}')
+      freqLevel = xpState.freqLevel || 1
+    } catch { /* intentional */ }
+    const blueprint = resolveDailyBlueprint(playerData, freqLevel)
+    if (blueprint?.glyphs?.length) {
+      glyphsState.glyphs = blueprint.glyphs
+      glyphsState.completed = [false, false, false].map((_, i) => !!glyphsState.completed?.[i])
+      glyphsState.journals = ['', '', ''].map((_, i) => glyphsState.journals?.[i] || '')
+    }
+  } catch { /* intentional */ }
+  return glyphsState
+}
+
+function _getPersonalDayRoot(fallback) {
+  try {
+    const pd = window.__scl_playerData__
+    if (pd?.m && pd?.d) return calcPersonalDay(pd.m, pd.d).root
+  } catch { /* intentional */ }
+  return fallback
 }
 
 export function QuestEngine_completeDailyGlyph(lpRoot, idx, journal) {
@@ -169,10 +204,9 @@ export function QuestEngine_completeDailyGlyph(lpRoot, idx, journal) {
   try {
     localStorage.setItem(LS_DAILY_GLYPHS, JSON.stringify(glyphsState));
   } catch { /* ignore */ }
-  // Mini rewards
   earnFreqXP(2);
-  const statNum = lpRoot > 9 ? (lpRoot === 11 ? 2 : lpRoot === 22 ? 4 : 6) : lpRoot;
-  earnStatXP(statNum, 1);
+  const dayRoot = _getPersonalDayRoot(lpRoot);
+  applyQuestSkillReward({ root: dayRoot, questKind: 'glyph', difficulty: 'easy' }, earnStatXP, _dispatch);
   _dispatch('scl:daily_glyphs_updated', glyphsState);
   _dispatch('scl:xp_toast', { msg: '+2 FREQ XP · Glyph ✓', color: 'var(--teal)' });
   return { ok: true };
@@ -389,6 +423,7 @@ export function getXPState() {
    INIT / RESET
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function QuestEngine_init() {
+  sanitizeSkillTreeProgress();
   _loadFromStorage();
   // Auto-fix stale daily freq keys when XP is zero
   if (_freqXP === 0) {
@@ -459,11 +494,42 @@ export function getDailyQuestState() {
   const today = todayStr();
   let d = null;
   try { d = JSON.parse(localStorage.getItem(LS_DAILY_Q)); } catch { /* intentional */ }
-  if (!d || d.date !== today || d.title) {
+
+  const playerData = window.__scl_playerData__
+  let freqLevel = 1
+  try {
+    const xpState = JSON.parse(localStorage.getItem('scl_xp') || '{}')
+    freqLevel = xpState.freqLevel || 1
+  } catch { /* intentional */ }
+
+  const needsRefresh = !d || d.date !== today || d.title
+  const blueprint = playerData ? resolveDailyBlueprint(playerData, freqLevel) : null
+
+  if (needsRefresh) {
     const prev = d && d.date === today ? d : null;
-    d = { date: today, completed: prev?.completed || false, title: null, body: 'Live in alignment with today\'s personal frequency.', dayObj: prev?.dayObj || null, dayObjMeta: prev?.dayObjMeta || null, questRoot: prev?.questRoot || null };
+    d = {
+      date: today,
+      completed: prev?.completed || false,
+      title: null,
+      body: 'Live in alignment with today\'s personal frequency.',
+      dayObj: blueprint?.dayObj || prev?.dayObj || null,
+      dayObjMeta: blueprint?.dayObjMeta || prev?.dayObjMeta || null,
+      questRoot: blueprint?.questRoot || prev?.questRoot || null,
+      blueprintLabel: blueprint?.blueprintLabel || prev?.blueprintLabel || null,
+      questKey: blueprint?.questKey || prev?.questKey || null,
+      dayRootMatch: blueprint?.dayRootMatch ?? prev?.dayRootMatch ?? false,
+    };
+    try { localStorage.setItem(LS_DAILY_Q, JSON.stringify(d)); } catch { /* intentional */ }
+  } else if (blueprint && !d.dayObjMeta && !d.completed) {
+    d.dayObj = blueprint.dayObj
+    d.dayObjMeta = blueprint.dayObjMeta
+    d.questRoot = blueprint.questRoot
+    d.blueprintLabel = blueprint.blueprintLabel
+    d.questKey = blueprint.questKey
+    d.dayRootMatch = blueprint.dayRootMatch
     try { localStorage.setItem(LS_DAILY_Q, JSON.stringify(d)); } catch { /* intentional */ }
   }
+
   const ms = _msUntilMidnight();
   return {
     ...d,
@@ -490,22 +556,28 @@ export function QuestEngine_completeDailyQuest(lpRoot) {
   d.completed = true;
   try { localStorage.setItem(LS_DAILY_Q, JSON.stringify(d)); } catch { /* intentional */ }
 
+  const resonant = !!d.dayRootMatch;
+  const dailyXP = Math.round(XP_AWARDS.daily * (resonant ? 2 : 1.5));
+
   // Mark life quest objective if linked
   try {
     if (d.dayObjMeta) {
       const { questKey, tier, objIdx } = d.dayObjMeta;
-      const result = _markLQPObjective(questKey, tier, objIdx);
-      if (result.tierAdvanced) {
-        _dispatch('scl:xp_toast', { msg: `â˜… ${questKey.toUpperCase()} TIER ${result.newTier} UNLOCKED`, color: result.newTier === 3 ? 'var(--gold)' : 'var(--teal)' });
-      }
+      QuestEngine_markLQPObjective(questKey, tier, objIdx);
     }
   } catch { /* intentional */ }
 
-  // Stat XP for LP root
-  const statNum = lpRoot > 9 ? (lpRoot === 11 ? 2 : lpRoot === 22 ? 4 : 6) : lpRoot;
-  earnStatXP(statNum, STAT_XP_PER_QUEST[lpRoot] || 1);
+  const dayRoot = _getPersonalDayRoot(lpRoot);
+  applyQuestSkillReward({ root: dayRoot, questKind: 'daily', difficulty: 'easy' }, earnStatXP, _dispatch);
 
-  earnFreqXP(XP_AWARDS.daily * 1.5); // Bonus for gating
+  earnFreqXP(dailyXP);
+
+  updateDailySummary({
+    xpEarned: dailyXP,
+    questsCompleted: 1,
+    resonantCompletions: resonant ? 1 : 0,
+  });
+  try { recordDailySnapshot() } catch { /* intentional */ }
 
   // Achievements streak
   try {
@@ -515,7 +587,7 @@ export function QuestEngine_completeDailyQuest(lpRoot) {
   } catch { /* intentional */ }
 
   _dispatch('scl:daily_updated', getDailyQuestState());
-  _dispatch('scl:xp_toast', { msg: 'Daily Complete · Glyph Bonus!', color: 'var(--gold)' });
+  _dispatch('scl:xp_toast', { msg: resonant ? 'Daily Complete · Blueprint ×2!' : 'Daily Complete · Glyph Bonus!', color: 'var(--gold)' });
 }
 
 /* Lazy-import achievements to avoid circular deps */
@@ -564,9 +636,7 @@ export function QuestEngine_completeFreqQuest(key, xpAmount, rootNum, pinnacleCh
   earnFreqXP(parseInt(xpAmount));
 
   if (rootNum) {
-    const rn = parseInt(rootNum);
-    const statNum = rn > 9 ? (rn === 11 ? 2 : rn === 22 ? 4 : 6) : rn;
-    earnStatXP(statNum, STAT_XP_PER_QUEST[rn] || 1);
+    applyQuestSkillReward({ root: rootNum, questKind: 'cycle', difficulty: 'easy' }, earnStatXP, _dispatch);
   }
 
   // Auto-record pinnacle milestone when a fourMonthCycle quest completes
@@ -838,8 +908,12 @@ export function completeSideQuest(questId) {
     earnCharXP(xpAmount);
     earnSocialXP(socialXp);
 
-    const statNum = rn > 9 ? (rn === 11 ? 2 : rn === 22 ? 4 : 6) : rn;
-    earnStatXP(statNum, statXp);
+    applyQuestSkillReward({
+      root: rn,
+      questKind: 'side',
+      difficulty: 'easy',
+      statXPAmount: statXp,
+    }, earnStatXP, _dispatch);
 
     // IRL achievement tracking
     try {
@@ -888,8 +962,18 @@ export function QuestEngine_onXPLoaded(charXP, charLevel, freqXP, freqLevel, sta
    GLOBAL WINDOW BINDINGS  (for Header.jsx reset call etc.)
    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* PUBLIC LQP MARKER — used by numerologyQuests.js */
-export function QuestEngine_markLQPObjective(questKey, tier, objIdx) {
+export function QuestEngine_markLQPObjective(questKey, tier, objIdx, options = {}) {
   const result = _markLQPObjective(questKey, tier, objIdx);
+  if (!options.skipSkillReward) {
+    try {
+      const pd = window.__scl_playerData__;
+      const root = pd?.[questKey]?.root;
+      if (root) {
+        const diff = tier === 3 ? 'hard' : tier === 2 ? 'medium' : 'easy';
+        applyQuestSkillReward({ root, tier, questKind: 'life', difficulty: diff }, earnStatXP, _dispatch);
+      }
+    } catch { /* intentional */ }
+  }
   if (result.tierAdvanced) {
     _dispatch('scl:xp_toast', {
       msg:   '☆ ' + questKey.toUpperCase() + ' TIER ' + result.newTier + ' UNLOCKED',
@@ -900,18 +984,14 @@ export function QuestEngine_markLQPObjective(questKey, tier, objIdx) {
   return result;
 }
 
+/** @deprecated Use applyQuestSkillReward from skillQuestBridge */
 export function QuestEngine_markSkillProgress(root, lqpTier) {
-  const tierNames = ['initiate', 'consistency', 'mastery']
-  const tierName = tierNames[Math.max(0, Math.min(2, lqpTier - 1))] || 'initiate'
-  const key = `sk${root}_${tierName}`
-  try {
-    const raw = localStorage.getItem(LS_SKILL_PROGRESS) || '{}'
-    const data = JSON.parse(raw)
-    if (!data[key]) data[key] = { completions: 0, lastCompletedAt: null }
-    data[key].completions += 1
-    data[key].lastCompletedAt = new Date().toISOString()
-    localStorage.setItem(LS_SKILL_PROGRESS, JSON.stringify(data))
-  } catch {}
+  applyQuestSkillReward({
+    root,
+    tier: lqpTier,
+    questKind: 'season',
+    difficulty: 'medium',
+  }, earnStatXP, _dispatch);
 }
 
 window.QuestEngine_reset        = QuestEngine_reset;

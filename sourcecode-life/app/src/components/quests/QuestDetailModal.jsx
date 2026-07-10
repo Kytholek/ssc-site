@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { useGameState } from '../../state/GameContext'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import { completeGeneratedQuest } from '../../lib/numerologyQuests'
 import { saveFocusQuest } from '../../lib/focusQuests'
 import { todayStr } from '../../lib/numerology'
@@ -22,6 +23,7 @@ export default function QuestDetailModal({ quest, questType, multiDayMap, genera
   const [pendingAction, setPendingAction] = useState(null)
   const [showRating, setShowRating] = useState(false)
   const [starRating, setStarRating] = useState(0)
+  const panelRef = useFocusTrap({ open: !!quest, onClose })
 
   if (!quest) return null
 
@@ -184,9 +186,13 @@ export default function QuestDetailModal({ quest, questType, multiDayMap, genera
 
         {/* ── Panel ── */}
         <div
+          ref={panelRef}
           className="quest-detail-modal quest-detail-modal--visible"
           style={{ '--quest-detail-color': toneColor }}
           onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Quest details: ${displayTitle}`}
         >
           {/* Header */}
           <div className="quest-detail-header">

@@ -1,16 +1,13 @@
 /**
- * AppShell
- *
- * The authenticated app wrapper.
- * Renders the sticky Header, scrollable tab panel, and fixed TabBar.
- * Tab switching is driven by AppContext.activeTab.
+ * AppShell — authenticated app wrapper with header, tabs, and navigation
  */
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import Header from './Header'
 import TabBar from './TabBar'
 import Toast from '../ui/Toast'
 import PremiumModal from '../ui/PremiumModal'
+import SpotlightTour from '../onboarding/SpotlightTour'
 import HomeTab   from '../tabs/home'
 import QuestsTab from '../tabs/QuestsTab'
 import MapTab    from '../tabs/MapTab'
@@ -19,12 +16,21 @@ import Profile   from '../tabs/profileTab'
 
 const TABS = ['home', 'quests', 'map', 'profile', 'config']
 
+const TAB_TITLES = {
+  home: 'Home',
+  quests: 'Quests',
+  map: 'Map',
+  profile: 'Stats',
+  config: 'Decode',
+}
+
 export default function AppShell() {
   const { activeTab, showPremiumModal } = useAppState()
   const dispatch = useAppDispatch()
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
   const mainRef = useRef(null)
+  const [tabAnnouncement, setTabAnnouncement] = useState('')
 
   const resetTabScroll = useCallback(() => {
     const mainEl = mainRef.current
@@ -39,23 +45,22 @@ export default function AppShell() {
     })
   }, [])
 
-  // Scroll to top whenever the active tab changes
   useEffect(() => {
     resetTabScroll()
+    const label = TAB_TITLES[activeTab] || activeTab
+    document.title = `${label} — Source Code: Life`
+    setTabAnnouncement(`Now viewing ${label}`)
   }, [activeTab, resetTabScroll])
 
-  // Deep-link handler — native bridge can call Native_onOpenTab(tab, subTab?)
   useEffect(() => {
     window.Native_onOpenTab = (tab, subTab) => {
       const valid = new Set(TABS)
       if (valid.has(tab)) {
         dispatch({ type: 'SET_TAB', payload: tab })
-        // Dispatch sub-tab event for tabs with sub-tabs
-        // Trigger event IMMEDIATELY after tab dispatch so listener fires before component renders
         setTimeout(() => {
           if (subTab) {
-            window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { 
-              detail: { main: tab, sub: subTab } 
+            window.dispatchEvent(new CustomEvent('scl:open-sub-tab', {
+              detail: { main: tab, sub: subTab },
             }))
           }
         }, 50)
@@ -68,7 +73,6 @@ export default function AppShell() {
     dispatch({ type: 'SET_TAB', payload: tab })
   }, [dispatch])
 
-  // Swipe handling — disabled on map tab to avoid clashing with map pan
   function handleTouchStart(e) {
     if (activeTab === 'map') return
     if (e.target.closest('.map-container-wrap')) return
@@ -83,19 +87,21 @@ export default function AppShell() {
     const dy = e.changedTouches[0].clientY - touchStartY.current
     touchStartX.current = null
     touchStartY.current = null
-    // Only trigger if horizontal swipe dominates and exceeds threshold
     if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return
     const idx = TABS.indexOf(activeTab)
-    if (dx < 0 && idx < TABS.length - 1) switchToTab(TABS[idx + 1]) // swipe left → next
-    if (dx > 0 && idx > 0)               switchToTab(TABS[idx - 1]) // swipe right → prev
+    if (dx < 0 && idx < TABS.length - 1) switchToTab(TABS[idx + 1])
+    if (dx > 0 && idx > 0) switchToTab(TABS[idx - 1])
   }
 
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">{tabAnnouncement}</div>
+
       <Header onTabChange={switchToTab} />
 
-      {/* Tab panels — only the active one is rendered */}
       <main
+        id="main-content"
         ref={mainRef}
         className="app-main"
         role="main"
@@ -112,13 +118,13 @@ export default function AppShell() {
       </main>
 
       <TabBar onTabChange={switchToTab} />
+      <SpotlightTour activeTab={activeTab} onTabChange={switchToTab} />
       <Toast />
       <PremiumModal open={showPremiumModal} onClose={() => dispatch({ type: 'CLOSE_PREMIUM_MODAL' })} />
     </div>
   )
 }
 
-/* ── Animated tab panel wrapper ─────────────────────────────── */
 function TabPanel({ children }) {
   return (
     <div className="sm-tab-panel">{children}</div>

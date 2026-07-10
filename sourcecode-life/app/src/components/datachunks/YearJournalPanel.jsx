@@ -7,8 +7,10 @@ export default function YearJournalPanel({ open, yearTheme, monthsCompleted, onC
   const panelRef = useRef(null)
 
   useEffect(() => {
-    if (open) setText('')
-    setError('')
+    if (open) {
+      setText('')
+      setError('')
+    }
   }, [open])
 
   useEffect(() => {
@@ -37,12 +39,16 @@ export default function YearJournalPanel({ open, yearTheme, monthsCompleted, onC
   }
 
   return createPortal(
-    <>
-      <div className="quest-panel-overlay" onClick={onClose} role="presentation" />
+    <div
+      className="quest-panel-overlay"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         ref={panelRef}
         className="quest-panel"
         style={{ '--qp-color': 'var(--teal)' }}
+        onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Year Journal"
@@ -88,7 +94,7 @@ export default function YearJournalPanel({ open, yearTheme, monthsCompleted, onC
           </div>
         </div>
       </div>
-    </>,
+    </div>,
     document.body
   )
 }

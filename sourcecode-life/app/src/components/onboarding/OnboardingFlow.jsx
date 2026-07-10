@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAppDispatch } from '../../context/AppContext'
 import NumerologyRain from '../effects/NumerologyRain'
+import OnboardingProgress from '../ui/OnboardingProgress'
 
 function WelcomeScreen({ onNext }) {
   return (
@@ -49,6 +50,8 @@ function PermissionsScreen({ onNext }) {
             className={`ob-toggle ${locationEnabled ? 'ob-toggle--on' : ''}`}
             onClick={() => setLocationEnabled(!locationEnabled)}
             type="button"
+            aria-pressed={locationEnabled}
+            aria-label={`Location permission${locationEnabled ? ' enabled' : ' disabled'} — will request on continue`}
           />
         </div>
 
@@ -62,6 +65,8 @@ function PermissionsScreen({ onNext }) {
             className={`ob-toggle ${notificationsEnabled ? 'ob-toggle--on' : ''}`}
             onClick={() => setNotificationsEnabled(!notificationsEnabled)}
             type="button"
+            aria-pressed={notificationsEnabled}
+            aria-label={`Notifications${notificationsEnabled ? ' enabled' : ' disabled'} — will request on continue`}
           />
         </div>
       </div>
@@ -94,6 +99,7 @@ export default function OnboardingFlow({ onComplete }) {
     <div className="ob-overlay">
       <NumerologyRain />
       <div className="ob-content">
+        <OnboardingProgress screen="onboarding" />
         <div className="ob-step-dots">
           <div className={`ob-dot ${step === 0 ? 'ob-dot--active' : ''}`} />
           <div className={`ob-dot ${step === 1 ? 'ob-dot--active' : ''}`} />

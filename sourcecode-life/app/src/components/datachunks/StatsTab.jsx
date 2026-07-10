@@ -17,6 +17,7 @@ function buildChartData(playerData) {
   const normalize = r => r > 9 ? (r === 11 ? 2 : r === 22 ? 4 : r === 33 ? 6 : r === 44 ? 8 : reduceToSimple(r)) : r
   const primaryLabels = {}
   ;[['cl', cl], ['lp', lp], ['ex', ex]].forEach(([tag, obj]) => {
+    if (!obj?.root) return
     const k = normalize(obj.root)
     if (!primaryLabels[k]) primaryLabels[k] = tag.toUpperCase()
     else primaryLabels[k] += '/' + tag.toUpperCase()

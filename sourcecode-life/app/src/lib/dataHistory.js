@@ -42,6 +42,29 @@ function saveHistory(history) {
 }
 
 /**
+ * Update today's scl_daily_summary ledger (written on quest completions).
+ */
+export function updateDailySummary(delta = {}) {
+  const today = todayStr()
+  let summary = {}
+  try {
+    summary = JSON.parse(localStorage.getItem('scl_daily_summary') || '{}')
+  } catch {}
+
+  if (summary.date !== today) {
+    summary = { date: today, xpEarned: 0, questsCompleted: 0, resonantCompletions: 0 }
+  }
+
+  if (delta.xpEarned) summary.xpEarned = (summary.xpEarned || 0) + delta.xpEarned
+  if (delta.questsCompleted) summary.questsCompleted = (summary.questsCompleted || 0) + delta.questsCompleted
+  if (delta.resonantCompletions) summary.resonantCompletions = (summary.resonantCompletions || 0) + delta.resonantCompletions
+
+  try {
+    localStorage.setItem('scl_daily_summary', JSON.stringify(summary))
+  } catch {}
+}
+
+/**
  * Record today's snapshot. Called when a quest completes or on app mount.
  * Merges with existing entry if one already exists for today.
  */
@@ -66,7 +89,7 @@ export function recordDailySnapshot(overrides = {}) {
   let dailyXP = 0, questsCompleted = 0, resonantQuests = 0
   try {
     const summary = JSON.parse(localStorage.getItem('scl_daily_summary') || '{}')
-    if (summary.date && summary.date === _todayStr()) {
+    if (summary.date && summary.date === today) {
       dailyXP = summary.xpEarned || 0
       questsCompleted = summary.questsCompleted || 0
       resonantQuests = summary.resonantCompletions || 0

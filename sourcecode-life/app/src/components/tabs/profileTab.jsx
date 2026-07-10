@@ -5,7 +5,6 @@
  */
 import { useState, useEffect } from 'react'
 import { useAppState } from '../../context/AppContext'
-import { useGameState } from '../../state/GameContext'
 import SettingsTab from '../datachunks/SettingsTab'
 import QuestCompletionChart from '../charts/QuestCompletionChart'
 import InsightsSummary from '../charts/InsightsSummary'
@@ -26,7 +25,6 @@ const BLUEPRINT_TABS = [
 
 function BlueprintSection() {
   const { playerData } = useAppState()
-  const { user } = useGameState()
   const [subTab, setSubTab] = useState('lessons')
 
   useEffect(() => {
@@ -34,12 +32,13 @@ function BlueprintSection() {
   }, [subTab])
 
   return (
-    <div style={{ position: 'relative' }}>
+    <PremiumLockOverlay feature="Full Blueprint — complete shadow + integration readings">
       <div className="blueprint-section">
         <div className="blueprint-sub-tabs">
           {BLUEPRINT_TABS.map(tab => (
             <button
               key={tab.id}
+              type="button"
               className={`blueprint-sub-tab${subTab === tab.id ? ' active' : ''}`}
               onClick={() => setSubTab(tab.id)}
             >
@@ -51,24 +50,20 @@ function BlueprintSection() {
         {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
         {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
       </div>
-      {!user.isPremium && <PremiumLockOverlay feature="Full Blueprint" />}
-    </div>
+    </PremiumLockOverlay>
   )
 }
 
 function InsightsSection() {
-  const { user } = useGameState()
-
   return (
-    <div style={{ position: 'relative' }}>
+    <PremiumLockOverlay feature="Insights & Charts — XP trends, polarity balance, and roadmap">
       <div className="insights-section">
         <InsightsSummary />
         <PolarityStatCard />
         <QuestCompletionChart range={30} />
         <LifeQuestRoadmap />
       </div>
-      {!user.isPremium && <PremiumLockOverlay feature="Insights & Charts" />}
-    </div>
+    </PremiumLockOverlay>
   )
 }
 

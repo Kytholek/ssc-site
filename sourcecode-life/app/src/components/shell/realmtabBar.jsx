@@ -68,10 +68,11 @@ export default function RealmTabBar({
         </button>
         <button
           className="sm-tab-btn center-btn"
-          aria-label="Exit Simulation Matrix"
+          aria-label="Exit to Map"
           onClick={onExit}
         >
           <span className="sm-tab-icon" aria-hidden>◈</span>
+          <span className="sm-tab-exit-label">Exit to Map</span>
         </button>
         <button
           className={`sm-tab-btn${mainTab === 'social' ? ' active' : ''}`}

@@ -1,13 +1,23 @@
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import NumerologyRain from '../effects/NumerologyRain'
+import OnboardingProgress from '../ui/OnboardingProgress'
 
 const FEATURES = [
   { glyph: '📜', title: 'Full Blueprint', desc: 'Complete shadow + integration reading for every number in your chart' },
-  { glyph: '🌀', title: 'Time Spiral: Past & Future', desc: 'Navigate your previous and upcoming cycle themes, not just today' },
-  { glyph: '⚔', title: 'Ally Badge', desc: 'A distinct emblem on your Character Card — visible to allies in the Realm' },
-  { glyph: '🔮', title: 'Master Number Quests', desc: 'Rare 11, 22, 33+ archetype paths if your frequencies carry master energy' },
-  { glyph: '📊', title: '90-Day Quest Archive', desc: 'Full XP trends, streak history, and pattern insights' },
-  { glyph: '☁', title: 'Cloud Gear Sync', desc: 'Your character and medals synced — accessible across devices' },
+  { glyph: '🌀', title: 'Spiral of Time', desc: 'Visual map of the cyclical seasons in your life; monthly, yearly, 9-year cycles and pinnacles' },
+  { glyph: '📊', title: 'Insights & Analytics', desc: 'Stat growth manager, polarity balance charts, and your Life Quest roadmap' },
+  { glyph: '⚔', title: 'Ally Badge', desc: 'A ✦ emblem on your name — visible to allies in the Realm' },
+  { glyph: '☁', title: 'Cloud Gear Sync', desc: 'Your character equipment synced across devices when gear launches' },
+  { glyph: '🎁', title: 'Premium Gift Codes', desc: 'Earn gift tokens by completing quests and share 3–7 day premium with allies' },
+]
+
+const FREE_VS_PREMIUM = [
+  { feature: 'Daily quests & XP', free: true, premium: true },
+  { feature: 'Life Quest objectives', free: true, premium: true },
+  { feature: 'Stats & skill tree', free: true, premium: true },
+  { feature: 'Full blueprint decode', free: false, premium: true },
+  { feature: 'Time Spiral & insights', free: false, premium: true },
+  { feature: 'Ally badge in Realm', free: false, premium: true },
 ]
 
 export default function PremiumReveal({ onComplete }) {
@@ -34,9 +44,10 @@ export default function PremiumReveal({ onComplete }) {
     <div className="pr-overlay">
       <NumerologyRain />
       <div className="pr-content">
+        <OnboardingProgress screen="premiumReveal" />
         <div className="pr-card">
           <div className="pr-header">
-            <div className="pr-header-icon">✦</div>
+            <div className="pr-header-icon" aria-hidden="true">✦</div>
             <h2 className="pr-header-title">YOUR BLUEPRINT IS READY</h2>
             <div className="pr-numbers-row">
               <div className="pr-number-pill">Life Path · {lpRoot}</div>
@@ -50,11 +61,24 @@ export default function PremiumReveal({ onComplete }) {
             Premium unlocks the full decode.
           </p>
 
-          <div className="pr-feature-list">
+          <div className="pr-comparison">
+            <div className="pr-comparison-header">
+              <span>Feature</span><span>Free</span><span>Premium</span>
+            </div>
+            {FREE_VS_PREMIUM.map(row => (
+              <div key={row.feature} className="pr-comparison-row">
+                <span>{row.feature}</span>
+                <span>{row.free ? '✓' : '—'}</span>
+                <span>{row.premium ? '✓' : '—'}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pr-features">
             {FEATURES.map((f, i) => (
-              <div key={i} className="pr-feature-card">
-                <div className="pr-feature-glyph">{f.glyph}</div>
-                <div className="pr-feature-text">
+              <div key={i} className="pr-feature">
+                <span className="pr-feature-glyph" aria-hidden="true">{f.glyph}</span>
+                <div>
                   <div className="pr-feature-title">{f.title}</div>
                   <div className="pr-feature-desc">{f.desc}</div>
                 </div>
@@ -62,14 +86,12 @@ export default function PremiumReveal({ onComplete }) {
             ))}
           </div>
 
-          <div className="pr-cta-row">
-            <button className="ob-cta" onClick={handleUnlock}>
-              ✦ UNLOCK PREMIUM
-            </button>
-            <button className="pr-link" onClick={handleNavigate}>
-              CONTINUE FREE →
-            </button>
-          </div>
+          <button type="button" className="pr-cta pr-cta--primary" onClick={handleUnlock}>
+            UNLOCK PREMIUM ✦
+          </button>
+          <button type="button" className="pr-cta pr-cta--ghost" onClick={handleNavigate}>
+            CONTINUE WITH FREE →
+          </button>
         </div>
       </div>
     </div>

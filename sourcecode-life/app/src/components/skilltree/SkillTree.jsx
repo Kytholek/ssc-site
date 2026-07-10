@@ -13,6 +13,8 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { getSkillTreeTierObjectives, SKILL_OBJECTIVES } from '../../lib/objectives';
+import FlowProgressNode from '../flow/FlowProgressNode';
+import { FLOW_NODE_SIZE } from '../flow/flowNodeConstants';
 
 const TIER_MAP = { 1: 'initiate', 2: 'consistency', 3: 'mastery' }
 
@@ -129,105 +131,56 @@ function SkillNode({ data }) {
 	const stagesDone  = completed.filter(Boolean).length;
 	const progress    = (stagesDone / 3) * 100;
 	const { zoom = 1 } = useReactFlow();
-	const BASE_SIZE   = 160;
 	const minZoom = 0.5, maxZoom = 2;
 	const clampedZoom = Math.max(minZoom, Math.min(maxZoom, zoom));
-	const size        = BASE_SIZE * clampedZoom;
+	const size        = FLOW_NODE_SIZE * clampedZoom;
 
 	const innateStages = seeds?.[number.id] || [false, false, false]
 	const isInnate     = innateStages[0]
 	const statVal      = statValues?.[number.id] || 0
 	const fullyAligned = stagesDone === 3 && statVal >= THRESHOLDS.stage3
 
-	// Stage eligibility: innate seeds bypass threshold for their covered stages
 	const eligible = [
 		true,
 		innateStages[1] || statVal >= THRESHOLDS.stage2,
 		innateStages[2] || statVal >= THRESHOLDS.stage3,
 	]
+
+	const pipStates = [0, 1, 2].map((i) => ({
+		done: completed[i],
+		eligible: eligible[i],
+		innate: innateStages[i],
+	}))
+
+	const skillHandles = [
+		{ type: 'target', position: Position.Top, id: 't-in' },
+		{ type: 'source', position: Position.Top, id: 't-out' },
+		{ type: 'target', position: Position.Bottom, id: 'b-in' },
+		{ type: 'source', position: Position.Bottom, id: 'b-out' },
+		{ type: 'target', position: Position.Left, id: 'l-in' },
+		{ type: 'source', position: Position.Left, id: 'l-out' },
+		{ type: 'target', position: Position.Right, id: 'r-in' },
+		{ type: 'source', position: Position.Right, id: 'r-out' },
+	]
+
 	return (
-		<div
+		<FlowProgressNode
+			color={number.color}
+			icon={number.icon}
+			displayNum={number.id}
+			label={number.label}
+			subtitle={number.subtitle}
+			isSelected={active}
+			progressPct={progress}
+			stagesDone={stagesDone}
+			pipStates={pipStates}
+			innateGlow={isInnate}
+			fullyAligned={fullyAligned}
+			size={size}
 			onClick={() => onClick(number)}
-			className="flow-node-interactive"
-			tabIndex={0}
-			style={{
-				width: size,
-				height: size,
-				'--flow-color': number.color,
-				'--flow-color-glow': number.glow,
-				'--flow-color-glow-dim': `${number.color}44`,
-				'--flow-color-dim': `${number.color}33`,
-				'--flow-color-muted': `${number.color}55`,
-				'--flow-color-faded': `${number.color}18`,
-				'--flow-pip-color': number.color,
-			}}
-		>
-			<Handle type="target" position={Position.Top}    id="t-in"  style={{ opacity: 0 }} />
-			<Handle type="source" position={Position.Top}    id="t-out" style={{ opacity: 0 }} />
-			<Handle type="target" position={Position.Bottom} id="b-in"  style={{ opacity: 0 }} />
-			<Handle type="source" position={Position.Bottom} id="b-out" style={{ opacity: 0 }} />
-			<Handle type="target" position={Position.Left}   id="l-in"  style={{ opacity: 0 }} />
-			<Handle type="source" position={Position.Left}   id="l-out" style={{ opacity: 0 }} />
-			<Handle type="target" position={Position.Right}  id="r-in"  style={{ opacity: 0 }} />
-			<Handle type="source" position={Position.Right}  id="r-out" style={{ opacity: 0 }} />
-
-			{/* Layered back glow */}
-			{fullyAligned && <div className="flow-node-glow--complete" />}
-			{!fullyAligned && stagesDone > 0 && <div className="flow-node-glow--partial" />}
-			{isInnate && !fullyAligned && stagesDone === 0 && <div className="flow-node-glow--innate" />}
-
-			<div
-				className={`flow-node-base${active ? ' flow-node-base--active' : isInnate ? ' flow-node-base--innate' : ' flow-node-base--default'}`}
-			>
-				{/* Rotating ring */}
-				{active && <div className="flow-node-ring-spin" />}
-				{/* Outer dashed ring */}
-				<div className="flow-node-ring-outer" />
-				{/* Progress arc overlay */}
-				<svg
-					className="flow-node-progress"
-					viewBox="0 0 160 160"
-				>
-					<circle
-						cx="80" cy="80" r="74"
-						fill="none"
-						stroke={number.color}
-						strokeWidth="3"
-						strokeDasharray={`${(progress / 100) * 465} 465`}
-						strokeLinecap="round"
-						transform="rotate(-90 80 80)"
-						opacity="0.7"
-					/>
-				</svg>
-
-				{/* Icon */}
-				<span className="flow-node-icon">{number.icon}</span>
-
-				{/* Label */}
-				<span className="flow-node-label">{number.label}</span>
-
-				{/* Subtitle */}
-				<span className="flow-node-subtitle">{number.subtitle}</span>
-
-				{/* Stage pips */}
-				<div className="flow-node-pips">
-					{[0, 1, 2].map((i) => {
-						const isInnatePip = innateStages[i]
-						const isDone      = completed[i]
-						const isEligible  = eligible[i]
-						return (
-							<div
-								key={i}
-								className={`flow-node-pip${isDone ? ' flow-node-pip--done' : ''}${!isDone && isEligible ? ' flow-node-pip--eligible' : ''}${isInnatePip ? ' flow-node-pip--innate' : ''}`}
-							/>
-						)
-					})}
-				</div>
-
-				{/* Number badge */}
-				<div className="flow-node-badge">{number.id}</div>
-			</div>
-		</div>
+			withHandles
+			handles={skillHandles}
+		/>
 	);
 }
 
@@ -251,8 +204,8 @@ function buildGraph(numbers, completed, onNodeClick, activeId, seeds = {}, statV
 	// 4  5  6
 	//  7   9
 	//    8
-	const SPACING_X = 270; // Increased spacing between nodes
-	const SPACING_Y = 180;
+	const SPACING_X = 170;
+	const SPACING_Y = 115;
 	const positions = [
 		{ x: SPACING_X * 0.5, y: SPACING_Y * 0.8 },  // 1
 		{ x: SPACING_X,       y: 0 },               // 2 (top center)
@@ -297,7 +250,7 @@ function buildGraph(numbers, completed, onNodeClick, activeId, seeds = {}, statV
 	return { nodes, edges };
 }
 
-export default function SkillTree({ completed, setCompleted, activeNode, setActiveNode, seeds = {}, statValues = {} }) {
+export default function SkillTree({ completed, activeNode, setActiveNode, seeds = {}, statValues = {} }) {
 	const isMobile = useIsMobile();
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -311,15 +264,7 @@ export default function SkillTree({ completed, setCompleted, activeNode, setActi
 		const { nodes: n, edges: e } = buildGraph(NUMBERS, completed, handleNodeClick, activeNode?.id, seeds, statValues);
 		setNodes(n);
 		setEdges(e);
-	}, [completed, activeNode, handleNodeClick, setNodes, setEdges, isMobile]);
-
-	const toggleQuest = (numberId, stageIdx) => {
-		setCompleted((prev) => {
-			const arr = [...prev[numberId]];
-			arr[stageIdx] = !arr[stageIdx];
-			return { ...prev, [numberId]: arr };
-		});
-	};
+	}, [completed, activeNode, handleNodeClick, setNodes, setEdges, isMobile, statValues, seeds]);
 
 	const activeData = activeNode ? NUMBERS.find((n) => n.id === activeNode.id) : null;
 	const totalCompleted = Object.values(completed).flat().filter(Boolean).length;
@@ -626,11 +571,9 @@ export default function SkillTree({ completed, setCompleted, activeNode, setActi
 								const lockReason = lockParts.join(' · ')
 								return (
 									<div key={stage.stage} style={{ marginBottom: isMobile ? 12 : 20, opacity: unlocked ? 1 : 0.5 }}>
-										{/* Stage header */}
+										{/* Stage header — quest-driven progress (read-only) */}
 										<div
-											onClick={() => unlocked && toggleQuest(activeData.id, sIdx)}
 											className="quest-item"
-											tabIndex={0}
 											style={{
 												display: "flex",
 												alignItems: "center",
@@ -639,17 +582,13 @@ export default function SkillTree({ completed, setCompleted, activeNode, setActi
 												borderRadius: 8,
 												border: `1px solid ${isDone ? sc.border : sc.border + "44"}`,
 												background: isDone ? sc.bg : unlocked ? "transparent" : "#222233",
-												cursor: unlocked ? "pointer" : "not-allowed",
+												cursor: "default",
 												marginBottom: 10,
 												transition: "all 0.2s ease",
 												filter: unlocked ? "none" : "grayscale(0.7)",
-												outline: "none",
 											}}
-											title={unlocked ? undefined : "Complete previous stage to unlock"}
-											aria-label={`Stage ${stage.stage}: ${stage.name}`}
-											onKeyDown={e => {
-												if ((e.key === "Enter" || e.key === " ") && unlocked) toggleQuest(activeData.id, sIdx);
-											}}
+											title={unlocked ? undefined : lockReason || "Complete previous stage via quests"}
+											aria-label={`Stage ${stage.stage}: ${stage.name}${isDone ? ' — complete' : ''}`}
 										>
 											<div style={{
 												width: isMobile ? 18 : 22,

@@ -1,6 +1,7 @@
 import { CALLING } from './data'
 import { fmt, todayStr } from './numerology'
-import { getTieredObjectiveTexts } from './objectives'
+import { getTieredObjectiveTexts, getTierObjectiveCount } from './objectives'
+import { QuestEngine_isDailyGated } from './questEngine'
 import { getGeneratedQuests } from './numerologyQuests'
 
 function asArray(value) {
@@ -245,14 +246,27 @@ const LIFE_NODE_META = {
 }
 
 const TIER_LABELS = { 1: 'Apprentice', 2: 'Adept', 3: 'Master' }
-const TIER_OBJECTIVE_COUNTS = {
-  so: { 1: 3, 2: 4, 3: 5 },
-  ou: { 1: 3, 2: 4, 3: 5 },
-  ex: { 1: 3, 2: 4, 3: 5 },
-  cl: { 1: 4, 2: 5, 3: 6 },
-  lp: { 1: 3, 2: 4, 3: 5 },
-  ac: { 1: 3, 2: 4, 3: 5 },
-  th: { 1: 3, 2: 4, 3: 5 },
+
+function countLifeMissionProgress(lqp, playerData) {
+  const nodes = ['so', 'ou', 'ac', 'lp', 'ex', 'cl', 'th']
+  let completed = 0
+  let total = 0
+  for (const key of nodes) {
+    const root = playerData?.[key]?.root ?? 1
+    for (let tier = 1; tier <= 3; tier++) {
+      const tierCount = getTierObjectiveCount(root, tier) || 3
+      total += tierCount
+      const prog = lqp?.[key]?.[tier] || []
+      for (let i = 0; i < tierCount; i++) {
+        if (prog[i]) completed++
+      }
+    }
+  }
+  return { completed, total }
+}
+
+export function getLifeMissionTotals(lqp, playerData) {
+  return countLifeMissionProgress(lqp, playerData)
 }
 
 /**
@@ -271,7 +285,7 @@ function buildLifeQuestData({ playerData, lqp, freqLevel }) {
 
     const lqpEntry = lqp?.[key]
     const activeTier = getActiveTier(lqpEntry)
-    const totalObjectives = TIER_OBJECTIVE_COUNTS[key]?.[activeTier] || 4
+    const totalObjectives = getTierObjectiveCount(numObj.root, activeTier) || 3
     const tierProgress = lqpEntry?.[activeTier]?.filter(Boolean).length || 0
     const locked = freqLevel < meta.unlockLv
 
@@ -355,6 +369,21 @@ export function buildObjectiveGlyphs({ playerData, lqp, freqLevel, multiDayMap, 
   if (!playerData) return []
   const glyphs = []
 
+  // ── Hero daily quest glyph ──
+  if (daily) {
+    glyphs.push({
+      id: 'daily-hero',
+      type: 'daily-hero',
+      icon: daily.completed ? '✓' : '✦',
+      source: 'TODAY',
+      text: daily.dayObj || daily.blueprintLabel || 'Daily alignment',
+      blueprintLabel: daily.blueprintLabel || null,
+      done: !!daily.completed,
+      locked: !daily.completed && QuestEngine_isDailyGated(),
+      _urgency: daily.completed ? 0 : 4,
+    })
+  }
+
   // ── Life quest objectives (current tier only) ──
   const { so, ou, ex, cl, lp, ac, th } = playerData
   const lifeNodes = [
@@ -372,11 +401,10 @@ export function buildObjectiveGlyphs({ playerData, lqp, freqLevel, multiDayMap, 
     const locked = freqLevel < node.unlockLv
     const lqpEntry = lqp?.[node.key]
     const activeTier = getActiveTier(lqpEntry)
-    const objectives = getTieredObjectiveTexts(getQuestRoot(node.key, playerData), activeTier)
-    const completedObjs = lqpEntry?.[activeTier]?.filter(Boolean).length || 0
+    const objectives = getTieredObjectiveTexts(node.numObj.root, activeTier)
 
     objectives.forEach((text, i) => {
-      const isDone = i < completedObjs
+      const isDone = !!lqpEntry?.[activeTier]?.[i]
       glyphs.push({
         id: `life-${node.key}-t${activeTier}-o${i}`,
         type: 'life',
@@ -384,8 +412,10 @@ export function buildObjectiveGlyphs({ playerData, lqp, freqLevel, multiDayMap, 
         source: LIFE_NODE_META[node.key]?.label || node.key,
         text,
         nodeKey: node.key,
+        tier: activeTier,
+        objIdx: i,
         done: isDone,
-        locked: locked || (i >= completedObjs && activeTier > 1),
+        locked,
         _urgency: isDone ? 0 : locked ? 0 : 3,
       })
     })
@@ -415,9 +445,9 @@ export function buildObjectiveGlyphs({ playerData, lqp, freqLevel, multiDayMap, 
     })
   }
 
-  // ── All generated quests (daily + skill + custom) ──
+  // ── All generated quests (daily + skill + custom) — skip multi-day commitments already tracking ──
   if (generatedState?.quests) {
-    generatedState.quests.filter(q => !q.completed).forEach(quest => {
+    generatedState.quests.filter(q => !q.completed && !q.multiDay?.started).forEach(quest => {
       glyphs.push({
         id: `gen-${quest.id}`,
         type: quest.type === 'daily' ? 'daily' : 'generated',

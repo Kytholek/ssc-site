@@ -1,10 +1,15 @@
 /**
- * TimeFlow — Current Cycles (premium SVG nodes)
+ * TimeFlow — Current Cycles (unified flow nodes)
  */
 import { useState, useEffect, useMemo } from 'react'
+import ReactFlow, { Background } from 'reactflow'
+import 'reactflow/dist/style.css'
 import { reduceToSimple, getCycleAnchor, calcPersonalYear, calcPinnacles, calcPersonalMonth, calcPersonalDay, calcFourMonthCycle, todayStr } from '../../lib/numerology'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import FlowDetailPanel from './FlowDetailPanel'
+import FlowProgressNode from './FlowProgressNode'
+import { FLOW_NODE_HALF } from './flowNodeConstants'
+import CoachMark from '../ui/CoachMark'
 import MonthCheckinPanel from '../datachunks/MonthCheckinPanel'
 import {
   CYCLE_MEANINGS, CYCLE_QUEST_COLORS, MONTH_NAMES,
@@ -12,10 +17,48 @@ import {
 } from '../../lib/data'
 import { getCycleObjectives, PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { LS_DAILY_GLYPHS, getPinnacleProgress, getActiveTier } from '../../lib/questEngine'
+import { resolveBlueprintNode } from '../../lib/questBlueprint'
 import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, addMonthCheckin } from '../../lib/seasonEngine'
+import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
-const ORB_R = 52 // Node radius
+const ORB_CENTER_OFFSET = 52
+
+function CycleNode({ data }) {
+  const maxProgress = data.progressMax || 3
+  const stagesDone = Math.min(maxProgress, data.progress || 0)
+  const progressPct = maxProgress > 0 ? (stagesDone / maxProgress) * 100 : 0
+  const pipStates = Array.from({ length: Math.min(maxProgress, 6) }, (_, i) => ({
+    done: i < stagesDone,
+    eligible: i === stagesDone,
+    innate: false,
+  }))
+
+  return (
+    <div className="tf-cycle-node-wrap">
+      <FlowProgressNode
+        color={data.colorHex}
+        icon={data.icon || '◎'}
+        displayNum={data.isMaster ? '' : String(reduceToSimple(data.root))}
+        subtitle={data.shortLabel}
+        isSelected={data.isSelected}
+        isMaster={data.isMaster}
+        progressPct={progressPct}
+        stagesDone={stagesDone}
+        pipStates={pipStates}
+        fullyAligned={stagesDone >= maxProgress}
+        showBadge={!data.isMaster}
+        onClick={data.onClick}
+        withHandles
+      />
+      <div className={`tf-node-caption${data.isSelected ? ' tf-node-caption--active' : ''}`}>
+        {data.shortLabel}
+      </div>
+    </div>
+  )
+}
+
+const cycleNodeTypes = { cycleNode: CycleNode }
 
 function getQuestData(root) {
   if (MASTERS.has(root) && MASTER_QUESTS[root]) return MASTER_QUESTS[root]
@@ -33,7 +76,7 @@ const NODES = [
   { key: 'personalDay',   x: 230, y: 428, label: 'DAY',          icon: '☀️' },
 ]
 
-const LINE_PTS = NODES.map(n => `${n.x + ORB_R},${n.y + ORB_R}`).join(' ')
+const LINE_PTS = NODES.map(n => `${n.x + ORB_CENTER_OFFSET},${n.y + ORB_CENTER_OFFSET}`).join(' ')
 
 const ZONES = [
   { y: 0,   h: 180, label: 'LONG TERM',   bg: '#14100c' },
@@ -108,8 +151,8 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
     // Intentionally read to allow manual recompute after localStorage writes.
     seasonRefreshTick
     if (!lp?.root || !m || !d) return null
-    return getMonthSeasonState(lp.root, m, d, freqLevel)
-  }, [lp?.root, m, d, freqLevel, seasonRefreshTick])
+    return getMonthSeasonState(lp.root, m, d, freqLevel, playerData)
+  }, [lp?.root, m, d, freqLevel, seasonRefreshTick, playerData])
 
   const yearSeasonState = useMemo(() => {
     // Intentionally read to allow manual recompute after localStorage writes.
@@ -212,7 +255,8 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       title: `PERSONAL MONTH ${pm.monthNum} QUEST`, typeLabel: 'MONTH QUEST',
       desc: '', objectives: getCycleObjs('personalMonth', pm.root, freqLevel),
       affirmation: 'This month I act in alignment.',
-      progress: getCycleProgress(sideQuests, 'personalMonth'),
+      progress: monthSeasonState?.checkins?.length || getCycleProgress(sideQuests, 'personalMonth'),
+      progressMax: monthSeasonState?.tierDays || 3,
       aligned: blueprintRoots.includes(reduceToSimple(pm.root)),
     },
     {
@@ -229,201 +273,88 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
     },
   ]
 
-  const selIdx = selected
-  const selNode = selIdx !== null ? nodeData[selIdx] : null
+  const selNode = selected ? nodeData.find((n) => n.key === selected) : null
+
+  const rfNodes = nodeData.map((node) => ({
+    id: node.key,
+    type: 'cycleNode',
+    position: {
+      x: node.x + ORB_CENTER_OFFSET - FLOW_NODE_HALF,
+      y: node.y + ORB_CENTER_OFFSET - FLOW_NODE_HALF,
+    },
+    draggable: false,
+    data: {
+      root: node.root,
+      icon: node.icon,
+      shortLabel: node.label,
+      colorHex: node.color.hex,
+      isMaster: node.isMaster,
+      progress: node.progress,
+      progressMax: node.progressMax || 3,
+      isSelected: selected === node.key,
+      onClick: () => setSelected((prev) => (prev === node.key ? null : node.key)),
+    },
+  }))
+
+  const rfEdges = nodeData.slice(0, -1).map((node, i) => ({
+    id: `${node.key}-${nodeData[i + 1].key}`,
+    source: node.key,
+    target: nodeData[i + 1].key,
+    type: 'default',
+    style: { stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1.5, strokeDasharray: '4 4' },
+  }))
+
+  const onNodeClick = (_event, node) => {
+    setSelected((prev) => (prev === node.id ? null : node.id))
+  }
 
   return (
     <div className="tf-wrap">
-      {/* ── SVG Flow Chart ── */}
-      <div className={`tf-chart-area${chartReady ? ' tf-chart-area--ready' : ''}`}>
-        <svg className="tf-svg" viewBox="0 0 400 580" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            {/* Dot grid */}
-            <pattern id="tfDotGrid" width="16" height="16" patternUnits="userSpaceOnUse">
-              <circle cx="8" cy="8" r="0.7" fill="rgba(255,255,255,0.05)" />
-            </pattern>
-
-            {/* Zone gradients */}
-            <linearGradient id="tfZoneGrad1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(201,168,76,0.06)" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-            <linearGradient id="tfZoneGrad2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(139,92,246,0.06)" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-            <linearGradient id="tfZoneGrad3" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(0,229,180,0.06)" />
-              <stop offset="100%" stopColor="transparent" />
-            </linearGradient>
-
-            {/* Orb gradients */}
-            {nodeData.map((node) => (
-              <radialGradient key={`grad-${node.key}`} id={`tfGrad-${node.key}`} cx="50%" cy="35%" r="58%">
-                <stop offset="0%" stopColor={node.color.hex} stopOpacity="0.25" />
-                <stop offset="45%" stopColor={node.color.hex} stopOpacity="0.08" />
-                <stop offset="100%" stopColor="#0a0a14" stopOpacity="1" />
-              </radialGradient>
-            ))}
-
-            {/* Inner shadow clip */}
-            <clipPath id="tfOrbClip">
-              <circle r={ORB_R - 1} />
-            </clipPath>
-          </defs>
-
-          {/* Background dot grid */}
-          <rect x="0" y="0" width="400" height="580" fill="url(#tfDotGrid)" />
-
-          {/* Colored zones */}
+      <CoachMark storageKey="scl_coach_time_flow" title="Current Cycles" afterTour>
+        Six time horizons: Theme & Pinnacle (long-term), Year & 4-Month (medium), Month & Day (now). Tap a node to see objectives.
+      </CoachMark>
+      {/* ── Cycle Flow Chart (unified nodes) ── */}
+      <div className={`tf-chart-area tf-chart-area--flow${chartReady ? ' tf-chart-area--ready' : ''}`}>
+        <div className="tf-zones-layer" aria-hidden="true">
           {ZONES.map((z, i) => (
-            <g key={i} style={{ opacity: chartReady ? 1 : 0, transition: `opacity 0.8s ease ${0.1 + i * 0.15}s` }}>
-              <rect x="0" y={z.y} width="400" height={z.h} fill={z.bg} rx="6" />
-              <rect x="0" y={z.y} width="400" height={z.h} fill={`url(#tfZoneGrad${i + 1})`} rx="6" />
-              {i < ZONES.length - 1 && (
-                <line x1="0" y1={z.y + z.h} x2="400" y2={z.y + z.h} stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 3" />
-              )}
-              <text x="16" y={z.y + 18} fill="rgba(255,255,255,0.18)" fontSize="8" fontFamily="'Cinzel', serif" fontWeight="700" letterSpacing="0.25em">
-                {z.label}
-              </text>
-            </g>
+            <div
+              key={z.label}
+              className={`tf-zone tf-zone--${i + 1}`}
+              style={{
+                top: `${(z.y / 580) * 100}%`,
+                height: `${(z.h / 580) * 100}%`,
+                opacity: chartReady ? 1 : 0,
+                transition: `opacity 0.8s ease ${0.1 + i * 0.15}s`,
+              }}
+            >
+              <span className="tf-zone-label">{z.label}</span>
+            </div>
           ))}
-
-          {/* Connecting lines */}
-          <polyline points={LINE_PTS} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          <polyline className="tf-connector" points={LINE_PTS} />
-          <polyline className="tf-connector-glow" points={LINE_PTS} />
-
-          {/* ═══════════════════════════════════════════
-              NODES - Premium SVG orbs
-              ═══════════════════════════════════════════ */}
-          {nodeData.map((node, i) => {
-            const isActive = selIdx === i
-            const cx = node.x + ORB_R
-            const cy = node.y + ORB_R
-            const r = ORB_R
-            const maxProgress = node.progressMax || 3
-            const stagesDone = Math.min(maxProgress, node.progress)
-            const isComplete = stagesDone >= maxProgress
-            const progress = (stagesDone / maxProgress) * 100
-            const delay = 0.2 + i * 0.1
-
-            return (
-              <g
-                key={node.key}
-                className={`tf-orb-group tf-orb-group--${node.key}${isActive ? ' tf-orb-group--active' : ''}${isComplete ? ' tf-orb-group--complete' : ''}`}
-                onClick={() => setSelected(selIdx === i ? null : i)}
-                style={{
-                  '--tf-color': node.color.hex,
-                  '--tf-glow': node.color.glow,
-                  opacity: chartReady ? 1 : 0,
-                  transform: chartReady ? 'scale(1)' : 'scale(0.35)',
-                  transformOrigin: `${cx}px ${cy}px`,
-                  transition: `opacity 0.5s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
-                }}
-              >
-                {/* ═══ LAYER 1: Outer glow (outside-in) ═══ */}
-
-                {/* Alignment ring */}
-                {node.aligned && (
-                  <circle cx={cx} cy={cy} r={r + 20} fill="none" stroke={node.color.hex} strokeWidth="1.5" strokeDasharray="4 3" opacity={isActive ? 0.4 : 0.18} style={{ animation: isActive ? 'tfSpin 12s linear infinite' : 'none', transformOrigin: `${cx}px ${cy}px` }} />
-                )}
-
-                {/* Completed aura */}
-                {stagesDone >= maxProgress && (
-                  <circle cx={cx} cy={cy} r={r + 18} fill="none" stroke={node.color.hex} strokeWidth="8" opacity={isActive ? 0.12 : 0.05} />
-                )}
-
-                {/* Partial glow */}
-                {stagesDone > 0 && stagesDone < maxProgress && (
-                  <circle cx={cx} cy={cy} r={r + 14} fill="none" stroke={node.color.hex} strokeWidth="5" opacity={isActive ? 0.1 : 0.03} />
-                )}
-
-                {/* Rotating ring */}
-                {isActive && (
-                  <circle cx={cx} cy={cy} r={r + 10} fill="none" stroke={node.color.hex} strokeWidth="1" strokeOpacity="0.3" style={{ animation: 'tfSpin 8s linear infinite', transformOrigin: `${cx}px ${cy}px` }} />
-                )}
-
-                {/* Outer dashed ring */}
-                <circle cx={cx} cy={cy} r={r + 14} fill="none" stroke={node.color.hex} strokeWidth="0.5" strokeDasharray="3 5" strokeOpacity="0.15" />
-
-                {/* ═══ LAYER 2: Progress arc (inside orb edge) ═══ */}
-                {progress > 0 && (
-                  <circle cx={cx} cy={cy} r={r - 2} fill="none" stroke={node.color.hex} strokeWidth="2.5" strokeDasharray={`${(progress / 100) * 314} 314`} strokeLinecap="round" opacity="0.55" style={{ transformOrigin: `${cx}px ${cy}px`, transform: 'rotate(-90deg)' }} />
-                )}
-
-                {/* ═══ LAYER 3: Orb body ═══ */}
-                <circle className="tf-orb-body" cx={cx} cy={cy} r={r} fill={`url(#tfGrad-${node.key})`} stroke={node.color.hex} strokeWidth={isActive ? 3 : node.aligned ? 2.5 : 1.5} strokeOpacity={isComplete ? 0.25 : 1} style={{ transition: 'all 0.3s cubic-bezier(.4,2,.6,1)' }} />
-
-                {/* Completed dull overlay */}
-                {isComplete && <circle cx={cx} cy={cy} r={r} fill="rgba(8,8,16,0.62)" pointerEvents="none" />}
-
-                {/* Inner glow when active */}
-                {isActive && <circle cx={cx} cy={cy} r={r - 1} fill={node.color.hex} opacity="0.04" pointerEvents="none" />}
-
-                {/* ═══ LAYER 4: Content (all inside orb) ═══ */}
-                <g transform={`translate(${cx}, ${cy})`} clipPath="url(#tfOrbClip)">
-
-                  {/* Icon - upper center */}
-                  <text x="0" y={-6} textAnchor="middle" dominantBaseline="central" fontSize="26" pointerEvents="none" opacity={isComplete ? 0.3 : 1} style={{ filter: isActive && !isComplete ? `drop-shadow(0 0 8px ${node.color.hex})` : 'none' }}>
-                    {node.icon || '◎'}
-                  </text>
-
-                  {/* Number badge - bottom center inside orb */}
-                  {!node.isMaster && (
-                    <>
-                      <circle cx="0" cy={r - 16} r="11" fill="rgba(10,10,18,0.85)" stroke={node.color.hex} strokeWidth="0.8" strokeOpacity="0.35" />
-                      <text x="0" y={r - 16} textAnchor="middle" dominantBaseline="central" fill={node.color.hex} fontFamily="'Share Tech Mono', monospace" fontSize="10" fontWeight="700" opacity="0.9" pointerEvents="none">
-                        {reduceToSimple(node.root)}
-                      </text>
-                    </>
-                  )}
-
-                  {/* Master badge */}
-                  {node.isMaster && (
-                    <>
-                      <rect x="-28" y={r - 26} width="56" height="18" rx="4" fill="rgba(240,192,96,0.1)" stroke="rgba(240,192,96,0.3)" strokeWidth="0.8" />
-                      <text x="0" y={r - 17} textAnchor="middle" fill="#f0c060" fontFamily="'Cinzel', serif" fontSize="7.5" fontWeight="700" letterSpacing="0.12em" pointerEvents="none">MASTER</text>
-                    </>
-                  )}
-
-                  {/* ═══ Stage pips / complete check - bottom of orb ═══ */}
-                  {isComplete ? (
-                    <text x="0" y={r - 20} textAnchor="middle" dominantBaseline="central" fill={node.color.hex} fontSize="13" fontWeight="700" opacity="0.45" pointerEvents="none">✓</text>
-                  ) : (
-                    <g pointerEvents="none">
-                      {(() => {
-                        const pipCount = Math.min(maxProgress, 9)
-                        const pipSpacing = Math.min(18, 140 / Math.max(pipCount, 1))
-                        const totalWidth = (pipCount - 1) * pipSpacing
-                        return (
-                          <g transform={`translate(${-totalWidth / 2}, ${r - 32})`}>
-                            {Array.from({ length: pipCount }).map((_, pip) => {
-                              const px = pip * pipSpacing
-                              const isDone = pip < stagesDone
-                              const isEligible = pip === stagesDone
-                              return (
-                                <g key={pip} transform={`translate(${px}, 0)`}>
-                                  {isDone && <circle cx="0" cy="0" r="8" fill={node.color.hex} opacity="0.18" />}
-                                  <circle cx="0" cy="0" r="4.5" fill={isDone ? node.color.hex : 'transparent'} stroke={node.color.hex} strokeWidth={isDone ? 1.5 : isEligible ? 2 : 1} strokeOpacity={isDone ? 1 : isEligible ? 0.6 : 0.18} />
-                                </g>
-                              )
-                            })}
-                          </g>
-                        )
-                      })()}
-                    </g>
-                  )}
-                </g>
-
-                {/* Label - outside orb, below */}
-                <text className="tf-label" x={cx} y={cy + r + 20} textAnchor="middle" fill={isActive ? 'rgba(255,255,255,0.7)' : isComplete ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.38)'} fontFamily="'Cinzel', serif" fontSize="8" fontWeight="700" letterSpacing="0.15em" pointerEvents="none" style={{ transition: 'fill 0.3s ease' }}>
-                  {node.label}
-                </text>
-              </g>
-            )
-          })}
-        </svg>
+        </div>
+        <div className="tf-flow-wrap lqt-flow-wrap lqt-flow-wrap--compact">
+          <ReactFlow
+            nodes={rfNodes}
+            edges={rfEdges}
+            nodeTypes={cycleNodeTypes}
+            onNodeClick={onNodeClick}
+            fitView
+            fitViewOptions={{ padding: 0.18 }}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            elementsSelectable
+            zoomOnDoubleClick={false}
+            zoomOnScroll
+            zoomOnPinch
+            panOnDrag
+            panOnScroll={false}
+            preventScrolling={false}
+            minZoom={0.45}
+            maxZoom={1.6}
+            proOptions={{ hideAttribution: true }}
+          >
+            <Background color="#ffffff08" gap={20} size={1} />
+          </ReactFlow>
+        </div>
       </div>
 
       {/* ── Detail Panel ── */}
@@ -495,15 +426,29 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
               </div>
             )}
             {selNode.key === 'personalMonth' && (() => {
-              const tier = getActiveTier(`tp_${reduceToSimple(pm.root)}`) || 1
+              const blueprintKey = monthSeasonState?.lockedObj?.questKey
+                || (playerData ? resolveBlueprintNode(playerData, pd, pm, freqLevel) : 'cl')
+              const tier = getActiveTier(blueprintKey) || 1
               const tierName = ['APPRENTICE', 'ADEPT', 'MASTER'][tier - 1]
+              const tierDays = monthSeasonState?.tierDays || 7
+              const checkinCount = monthSeasonState?.checkins?.length || 0
               return (
                 <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: selNode.color.hex, opacity: 0.55, marginBottom: 8, fontFamily: "'Share Tech Mono', monospace" }}>
-                  ◈ LIFE QUEST TIER: {tierName}
+                  ◈ {blueprintKey.toUpperCase()} · {tierName} · {tierDays}-DAY COMMITMENT
                 </div>
               )
             })()}
-            {selNode.key === 'personalMonth' && monthSeasonState?.lockedObj && (
+            {selNode.key === 'personalMonth' && monthSeasonState?.lockedObj && (() => {
+              const tierDays = monthSeasonState.tierDays || 7
+              const checkinCount = monthSeasonState.checkins?.length || 0
+              const today = todayStr()
+              const checkedInToday = monthSeasonState.checkins?.some(c => c.date === today)
+              const multiDay = monthSeasonState.multiDayId
+                ? getActiveMultiDayQuests()[monthSeasonState.multiDayId]
+                : null
+              const streak = multiDay?.multiDay?.streak || checkinCount
+              const canCheckin = !monthSeasonState.completed && !checkedInToday && checkinCount < tierDays
+              return (
               <div className="journal-section">
                 <div className="journal-section-label">◈ MONTHLY MISSION</div>
                 <div className="seasons-locked-obj" style={{ '--season-color': selNode.color.hex }}>
@@ -512,39 +457,46 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
                   </div>
                   <div className="seasons-locked-obj-text">{monthSeasonState.lockedObj.text}</div>
                 </div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 8, alignItems: 'center' }}>
-                  {[0,1,2,3].map(i => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => !monthSeasonState.completed && setCheckinPanelOpen(true)}
-                      disabled={monthSeasonState.completed}
-                      style={{
-                        width: 10, height: 10, borderRadius: '50%',
-                        background: monthSeasonState.checkins[i] ? selNode.color.hex : 'transparent',
-                        border: `1.5px solid ${selNode.color.hex}`,
-                        opacity: monthSeasonState.checkins[i] ? 1 : 0.3,
-                        cursor: monthSeasonState.completed ? 'default' : 'pointer',
-                        padding: 0,
-                        transition: 'all 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!monthSeasonState.completed) {
-                          e.target.style.transform = 'scale(1.3)'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)'
-                      }}
-                    />
-                  ))}
-                  <span style={{ fontSize: '0.72rem', opacity: 0.45, marginLeft: 4 }}>
-                    {monthSeasonState.checkins.length}/4 check-ins
-                    {monthSeasonState.completed ? ' · COMPLETE' : ''}
-                  </span>
+                <div className="seasons-checkins-pips" style={{ marginTop: 10 }}>
+                  {Array.from({ length: tierDays }, (_, i) => {
+                    const isDone = i < checkinCount
+                    const isCurrent = i === checkinCount && canCheckin
+                    return (
+                      <div
+                        key={i}
+                        className={`seasons-pip seasons-pip--compact${isDone ? ' seasons-pip--done' : ''}${isCurrent ? ' seasons-pip--current' : ''}${!isDone && !isCurrent ? ' seasons-pip--pending' : ''}`}
+                        style={{ '--season-color': selNode.color.hex }}
+                      >
+                        <span className="seasons-pip-mark">{isDone ? '✦' : String(i + 1)}</span>
+                      </div>
+                    )
+                  })}
                 </div>
+                <div className="seasons-checkins-stats" style={{ marginTop: 8 }}>
+                  <span>{checkinCount}/{tierDays} sealed</span>
+                  <span>streak {streak}/{tierDays}</span>
+                </div>
+                {canCheckin && (
+                  <button
+                    type="button"
+                    className="seasons-checkin-btn seasons-checkin-btn--compact"
+                    onClick={() => setCheckinPanelOpen(true)}
+                    style={{ '--season-color': selNode.color.hex, marginTop: 10 }}
+                  >
+                    ▶ CHECK IN TODAY
+                  </button>
+                )}
+                {checkedInToday && !monthSeasonState.completed && (
+                  <div className="seasons-checkin-status seasons-checkin-status--done" style={{ marginTop: 8 }}>
+                    ✦ Checked in today
+                  </div>
+                )}
+                {monthSeasonState.completed && (
+                  <div className="seasons-checkin-status" style={{ marginTop: 8 }}>✦ MONTH COMPLETE</div>
+                )}
               </div>
-            )}
+              )
+            })()}
             {selNode.key === 'fourMonthCycle' && (
               <div className="journal-section" style={{ marginBottom: 12 }}>
                 <button
@@ -597,12 +549,19 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       <MonthCheckinPanel
         open={checkinPanelOpen}
         monthTheme={pm.root ? getMeaning('personalMonth', pm.root).theme : 'This Month'}
+        monthRoot={pm.root}
         objectives={monthSeasonState?.objectives || []}
+        color={CYCLE_QUEST_COLORS.personalMonth?.hex || 'var(--rose)'}
+        checkinCount={monthSeasonState?.checkins?.length || 0}
+        tierDays={monthSeasonState?.tierDays || 7}
+        streak={
+          monthSeasonState?.multiDayId
+            ? (getActiveMultiDayQuests()[monthSeasonState.multiDayId]?.multiDay?.streak
+              || monthSeasonState?.checkins?.length || 0)
+            : (monthSeasonState?.checkins?.length || 0)
+        }
         onClose={() => setCheckinPanelOpen(false)}
         onSubmit={handleCheckinSubmit}
-        lpRoot={lp.root}
-        m={m}
-        d={d}
       />
 
       {/* Full Timecycle Button */}

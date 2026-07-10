@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppState } from '../../context/AppContext'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import {
   fetchUserEquipment, updateUserEquipment,
 } from '../auth/firestoreprofile'
@@ -161,6 +162,7 @@ export function CharacterCardPanel({ open, onClose }) {
   const [tab, setTab]  = useState('avatar')
   const { currentUser } = useAppState()
   const [equipment, setEquipment] = useState(null)
+  const panelRef = useFocusTrap({ open, onClose })
 
   // Load avatar config and merge with equipment headgear
   const avatarConfig = useMemo(() => {
@@ -182,7 +184,7 @@ export function CharacterCardPanel({ open, onClose }) {
   return createPortal(
     <>
       <style>{`@keyframes cc-slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
-      <div className="char-card-panel" role="dialog" aria-modal="true">
+      <div className="char-card-panel" ref={panelRef} role="dialog" aria-modal="true" aria-label="Character card">
 
         {/* Header */}
         <div className="char-card-panel-header">
@@ -192,6 +194,7 @@ export function CharacterCardPanel({ open, onClose }) {
           <button
             onClick={onClose}
             className="char-card-panel-close"
+            aria-label="Close"
           >
             ✕
           </button>

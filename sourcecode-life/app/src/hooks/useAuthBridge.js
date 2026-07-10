@@ -174,10 +174,12 @@ export function useAuthBridge() {
     // ── NativeAuth.checkSession() result ────────────────────────────────────
     window.NativeAuth_onSessionResult = (loggedIn, uid) => {
       if (loggedIn) {
+        dispatch({ type: 'SET_SCREEN', payload: 'restoring' })
         dispatch({ type: 'SET_USER', payload: { uid } })
         if (typeof window.NativeAuth !== 'undefined') window.NativeAuth.loadPlayer()
+      } else {
+        dispatch({ type: 'SET_SCREEN', payload: 'auth' })
       }
-      // else: stays on auth screen
     }
 
     // ── NativeAuth.deleteAccount() result ───────────────────────────────────

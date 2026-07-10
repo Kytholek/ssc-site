@@ -1,10 +1,24 @@
-import { calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, getCycleAnchor, reduceToSimple } from './numerology'
-import { getCycleObjectives, getMonthlyObjectivesForTier } from './objectives'
-import { QuestEngine_completeFreqQuest, QuestEngine_markLQPObjective, QuestEngine_markSkillProgress, getActiveTier, XP_AWARDS } from './questEngine'
+import { calcPersonalDay, calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, reduceToSimple } from './numerology'
+import { getCycleObjectives, getCommitmentObjective, TIER_COMMITMENT_DAYS } from './objectives'
+import { resolveBlueprintNode } from './questBlueprint'
+import {
+  QuestEngine_completeFreqQuest,
+  QuestEngine_markLQPObjective,
+  getActiveTier,
+  XP_AWARDS,
+  earnStatXP,
+} from './questEngine'
+import { applyQuestSkillReward } from './skillQuestBridge'
+import { beginMultiDayQuest, checkinMultiDayQuest, getActiveMultiDayQuests } from './numerologyQuests'
 
-// ─── Storage Keys ────────────────────────────────────────────
+const MONTH_STATE_VERSION = 2
+
 function getMonthStateKey(lpRoot, yearKey, monthNum) {
   return `scl_month_season_${lpRoot}_${yearKey}_${monthNum}`
+}
+
+function getSeasonMultiDayId(lpRoot, yearKey, monthNum) {
+  return `season-month-${lpRoot}-${yearKey}-${monthNum}`
 }
 
 function getYearStateKey(lpRoot, yearKey) {
@@ -15,12 +29,54 @@ function getFourMonthStateKey(lpRoot, yearKey, cycleNum) {
   return `scl_fourmonth_season_${lpRoot}_${yearKey}_${cycleNum}`
 }
 
-// ─── Month State ─────────────────────────────────────────────
-export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
+function getTierDays(tier) {
+  return TIER_COMMITMENT_DAYS[tier] || 7
+}
+
+function buildSeasonMultiDayQuest(state, lpRoot, yearKey, monthNum, lockedObj) {
+  const id = getSeasonMultiDayId(lpRoot, yearKey, monthNum)
+  const tierDays = lockedObj.commitmentDays || getTierDays(lockedObj.tierAtLock || 1)
+  return {
+    id,
+    title: lockedObj.text,
+    number: lockedObj.nodeRoot || 1,
+    source: 'season',
+    type: 'cycle',
+    difficulty: lockedObj.tierAtLock === 3 ? 'hard' : lockedObj.tierAtLock === 2 ? 'medium' : 'easy',
+    rewardXP: XP_AWARDS.personal_month,
+    category: 'objective',
+    completed: false,
+    lqpMeta: {
+      questKey: lockedObj.questKey,
+      tier: lockedObj.tierAtLock,
+      objIdx: lockedObj.objIdx ?? 2,
+    },
+    multiDay: {
+      totalDays: tierDays,
+      started: true,
+    },
+  }
+}
+
+function ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum) {
+  if (!state.lockedObj || state.multiDayStarted) return
+  const quest = buildSeasonMultiDayQuest(state, lpRoot, yearKey, monthNum, state.lockedObj)
+  const map = getActiveMultiDayQuests()
+  if (!map[quest.id]) {
+    beginMultiDayQuest(quest)
+  }
+  state.multiDayStarted = true
+  state.multiDayId = quest.id
+  state.tierDays = quest.multiDay.totalDays
+}
+
+export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1, playerData = null) {
   const pm = calcPersonalMonth(m, d)
   const py = calcPersonalYear(m, d)
+  const pd = calcPersonalDay(m, d)
   const yearKey = py.cycleStartYear
   const monthNum = pm.monthNum
+  const profile = playerData || window.__scl_playerData__
 
   const key = getMonthStateKey(lpRoot, yearKey, monthNum)
   let state = null
@@ -32,25 +88,45 @@ export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
     state = initMonthState(monthNum, yearKey)
   }
 
-  // Always regenerate objectives from the live cycle data (same pattern as daily glyphs)
-  const objs = getCycleObjectives('personalMonth', pm.root, freqLevel)
+  if (!state.version || state.version < MONTH_STATE_VERSION) {
+    state.version = MONTH_STATE_VERSION
+    delete state.lockedObj
+    state.multiDayStarted = false
+    state.multiDayId = null
+    state.tierDays = null
+  }
+
+  const questKey = profile ? resolveBlueprintNode(profile, pd, pm, freqLevel) : 'cl'
+  const lqpTier = getActiveTier(questKey) || 1
+  const nodeRoot = profile?.[questKey]?.root ?? pm.root
+
+  const objs = getCycleObjectives('personalMonth', pm.root, freqLevel, lqpTier)
   state.objectives = objs.map(o => ({ id: o.id, text: o.text, duration: o.duration }))
 
-  // Lock in one objective at month start if not already locked
   if (!state.lockedObj) {
-    const lqpTier = getActiveTier(`tp_${reduceToSimple(pm.root)}`) || 1
-    const pool = getMonthlyObjectivesForTier(pm.root, lqpTier)
-    // Deterministic seed: same player gets same objective each month
-    const seed = (lpRoot * 31 + monthNum * 17) % pool.length
-    const picked = pool[seed]
-    state.lockedObj = {
-      id: picked.id,
-      text: picked.text,
-      duration: picked.duration,
-      tierAtLock: lqpTier,
-      poolIdx: seed,
+    const commitment = getCommitmentObjective(nodeRoot, lqpTier)
+    if (commitment) {
+      state.lockedObj = {
+        id: commitment.id,
+        text: commitment.text,
+        duration: commitment.duration,
+        tierAtLock: lqpTier,
+        objIdx: commitment.objIdx,
+        commitmentDays: commitment.commitmentDays,
+        questKey,
+        nodeRoot,
+      }
+      state.tierDays = commitment.commitmentDays
+      ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum)
+      localStorage.setItem(key, JSON.stringify(state))
     }
+  } else if (!state.multiDayStarted) {
+    ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum)
     localStorage.setItem(key, JSON.stringify(state))
+  }
+
+  if (!state.tierDays) {
+    state.tierDays = state.lockedObj?.commitmentDays || getTierDays(lqpTier)
   }
 
   return state
@@ -58,18 +134,26 @@ export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
 
 function initMonthState(monthNum, yearKey) {
   return {
+    version: MONTH_STATE_VERSION,
     monthNum,
     yearKey,
     monthKey: `${yearKey}-${monthNum}`,
     objectives: [],
-    checkins: [],  // [{ date, journal, objectiveIdx }]
+    checkins: [],
     completed: false,
     completedAt: null,
     startDate: new Date().toISOString().split('T')[0],
+    multiDayStarted: false,
+    multiDayId: null,
+    tierDays: null,
   }
 }
 
-// ─── Checkin Logic ──────────────────────────────────────────
+export function getMonthTierDays(lpRoot, m, d, freqLevel = 1) {
+  const state = getMonthSeasonState(lpRoot, m, d, freqLevel)
+  return state.tierDays || getTierDays(state.lockedObj?.tierAtLock || 1)
+}
+
 export function addMonthCheckin(lpRoot, m, d, journal, objectiveIdx) {
   const pm = calcPersonalMonth(m, d)
   const py = calcPersonalYear(m, d)
@@ -78,31 +162,33 @@ export function addMonthCheckin(lpRoot, m, d, journal, objectiveIdx) {
 
   const state = getMonthSeasonState(lpRoot, m, d)
   const today = new Date().toISOString().split('T')[0]
+  const tierDays = state.tierDays || getTierDays(state.lockedObj?.tierAtLock || 1)
 
-  // Check if already checked in today
   if (state.checkins.some(c => c.date === today)) {
-    return { ok: false, error: 'Already checked in today', checkinCount: state.checkins.length, daysActive: null, canComplete: false }
+    return { ok: false, error: 'Already checked in today', checkinCount: state.checkins.length, daysActive: null, canComplete: false, tierDays }
   }
 
-  // Max 4 checkins
-  if (state.checkins.length >= 4) {
-    return { ok: false, error: 'Max 4 check-ins reached', checkinCount: state.checkins.length, daysActive: null, canComplete: false }
+  if (state.checkins.length >= tierDays) {
+    return { ok: false, error: `Max ${tierDays} check-ins reached`, checkinCount: state.checkins.length, daysActive: null, canComplete: false, tierDays }
   }
 
-  // Add checkin
   state.checkins.push({ date: today, journal, objectiveIdx: objectiveIdx ?? null })
 
-  // Save state
+  if (state.multiDayId) {
+    checkinMultiDayQuest(state.multiDayId)
+  }
+
   const key = getMonthStateKey(lpRoot, yearKey, monthNum)
   try {
     localStorage.setItem(key, JSON.stringify(state))
   } catch {}
 
-  // Check if can complete
   const daysActive = getDaysActive(state.startDate, today)
-  const canComplete = state.checkins.length >= 4 && daysActive >= 14
+  const multiDay = state.multiDayId ? getActiveMultiDayQuests()[state.multiDayId] : null
+  const streak = multiDay?.multiDay?.streak || state.checkins.length
+  const canComplete = state.checkins.length >= tierDays && streak >= tierDays
 
-  return { ok: true, checkinCount: state.checkins.length, daysActive, canComplete }
+  return { ok: true, checkinCount: state.checkins.length, daysActive, canComplete, tierDays, streak }
 }
 
 function getDaysActive(startDateStr, endDateStr) {
@@ -111,7 +197,6 @@ function getDaysActive(startDateStr, endDateStr) {
   return Math.floor((end - start) / 86400000)
 }
 
-// ─── Month Completion ──────────────────────────────────────────
 export function completeMonthSeason(lpRoot, m, d) {
   const pm = calcPersonalMonth(m, d)
   const py = calcPersonalYear(m, d)
@@ -120,18 +205,18 @@ export function completeMonthSeason(lpRoot, m, d) {
 
   const state = getMonthSeasonState(lpRoot, m, d)
   const today = new Date().toISOString().split('T')[0]
+  const tierDays = state.tierDays || getTierDays(state.lockedObj?.tierAtLock || 1)
 
-  // Validate time lock
-  if (state.checkins.length < 4) {
-    return { ok: false, error: 'Need 4 check-ins first' }
+  if (state.checkins.length < tierDays) {
+    return { ok: false, error: `Need ${tierDays} check-ins first (${state.checkins.length}/${tierDays})` }
   }
 
-  const daysActive = getDaysActive(state.startDate, today)
-  if (daysActive < 14) {
-    return { ok: false, error: `Minimum 14 days required (${daysActive} active)` }
+  const multiDay = state.multiDayId ? getActiveMultiDayQuests()[state.multiDayId] : null
+  const streak = multiDay?.multiDay?.streak || state.checkins.length
+  if (streak < tierDays) {
+    return { ok: false, error: `Need ${tierDays}-day consecutive streak (${streak}/${tierDays})` }
   }
 
-  // Mark complete
   state.completed = true
   state.completedAt = new Date().toISOString()
 
@@ -140,7 +225,6 @@ export function completeMonthSeason(lpRoot, m, d) {
     localStorage.setItem(key, JSON.stringify(state))
   } catch {}
 
-  // Increment year counter
   const yearState = getYearSeasonState(lpRoot, m, d)
   if (!yearState.monthsCompleted.includes(monthNum)) {
     yearState.monthsCompleted.push(monthNum)
@@ -150,26 +234,25 @@ export function completeMonthSeason(lpRoot, m, d) {
     } catch {}
   }
 
-  // Award XP
   const root = reduceToSimple(pm.root)
   QuestEngine_completeFreqQuest(`month_${yearKey}_${monthNum}`, XP_AWARDS.personal_month, root)
 
-  // Dual-feed: contribute to life quest tier AND skill tier
   if (state.lockedObj) {
-    const { tierAtLock, poolIdx } = state.lockedObj
-    const lqpKey = `tp_${root}`
+    const { tierAtLock, objIdx, questKey } = state.lockedObj
+    const lqpKey = questKey || 'cl'
 
-    // Feed life quest tier progress
-    QuestEngine_markLQPObjective(lqpKey, tierAtLock, poolIdx)
-
-    // Feed skill tier progress
-    QuestEngine_markSkillProgress(root, tierAtLock)
+    QuestEngine_markLQPObjective(lqpKey, tierAtLock, objIdx ?? 2)
+    applyQuestSkillReward({
+      root: pm.root,
+      tier: tierAtLock,
+      questKind: 'season',
+      difficulty: 'medium',
+    }, earnStatXP, (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail: detail || null })))
   }
 
   return { ok: true }
 }
 
-// ─── Four-Month Cycle State ────────────────────────────────
 export function getFourMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
   const fmc = calcFourMonthCycle(m, d)
   const py = calcPersonalYear(m, d)
@@ -198,7 +281,6 @@ export function getFourMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
   return state
 }
 
-// ─── Four-Month Cycle Completion ────────────────────────────
 export function completeFourMonthSeason(lpRoot, m, d, pinnacleChapterIndex, pinnacleRoot) {
   const fmc = calcFourMonthCycle(m, d)
   const py = calcPersonalYear(m, d)
@@ -225,7 +307,6 @@ export function completeFourMonthSeason(lpRoot, m, d, pinnacleChapterIndex, pinn
   return { ok: true }
 }
 
-// ─── Year State ─────────────────────────────────────────────
 export function getYearSeasonState(lpRoot, m, d) {
   const py = calcPersonalYear(m, d)
   const yearKey = py.cycleStartYear
@@ -239,7 +320,7 @@ export function getYearSeasonState(lpRoot, m, d) {
   if (!state) {
     state = {
       yearKey,
-      monthsCompleted: [],  // array of monthNum (1–12)
+      monthsCompleted: [],
       journalDone: false,
       completedAt: null,
     }
@@ -248,14 +329,12 @@ export function getYearSeasonState(lpRoot, m, d) {
   return state
 }
 
-// ─── Year Journal Completion ────────────────────────────────
 export function completeYearSeason(lpRoot, m, d, journal) {
   const py = calcPersonalYear(m, d)
   const yearKey = py.cycleStartYear
 
   const state = getYearSeasonState(lpRoot, m, d)
 
-  // Validate
   if (state.monthsCompleted.length < 6) {
     return { ok: false, error: `Need 6 months (${state.monthsCompleted.length} complete)` }
   }
@@ -264,7 +343,6 @@ export function completeYearSeason(lpRoot, m, d, journal) {
     return { ok: false, error: 'Year journal already completed' }
   }
 
-  // Mark complete
   state.journalDone = true
   state.completedAt = new Date().toISOString()
 
@@ -273,7 +351,6 @@ export function completeYearSeason(lpRoot, m, d, journal) {
     localStorage.setItem(key, JSON.stringify(state))
   } catch {}
 
-  // Award XP
   const root = reduceToSimple(py.root)
   QuestEngine_completeFreqQuest(`year_${yearKey}`, XP_AWARDS.personal_year, root)
 

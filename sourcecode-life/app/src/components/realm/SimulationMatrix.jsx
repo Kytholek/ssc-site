@@ -28,7 +28,9 @@ function AlliesView({ playerData, onSelectPlayer }) {
   const color = '#00e5cc'
 
   function copyLink() {
-    navigator.clipboard?.writeText(inviteLink).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2400) }).catch(() => {})
+    navigator.clipboard?.writeText(inviteLink)
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2400) })
+      .catch(() => { setCopied(false); alert('Copy failed — select and copy the link manually.') })
   }
 
   return (
@@ -169,9 +171,9 @@ function LeaderboardView({ playerData, onSelectPlayer }) {
                 Score: {playerRank.totalScore}
               </div>
             </>
-          ) : (
-            <div style={{ fontSize: 11, color: '#666', marginTop: 8 }}>Loading rank…</div>
-          )}
+          ) : !loading ? (
+            <div style={{ fontSize: 11, color: '#8f9db3', marginTop: 8 }}>Not ranked yet — complete quests to climb the leaderboard.</div>
+          ) : null}
         </div>
       </div>
       <div className="rm-panel">
@@ -203,14 +205,17 @@ function LeaderboardView({ playerData, onSelectPlayer }) {
   )
 }
 
-// ── SOCIAL: Chat (stub — ally chat via Firestore) ─────────────────────────────
-function ChatView() {
+// ── SOCIAL: Chat (coming soon) ─────────────────────────────────────────────
+function ChatView({ onGoToAllies }) {
   return (
     <div className="rm-chat-view">
       <div className="rm-panel" style={{ margin: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
         <div className="rm-panel-label">⚡ ALLY CHAT</div>
         <div className="rm-panel-body rm-empty" style={{ fontSize: 12, padding: '24px 16px', textAlign: 'center' }}>
-          Chat unlocks once you have confirmed allies.
+          <p>Coming soon — chat with your confirmed allies.</p>
+          <button type="button" className="rm-chat-allies-link" onClick={onGoToAllies}>
+            Find allies in the Allies tab →
+          </button>
         </div>
       </div>
     </div>
@@ -224,6 +229,14 @@ export default function SimulationMatrix({ onExit }) {
   const [hubSub, setHubSub]     = useState('digital')
   const [socialSub, setSocialSub] = useState('leaderboard')
   const [selectedPlayer, setSelectedPlayer] = useState(null)
+  const [showRealmCoach, setShowRealmCoach] = useState(() => {
+    try { return localStorage.getItem('scl_realm_coach_seen') !== '1' } catch { return true }
+  })
+
+  function dismissRealmCoach() {
+    try { localStorage.setItem('scl_realm_coach_seen', '1') } catch { /* ignore */ }
+    setShowRealmCoach(false)
+  }
 
   const handleTabChange = useCallback((tab) => {
     // Any main-app tab triggers exit from the realm
@@ -236,7 +249,13 @@ export default function SimulationMatrix({ onExit }) {
 
   return (
     <div className="simulation-matrix">
-      <Header onTabChange={handleTabChange} />
+      {showRealmCoach && (
+        <div className="realm-coach-mark" role="note">
+          <p><strong>Simulation Matrix</strong> — HUB has maps & quests; SOCIAL has allies & ranks. Tap <strong>Exit to Map</strong> below to return.</p>
+          <button type="button" onClick={dismissRealmCoach} aria-label="Dismiss">✕</button>
+        </div>
+      )}
+      <Header onTabChange={handleTabChange} hidden />
       <RealmTabBar
         mainTab={mainTab} setMainTab={setMainTab}
         hubSub={hubSub} setHubSub={setHubSub}
@@ -251,7 +270,9 @@ export default function SimulationMatrix({ onExit }) {
         {mainTab === 'hub' && hubSub === 'side' && <SideQuestsView />}
         {mainTab === 'social' && socialSub === 'allies' && <AlliesView playerData={playerData} onSelectPlayer={setSelectedPlayer} />}
         {mainTab === 'social' && socialSub === 'leaderboard' && <LeaderboardView playerData={playerData} onSelectPlayer={setSelectedPlayer} />}
-        {mainTab === 'social' && socialSub === 'chat' && <ChatView />}
+        {mainTab === 'social' && socialSub === 'chat' && (
+          <ChatView onGoToAllies={() => { setMainTab('social'); setSocialSub('allies') }} />
+        )}
       </div>
 
       {selectedPlayer && <PlayerProfileModal player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />}

@@ -218,6 +218,7 @@ export default function IdentityFlow({ playerData }) {
         title={selMeta?.label || ''}
         subtitle={selMeta?.subtitle || ''}
         icon={selMeta?.icon || ''}
+        panelClassName="flow-side-panel--blueprint"
       >
         {selected && <StripContent nodeKey={selected} playerData={playerData} fnData={fnData} />}
       </FlowDetailPanel>

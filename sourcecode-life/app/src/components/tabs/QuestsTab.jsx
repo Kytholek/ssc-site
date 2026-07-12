@@ -38,7 +38,6 @@ import { fmt, reduceToSimple } from '../../lib/numerology'
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
 const SECTIONS = [
-  { id: 'hub',      label: '✦ HUB',      subtitle: 'Overview & quick actions' },
   { id: 'life',     label: '✦ LIFE',     subtitle: 'Your 7 frequency quests' },
   { id: 'current',  label: '◈ CURRENT',  subtitle: 'Time cycles & seasons' },
   { id: 'journals', label: '◇ JOURNALS', subtitle: 'Quest reflections' },
@@ -726,45 +725,15 @@ function LifeSection({ playerData, lqp, freqLevel }) {
 export default function QuestsTab() {
   const state    = useAppState()
   const player   = state.playerData
-  const daily    = state.quests?.daily
-  const [section, setSection] = useState('hub')
+  const [section, setSection] = useState('life')
   const { lqp, sideQuests, xp } = useQuestEngine()
   const freqLevel = xp?.freqLevel ?? 1
-  const [hubRefresh, setHubRefresh] = useState(0)
 
   useEffect(() => {
     if (player) ensureDailyQuests(player)
   }, [player])
 
-  useEffect(() => {
-    const refresh = () => setHubRefresh(v => v + 1)
-    window.addEventListener('scl:gen_quests_updated', refresh)
-    window.addEventListener('scl:daily_updated', refresh)
-    window.addEventListener('scl:sidequests_updated', refresh)
-    return () => {
-      window.removeEventListener('scl:gen_quests_updated', refresh)
-      window.removeEventListener('scl:daily_updated', refresh)
-      window.removeEventListener('scl:sidequests_updated', refresh)
-    }
-  }, [])
-
   useEffect(() => { window.scrollTo(0, 0) }, [section])
-
-  const generatedState = useMemo(() => {
-    try {
-      const next = getGeneratedQuests()
-      return next && typeof next === 'object' ? next : null
-    } catch { return null }
-  }, [hubRefresh])
-
-  const multiDayMap = useMemo(() => {
-    try {
-      const next = getActiveMultiDayQuests()
-      return next && typeof next === 'object' ? next : {}
-    } catch { return {} }
-  }, [hubRefresh])
-
-  function openQuestSection(nextSection) { setSection(nextSection) }
 
   if (!player) return (
     <div className="tab-panel-content">
@@ -786,7 +755,6 @@ export default function QuestsTab() {
       </div>
 
       <div className="quest-section-body">
-        {section === 'hub'      && <QuestHub playerData={player} daily={daily} lqp={lqp} generatedState={generatedState} multiDayMap={multiDayMap} freqLevel={freqLevel} sideQuests={sideQuests} onNavigate={openQuestSection} />}
         {section === 'life'     && <LifeSection playerData={player} lqp={lqp} freqLevel={freqLevel} />}
         {section === 'current'  && <TimeFlow playerData={player} sideQuests={sideQuests} />}
         {section === 'journals' && <QuestJournals />}

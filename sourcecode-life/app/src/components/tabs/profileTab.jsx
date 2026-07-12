@@ -86,6 +86,17 @@ export default function ProfileTab() {
   }, [])
 
   useEffect(() => {
+    function handleOpenSubTab(e) {
+      const { main, sub } = e.detail || {}
+      if (main !== 'config') return
+      if (CONFIG_SECTIONS.some(s => s.id === sub)) setSection(sub)
+    }
+
+    window.addEventListener('scl:open-sub-tab', handleOpenSubTab)
+    return () => window.removeEventListener('scl:open-sub-tab', handleOpenSubTab)
+  }, [])
+
+  useEffect(() => {
     window.scrollTo(0, 0)
   }, [section])
 

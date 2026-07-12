@@ -161,6 +161,13 @@
   gap: 20px;
   margin-bottom: 28px;
 }
+.hp-services-section--simple {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+.hp-services-section--simple .hp-services-grid {
+  margin-bottom: 0;
+}
 .hp-service-card {
   display: flex;
   flex-direction: column;

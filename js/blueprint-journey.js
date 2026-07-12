@@ -7,9 +7,28 @@
   var selectedTrinity = null;
   var page, card, legendBtns;
 
+  function ensureViewportCard() {
+    if (!card) return;
+    if (card.parentElement !== document.body) {
+      document.body.appendChild(card);
+    }
+    card.style.setProperty('position', 'fixed', 'important');
+    card.style.setProperty('left', '50%', 'important');
+    card.style.setProperty('top', '50%', 'important');
+    card.style.setProperty('right', 'auto', 'important');
+    card.style.setProperty('bottom', 'auto', 'important');
+    card.style.setProperty('width', 'min(480px, calc(100vw - 32px))', 'important');
+    card.style.setProperty('max-height', 'min(76vh, 620px)', 'important');
+    card.style.setProperty('z-index', '2147483000', 'important');
+    card.style.setProperty('transform', 'translate(-50%, -48%) scale(0.96)', 'important');
+    card.style.setProperty('opacity', '0', 'important');
+    card.style.setProperty('pointer-events', 'none', 'important');
+  }
+
   function showNodeCard(freqId) {
     var freq = window.getBlueprintFrequency && window.getBlueprintFrequency(freqId);
     if (!freq || !card) return;
+    ensureViewportCard();
     var labelEl = document.getElementById('bp-nc-label');
     var roleEl = document.getElementById('bp-nc-role');
     var essenceEl = document.getElementById('bp-nc-essence');
@@ -31,6 +50,9 @@
       });
     }
     card.classList.add('visible');
+    card.style.setProperty('transform', 'translate(-50%, -50%) scale(1)', 'important');
+    card.style.setProperty('opacity', '1', 'important');
+    card.style.setProperty('pointer-events', 'auto', 'important');
     card.setAttribute('aria-hidden', 'false');
     if (typeof window.setBlueprintActiveNode === 'function') window.setBlueprintActiveNode(freqId);
   }
@@ -38,6 +60,9 @@
   function hideNodeCard() {
     if (!card) return;
     card.classList.remove('visible');
+    card.style.setProperty('transform', 'translate(-50%, -48%) scale(0.96)', 'important');
+    card.style.setProperty('opacity', '0', 'important');
+    card.style.setProperty('pointer-events', 'none', 'important');
     card.setAttribute('aria-hidden', 'true');
     if (typeof window.setBlueprintActiveNode === 'function') window.setBlueprintActiveNode(null);
   }
@@ -80,6 +105,7 @@
     card = document.getElementById('bp-node-card');
     legendBtns = document.querySelectorAll('.bp-legend-btn[data-trinity]');
     if (!page) return;
+    ensureViewportCard();
 
     var wrap = document.getElementById('bp-chart-wrap');
     if (wrap && typeof window.initBlueprintStar === 'function') {

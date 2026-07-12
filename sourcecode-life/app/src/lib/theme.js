@@ -9,6 +9,7 @@ const VALID_THEMES = ['scifi', 'fantasy', 'unicorn', 'diablo']
 export function setTheme(theme) {
   if (!VALID_THEMES.includes(theme)) return
   document.documentElement.setAttribute('data-theme', theme)
+  if (document.body) document.body.setAttribute('data-theme', theme)
   try { localStorage.setItem(LS_THEME, theme) } catch { /* intentional */ }
 }
 

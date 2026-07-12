@@ -10137,10 +10137,10 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 2px solid color-mix(in srgb, var(--dq-color) 55%, var(--daily-muted-border));
+  border: 2px solid color-mix(in srgb, var(--glyph-accent) 55%, var(--daily-muted-border));
   box-shadow:
     inset 0 0 0 1px var(--daily-inset-dark),
-    inset 2px 2px 0 color-mix(in srgb, var(--dq-color) 20%, transparent),
+    inset 2px 2px 0 color-mix(in srgb, var(--glyph-accent) 20%, transparent),
     inset -2px -2px 0 var(--daily-inset-dark);
 }
 
@@ -10153,23 +10153,23 @@
 }
 .daily-hero-quest-box-corner--tl {
   top: 4px; left: 4px;
-  border-top: 2px solid var(--dq-color);
-  border-left: 2px solid var(--dq-color);
+  border-top: 2px solid var(--glyph-accent);
+  border-left: 2px solid var(--glyph-accent);
 }
 .daily-hero-quest-box-corner--tr {
   top: 4px; right: 4px;
-  border-top: 2px solid var(--dq-color);
-  border-right: 2px solid var(--dq-color);
+  border-top: 2px solid var(--glyph-accent);
+  border-right: 2px solid var(--glyph-accent);
 }
 .daily-hero-quest-box-corner--bl {
   bottom: 4px; left: 4px;
-  border-bottom: 2px solid var(--dq-color);
-  border-left: 2px solid var(--dq-color);
+  border-bottom: 2px solid var(--glyph-accent);
+  border-left: 2px solid var(--glyph-accent);
 }
 .daily-hero-quest-box-corner--br {
   bottom: 4px; right: 4px;
-  border-bottom: 2px solid var(--dq-color);
-  border-right: 2px solid var(--dq-color);
+  border-bottom: 2px solid var(--glyph-accent);
+  border-right: 2px solid var(--glyph-accent);
 }
 
 .daily-hero-quest-box-glow {
@@ -10178,7 +10178,7 @@
   pointer-events: none;
   background: radial-gradient(
     ellipse at 50% 40%,
-    color-mix(in srgb, var(--dq-color) 22%, transparent) 0%,
+    color-mix(in srgb, var(--glyph-accent) 22%, transparent) 0%,
     transparent 68%
   );
   animation: daily-quest-box-glow 3.5s ease-in-out infinite;
@@ -10188,7 +10188,7 @@
 .daily-hero-quest-box-icon {
   font-size: 18px;
   line-height: 1;
-  color: var(--dq-color);
+  color: var(--glyph-accent);
   z-index: 1;
   opacity: 0.9;
 }
@@ -10198,8 +10198,8 @@
   font-size: 32px;
   font-weight: 700;
   line-height: 1;
-  color: var(--dq-color);
-  text-shadow: 0 0 18px color-mix(in srgb, var(--dq-color) 45%, transparent);
+  color: var(--glyph-accent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--glyph-accent) 45%, transparent);
   z-index: 1;
 }
 
@@ -10207,7 +10207,7 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 8px;
   letter-spacing: 0.14em;
-  color: color-mix(in srgb, var(--dq-color) 70%, var(--text-dim));
+  color: color-mix(in srgb, var(--glyph-accent) 70%, var(--text-dim));
   z-index: 1;
   margin-top: 2px;
 }
@@ -10216,7 +10216,7 @@
   transform: translateY(-4px) scale(1.03);
   box-shadow:
     var(--daily-glyph-hover-shadow),
-    0 0 36px color-mix(in srgb, var(--dq-color) 40%, transparent),
+    0 0 36px color-mix(in srgb, var(--glyph-accent) 40%, transparent),
     inset 0 1px 0 var(--daily-inset-line),
     inset 0 -3px 6px var(--daily-inset-dark);
   animation: none;
@@ -10225,7 +10225,7 @@
 .daily-hero-quest-box--resonant {
   box-shadow:
     var(--daily-glyph-shadow),
-    0 0 32px color-mix(in srgb, var(--dq-color) 38%, transparent),
+    0 0 32px color-mix(in srgb, var(--glyph-accent) 38%, transparent),
     inset 0 1px 0 var(--daily-inset-line),
     inset 0 -3px 6px var(--daily-inset-dark);
 }
@@ -10234,7 +10234,7 @@
   transform: translateY(-3px) scale(1.02);
   box-shadow:
     var(--daily-glyph-hover-shadow),
-    0 0 40px color-mix(in srgb, var(--dq-color) 45%, transparent),
+    0 0 40px color-mix(in srgb, var(--glyph-accent) 45%, transparent),
     inset 0 1px 0 var(--daily-inset-line),
     inset 0 -3px 6px var(--daily-inset-dark);
   animation: none;
@@ -10313,14 +10313,14 @@
     filter: brightness(1);
     box-shadow:
       0 10px 28px rgba(0,0,0,0.65),
-      0 0 24px color-mix(in srgb, var(--dq-color) 28%, transparent);
+      0 0 24px color-mix(in srgb, var(--glyph-accent) 28%, transparent);
   }
   35% {
     transform: translateY(-12px) scale(1.08);
     filter: brightness(1.4);
     box-shadow:
       0 16px 40px rgba(0,0,0,0.7),
-      0 0 56px color-mix(in srgb, var(--dq-color) 65%, transparent);
+      0 0 56px color-mix(in srgb, var(--glyph-accent) 65%, transparent);
   }
   100% {
     transform: scale(0.88) translateY(6px);
@@ -10352,7 +10352,8 @@
   position: relative;
   width: 72px;
   height: 72px;
-  border: 1px solid color-mix(in srgb, var(--node-color) 32%, var(--daily-muted-border));
+  --rune-accent: var(--daily-glyph-accent, var(--gold));
+  border: 1px solid color-mix(in srgb, var(--rune-accent) 32%, var(--daily-muted-border));
   border-radius: 2px;
   background: var(--daily-surface-rune);
   box-shadow:
@@ -10373,7 +10374,7 @@
 }
 .day-obj-rune:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--node-color) 52%, var(--daily-muted-border));
+  border-color: color-mix(in srgb, var(--rune-accent) 52%, var(--daily-muted-border));
   box-shadow:
     0 4px 12px color-mix(in srgb, var(--daily-inset-dark) 95%, transparent),
     inset 0 1px 0 var(--daily-inset-line),
@@ -10392,23 +10393,23 @@
 }
 .day-obj-rune-corner--tl {
   top: 3px; left: 3px;
-  border-top: 1px solid var(--node-color);
-  border-left: 1px solid var(--node-color);
+  border-top: 1px solid var(--rune-accent);
+  border-left: 1px solid var(--rune-accent);
 }
 .day-obj-rune-corner--tr {
   top: 3px; right: 3px;
-  border-top: 1px solid var(--node-color);
-  border-right: 1px solid var(--node-color);
+  border-top: 1px solid var(--rune-accent);
+  border-right: 1px solid var(--rune-accent);
 }
 .day-obj-rune-corner--bl {
   bottom: 3px; left: 3px;
-  border-bottom: 1px solid var(--node-color);
-  border-left: 1px solid var(--node-color);
+  border-bottom: 1px solid var(--rune-accent);
+  border-left: 1px solid var(--rune-accent);
 }
 .day-obj-rune-corner--br {
   bottom: 3px; right: 3px;
-  border-bottom: 1px solid var(--node-color);
-  border-right: 1px solid var(--node-color);
+  border-bottom: 1px solid var(--rune-accent);
+  border-right: 1px solid var(--rune-accent);
 }
 
 .day-obj-rune-mark {
@@ -10416,10 +10417,13 @@
   font-size: 22px;
   font-weight: 600;
   line-height: 1;
-  color: var(--node-color);
+  color: var(--rune-accent);
   text-shadow: none;
   opacity: 0.92;
   z-index: 1;
+}
+.day-obj-rune--skill {
+  --rune-accent: var(--daily-glyph-skill-accent, var(--daily-glyph-accent, var(--purple)));
 }
 .day-obj-rune--skill .day-obj-rune-mark {
   font-size: 20px;
@@ -10430,7 +10434,7 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 7px;
   letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--node-color) 70%, var(--text-dim));
+  color: color-mix(in srgb, var(--rune-accent) 70%, var(--text-dim));
   opacity: 0.85;
   z-index: 1;
 }
@@ -10450,7 +10454,7 @@
 .day-obj-rune--done .day-obj-rune-mark {
   font-size: 18px;
   opacity: 0.55;
-  color: color-mix(in srgb, var(--node-color) 50%, var(--text-dim));
+  color: color-mix(in srgb, var(--rune-accent) 50%, var(--text-dim));
 }
 .day-obj-rune--done .day-obj-rune-corner {
   opacity: 0.35;
@@ -20499,4 +20503,348 @@
     max-width: none !important;
     width: auto;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FANTASY VISIBILITY OVERRIDES
+   Keep these at the end so component defaults cannot recolor them.
+   ════════════════════════════════════════════════════════════════ */
+[data-theme="fantasy"] body {
+  background-color: #ead8b8;
+  background-image:
+    radial-gradient(ellipse 80% 42% at 50% 0%, rgba(126, 82, 20, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 60% 48% at 0% 100%, rgba(20, 92, 54, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #f4e4c4 0%, #ead8b8 100%);
+}
+
+[data-theme="fantasy"] .app-header-wrap {
+  background: rgba(44, 23, 8, 0.98);
+  border-bottom-color: #7a4a12;
+}
+
+[data-theme="fantasy"] .app-header-menu {
+  background: #fff2d2;
+  border-color: rgba(78, 38, 0, 0.38);
+  box-shadow: 0 14px 36px rgba(78, 38, 0, 0.26), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+[data-theme="fantasy"] .app-menu-item {
+  color: #1f1004;
+  border-bottom-color: rgba(78, 38, 0, 0.14);
+}
+
+[data-theme="fantasy"] .app-menu-item:hover {
+  color: #4e2600;
+  background: rgba(126, 82, 20, 0.12);
+}
+
+[data-theme="fantasy"] .freq-spike-banner {
+  background: linear-gradient(90deg, #3a1f0b 0%, #241104 100%);
+  border-bottom-color: rgba(255, 218, 138, 0.28);
+  color: #fff1c8;
+  box-shadow: inset 0 1px 0 rgba(255, 218, 138, 0.14);
+}
+
+[data-theme="fantasy"] .freq-spike-icon,
+[data-theme="fantasy"] .freq-spike-text {
+  color: #fff1c8;
+  text-shadow: 0 0 8px rgba(255, 218, 138, 0.24);
+}
+
+[data-theme="fantasy"] .freq-spike-close {
+  color: #d6a85a;
+}
+
+[data-theme="fantasy"] .freq-spike-close:hover {
+  color: #fff4d0;
+}
+
+[data-theme="fantasy"] .settings-section {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%);
+  border-color: rgba(78, 38, 0, 0.34);
+  color: #1f1004;
+}
+
+[data-theme="fantasy"] .settings-section-title {
+  color: #4e2600;
+  border-bottom-color: rgba(78, 38, 0, 0.16);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .setting-row,
+[data-theme="fantasy"] .setting-freq-row {
+  border-bottom-color: rgba(78, 38, 0, 0.14);
+}
+
+[data-theme="fantasy"] .setting-label,
+[data-theme="fantasy"] .setting-freq-label,
+[data-theme="fantasy"] .notif-toggle-label {
+  color: #3a200d;
+}
+
+[data-theme="fantasy"] .setting-val,
+[data-theme="fantasy"] .setting-freq-val {
+  color: #1f1004;
+}
+
+[data-theme="fantasy"] .setting-val-dim,
+[data-theme="fantasy"] .notif-toggle-desc {
+  color: #4e3218;
+}
+
+[data-theme="fantasy"] .settings-btn {
+  background: rgba(78, 38, 0, 0.10);
+  border-color: rgba(78, 38, 0, 0.30);
+  color: #2e1908;
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .settings-btn:hover {
+  background: rgba(78, 38, 0, 0.18);
+  border-color: rgba(78, 38, 0, 0.48);
+  color: #1f1004;
+}
+
+[data-theme="fantasy"] .settings-btn-danger {
+  background: rgba(122, 20, 20, 0.10);
+  border-color: rgba(122, 20, 20, 0.30);
+  color: #7a1414;
+}
+
+[data-theme="fantasy"] .settings-btn-danger:hover {
+  background: rgba(122, 20, 20, 0.17);
+  border-color: rgba(122, 20, 20, 0.48);
+  color: #5f0f0f;
+}
+
+[data-theme="fantasy"] .section-toggle,
+[data-theme="fantasy"] .profile-navbar,
+[data-theme="fantasy"] .blueprint-sub-tabs,
+[data-theme="fantasy"] .source-pill-row,
+[data-theme="fantasy"] .spiral-ctrl-legend,
+[data-theme="fantasy"] .spiral-ctrl-info,
+[data-theme="fantasy"] .spiral-ctrl-scrubber {
+  background: rgba(255, 244, 216, 0.84);
+  border-color: rgba(78, 38, 0, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 8px rgba(78, 38, 0, 0.10);
+}
+
+[data-theme="fantasy"] .tab-btn,
+[data-theme="fantasy"] .section-btn,
+[data-theme="fantasy"] .profile-navbar-btn,
+[data-theme="fantasy"] .blueprint-sub-tab,
+[data-theme="fantasy"] .source-pill,
+[data-theme="fantasy"] .theme-btn,
+[data-theme="fantasy"] .spiral-reset {
+  color: #2e1908;
+  background: rgba(255, 248, 232, 0.62);
+  border-color: rgba(78, 38, 0, 0.18);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .tab-btn:hover,
+[data-theme="fantasy"] .section-btn:hover,
+[data-theme="fantasy"] .profile-navbar-btn:hover,
+[data-theme="fantasy"] .blueprint-sub-tab:hover,
+[data-theme="fantasy"] .source-pill:hover,
+[data-theme="fantasy"] .theme-btn:hover,
+[data-theme="fantasy"] .spiral-reset:hover {
+  color: #1f1004;
+  background: rgba(126, 82, 20, 0.12);
+}
+
+[data-theme="fantasy"] .tab-btn.active,
+[data-theme="fantasy"] .section-btn.active,
+[data-theme="fantasy"] .profile-navbar-btn.active,
+[data-theme="fantasy"] .blueprint-sub-tab.active,
+[data-theme="fantasy"] .source-pill.active,
+[data-theme="fantasy"] .theme-btn.active {
+  color: #4e2600;
+  background: rgba(126, 82, 20, 0.18);
+  border-color: rgba(78, 38, 0, 0.35);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .flow-side-panel {
+  background: linear-gradient(180deg, #2c1708 0%, #170a03 100%) !important;
+  color: #fff1c8 !important;
+  border-color: rgba(255, 218, 138, 0.42) !important;
+  box-shadow: 0 -10px 42px rgba(44, 23, 8, 0.58) !important;
+}
+
+[data-theme="fantasy"] .flow-panel-header {
+  background: linear-gradient(135deg, rgba(135, 82, 15, 0.42) 0%, rgba(44, 23, 8, 0.84) 65%) !important;
+  border-bottom-color: rgba(255, 218, 138, 0.22) !important;
+}
+
+[data-theme="fantasy"] .flow-panel-title {
+  color: #ffe7a4 !important;
+  text-shadow: 0 0 10px rgba(255, 218, 138, 0.32) !important;
+}
+
+[data-theme="fantasy"] .flow-panel-subtitle,
+[data-theme="fantasy"] .flow-panel-body,
+[data-theme="fantasy"] .flow-panel-body *,
+[data-theme="fantasy"] .tf-quest-objective {
+  color: #f6dfaa !important;
+}
+
+[data-theme="fantasy"] .flow-panel-body strong,
+[data-theme="fantasy"] .flow-panel-body b {
+  color: #fff4d0 !important;
+}
+
+[data-theme="fantasy"] .lqt-panel-close {
+  color: #d6a85a;
+}
+
+[data-theme="fantasy"] .lqt-panel-close:hover {
+  color: #fff4d0;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%) !important;
+  color: #1f1004 !important;
+  border-color: rgba(78, 38, 0, 0.38) !important;
+  box-shadow: 0 -10px 42px rgba(78, 38, 0, 0.28) !important;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint .flow-panel-header {
+  background: linear-gradient(135deg, rgba(126, 82, 20, 0.14) 0%, rgba(255, 248, 232, 0.36) 70%) !important;
+  border-bottom-color: rgba(78, 38, 0, 0.18) !important;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint .flow-panel-title {
+  color: #4e2600 !important;
+  text-shadow: none !important;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint .flow-panel-subtitle,
+[data-theme="fantasy"] .flow-side-panel--blueprint .flow-panel-body,
+[data-theme="fantasy"] .flow-side-panel--blueprint .flow-panel-body * {
+  color: #2e1908 !important;
+  text-shadow: none !important;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint .lqt-panel-close {
+  color: #4e3218;
+}
+
+[data-theme="fantasy"] .flow-side-panel--blueprint .lqt-panel-close:hover {
+  color: #4e2600;
+}
+
+[data-theme="diablo"] .flow-side-panel--blueprint {
+  background: linear-gradient(180deg, #1a1210 0%, #0f0906 100%) !important;
+  color: var(--text) !important;
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent) !important;
+}
+
+[data-theme="diablo"] .flow-side-panel--blueprint .flow-panel-header {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 10%, transparent) 0%, rgba(15, 9, 6, 0.85) 65%) !important;
+  border-bottom-color: color-mix(in srgb, var(--gold) 22%, transparent) !important;
+}
+
+[data-theme="unicorn"] .flow-side-panel--blueprint {
+  background: linear-gradient(180deg, #211136 0%, #13071f 100%) !important;
+  color: var(--text) !important;
+  border-color: color-mix(in srgb, var(--purple) 44%, transparent) !important;
+}
+
+[data-theme="unicorn"] .flow-side-panel--blueprint .flow-panel-header {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--purple) 14%, transparent) 0%, rgba(19, 7, 31, 0.86) 65%) !important;
+  border-bottom-color: color-mix(in srgb, var(--purple) 24%, transparent) !important;
+}
+
+[data-theme="scifi"] .flow-side-panel--blueprint {
+  background: linear-gradient(180deg, #101820 0%, #071018 100%) !important;
+  color: var(--text) !important;
+  border-color: color-mix(in srgb, #00c8ff 42%, transparent) !important;
+}
+
+[data-theme="scifi"] .flow-side-panel--blueprint .flow-panel-header {
+  background: linear-gradient(135deg, color-mix(in srgb, #00c8ff 10%, transparent) 0%, rgba(7, 16, 24, 0.86) 65%) !important;
+  border-bottom-color: color-mix(in srgb, #00c8ff 24%, transparent) !important;
+}
+
+[data-theme="fantasy"] .quest-panel,
+[data-theme="fantasy"] .streak-tooltip,
+[data-theme="fantasy"] .data-chart-tooltip,
+[data-theme="fantasy"] .lqr-info-panel,
+[data-theme="fantasy"] .spiral-tooltip,
+[data-theme="fantasy"] .quest-reward-toast,
+[data-theme="fantasy"] .spiral-popup {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%);
+  color: #1f1004;
+  border-color: rgba(78, 38, 0, 0.36);
+  box-shadow: 0 14px 40px rgba(78, 38, 0, 0.24), inset 0 1px 0 rgba(255,255,255,0.58);
+}
+
+[data-theme="fantasy"] .quest-panel *,
+[data-theme="fantasy"] .streak-tooltip-line,
+[data-theme="fantasy"] .data-chart-tooltip,
+[data-theme="fantasy"] .lqr-info-panel *,
+[data-theme="fantasy"] .spiral-tooltip *,
+[data-theme="fantasy"] .quest-reward-toast *,
+[data-theme="fantasy"] .spiral-popup * {
+  color: #1f1004;
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .quest-panel-diff,
+[data-theme="fantasy"] .quest-panel-resonant,
+[data-theme="fantasy"] .quest-panel-xp,
+[data-theme="fantasy"] .streak-tooltip-hint,
+[data-theme="fantasy"] .lqr-info-desc,
+[data-theme="fantasy"] .lqr-info-status,
+[data-theme="fantasy"] .lqr-info-tier-desc,
+[data-theme="fantasy"] .spiral-tooltip-kw,
+[data-theme="fantasy"] .spiral-tooltip-desc,
+[data-theme="fantasy"] .quest-reward-text,
+[data-theme="fantasy"] .quest-reward-label,
+[data-theme="fantasy"] .spiral-popup-date,
+[data-theme="fantasy"] .spiral-popup-section-desc,
+[data-theme="fantasy"] .spiral-popup-obj {
+  color: #4e3218;
+}
+
+[data-theme="fantasy"] .quest-panel-input {
+  background: #fff8e8;
+  color: #1f1004;
+  border-color: rgba(78, 38, 0, 0.30);
+}
+
+[data-theme="fantasy"] .quest-panel-close,
+[data-theme="fantasy"] .quest-reward-toast-close,
+[data-theme="fantasy"] .lqr-info-close,
+[data-theme="fantasy"] .spiral-popup-close,
+[data-theme="fantasy"] .spiral-popup-action {
+  color: #4e3218;
+}
+
+[data-theme="fantasy"] .quest-panel-close:hover,
+[data-theme="fantasy"] .quest-reward-toast-close:hover,
+[data-theme="fantasy"] .lqr-info-close:hover,
+[data-theme="fantasy"] .spiral-popup-close:hover,
+[data-theme="fantasy"] .spiral-popup-action:hover {
+  color: #4e2600;
+  background: rgba(126, 82, 20, 0.14);
+}
+
+[data-theme="fantasy"] .spiral-info,
+[data-theme="fantasy"] .spiral-popup-action,
+[data-theme="fantasy"] .spiral-popup-close,
+[data-theme="fantasy"] .spiral-popup-obj span,
+[data-theme="fantasy"] .quest-reward-breakdown {
+  background: rgba(126, 82, 20, 0.08);
+  border-color: rgba(78, 38, 0, 0.16);
+}
+
+[data-theme="fantasy"] .spiral-info-label,
+[data-theme="fantasy"] .spiral-legend {
+  color: #4e3218;
+}
+
+[data-theme="fantasy"] .spiral-info-value {
+  color: #1f1004;
 }

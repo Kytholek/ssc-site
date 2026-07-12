@@ -69,8 +69,15 @@ export default function AppShell() {
     return () => { delete window.Native_onOpenTab }
   }, [dispatch])
 
-  const switchToTab = useCallback((tab) => {
+  const switchToTab = useCallback((tab, subTab) => {
     dispatch({ type: 'SET_TAB', payload: tab })
+    if (subTab) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('scl:open-sub-tab', {
+          detail: { main: tab, sub: subTab },
+        }))
+      }, 50)
+    }
   }, [dispatch])
 
   function handleTouchStart(e) {

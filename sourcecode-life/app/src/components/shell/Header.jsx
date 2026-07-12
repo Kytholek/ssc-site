@@ -99,7 +99,7 @@ export default function Header({ onTabChange, hidden = false }) {
           <div className="app-header-menu" role="menu">
             <button type="button" className="app-menu-item" role="menuitem" onClick={handleResetChar}>↺ Reset Character</button>
             <button type="button" className="app-menu-item app-menu-item-danger" role="menuitem" onClick={handleSignOut}>⏥ Sign Out</button>
-            <button type="button" className="app-menu-item" role="menuitem" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('profile') }}>◇ Stats</button>
+            <button type="button" className="app-menu-item" role="menuitem" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('config', 'settings') }}>⚙ Settings</button>
             <a href="https://simulationsourcecode.com" target="_blank" rel="noopener noreferrer" className="app-menu-item" role="menuitem">← Back to Site</a>
           </div>
         )}

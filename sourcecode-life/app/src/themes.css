@@ -4209,6 +4209,8 @@
   --daily-sealed-text: color-mix(in srgb, var(--text-dim) 75%, transparent);
   --daily-connector-start: color-mix(in srgb, var(--gold) 42%, transparent);
   --daily-connector-end: color-mix(in srgb, var(--gold) 6%, transparent);
+  --daily-glyph-accent: var(--gold);
+  --daily-glyph-skill-accent: var(--gold);
 }
 
 /* Diablo: ember glass */
@@ -4244,6 +4246,8 @@
   --daily-sealed-text: color-mix(in srgb, var(--text-dim) 65%, transparent);
   --daily-connector-start: color-mix(in srgb, var(--gold) 38%, transparent);
   --daily-connector-end: color-mix(in srgb, var(--gold) 5%, transparent);
+  --daily-glyph-accent: var(--red);
+  --daily-glyph-skill-accent: var(--red);
 }
 
 /* Unicorn: violet glass */
@@ -4279,6 +4283,8 @@
   --daily-sealed-text: color-mix(in srgb, var(--text-dim) 65%, transparent);
   --daily-connector-start: color-mix(in srgb, var(--purple) 38%, transparent);
   --daily-connector-end: color-mix(in srgb, var(--purple) 5%, transparent);
+  --daily-glyph-accent: var(--purple);
+  --daily-glyph-skill-accent: var(--purple);
 }
 
 /* Sci-Fi: neon teal glass */
@@ -4314,6 +4320,8 @@
   --daily-sealed-text: color-mix(in srgb, var(--text-dim) 65%, transparent);
   --daily-connector-start: color-mix(in srgb, #00c8ff 38%, transparent);
   --daily-connector-end: color-mix(in srgb, #00c8ff 5%, transparent);
+  --daily-glyph-accent: #00c8ff;
+  --daily-glyph-skill-accent: #00c8ff;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4944,6 +4952,450 @@
 [data-theme="scifi"] .quest-panel-submit:hover {
   background: color-mix(in srgb, #00c8ff 20%, transparent);
   box-shadow: 0 0 12px color-mix(in srgb, #00c8ff 20%, transparent);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FANTASY VISIBILITY PASS — Source Code: Life app
+   Keeps the parchment look, but prioritizes readable contrast.
+   ════════════════════════════════════════════════════════════════ */
+[data-theme="fantasy"] {
+  --bg-deep:      #ead8b8;
+  --bg-panel:     #fbf2df;
+  --bg-panel2:    #f3e2bf;
+  --bg-inset:     #ead3a8;
+  --border:       #9b6f2e;
+  --border-glow:  #7a4a12;
+  --gold:         #4e2600;
+  --gold-bright:  #6f3700;
+  --gold-dim:     #87520f;
+  --gold-muted:   #d7b875;
+  --teal:         #145c36;
+  --teal-dim:     #0f4328;
+  --purple:       #4a236f;
+  --rose:         #7a1414;
+  --amber:        #6f3700;
+  --sage:         #235c1f;
+  --silver:       #455260;
+  --text:         #1f1004;
+  --text-mid:     #2e1908;
+  --text-dim:     #4e3218;
+  --white:        #fff8e8;
+}
+
+[data-theme="fantasy"] body,
+[data-theme="fantasy"] .app-shell,
+[data-theme="fantasy"] .app-main {
+  color: var(--text);
+}
+
+[data-theme="fantasy"] body {
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(ellipse 80% 42% at 50% 0%, rgba(126, 82, 20, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 60% 48% at 0% 100%, rgba(20, 92, 54, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #f4e4c4 0%, #ead8b8 100%);
+}
+
+[data-theme="fantasy"] .app-header-wrap {
+  background: rgba(44, 23, 8, 0.98);
+  border-bottom-color: #7a4a12;
+}
+
+[data-theme="fantasy"] .app-header-wrap::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 218, 138, 0.55) 30%, rgba(255, 218, 138, 0.55) 70%, transparent 100%);
+}
+
+[data-theme="fantasy"] .app-header {
+  background: linear-gradient(180deg, #2c1708 0%, #1c0e04 100%);
+  border-bottom-color: #7a4a12;
+}
+
+[data-theme="fantasy"] .app-header-name {
+  color: #ffe7a4;
+  text-shadow: 0 0 10px rgba(255, 214, 128, 0.35);
+}
+
+[data-theme="fantasy"] .app-header-dob,
+[data-theme="fantasy"] .app-header-menu-btn {
+  color: #d6a85a;
+}
+
+[data-theme="fantasy"] .app-header-menu-btn:hover {
+  color: #ffe7a4;
+}
+
+[data-theme="fantasy"] .app-header-menu {
+  background: #fff2d2;
+  border-color: rgba(78, 38, 0, 0.38);
+  box-shadow: 0 14px 36px rgba(78, 38, 0, 0.26), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+[data-theme="fantasy"] .app-menu-item {
+  color: var(--text);
+  border-bottom-color: rgba(78, 38, 0, 0.14);
+}
+
+[data-theme="fantasy"] .app-menu-item:hover {
+  color: var(--gold);
+  background: rgba(126, 82, 20, 0.12);
+}
+
+[data-theme="fantasy"] .app-menu-item-danger {
+  color: var(--rose);
+}
+
+[data-theme="fantasy"] .app-menu-item-danger:hover {
+  color: var(--rose);
+  background: rgba(122, 20, 20, 0.10);
+}
+
+[data-theme="fantasy"] .tab-bar {
+  background: linear-gradient(180deg, #fff0cc 0%, #ead3a8 100%);
+  border-top-color: #9b6f2e;
+}
+
+[data-theme="fantasy"] .section-toggle,
+[data-theme="fantasy"] .profile-navbar,
+[data-theme="fantasy"] .blueprint-sub-tabs,
+[data-theme="fantasy"] .source-pill-row {
+  background: rgba(255, 244, 216, 0.82);
+  border-color: rgba(78, 38, 0, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 8px rgba(78, 38, 0, 0.10);
+}
+
+[data-theme="fantasy"] .tab-btn,
+[data-theme="fantasy"] .section-btn,
+[data-theme="fantasy"] .profile-navbar-btn,
+[data-theme="fantasy"] .blueprint-sub-tab,
+[data-theme="fantasy"] .source-pill,
+[data-theme="fantasy"] .theme-btn {
+  color: var(--text-mid);
+  background: rgba(255, 248, 232, 0.62);
+  border-color: rgba(78, 38, 0, 0.18);
+}
+
+[data-theme="fantasy"] .tab-btn:hover,
+[data-theme="fantasy"] .section-btn:hover,
+[data-theme="fantasy"] .profile-navbar-btn:hover,
+[data-theme="fantasy"] .blueprint-sub-tab:hover,
+[data-theme="fantasy"] .source-pill:hover,
+[data-theme="fantasy"] .theme-btn:hover {
+  color: var(--text);
+  background: rgba(126, 82, 20, 0.12);
+}
+
+[data-theme="fantasy"] .tab-btn.active,
+[data-theme="fantasy"] .section-btn.active,
+[data-theme="fantasy"] .profile-navbar-btn.active,
+[data-theme="fantasy"] .blueprint-sub-tab.active,
+[data-theme="fantasy"] .source-pill.active,
+[data-theme="fantasy"] .theme-btn.active {
+  color: var(--gold);
+  background: rgba(126, 82, 20, 0.18);
+  border-color: rgba(78, 38, 0, 0.35);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .home-section-shell,
+[data-theme="fantasy"] .rpg-panel,
+[data-theme="fantasy"] .char-card,
+[data-theme="fantasy"] .daily-hero,
+[data-theme="fantasy"] .gq-panel--day-objs,
+[data-theme="fantasy"] .settings-section,
+[data-theme="fantasy"] .quest-card,
+[data-theme="fantasy"] .journal-strip,
+[data-theme="fantasy"] .flow-side-panel,
+[data-theme="fantasy"] .quest-panel,
+[data-theme="fantasy"] .frequency-chart,
+[data-theme="fantasy"] .stat-chart-row,
+[data-theme="fantasy"] .home-today-section,
+[data-theme="fantasy"] .seasons-section {
+  background-color: var(--bg-panel);
+  color: var(--text);
+  border-color: rgba(94, 55, 10, 0.38);
+  box-shadow: 0 3px 12px rgba(78, 38, 0, 0.13);
+}
+
+[data-theme="fantasy"] .home-section-heading,
+[data-theme="fantasy"] .gq-panel-title,
+[data-theme="fantasy"] .daily-hero-title,
+[data-theme="fantasy"] .settings-section-title,
+[data-theme="fantasy"] .quest-section-title,
+[data-theme="fantasy"] .chart-section-title,
+[data-theme="fantasy"] .char-card-name,
+[data-theme="fantasy"] .char-card-calling-num {
+  color: var(--gold);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .daily-hero-summary,
+[data-theme="fantasy"] .daily-q-body,
+[data-theme="fantasy"] .home-active-sub,
+[data-theme="fantasy"] .seasons-year-summary,
+[data-theme="fantasy"] .seasons-objective-text,
+[data-theme="fantasy"] .seasons-locked-obj-text,
+[data-theme="fantasy"] .quest-desc-text,
+[data-theme="fantasy"] .mq-desc,
+[data-theme="fantasy"] .journal-section-text,
+[data-theme="fantasy"] .flow-panel-body,
+[data-theme="fantasy"] .settings-row-val,
+[data-theme="fantasy"] .stat-role,
+[data-theme="fantasy"] .stat-chart-legend {
+  color: var(--text-mid);
+}
+
+[data-theme="fantasy"] .home-today-date,
+[data-theme="fantasy"] .daily-q-sub,
+[data-theme="fantasy"] .daily-q-typeLabel,
+[data-theme="fantasy"] .seasons-checkins-label,
+[data-theme="fantasy"] .seasons-progress-label,
+[data-theme="fantasy"] .seasons-year-meta,
+[data-theme="fantasy"] .seasons-year-section-label,
+[data-theme="fantasy"] .settings-row-key,
+[data-theme="fantasy"] .char-card-dob,
+[data-theme="fantasy"] .char-card-calling-label,
+[data-theme="fantasy"] .char-card-lp-key {
+  color: var(--text-dim);
+}
+
+[data-theme="fantasy"] .field-input,
+[data-theme="fantasy"] textarea,
+[data-theme="fantasy"] input,
+[data-theme="fantasy"] select {
+  background: #fff4d8;
+  border-color: rgba(94, 55, 10, 0.42);
+  color: var(--text);
+}
+
+[data-theme="fantasy"] .field-input::placeholder,
+[data-theme="fantasy"] textarea::placeholder,
+[data-theme="fantasy"] input::placeholder {
+  color: #72502a;
+}
+
+[data-theme="fantasy"] .btn-primary,
+[data-theme="fantasy"] .daily-hero-complete-btn,
+[data-theme="fantasy"] .seasons-checkin-btn,
+[data-theme="fantasy"] .seasons-complete-btn,
+[data-theme="fantasy"] .seasons-year-journal-btn,
+[data-theme="fantasy"] .quest-panel-submit {
+  color: var(--gold);
+  border-color: rgba(78, 38, 0, 0.45);
+  background: rgba(126, 82, 20, 0.10);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .btn-primary:hover,
+[data-theme="fantasy"] .daily-hero-complete-btn:hover,
+[data-theme="fantasy"] .seasons-checkin-btn:hover,
+[data-theme="fantasy"] .seasons-complete-btn:hover,
+[data-theme="fantasy"] .seasons-year-journal-btn:hover,
+[data-theme="fantasy"] .quest-panel-submit:hover {
+  background: rgba(126, 82, 20, 0.18);
+  border-color: var(--gold);
+}
+
+[data-theme="fantasy"] .day-obj-rune,
+[data-theme="fantasy"] .daily-hero-quest-box,
+[data-theme="fantasy"] .seasons-pip,
+[data-theme="fantasy"] .seasons-year-month {
+  box-shadow: 0 3px 10px rgba(78, 38, 0, 0.16), inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+[data-theme="fantasy"] .flow-panel-subtitle,
+[data-theme="fantasy"] .quest-panel-text,
+[data-theme="fantasy"] .quest-panel-error {
+  color: var(--text-dim);
+}
+
+[data-theme="fantasy"] .flow-side-panel {
+  background: linear-gradient(180deg, #2c1708 0%, #170a03 100%);
+  color: #fff1c8;
+  border-color: rgba(255, 218, 138, 0.42);
+  box-shadow: 0 -10px 42px rgba(44, 23, 8, 0.58);
+}
+
+[data-theme="fantasy"] .flow-panel-header {
+  background: linear-gradient(135deg, rgba(135, 82, 15, 0.42) 0%, rgba(44, 23, 8, 0.84) 65%);
+  border-bottom-color: rgba(255, 218, 138, 0.22);
+}
+
+[data-theme="fantasy"] .flow-panel-title {
+  color: #ffe7a4;
+  text-shadow: 0 0 10px rgba(255, 218, 138, 0.32);
+}
+
+[data-theme="fantasy"] .flow-panel-subtitle,
+[data-theme="fantasy"] .flow-panel-body,
+[data-theme="fantasy"] .flow-panel-body *,
+[data-theme="fantasy"] .tf-quest-objective {
+  color: #f6dfaa;
+}
+
+[data-theme="fantasy"] .flow-panel-body strong,
+[data-theme="fantasy"] .flow-panel-body b {
+  color: #fff4d0;
+}
+
+[data-theme="fantasy"] .lqt-panel-close {
+  color: #d6a85a;
+}
+
+[data-theme="fantasy"] .lqt-panel-close:hover {
+  color: #fff4d0;
+}
+
+[data-theme="fantasy"] .quest-panel-overlay,
+[data-theme="fantasy"] .flow-side-panel-backdrop {
+  background: rgba(44, 23, 8, 0.54);
+}
+
+[data-theme="fantasy"] .quest-panel {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%);
+  color: var(--text);
+  border-color: rgba(78, 38, 0, 0.45);
+  box-shadow: 0 18px 48px rgba(78, 38, 0, 0.30), inset 0 1px 0 rgba(255,255,255,0.62);
+}
+
+[data-theme="fantasy"] .quest-panel-label,
+[data-theme="fantasy"] .quest-panel-prompt,
+[data-theme="fantasy"] .quest-panel-text {
+  color: var(--text);
+}
+
+[data-theme="fantasy"] .quest-panel-diff,
+[data-theme="fantasy"] .quest-panel-resonant,
+[data-theme="fantasy"] .quest-panel-xp {
+  color: var(--text-dim);
+  text-shadow: none;
+}
+
+[data-theme="fantasy"] .quest-panel-input {
+  background: #fff8e8;
+  color: var(--text);
+  border-color: rgba(78, 38, 0, 0.30);
+}
+
+[data-theme="fantasy"] .quest-panel-close {
+  color: var(--text-dim);
+}
+
+[data-theme="fantasy"] .quest-panel-close:hover {
+  color: var(--text);
+}
+
+[data-theme="fantasy"] .streak-tooltip,
+[data-theme="fantasy"] .data-chart-tooltip,
+[data-theme="fantasy"] .lqr-info-panel,
+[data-theme="fantasy"] .spiral-tooltip,
+[data-theme="fantasy"] .quest-reward-toast {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%);
+  color: var(--text);
+  border-color: rgba(78, 38, 0, 0.36);
+  box-shadow: 0 14px 40px rgba(78, 38, 0, 0.24), inset 0 1px 0 rgba(255,255,255,0.58);
+}
+
+[data-theme="fantasy"] .streak-tooltip-line,
+[data-theme="fantasy"] .data-chart-tooltip,
+[data-theme="fantasy"] .lqr-info-desc,
+[data-theme="fantasy"] .lqr-info-status,
+[data-theme="fantasy"] .lqr-info-tier-desc,
+[data-theme="fantasy"] .spiral-tooltip-kw,
+[data-theme="fantasy"] .spiral-tooltip-desc,
+[data-theme="fantasy"] .quest-reward-text,
+[data-theme="fantasy"] .quest-reward-label,
+[data-theme="fantasy"] .quest-reward-total {
+  color: var(--text-mid);
+}
+
+[data-theme="fantasy"] .streak-tooltip-hint,
+[data-theme="fantasy"] .data-chart-info-btn,
+[data-theme="fantasy"] .lqr-info-close,
+[data-theme="fantasy"] .quest-reward-toast-close {
+  color: var(--text-dim);
+}
+
+[data-theme="fantasy"] .streak-tooltip-divider,
+[data-theme="fantasy"] .spiral-tooltip-row,
+[data-theme="fantasy"] .quest-reward-breakdown {
+  border-color: rgba(78, 38, 0, 0.14);
+}
+
+[data-theme="fantasy"] .quest-reward-breakdown {
+  background: rgba(126, 82, 20, 0.08);
+}
+
+[data-theme="fantasy"] .quest-reward-toast-close:hover,
+[data-theme="fantasy"] .lqr-info-close:hover {
+  color: var(--gold);
+}
+
+[data-theme="fantasy"] .lqr-info-title,
+[data-theme="fantasy"] .spiral-tooltip-title {
+  color: var(--gold);
+}
+
+[data-theme="fantasy"] .spiral-info,
+[data-theme="fantasy"] .spiral-ctrl-legend,
+[data-theme="fantasy"] .spiral-ctrl-info,
+[data-theme="fantasy"] .spiral-ctrl-scrubber {
+  background: rgba(255, 244, 216, 0.84);
+  border-color: rgba(78, 38, 0, 0.20);
+  color: var(--text-mid);
+}
+
+[data-theme="fantasy"] .spiral-info-label,
+[data-theme="fantasy"] .spiral-legend {
+  color: var(--text-dim);
+}
+
+[data-theme="fantasy"] .spiral-info-value,
+[data-theme="fantasy"] .spiral-reset {
+  color: var(--text);
+}
+
+[data-theme="fantasy"] .spiral-popup-bg {
+  background: rgba(44, 23, 8, 0.54);
+}
+
+[data-theme="fantasy"] .spiral-popup {
+  background: linear-gradient(180deg, #fff4d8 0%, #f0d9aa 100%);
+  color: var(--text) !important;
+  border-top-color: rgba(78, 38, 0, 0.36);
+  box-shadow: 0 -12px 42px rgba(78, 38, 0, 0.28);
+}
+
+[data-theme="fantasy"] .spiral-popup-title,
+[data-theme="fantasy"] .spiral-popup-section-title,
+[data-theme="fantasy"] .spiral-popup-section-desc,
+[data-theme="fantasy"] .spiral-popup-obj {
+  color: var(--text) !important;
+}
+
+[data-theme="fantasy"] .spiral-popup-date,
+[data-theme="fantasy"] .spiral-popup-action,
+[data-theme="fantasy"] .spiral-popup-close,
+[data-theme="fantasy"] .spiral-popup-obj span {
+  color: var(--text-dim) !important;
+}
+
+[data-theme="fantasy"] .spiral-popup-section,
+[data-theme="fantasy"] .spiral-popup-action,
+[data-theme="fantasy"] .spiral-popup-close,
+[data-theme="fantasy"] .spiral-popup-obj span {
+  border-color: rgba(78, 38, 0, 0.16);
+}
+
+[data-theme="fantasy"] .spiral-popup-action,
+[data-theme="fantasy"] .spiral-popup-close,
+[data-theme="fantasy"] .spiral-popup-obj span {
+  background: rgba(126, 82, 20, 0.08);
+}
+
+[data-theme="fantasy"] .spiral-popup-action:hover,
+[data-theme="fantasy"] .spiral-popup-close:hover {
+  background: rgba(126, 82, 20, 0.14);
+  color: var(--gold) !important;
 }
 
 

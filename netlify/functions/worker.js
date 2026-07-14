@@ -985,46 +985,43 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
       );
       const rawActionChunk = actionMatch?.[1] || '';
 
-      // Map model structure to the PDF template’s CSS expectations:
-      // - convert <h3>External Mission</h3> → <div class="action-h3">External Mission</div>
-      // - convert <h3>Internal Mission</h3> → <div class="action-h3">Internal Mission</div>
-      // - add class="action-bd" to every <p> so spacing/line-height matches
-      const mapped = rawActionChunk
-        .replace(
-          new RegExp(`<h3[^>]*>\\s*External Mission\\s*<\\/h3>`, 'i'),
-          '<div class="action-h3">External Mission</div>'
-        )
-        .replace(
-          new RegExp(`<h3[^>]*>\\s*Internal Mission\\s*<\\/h3>`, 'i'),
-          '<div class="action-h3">Internal Mission</div>'
-        )
-        .replace(/<p[^>]*>/gi, '<p class="action-bd">');
-
-      // Wrap into two action-sec blocks for consistent spacing.
-      const extMatch = mapped.match(
+      // Extract EXACTLY ONE paragraph after each mission header.
+      // This avoids regex slicing issues that caused duplicated External Mission and missing Internal content.
+      const extPMatch = rawActionChunk.match(
         new RegExp(
-          `<div class="action-h3">\\s*External Mission\\s*<\\/div>([\\s\\S]*?)<div class="action-h3">\\s*Internal Mission\\s*<\\/div>`,
+          `<h3[^>]*>\\s*External Mission\\s*<\\/h3>[\\s\\S]*?<p[^>]*>([\\s\\S]*?)<\\/p>`,
           'i'
         )
       );
-      const intMatch = mapped.match(
+      const intPMatch = rawActionChunk.match(
         new RegExp(
-          `<div class="action-h3">\\s*Internal Mission\\s*<\\/div>([\\s\\S]*?)(?=$|<div class="action-h3">)`,
+          `<h3[^>]*>\\s*Internal Mission\\s*<\\/h3>[\\s\\S]*?<p[^>]*>([\\s\\S]*?)<\\/p>`,
           'i'
         )
       );
 
-      const extHtml = extMatch?.[1]?.trim() || mapped.trim();
-      const intHtml = intMatch?.[1]?.trim() || '';
+      const extParagraph = extPMatch?.[1]?.trim() || '';
+      const intParagraph = intPMatch?.[1]?.trim() || '';
+
+      // Ensure captured paragraph text is safe HTML for the PDF template:
+      // - keep inline tags if any, but remove any <h3> artifacts.
+      const sanitizeParagraph = (html) => {
+        return String(html || '')
+          .replace(new RegExp('<\\\\/?h3[^>]*>', 'gi'), '')
+          .trim();
+      };
+
+      const extHtml = sanitizeParagraph(extParagraph);
+      const intHtml = sanitizeParagraph(intParagraph);
 
       return `
         <div class="action-sec">
           <div class="action-h3">External Mission</div>
-          ${extHtml}
+          <p class="action-bd">${extHtml}</p>
         </div>
         <div class="action-sec">
           <div class="action-h3">Internal Mission</div>
-          ${intHtml}
+          <p class="action-bd">${intHtml}</p>
         </div>
       `;
     })()

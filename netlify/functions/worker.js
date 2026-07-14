@@ -523,7 +523,12 @@ DEPTH: Go deep. Explain not just what each frequency means but HOW they apply to
     },
     body: JSON.stringify({
       model:      'claude-sonnet-4-6',
-      max_tokens: 3333,
+      // NOTE: raised from 3333 → 8000. The prompt asks for 1600-2000 words across
+      // 7 HTML-wrapped sections (~2,800-3,600+ tokens of prose alone, before markup
+      // overhead). At 3333 max_tokens the response was getting cut off before the
+      // Action Guide / Quest Directive sections were generated, which is why those
+      // sections were missing downstream. 8000 gives comfortable headroom.
+      max_tokens: 8000,
       stream:     true,
       system:     SSC_SYSTEM_PROMPT,
       messages:   [{ role: 'user', content: prompt }],
@@ -538,8 +543,9 @@ DEPTH: Go deep. Explain not just what each frequency means but HOW they apply to
   // Stream to avoid 524 timeout on long generations
   const reader  = response.body.getReader();
   const decoder = new TextDecoder();
-  let text   = '';
-  let buffer = '';
+  let text       = '';
+  let buffer     = '';
+  let stopReason = null;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -558,11 +564,21 @@ DEPTH: Go deep. Explain not just what each frequency means but HOW they apply to
         if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
           text += evt.delta.text;
         }
+        if (evt.type === 'message_delta' && evt.delta?.stop_reason) {
+          stopReason = evt.delta.stop_reason;
+        }
       } catch { /* ignore malformed SSE lines */ }
     }
   }
 
   if (!text) throw new Error('No content returned from Anthropic');
+
+  // Loud signal if generation was truncated by the token cap rather than
+  // finishing naturally — this is what silently caused missing sections before.
+  if (stopReason && stopReason !== 'end_turn' && stopReason !== 'stop_sequence') {
+    console.error(`Anthropic generation stopped early (stop_reason=${stopReason}) — response may be missing trailing sections. Consider raising max_tokens further.`);
+  }
+
   return text;
 }
 
@@ -585,6 +601,11 @@ async function convertToPDF(html, env) {
       landscape: false,
       use_print: false,
       format:    'A4',
+      // Kept at 0 intentionally: pages are full-bleed dark-themed backgrounds.
+      // A real PDFShift page margin would leave blank/white edges around the
+      // dark theme. Text-to-edge spacing is instead controlled via CSS padding
+      // on each page container (see .content-pg, .action-pg, .ref-pg, .howto
+      // below) — those have been widened for more generous, consistent spacing.
       margin:    { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
     })
   });
@@ -746,7 +767,7 @@ function buildPdfHtml({ name, month, day, year, frequencies, guidebookBody }) {
 html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,serif;font-size:18px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
 /* ── COVER ── */
-.cover{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 48px;position:relative;page-break-after:always}
+.cover{width:100%;min-height:297mm;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 48px;position:relative;page-break-after:always}
 .c-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:#4a9494;margin-bottom:40px}
 .c-sig{width:150px;height:150px;margin:0 auto 44px;filter:drop-shadow(0 0 20px rgba(201,168,76,0.35))}
 .c-sig svg{width:100%;height:100%}
@@ -765,7 +786,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .c-ft{position:absolute;bottom:28px;left:0;right:0;text-align:center;font-family:"Cinzel",serif;font-size:7px;letter-spacing:.25em;text-transform:uppercase;color:#5c5448}
 
 /* ── STAR CHART ── */
-.chart-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 48px;page-break-after:always;position:relative}
+.chart-pg{width:100%;min-height:297mm;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 48px;page-break-after:always;position:relative}
 .chart-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px}
 .chart-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:28px;color:#e8c96b;letter-spacing:.05em;margin-bottom:32px}
 .chart-wr{width:360px;height:400px;margin:0 auto}
@@ -773,7 +794,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .chart-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── CODEX FOOTPRINT ── */
-.codex-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;padding:48px 48px 80px;page-break-after:always;position:relative}
+.codex-pg{width:100%;min-height:297mm;background:#05040a;display:flex;flex-direction:column;align-items:center;padding:48px 48px 80px;page-break-after:always;position:relative}
 .codex-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px;text-align:center}
 .codex-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:28px;color:#e8c96b;letter-spacing:.05em;margin-bottom:8px;text-align:center}
 .codex-map-wrap{width:320px;margin:24px auto 16px}
@@ -789,7 +810,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .codex-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── HOW TO READ ── */
-.howto{width:100%;background:#05040a;padding:56px 80px 80px;page-break-after:always;position:relative;min-height:100vh}
+.howto{width:100%;background:#05040a;padding:64px 96px 96px;page-break-after:always;position:relative;min-height:297mm}
 .howto-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#4a9494;margin-bottom:10px}
 .howto-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:30px;color:#e8c96b;letter-spacing:.05em;margin-bottom:8px}
 .howto-dv{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:28px}
@@ -802,11 +823,11 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .howto-nt{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.12);border-left:3px solid rgba(201,168,76,0.4);border-radius:4px;padding:18px 22px;margin-bottom:24px}
 .howto-nt p{font-size:16px;line-height:1.8;color:#9b9080}
 .howto-nt strong{color:#e8c96b}
-.howto-pf{position:absolute;bottom:24px;left:80px;right:80px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
+.howto-pf{position:absolute;bottom:24px;left:96px;right:96px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
 .howto-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── MAIN CONTENT ── */
-.content-pg{width:100%;background:#05040a;padding:56px 80px 80px;page-break-after:always;position:relative;min-height:100vh}
+.content-pg{width:100%;background:#05040a;padding:64px 96px 96px;page-break-after:always;position:relative;min-height:297mm}
 .pg-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;padding-bottom:14px;border-bottom:1px solid rgba(201,168,76,0.1)}
 .pg-hd span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.35em;text-transform:uppercase;color:#5c5448}
 .sb h2{font-family:"Cormorant SC",serif;font-weight:300;font-size:28px;color:#e8c96b;letter-spacing:.04em;margin:36px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,0.1);page-break-before:always;break-before:page;page-break-after:avoid;break-after:avoid}
@@ -818,11 +839,11 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .sb ul{list-style:none;padding:0;margin:0 0 16px}
 .sb ul li{font-size:16px;line-height:1.85;color:#9b9080;padding:6px 0 6px 20px;border-bottom:1px solid rgba(201,168,76,0.05);position:relative}
 .sb ul li::before{content:"\\25C8";position:absolute;left:0;top:8px;font-size:7px;color:#4a9494}
-.pg-ft{position:absolute;bottom:24px;left:80px;right:80px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
+.pg-ft{position:absolute;bottom:24px;left:96px;right:96px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
 .pg-ft span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── REFERENCE TABLE ── */
-.ref-pg{width:100%;background:#05040a;padding:56px 80px 80px;page-break-before:always;position:relative;min-height:100vh}
+.ref-pg{width:100%;background:#05040a;padding:64px 96px 96px;page-break-before:always;position:relative;min-height:297mm}
 .ref-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px}
 .ref-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:30px;color:#e8c96b;letter-spacing:.05em;margin-bottom:6px}
 .ref-dv{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:28px}
@@ -833,22 +854,22 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .ref-cp{font-family:"Cormorant SC",serif;font-size:19px;color:#c9a84c}
 .ref-pos{color:#7ec8c8}
 .ref-shd{color:#a04070}
-.ref-pf{position:absolute;bottom:24px;left:80px;right:80px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
+.ref-pf{position:absolute;bottom:24px;left:96px;right:96px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
 .ref-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── ACTION GUIDE ── */
-.action-pg{width:100%;background:#05040a;padding:120px 120px 200px;page-break-before:always;position:relative;min-height:100vh}
+.action-pg{width:100%;background:#05040a;padding:110px 110px 160px;page-break-before:always;position:relative;min-height:297mm}
 .action-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px}
 .action-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:30px;color:#e8c96b;letter-spacing:.05em;margin-bottom:6px}
 .action-dv{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:28px}
 .action-sec{margin-bottom:40px}
 .action-h3{font-family:"Cinzel",serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#7ec8c8;margin-bottom:14px;border-bottom:1px solid rgba(201,168,76,0.15);padding-bottom:10px}
 .action-bd{font-size:15px;color:#9b9080;line-height:1.8;margin-bottom:16px}
-.action-pf{position:absolute;bottom:24px;left:120px;right:120px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
+.action-pf{position:absolute;bottom:24px;left:110px;right:110px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(201,168,76,0.07);padding-top:10px}
 .action-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── QUEST DIRECTIVE ── */
-.quest-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 80px 160px;page-break-before:always}
+.quest-pg{width:100%;min-height:297mm;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 90px 150px}
 .q-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:#7a6330;margin-bottom:28px}
 .q-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:36px;color:#e8c96b;letter-spacing:.05em;margin-bottom:32px}
 .q-dv{width:100px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);margin:0 auto 32px}
@@ -1050,12 +1071,15 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
   <div class="q-dv"></div>
   <div class="q-tx">${
     (() => {
-      const directiveH2Re = /<h2[^>]*>\s*Quest Directive\s*<\/h2>/i;
+      // FIX: previously built a regex from directiveH2Re.source, which already
+      // contained its own <h2>...</h2> wrapper, then wrapped THAT inside another
+      // <h2>...</h2> template — requiring two nested <h2> tags that never exist
+      // in the real HTML, so this could never match. It also double-escaped
+      // backslashes via .replace(/\\/g,'\\\\'), turning \s into a literal
+      // "\s" search. Fixed to match directly, the same way the Action Guide
+      // chunk extraction above does.
       const m = guidebookBody.match(
-        new RegExp(
-          `(<h2[^>]*>\\s*${directiveH2Re.source.replace(/\\/g,'\\\\')}\\s*<\\/h2>[\\s\\S]*?)(?=<h2|$)`,
-          'i'
-        )
+        /<h2[^>]*>\s*Quest Directive\s*<\/h2>([\s\S]*?)(?=<h2|$)/i
       );
       const chunk = m?.[1] || '';
 

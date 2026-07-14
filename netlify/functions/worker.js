@@ -8,7 +8,7 @@
 
 import { buildCodexFootprintSvg, buildCodexPromptBlock } from '../../js/codex-footprint.mjs';
 
-const GUIDEBOOK_PRICE_CENTS = 1100; // 0 = free, queue directly. Set to 1100 to use Stripe + webhook.
+const GUIDEBOOK_PRICE_CENTS = 0; // 0 = free, queue directly (no Stripe checkout).
 
 let googleReviewsCache = { data: null, expires: 0 };
 
@@ -837,7 +837,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .ref-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── ACTION GUIDE ── */
-.action-pg{width:100%;background:#05040a;padding:120px 120px 100px;page-break-before:always;position:relative;min-height:100vh}
+.action-pg{width:100%;background:#05040a;padding:120px 120px 140px;page-break-before:always;position:relative;min-height:100vh}
 .action-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px}
 .action-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:30px;color:#e8c96b;letter-spacing:.05em;margin-bottom:6px}
 .action-dv{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:28px}
@@ -969,11 +969,51 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 </div>
 
 <!-- ACTION GUIDE -->
-<div class="action-pg">
+  <div class="action-pg">
   <div class="action-ey">&#10022; &nbsp; Your Path Forward &nbsp; &#10022;</div>
   <div class="action-ti">Action Guide</div>
   <div class="action-dv"></div>
-  <div>${(guidebookBody.match(/<h2[^>]*>Action Guide[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i) || ['',''])[1]}</div>
+
+  ${
+    (() => {
+      const extractSectionParagraph = (sectionTitle) => {
+        const safeTitle = sectionTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        // Grab the first <p> under the requested <h3> section
+        const sectionMatch = guidebookBody.match(
+          new RegExp(
+            `<h3[^>]*>\\s*${safeTitle}\\s*<\\/h3>[\\s\\S]*?(<p[^>]*>[\\s\\S]*?<\\/p>)`,
+            'i'
+          )
+        );
+        if (!sectionMatch) return '';
+
+        const pHtml = sectionMatch[1] || '';
+
+        const pMatch = pHtml.match(
+          new RegExp(`<p[^>]*>([\\s\\S]*?)<\\/p>`, 'i')
+        );
+
+        const inner = pMatch ? pMatch[1] : '';
+
+        // Keep inline tags; normalize whitespace a bit
+        return inner.replace(/\\s+/g, ' ').trim();
+      };
+
+      const ext = extractSectionParagraph('External Mission');
+      const intl = extractSectionParagraph('Internal Mission');
+
+      const wrap = (title, body) => `
+        <div class="action-sec">
+          <div class="action-h3">${title}</div>
+          <p class="action-bd">${body}</p>
+        </div>
+      `;
+
+      return `${wrap('External Mission', ext)}${wrap('Internal Mission', intl)}`;
+    })()
+  }
+
   <div class="action-pf"><span>Simulation Source Code</span><span>${name} &nbsp;&#183;&nbsp; ${dob}</span></div>
 </div>
 

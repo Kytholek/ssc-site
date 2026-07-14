@@ -837,7 +837,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .ref-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── ACTION GUIDE ── */
-.action-pg{width:100%;background:#05040a;padding:120px 120px 140px;page-break-before:always;position:relative;min-height:100vh}
+.action-pg{width:100%;background:#05040a;padding:120px 120px 200px;page-break-before:always;position:relative;min-height:100vh}
 .action-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:#7a6330;margin-bottom:10px}
 .action-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:30px;color:#e8c96b;letter-spacing:.05em;margin-bottom:6px}
 .action-dv{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:28px}
@@ -848,7 +848,7 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 .action-pf span{font-family:"Cinzel",serif;font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:#5c5448}
 
 /* ── QUEST DIRECTIVE ── */
-.quest-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 80px;page-break-before:always}
+.quest-pg{width:100%;min-height:100vh;background:#05040a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 80px 160px;page-break-before:always}
 .q-ey{font-family:"Cinzel",serif;font-size:9px;letter-spacing:.5em;text-transform:uppercase;color:#7a6330;margin-bottom:28px}
 .q-ti{font-family:"Cormorant SC",serif;font-weight:300;font-size:36px;color:#e8c96b;letter-spacing:.05em;margin-bottom:32px}
 .q-dv{width:100px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent);margin:0 auto 32px}
@@ -974,58 +974,71 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
   <div class="action-ti">Action Guide</div>
   <div class="action-dv"></div>
 
-  ${
-    (() => {
-      // Extract the complete Action Guide HTML chunk (between the "Action Guide" <h2> and the next <h2>)
-      const actionMatch = guidebookBody.match(
-        new RegExp(
-          `<h2[^>]*>\\s*Action Guide[^<]*<\\/h2>([\\s\\S]*?)(?=<h2|$)`,
-          'i'
-        )
-      );
-      const rawActionChunk = actionMatch?.[1] || '';
+      ${
+        (() => {
+          const escapeForRegex = (s) => String(s).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 
-      // Extract EXACTLY ONE paragraph after each mission header.
-      // This avoids regex slicing issues that caused duplicated External Mission and missing Internal content.
-      const extPMatch = rawActionChunk.match(
-        new RegExp(
-          `<h3[^>]*>\\s*External Mission\\s*<\\/h3>[\\s\\S]*?<p[^>]*>([\\s\\S]*?)<\\/p>`,
-          'i'
-        )
-      );
-      const intPMatch = rawActionChunk.match(
-        new RegExp(
-          `<h3[^>]*>\\s*Internal Mission\\s*<\\/h3>[\\s\\S]*?<p[^>]*>([\\s\\S]*?)<\\/p>`,
-          'i'
-        )
-      );
+          const stripH3Artifacts = (html) =>
+            String(html || '').replace(/<\/?h3[^>]*>/gi, '').trim();
 
-      const extParagraph = extPMatch?.[1]?.trim() || '';
-      const intParagraph = intPMatch?.[1]?.trim() || '';
+          // 1) Grab the whole Action Guide chunk from the <h2>Action Guide ...</h2> up to next <h2>
+          const getActionGuideChunk = () => {
+            const re = new RegExp(
+              `<h2[^>]*>\\s*${escapeForRegex('Action Guide')}[\\s\\S]*?<\\/h2>([\\s\\S]*?)(?=<h2|$)`,
+              'i'
+            );
+            return guidebookBody.match(re)?.[1] || '';
+          };
 
-      // Ensure captured paragraph text is safe HTML for the PDF template:
-      // - keep inline tags if any, but remove any <h3> artifacts.
-      const sanitizeParagraph = (html) => {
-        return String(html || '')
-          .replace(new RegExp('<\\\\/?h3[^>]*>', 'gi'), '')
-          .trim();
-      };
+          const rawActionChunk = getActionGuideChunk();
 
-      const extHtml = sanitizeParagraph(extParagraph);
-      const intHtml = sanitizeParagraph(intParagraph);
+          // 2) From inside that chunk, capture the FIRST <p> inside each <h3>...</h3> block
+          const extractFirstPInsideH3 = ({ h3Text }) => {
+            const re = new RegExp(
+              `<h3[^>]*>\\s*${escapeForRegex(h3Text)}\\s*<\\/h3>[\\s\\S]*?<p[^>]*>([\\s\\S]*?)<\\/p>`,
+              'i'
+            );
+            return rawActionChunk.match(re)?.[1]?.trim() || '';
+          };
 
-      return `
-        <div class="action-sec">
-          <div class="action-h3">External Mission</div>
-          <p class="action-bd">${extHtml}</p>
-        </div>
-        <div class="action-sec">
-          <div class="action-h3">Internal Mission</div>
-          <p class="action-bd">${intHtml}</p>
-        </div>
-      `;
-    })()
-  }
+          let extHtml = stripH3Artifacts(extractFirstPInsideH3({ h3Text: 'External Mission' }));
+          let intHtml = stripH3Artifacts(extractFirstPInsideH3({ h3Text: 'Internal Mission' }));
+
+          // If extraction fails, fall back to rendering the whole chunk so nothing is missing.
+          if (!extHtml && !intHtml) {
+            if (!rawActionChunk) return '';
+            return `<div class="sb">${rawActionChunk}</div>`;
+          }
+
+          // If only one side failed, weaken fallback to "first <p> after the h3"
+          if (!extHtml) {
+            const weak = rawActionChunk.match(
+              /<h3[^>]*>\s*External Mission\s*<\/h3>([\s\S]*?)(?=<h3|<h2|$)/i
+            )?.[1];
+            extHtml =
+              stripH3Artifacts(weak?.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1]) || '';
+          }
+          if (!intHtml) {
+            const weak = rawActionChunk.match(
+              /<h3[^>]*>\s*Internal Mission\s*<\/h3>([\s\S]*?)(?=<h3|<h2|$)/i
+            )?.[1];
+            intHtml =
+              stripH3Artifacts(weak?.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1]) || '';
+          }
+
+          // Return in the exact wrapper your CSS expects
+          return `
+            <div class="action-sec">
+              <div class="action-h3">External Mission</div>
+              <p class="action-bd">${extHtml}</p>
+            </div>
+            <div class="action-sec">
+              <div class="action-h3">Internal Mission</div>
+              <p class="action-bd">${intHtml}</p>
+            </div>
+          `;
+        })()
+      }
 
   <div class="action-pf"><span>Simulation Source Code</span><span>${name} &nbsp;&#183;&nbsp; ${dob}</span></div>
 </div>
@@ -1035,7 +1048,21 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
   <div class="q-ey">&#10022; &nbsp; Final Transmission &nbsp; &#10022;</div>
   <div class="q-ti">Quest Directive</div>
   <div class="q-dv"></div>
-  <div class="q-tx">${(guidebookBody.match(/<h2[^>]*>[^<]*Quest[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i) || ['',''])[1].replace(/<[^>]+>/g,'').trim()}</div>
+  <div class="q-tx">${
+    (() => {
+      const directiveH2Re = /<h2[^>]*>\s*Quest Directive\s*<\/h2>/i;
+      const m = guidebookBody.match(
+        new RegExp(
+          `(<h2[^>]*>\\s*${directiveH2Re.source.replace(/\\/g,'\\\\')}\\s*<\\/h2>[\\s\\S]*?)(?=<h2|$)`,
+          'i'
+        )
+      );
+      const chunk = m?.[1] || '';
+
+      const p = chunk.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] || '';
+      return String(p).replace(/<[^>]+>/g, '').trim();
+    })()
+  }</div>
   <div class="q-br">
     <svg class="q-bs" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="sg2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#4a9494" stop-opacity="0.3"/><stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/></radialGradient></defs><circle cx="80" cy="80" r="72" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity="0.35"/><circle cx="80" cy="80" r="36" fill="url(#sg2)"/><line x1="80" y1="14" x2="80" y2="146" stroke="#4a9494" stroke-width="1" opacity="0.4"/><line x1="14" y1="80" x2="146" y2="80" stroke="#4a9494" stroke-width="1" opacity="0.4"/><circle cx="80" cy="16" r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/><circle cx="144" cy="80" r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/><circle cx="80" cy="144" r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/><circle cx="16" cy="80" r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/><circle cx="80" cy="80" r="18" fill="#03020a" stroke="#c9a84c" stroke-width="1.5"/></svg>
     <div class="q-bn">Simulation Source Code</div>

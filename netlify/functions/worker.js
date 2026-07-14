@@ -976,41 +976,57 @@ html,body{background:#05040a;color:#e8dfc8;font-family:"EB Garamond",Georgia,ser
 
   ${
     (() => {
-      const extractSectionParagraph = (sectionTitle) => {
-        const safeTitle = sectionTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Extract the complete Action Guide HTML chunk (between the "Action Guide" <h2> and the next <h2>)
+      const actionMatch = guidebookBody.match(
+        new RegExp(
+          `<h2[^>]*>\\s*Action Guide[^<]*<\\/h2>([\\s\\S]*?)(?=<h2|$)`,
+          'i'
+        )
+      );
+      const rawActionChunk = actionMatch?.[1] || '';
 
-        // Grab the first <p> under the requested <h3> section
-        const sectionMatch = guidebookBody.match(
-          new RegExp(
-            `<h3[^>]*>\\s*${safeTitle}\\s*<\\/h3>[\\s\\S]*?(<p[^>]*>[\\s\\S]*?<\\/p>)`,
-            'i'
-          )
-        );
-        if (!sectionMatch) return '';
+      // Map model structure to the PDF template’s CSS expectations:
+      // - convert <h3>External Mission</h3> → <div class="action-h3">External Mission</div>
+      // - convert <h3>Internal Mission</h3> → <div class="action-h3">Internal Mission</div>
+      // - add class="action-bd" to every <p> so spacing/line-height matches
+      const mapped = rawActionChunk
+        .replace(
+          new RegExp(`<h3[^>]*>\\s*External Mission\\s*<\\/h3>`, 'i'),
+          '<div class="action-h3">External Mission</div>'
+        )
+        .replace(
+          new RegExp(`<h3[^>]*>\\s*Internal Mission\\s*<\\/h3>`, 'i'),
+          '<div class="action-h3">Internal Mission</div>'
+        )
+        .replace(/<p[^>]*>/gi, '<p class="action-bd">');
 
-        const pHtml = sectionMatch[1] || '';
+      // Wrap into two action-sec blocks for consistent spacing.
+      const extMatch = mapped.match(
+        new RegExp(
+          `<div class="action-h3">\\s*External Mission\\s*<\\/div>([\\s\\S]*?)<div class="action-h3">\\s*Internal Mission\\s*<\\/div>`,
+          'i'
+        )
+      );
+      const intMatch = mapped.match(
+        new RegExp(
+          `<div class="action-h3">\\s*Internal Mission\\s*<\\/div>([\\s\\S]*?)(?=$|<div class="action-h3">)`,
+          'i'
+        )
+      );
 
-        const pMatch = pHtml.match(
-          new RegExp(`<p[^>]*>([\\s\\S]*?)<\\/p>`, 'i')
-        );
+      const extHtml = extMatch?.[1]?.trim() || mapped.trim();
+      const intHtml = intMatch?.[1]?.trim() || '';
 
-        const inner = pMatch ? pMatch[1] : '';
-
-        // Keep inline tags; normalize whitespace a bit
-        return inner.replace(/\\s+/g, ' ').trim();
-      };
-
-      const ext = extractSectionParagraph('External Mission');
-      const intl = extractSectionParagraph('Internal Mission');
-
-      const wrap = (title, body) => `
+      return `
         <div class="action-sec">
-          <div class="action-h3">${title}</div>
-          <p class="action-bd">${body}</p>
+          <div class="action-h3">External Mission</div>
+          ${extHtml}
+        </div>
+        <div class="action-sec">
+          <div class="action-h3">Internal Mission</div>
+          ${intHtml}
         </div>
       `;
-
-      return `${wrap('External Mission', ext)}${wrap('Internal Mission', intl)}`;
     })()
   }
 

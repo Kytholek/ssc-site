@@ -8,7 +8,7 @@
 
 import { buildCodexFootprintSvg, buildCodexPromptBlock } from '../../js/codex-footprint.mjs';
 
-const GUIDEBOOK_PRICE_CENTS = 0; // 0 = free, queue directly (no Stripe checkout).
+const GUIDEBOOK_PRICE_CENTS = 2200; // $22.00
 
 let googleReviewsCache = { data: null, expires: 0 };
 

@@ -45,14 +45,7 @@
         <a class="nav-submenu-link" href="/blueprint/">Triune Trinity Blueprint</a>
       </div>
     </div>
-    <div class="nav-dropdown">
-      <a class="nav-link nav-dropdown-toggle" id="nav-services" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">Services</a>
-      <div class="nav-submenu" aria-label="Services submenu">
-        <a class="nav-submenu-link" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">All Services</a>
-        <a class="nav-submenu-link" href="/consultation/">Consultation</a>
-        <a class="nav-submenu-link" href="/4-phase-alchemy/">4 Phase Alchemy</a>
-      </div>
-    </div>
+    <a class="nav-link" id="nav-services" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">Services</a>
     <a class="nav-link" id="nav-blog"       href="/blog/"                                                                                                        data-i18n="nav.blog">Blog</a>
     <a class="nav-link" id="nav-books"      href="/books"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}"      data-i18n="nav.books">Books</a>
     <a class="nav-link" id="nav-about"      href="/about"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}"      data-i18n="nav.about">About</a>
@@ -72,8 +65,6 @@
   <a class="nav-link nav-mobile-sub" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event);toggleMenu();">Evolution of Energy</a>
   <a class="nav-link nav-mobile-sub" href="/blueprint/" onclick="toggleMenu();">Triune Trinity Blueprint</a>
   <a class="nav-link" href="/services"   onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}toggleMenu();">Services</a>
-  <a class="nav-link nav-mobile-sub" href="/consultation/" onclick="toggleMenu();">Consultation</a>
-  <a class="nav-link nav-mobile-sub" href="/4-phase-alchemy/" onclick="toggleMenu();">4 Phase Alchemy</a>
   <a class="nav-link" href="/blog/"                                                                                                                       data-i18n="nav.blog">Blog</a>
   <a class="nav-link" href="/books"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}toggleMenu();"      data-i18n="nav.books">Books</a>
   <a class="nav-link" href="/about"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}toggleMenu();"      data-i18n="nav.about">About</a>
@@ -81,6 +72,3 @@
   <a href="https://portal.simulationsourcecode.com" class="nav-cta" data-i18n="nav.cta">&#11041;&nbsp;Launch App</a>
   <button class="lang-toggle lang-toggle-mobile" onclick="toggleLang()" id="lang-toggle-mobile" aria-label="Switch language">ES</button>
 </div>
-
-
-

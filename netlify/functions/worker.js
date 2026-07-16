@@ -495,7 +495,7 @@ STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> h
    ONE powerful paragraph that synthesizes all three (Soul + Outer Persona + Expression). Frame it as the specific signal they are here to express.
 
 5. <h2 id="calling">The Life Calling — ${frequencies.rawDestiny}/${frequencies.destiny}</h2>
-   The fusion of Life Path and Expression. The specific directive that emerges when external curriculum meets internal signal. Compound story, root essence, practical meaning.
+   The fusion of Life Path and Expression. The specific directive that emerges when external curriculum meets internal signal. Compound story, root essence, practical meaning. after that, one paragraph blending life lesson, achievment, day and theme into one variable of the life calling. The second paragraphy is how soul and outer blend into the expression and its influence of the life calling.
 
 6. <h2>Action Guide: Your Quest Objectives</h2>
    Two subsections:
@@ -509,7 +509,7 @@ STRUCTURE — write ALL sections in EXACTLY this order, each with its own <h2> h
 7. <h2>Quest Directive</h2>
    One powerful paragraph. Direct and personal. What ${firstName}'s simulation is asking them to master. Synthesize external mission, internal mission, and the Life Calling into ONE unified directive.
 
-FORMAT: HTML only — <h2>, <h3>, <p>, <ul><li>. No markdown. No preamble. Start directly with the Opening.
+FORMAT: HTML only — <h2>, <h3>, <p>, <ul><li>. No markdown. No preamble. Start directly with the Opening. have proper margins at the end of each page seperation to not cut off text.
 IMPORTANT: Include the exact id attributes on h3 and h2 tags as shown above — they are used for navigation.
 LENGTH: 1600-2000 words. Complete all 7 sections. Do not cut sections short.
 DEPTH: Go deep. Explain not just what each frequency means but HOW they apply to ${firstName}. Use the shadow side to show what they are learning to transcend.`;

@@ -223,7 +223,7 @@ function ChatView({ onGoToAllies }) {
 }
 
 // ── SimulationMatrix shell ────────────────────────────────────────────────────
-export default function SimulationMatrix({ onExit }) {
+export default function SimulationMatrix({ onExit, inline = false }) {
   const { playerData } = useAppState()
   const [mainTab, setMainTab]   = useState('hub')
   const [hubSub, setHubSub]     = useState('digital')
@@ -248,7 +248,7 @@ export default function SimulationMatrix({ onExit }) {
   }, [onExit])
 
   return (
-    <div className="simulation-matrix">
+    <div className={`simulation-matrix${inline ? ' simulation-matrix--inline' : ''}`}>
       {showRealmCoach && (
         <div className="realm-coach-mark" role="note">
           <p><strong>Simulation Matrix</strong> — HUB has maps & quests; SOCIAL has allies & ranks. Tap <strong>Exit to Map</strong> below to return.</p>

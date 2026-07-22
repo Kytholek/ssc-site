@@ -342,7 +342,7 @@ export default function WorldMapView({ playerData }) {
     : []
 
   return (
-    <div className="rm-digital-view">
+    <div className="rm-digital-view rm-world-map-view">
       <div className="rm-map-controls">
         {userCoords
           ? <span className="rm-loc-active">◎ LOCATION ACTIVE</span>

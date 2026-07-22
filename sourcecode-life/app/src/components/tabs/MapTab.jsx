@@ -104,6 +104,12 @@ export default function MapTab() {
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [transitionDir])
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.body.classList.toggle('scl-realm-open', phase === 'realm')
+    return () => document.body.classList.remove('scl-realm-open')
+  }, [phase])
+
   function handleEnter() {
     if (transitionDir) return
     setTransitionDir('in')
@@ -113,22 +119,9 @@ export default function MapTab() {
     setTransitionDir('out')
   }
 
-  /* Realm + transition overlay mount on document.body so position:fixed fills the
-     viewport. Ancestors with transform (e.g. .sm-tab-panel animation) otherwise
-     become the containing block and clip / zero-size the fixed shell. */
-  const realmLayer =
-    typeof document !== 'undefined'
-      ? createPortal(
-          <>
-            {(phase === 'realm' || phase === 'exiting') && (
-              <SimulationMatrix onExit={handleExit} />
-            )}
-            {transitionDir && (
-              <MatrixOverlay direction={transitionDir} theme={theme} />
-            )}
-          </>,
-          document.body
-        )
+  const overlayLayer =
+    typeof document !== 'undefined' && transitionDir
+      ? createPortal(<MatrixOverlay direction={transitionDir} theme={theme} />, document.body)
       : null
 
   return (
@@ -173,7 +166,11 @@ export default function MapTab() {
         </div>
       )}
 
-      {realmLayer}
+      {phase === 'realm' && (
+        <SimulationMatrix onExit={handleExit} inline />
+      )}
+
+      {overlayLayer}
     </>
   )
 }

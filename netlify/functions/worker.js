@@ -75,6 +75,10 @@ function validateUserData(userData) {
   return null;
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
 async function logPurchaseEmail(email) {
   try {
     await fetch('https://script.google.com/macros/s/AKfycbz_G8BxEgYBPpWNPO6vmGEPiITYUAH3px8TxyaSZCME4W_3y7MQ_IPdzdi2tdiX1X7w9w/exec', {
@@ -1330,23 +1334,69 @@ async function handleSubmitEmail(request, env, origin) {
     });
   }
 
-  const { email } = body;
-  if (!email) {
+  const email = String(body.email || '').trim();
+  const source = body.source === 'calculator' ? 'calculator' : 'signup';
+
+  if (!email || !isValidEmail(email)) {
     return new Response(JSON.stringify({ error: 'Email required' }), {
       status: 400,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
     });
   }
 
-  // Log email to Google Sheet (home page signups)
+  let sheetPayload = { email, source };
+
+  if (source === 'calculator') {
+    const userData = buildUserDataFromBody({
+      email,
+      name: body.name,
+      full_name: body.full_name,
+      month: body.month,
+      day: body.day,
+      year: body.year,
+    });
+    const validationError = validateUserData(userData);
+    if (validationError || !userData.fullName) {
+      return new Response(JSON.stringify({ error: validationError || 'Full birth name required' }), {
+        status: 400,
+        headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      });
+    }
+
+    const frequencies = calculateFrequencies(
+      userData.fullName,
+      userData.birthMonth,
+      userData.birthDay,
+      userData.birthYear
+    );
+
+    sheetPayload = {
+      email,
+      source,
+      full_name: userData.fullName,
+      birth_date: `${userData.birthMonth}/${userData.birthDay}/${userData.birthYear}`,
+      life_path: frequencies.lifePath,
+      expression: frequencies.expression,
+      life_calling: frequencies.destiny,
+    };
+  }
+
+  // Log email to Google Sheet (home page signups and calculator leads)
   try {
     await fetch('https://script.google.com/macros/s/AKfycbxxucjttdTVhXaOsLW2PAbwQT1dNoNOnCT8xIYWwG07zLDC_Oy-7K9egqkkm7o3wT3QAQ/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, source: 'signup' }),
+      body: JSON.stringify(sheetPayload),
     });
   } catch (err) {
     console.error('sheets-log error:', err);
+  }
+
+  if (source === 'calculator') {
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
   }
 
   try {

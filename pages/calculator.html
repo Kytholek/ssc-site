@@ -10,6 +10,10 @@
   </div>
   <div class="calc-container">
     <div class="form-card a1">
+      <div class="calc-form-head">
+        <div class="calc-form-step">Step 1 · Enter Your Code</div>
+        <p class="calc-form-note">Use your full birth name and birth date for the cleanest frequency map.</p>
+      </div>
       <div class="form-section-label" data-i18n="calc.label.birthdate">· Birth Date ·</div>
       <div class="date-row">
         <div class="field">
@@ -29,20 +33,29 @@
             <option value="11" data-i18n="calc.month.11">November</option>
             <option value="12" data-i18n="calc.month.12">December</option>
           </select>
+          <div class="calc-field-message" id="calc-month-message"></div>
         </div>
         <div class="field">
           <label for="calc-day" data-i18n="calc.label.day">Day</label>
           <input type="number" id="calc-day" placeholder="DD" min="1" max="31">
+          <div class="calc-field-message" id="calc-day-message"></div>
         </div>
         <div class="field">
           <label for="calc-year" data-i18n="calc.label.year">Year</label>
           <input type="number" id="calc-year" placeholder="YYYY" min="1900" max="2099">
+          <div class="calc-field-message" id="calc-year-message"></div>
         </div>
       </div>
-      <div class="form-section-label" style="margin-top:28px" data-i18n="calc.label.fullname">· Full Birth Name ·</div>
+      <div class="form-section-label calc-section-spaced" data-i18n="calc.label.fullname">· Full Birth Name ·</div>
       <div class="field">
         <label for="calc-fullname" data-i18n="calc.label.namehint">Full Name (as on birth certificate)</label>
         <input type="text" id="calc-fullname" data-i18n-placeholder="calc.placeholder.name" placeholder="e.g. Jane Marie Smith" autocomplete="off">
+        <div class="calc-field-message" id="calc-fullname-message"></div>
+      </div>
+      <div class="field calc-email-field">
+        <label for="calc-lead-email">Send a copy to email</label>
+        <input type="email" id="calc-lead-email" placeholder="your@email.com" autocomplete="email">
+        <div class="calc-field-message calc-lead-message" id="calc-lead-message" role="status" aria-live="polite"></div>
       </div>
     </div>
     <button type="button" class="calc-btn a2" data-i18n="calc.btn">⬡&nbsp;Decode My Map&nbsp;⬡</button>
@@ -113,7 +126,7 @@
         <!-- Price + CTA -->
         <div class="unlock-price-row">
           <div class="unlock-price">
-            <span class="unlock-price-amount">$11</span>
+            <span class="unlock-price-amount">$22</span>
             <span class="unlock-price-label">one-time · instant delivery</span>
           </div>
         </div>

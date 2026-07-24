@@ -122,7 +122,7 @@ function staticShell(opts) {
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
-    coreScripts.push('<script defer src="/js/calculator.js"></script>');
+    coreScripts.push('<script defer src="/js/calculator.js?v=20260723-ux"></script>');
   }
 
   return `<!DOCTYPE html>

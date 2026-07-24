@@ -557,11 +557,97 @@ function calcOuter(full) {
   return { root: reduceNumber(compound), compound };
 }
 
+var _lastCalculatorLead = null;
+
+function _setCalculatorLeadMessage(message, isError) {
+  var messageEl = document.getElementById('calc-lead-message');
+  if (!messageEl) return;
+  messageEl.textContent = message || '';
+  messageEl.classList.toggle('is-error', !!isError);
+  messageEl.classList.toggle('is-success', !!message && !isError);
+}
+
+function _setFieldMessage(id, message, isError) {
+  var messageEl = document.getElementById(id + '-message');
+  if (!messageEl) return;
+  messageEl.textContent = message || '';
+  messageEl.classList.toggle('is-error', !!isError);
+  messageEl.classList.toggle('is-success', !!message && !isError);
+}
+
+function _clearCalculatorFieldMessages() {
+  ['calc-month', 'calc-day', 'calc-year', 'calc-fullname'].forEach(function(id) {
+    _setFieldMessage(id, '', false);
+  });
+  _setCalculatorLeadMessage('', false);
+}
+
+function _isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function _scrollResultIntoViewIfNeeded(resultsTarget) {
+  if (!resultsTarget || typeof resultsTarget.getBoundingClientRect !== 'function') return;
+  var rect = resultsTarget.getBoundingClientRect();
+  if (rect.top > window.innerHeight * 0.72 || rect.bottom < 0) {
+    resultsTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function submitCalculatorLead() {
+  var emailInput = document.getElementById('calc-lead-email');
+  var email = (emailInput ? emailInput.value : '').trim();
+
+  if (!_lastCalculatorLead) {
+    _setCalculatorLeadMessage('Calculate your blueprint first.', true);
+    return;
+  }
+
+  if (!email || !_isValidEmail(email)) {
+    _setCalculatorLeadMessage('Please enter a valid email address.', true);
+    if (emailInput) emailInput.focus();
+    return;
+  }
+
+  _setCalculatorLeadMessage('', false);
+
+  fetch('/submit-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({}, _lastCalculatorLead, {
+      email: email,
+      source: 'calculator',
+    })),
+  })
+  .then(function(res) {
+    if (!res.ok) {
+      return res.text().then(function(text) {
+        var data = {};
+        try { data = JSON.parse(text); } catch (_) {}
+        throw new Error(data.error || text || ('HTTP ' + res.status));
+      });
+    }
+    return res.json();
+  })
+  .then(function() {
+    _setCalculatorLeadMessage('Your blueprint summary is saved.', false);
+    if (emailInput) emailInput.value = '';
+  })
+  .catch(function(err) {
+    _setCalculatorLeadMessage('Could not save right now. Please try again.', true);
+    console.error('calculator lead error:', err);
+  })
+  .finally(function() {
+    // No button state to restore: calculator leads submit from the main decode action.
+  });
+}
+
 function calculateReading() {
   const monthEl = document.getElementById('calc-month');
   const dayEl   = document.getElementById('calc-day');
   const yearEl  = document.getElementById('calc-year');
   const nameEl  = document.getElementById('calc-fullname');
+  const emailEl = document.getElementById('calc-lead-email');
 
   if (!monthEl || !dayEl || !yearEl || !nameEl) {
     console.warn('Calculator form is not available yet.');
@@ -575,13 +661,35 @@ function calculateReading() {
 
   // ── Inline validation ─────────────────────────────────────
   var hasError = false;
-  [monthEl, dayEl, yearEl, nameEl].forEach(function(el) {
+  _clearCalculatorFieldMessages();
+  [monthEl, dayEl, yearEl, nameEl, emailEl].forEach(function(el) {
     if (el) el.classList.remove('ssc-input-error');
   });
-  if (!month) { monthEl.classList.add('ssc-input-error'); hasError = true; }
-  if (!day)   { dayEl.classList.add('ssc-input-error');   hasError = true; }
-  if (!year)  { yearEl.classList.add('ssc-input-error');  hasError = true; }
-  if (!fullName) { nameEl.classList.add('ssc-input-error'); hasError = true; }
+  if (!month) {
+    monthEl.classList.add('ssc-input-error');
+    _setFieldMessage('calc-month', 'Choose your birth month.', true);
+    hasError = true;
+  }
+  if (!day) {
+    dayEl.classList.add('ssc-input-error');
+    _setFieldMessage('calc-day', 'Enter your birth day.', true);
+    hasError = true;
+  }
+  if (!year) {
+    yearEl.classList.add('ssc-input-error');
+    _setFieldMessage('calc-year', 'Enter your birth year.', true);
+    hasError = true;
+  }
+  if (!fullName) {
+    nameEl.classList.add('ssc-input-error');
+    _setFieldMessage('calc-fullname', 'Enter your full birth name.', true);
+    hasError = true;
+  }
+  if (emailEl && emailEl.value.trim() && !_isValidEmail(emailEl.value.trim())) {
+    emailEl.classList.add('ssc-input-error');
+    _setCalculatorLeadMessage('Please enter a valid email address.', true);
+    hasError = true;
+  }
 
   if (hasError) {
     var firstErr = document.querySelector('.ssc-input-error');
@@ -589,12 +697,16 @@ function calculateReading() {
     return;
   }
 
+  _lastCalculatorLead = null;
+  _setCalculatorLeadMessage('', false);
+
   // ── Loading state ─────────────────────────────────────────
   var btn = document.querySelector('.calc-btn') || document.getElementById('modal-calc-btn');
   var origBtnText = btn ? btn.textContent : '';
   if (btn) {
     btn.disabled = true;
-    btn.textContent = '· Decoding ·';
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = '· Decoding Your Map ·';
     btn.classList.add('ssc-btn-loading');
   }
 
@@ -620,6 +732,17 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   // Theme: sum of year digits
   const thComp  = String(year).split('').reduce((a,c) => a + parseInt(c), 0);
   const theme   = { root: reduceNumber(thComp), compound: thComp };
+
+  _lastCalculatorLead = {
+    full_name: fullName,
+    month: month,
+    day: day,
+    year: year,
+    birth_date: month + '/' + day + '/' + year,
+    life_path: lp.root,
+    expression: exp.root,
+    life_calling: calling.root,
+  };
 
   const numbers = [lp.root, exp.root, calling.root, soul.root, outer.root, achieve.root, theme.root];
 
@@ -650,6 +773,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
 
   const hookCopy = buildResultHook(firstName, lp.root, exp.root, calling.root);
 
+  const coreSummary = buildCoreSummary(lp, exp, calling);
   const codexFootprint = buildCodexFootprintMap(lp, exp, calling);
 
   resultsTarget.innerHTML = `
@@ -662,6 +786,19 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-lbl { font-size: 12px; }
       .ssc-ess { font-size: 10px; }
       .ssc-cdx { font-size: 10px; }
+      .ssc-reveal { opacity: 0; transform: translateY(14px); animation: sscResultReveal .58s ease forwards; }
+      .ssc-delay-1 { animation-delay: .08s; }
+      .ssc-delay-2 { animation-delay: .16s; }
+      .ssc-delay-3 { animation-delay: .24s; }
+      .ssc-delay-4 { animation-delay: .32s; }
+      .ssc-delay-5 { animation-delay: .40s; }
+      @keyframes sscResultReveal { to { opacity: 1; transform: translateY(0); } }
+      .ssc-core-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:0 auto 34px; max-width:880px; }
+      .ssc-core-card { background:linear-gradient(135deg, rgba(13,11,24,.92), rgba(8,20,20,.7)); border:1px solid rgba(126,200,200,.22); border-radius:12px; padding:18px 14px; text-align:center; position:relative; overflow:hidden; }
+      .ssc-core-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(126,200,200,.5), transparent); }
+      .ssc-core-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+      .ssc-core-num { font-family:'Cinzel Decorative',serif; font-size:34px; color:var(--gold-light); line-height:1; margin-bottom:8px; }
+      .ssc-core-meta { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-dim); font-style:italic; }
       @media (min-width: 680px) {
         .ssc-rw  { max-width: 1100px; margin: 0 auto; }
         .ssc-fc  { padding: 28px 22px !important; }
@@ -676,6 +813,9 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       }
       @media (max-width: 679px) {
         .ssc-mobile-head { margin-bottom: 30px !important; padding-bottom: 24px !important; }
+        .ssc-core-summary { grid-template-columns:1fr !important; gap:10px !important; margin-bottom:28px !important; }
+        .ssc-core-card { padding:16px 14px !important; }
+        .ssc-core-num { font-size:32px !important; }
         .ssc-mobile-chart { margin-bottom: 32px !important; }
         .ssc-tg  { grid-template-columns: 1fr !important; }
         .ssc-fc  { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 26px 20px !important; }
@@ -698,14 +838,15 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         <div style="font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:12px;opacity:.85">Your Complete Frequency Blueprint</div>
         <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
       </div>
-      <div class="ssc-mobile-chart" style="display:flex;justify-content:center;margin-bottom:44px">
+      ${coreSummary}
+      <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:44px">
         ${buildFreqChart(numbers)}
       </div>
-      ${codexFootprint}
-      ${lessonsBlock}
-      ${expressionBlock}
-      ${purposeBlock}
-      ${hookCopy}
+      <div class="ssc-reveal ssc-delay-2">${codexFootprint}</div>
+      <div class="ssc-reveal ssc-delay-3">${lessonsBlock}</div>
+      <div class="ssc-reveal ssc-delay-4">${expressionBlock}</div>
+      <div class="ssc-reveal ssc-delay-5">${purposeBlock}</div>
+      <div class="ssc-reveal ssc-delay-5">${hookCopy}</div>
     </div>
   `;
 
@@ -716,9 +857,18 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
     cta.removeAttribute('aria-hidden');
   }
 
+  _setCalculatorLeadMessage('', false);
+  var leadEmailEl = document.getElementById('calc-lead-email');
+  if (leadEmailEl && leadEmailEl.value.trim()) {
+    submitCalculatorLead();
+  }
+
+  _scrollResultIntoViewIfNeeded(resultsTarget);
+
   // ── Reset button state ─────────────────────────────────────
   if (btn) {
     btn.disabled = false;
+    btn.removeAttribute('aria-busy');
     btn.textContent = '⬡  Decode Another Reading ⬡';
     btn.classList.remove('ssc-btn-loading');
   }
@@ -727,6 +877,28 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
 }
 
 
+
+function buildCoreSummary(lp, exp, calling) {
+  const items = [
+    ['Life Path', lp.root, lp.compound, 'External curriculum'],
+    ['Expression', exp.root, exp.compound, 'Authentic signal'],
+    ['Life Calling', calling.root, calling.compound, 'Purpose directive'],
+  ];
+
+  return `
+    <div class="ssc-core-summary ssc-reveal" aria-label="Core numerology summary">
+      ${items.map(function(item) {
+        return `
+          <div class="ssc-core-card">
+            <div class="ssc-core-label">${item[0]}</div>
+            <div class="ssc-core-num">${item[1]}</div>
+            <div class="ssc-core-meta">${item[3]} · ${item[2]}/${item[1]}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
 
 // ── Dynamic result hook — sells the guidebook ────────────────────────────
 function buildResultHook(firstName, lp, exp, calling) {
@@ -1117,6 +1289,7 @@ window.handleUnlockPayment = handleUnlockPayment;
 ═══════════════════════════════════════════════════════════════ */
 
 window.calculateReading = calculateReading;
+window.submitCalculatorLead = submitCalculatorLead;
 window.buildFreqChart   = buildFreqChart;
 window.COMPOUND_DESC    = COMPOUND_DESC;
 
@@ -1125,6 +1298,13 @@ window.handleUnlockPayment = handleUnlockPayment;
 document.addEventListener('click', function(e) {
   if (e.target && e.target.id === 'unlock-pay-btn') {
     handleUnlockPayment();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target && e.target.id === 'calc-lead-email') {
+    e.preventDefault();
+    calculateReading();
   }
 });
 

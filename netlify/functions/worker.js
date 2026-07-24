@@ -79,6 +79,25 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
 }
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[ch]));
+}
+
+function plainTextToEmailHtml(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  return text
+    .split(/\n{2,}/)
+    .map(paragraph => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`)
+    .join('');
+}
+
 async function logPurchaseEmail(email) {
   try {
     await fetch('https://script.google.com/macros/s/AKfycbz_G8BxEgYBPpWNPO6vmGEPiITYUAH3px8TxyaSZCME4W_3y7MQ_IPdzdi2tdiX1X7w9w/exec', {
@@ -1345,6 +1364,7 @@ async function handleSubmitEmail(request, env, origin) {
   }
 
   let sheetPayload = { email, source };
+  let calculatorEmailData = null;
 
   if (source === 'calculator') {
     const userData = buildUserDataFromBody({
@@ -1389,6 +1409,14 @@ async function handleSubmitEmail(request, env, origin) {
       life_calling: lifeCalling,
       destiny: lifeCalling,
     };
+    calculatorEmailData = {
+      name: userData.fullName,
+      birthDate,
+      lifePath,
+      expression,
+      lifeCalling,
+      readingText: body.reading_text || body.readingText || '',
+    };
   }
 
   // Log email to Google Sheet (home page signups and calculator leads)
@@ -1406,8 +1434,11 @@ async function handleSubmitEmail(request, env, origin) {
     const subject = source === 'calculator'
       ? 'Your Free Numerology Blueprint — Simulation Source Code'
       : 'Your Free Life Path Intro — Simulation Source Code';
+    const calculatorReadingHtml = plainTextToEmailHtml(calculatorEmailData?.readingText);
     const html = source === 'calculator'
-      ? `<p>Thanks for decoding your blueprint. Your core numbers have been saved so we can send the right SSC follow-up.</p><p>— Kytholek</p>`
+      ? `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
+         ${calculatorReadingHtml || `<p><strong>Reading for:</strong> ${escapeHtml(calculatorEmailData?.name)}<br><strong>Birth Date:</strong> ${escapeHtml(calculatorEmailData?.birthDate)}<br><strong>Life Path:</strong> ${escapeHtml(calculatorEmailData?.lifePath)}<br><strong>Expression:</strong> ${escapeHtml(calculatorEmailData?.expression)}<br><strong>Life Calling:</strong> ${escapeHtml(calculatorEmailData?.lifeCalling)}</p>`}
+         <p>— Kytholek</p>`
       : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
 
     await fetch('https://api.resend.com/emails', {

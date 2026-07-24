@@ -513,6 +513,97 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
     + '</div></div>';
 }
 
+function getFrequencyReadingText(n, rootKey, freqIndex, compound) {
+  var label = getFreqLabel(freqIndex);
+  var role = getFreqRole(freqIndex);
+  var displayNum = compound && compound !== n && compound > 9 ? compound + '/' + n : String(n);
+
+  if (rootKey === null) {
+    var calling = CALLING[n] || {};
+    return [
+      label + ' ' + displayNum,
+      role + (calling.name ? ' · ' + calling.name : ''),
+      calling.essence || '',
+      calling.summary || 'A powerful mission frequency.',
+    ].filter(Boolean).join('\n');
+  }
+
+  var entry = ROOT[n] || {};
+  return [
+    label + ' ' + displayNum,
+    role + (entry.name ? ' · ' + entry.name : ''),
+    entry.essence || '',
+    entry[rootKey] || 'A deep frequency.',
+  ].filter(Boolean).join('\n');
+}
+
+function buildResultHookText(firstName, lp, exp, calling) {
+  var frictionMap = {
+    1: 'keep finding yourself at new beginnings — situations that demand you go first, even when you feel unready',
+    2: 'keep encountering dynamics that test your ability to hold your own while staying connected to others',
+    3: 'keep being pulled toward creative expression but hitting blocks around follow-through and self-doubt',
+    4: 'keep running into situations that demand structure, discipline, and long-term commitment',
+    5: 'keep attracting experiences that push you out of comfort zones — the simulation keeps moving the ground beneath you',
+    6: 'keep finding yourself responsible for others — carrying, nurturing, holding things together',
+    7: 'keep being driven inward — situations that strip away surface certainty and demand real self-knowledge',
+    8: 'keep encountering power dynamics — situations where authority, control, and self-mastery are the central lesson',
+    9: 'keep being drawn toward completion, release, and contribution — the simulation keeps asking you to let go and give back',
+    11: 'keep being placed in the role of bridge — between people, between ideas, between what is and what could be',
+    22: 'keep being handed visions larger than what feels practical — the simulation keeps testing whether you can build them',
+    33: 'keep being called to serve, teach, and hold space — the simulation keeps placing people who need your clarity in your path',
+    44: 'keep being tasked with building things that last — structures, systems, legacies that go beyond the personal',
+  };
+  var expressionMap = {
+    1: 'encoded to initiate — to cut through, begin, and demonstrate independence',
+    2: 'encoded to connect — to bridge, harmonise, and bring people into coherence',
+    3: 'encoded to express — through communication, creativity, and authentic voice',
+    4: 'encoded to build — to create order, structure, and lasting foundations',
+    5: 'encoded to experience — to be present, adapt, and embody freedom',
+    6: 'encoded to nurture — to care, integrate, and hold the wellbeing of the whole',
+    7: 'encoded to seek — to go deep, question, and carry real inner wisdom',
+    8: 'encoded to master — to accumulate real authority and demonstrate it through results',
+    9: 'encoded to complete — to serve, release, and hold a universal perspective',
+    11: 'encoded to illuminate — to channel insight and bridge seen and unseen',
+    22: 'encoded to build at scale — to manifest vision in structures that serve many',
+    33: 'encoded to teach through compassion — to express healing through presence',
+    44: 'encoded to organise power — to create systems of enduring strength',
+  };
+  var friction = frictionMap[lp] || 'keep encountering situations that reflect your core frequencies back to you';
+  var expression = expressionMap[exp] || 'encoded to express your unique frequency in the world';
+
+  return [
+    'What This Means For You',
+    firstName + ', your ' + lp + ' Life Path means you will ' + friction + '. This is not bad luck — it is the curriculum your simulation is running.',
+    'At the same time, your ' + exp + ' Expression means you are ' + expression + '. The tension between what life presents and what you are built to express is the engine of your growth.',
+    'Your ' + calling + ' Life Calling is where these two circuits converge into a single directive. Understanding it — the compound story, the shadow, the integration — is what the Complete Blueprint covers in full.',
+  ].join('\n\n');
+}
+
+function buildCalculatorReadingText(fullName, month, day, year, lp, exp, soul, outer, achieve, theme, calling) {
+  var firstName = fullName.split(' ')[0] || fullName;
+  var birthDate = month + '/' + day + '/' + year;
+  var sections = [
+    'Your Simulation Source Code Calculator Reading',
+    'Reading for: ' + fullName + '\nBirth Date: ' + birthDate,
+    'Core Results\nLife Path: ' + lp.compound + '/' + lp.root + '\nExpression: ' + exp.compound + '/' + exp.root + '\nLife Calling: ' + calling.compound + '/' + calling.root,
+    'Trinity of Lessons — Achievement · Theme · Life Path',
+    getFrequencyReadingText(achieve.root, 'ach', 5, achieve.compound),
+    getFrequencyReadingText(theme.root, 'theme', 6, theme.compound),
+    getFrequencyReadingText(lp.root, 'lp', 0, lp.compound),
+    'Trinity of Expression — Soul · Outer · Expression',
+    getFrequencyReadingText(soul.root, 'soul', 3, soul.compound),
+    getFrequencyReadingText(outer.root, 'outer', 4, outer.compound),
+    getFrequencyReadingText(exp.root, 'ex', 1, exp.compound),
+    'Trinity of Purpose — Expression · Life Path · Life Calling',
+    getFrequencyReadingText(exp.root, 'ex', 1, exp.compound),
+    getFrequencyReadingText(lp.root, 'lp', 0, lp.compound),
+    getFrequencyReadingText(calling.root, null, 2, calling.compound),
+    buildResultHookText(firstName, lp.root, exp.root, calling.root),
+  ];
+
+  return sections.filter(Boolean).join('\n\n');
+}
+
 /* ═══════════════════════════════════════════════════════════════
    CALCULATION FUNCTIONS
 ═══════════════════════════════════════════════════════════════ */
@@ -734,6 +825,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   // Theme: sum of year digits
   const thComp  = String(year).split('').reduce((a,c) => a + parseInt(c), 0);
   const theme   = { root: reduceNumber(thComp), compound: thComp };
+  const readingText = buildCalculatorReadingText(fullName, month, day, year, lp, exp, soul, outer, achieve, theme, calling);
 
   _lastCalculatorLead = {
     name: fullName,
@@ -748,6 +840,8 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
     expression: exp.root,
     lifeCalling: calling.root,
     life_calling: calling.root,
+    readingText: readingText,
+    reading_text: readingText,
   };
 
   const numbers = [lp.root, exp.root, calling.root, soul.root, outer.root, achieve.root, theme.root];

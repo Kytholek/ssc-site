@@ -736,13 +736,17 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const theme   = { root: reduceNumber(thComp), compound: thComp };
 
   _lastCalculatorLead = {
+    name: fullName,
     full_name: fullName,
     month: month,
     day: day,
     year: year,
+    birthDate: month + '/' + day + '/' + year,
     birth_date: month + '/' + day + '/' + year,
+    lifePath: lp.root,
     life_path: lp.root,
     expression: exp.root,
+    lifeCalling: calling.root,
     life_calling: calling.root,
   };
 

@@ -1370,14 +1370,24 @@ async function handleSubmitEmail(request, env, origin) {
       userData.birthYear
     );
 
+    const birthDate = `${userData.birthMonth}/${userData.birthDay}/${userData.birthYear}`;
+    const lifePath = body.life_path ?? body.lifePath ?? frequencies.lifePath;
+    const expression = body.expression ?? frequencies.expression;
+    const lifeCalling = body.life_calling ?? body.lifeCalling ?? body.destiny ?? frequencies.destiny;
+
     sheetPayload = {
       email,
       source,
+      name: userData.fullName,
       full_name: userData.fullName,
-      birth_date: `${userData.birthMonth}/${userData.birthDay}/${userData.birthYear}`,
-      life_path: frequencies.lifePath,
-      expression: frequencies.expression,
-      life_calling: frequencies.destiny,
+      birthDate,
+      birth_date: birthDate,
+      lifePath,
+      life_path: lifePath,
+      expression,
+      lifeCalling,
+      life_calling: lifeCalling,
+      destiny: lifeCalling,
     };
   }
 
@@ -1392,14 +1402,14 @@ async function handleSubmitEmail(request, env, origin) {
     console.error('sheets-log error:', err);
   }
 
-  if (source === 'calculator') {
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
-    });
-  }
-
   try {
+    const subject = source === 'calculator'
+      ? 'Your Free Numerology Blueprint — Simulation Source Code'
+      : 'Your Free Life Path Intro — Simulation Source Code';
+    const html = source === 'calculator'
+      ? `<p>Thanks for decoding your blueprint. Your core numbers have been saved so we can send the right SSC follow-up.</p><p>— Kytholek</p>`
+      : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
+
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -1409,8 +1419,8 @@ async function handleSubmitEmail(request, env, origin) {
       body: JSON.stringify({
         from:    formatResendFrom(env.FROM_EMAIL),
         to:      [email],
-        subject: 'Your Free Life Path Intro — Simulation Source Code',
-        html:    `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`,
+        subject,
+        html,
       }),
     });
   } catch (err) {

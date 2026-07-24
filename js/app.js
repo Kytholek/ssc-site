@@ -643,6 +643,12 @@ function setCodexView(view, pushState) {
   var page = document.getElementById('page-codex');
   if (!page) return;
   if (page.dataset.cdxActiveView === view) {
+    if (view === 'spiral') {
+      _ensureCodexSpiral(page);
+    } else {
+      _ensureCodexMatrix(page);
+      if (journey && typeof window._startCodexJourney === 'function') window._startCodexJourney(page);
+    }
     if (journey) {
       if (typeof window._startCodexJourney === 'function') window._startCodexJourney(page);
       if (pushState) {
@@ -681,6 +687,7 @@ function setCodexView(view, pushState) {
     var spiralRoot = page.querySelector('.cdx-spiral-root');
     if (spiralRoot && typeof spiralRoot._stopSpiral === 'function') spiralRoot._stopSpiral();
     hudReset();
+    _ensureCodexMatrix(page);
     requestAnimationFrame(function() {
       _ensureCodexMatrix(page);
       requestAnimationFrame(function() {
@@ -694,6 +701,7 @@ function setCodexView(view, pushState) {
     if (typeof window._exitCodexJourney === 'function') window._exitCodexJourney();
     if (typeof window._cdxStopTrace === 'function') window._cdxStopTrace();
     hudReset();
+    _ensureCodexSpiral(page);
     requestAnimationFrame(function() {
       _ensureCodexSpiral(page);
       requestAnimationFrame(function() {
@@ -754,12 +762,75 @@ function navigateCodexNode(num, e) {
 }
 window.navigateCodexNode = navigateCodexNode;
 
+var CODEX_SCRIPT_PATHS = [
+  '/js/codex-spiral.js',
+  '/js/codex-spiral-learn.js',
+  '/js/codex-matrix.js',
+  '/js/codex-learn.js'
+];
+var _codexScriptsPromise = null;
+
+function _scriptPathMatches(script, src) {
+  try {
+    return new URL(script.src, window.location.href).pathname === new URL(src, window.location.href).pathname;
+  } catch (_) {
+    return script.src && script.src.indexOf(src) !== -1;
+  }
+}
+
+function _loadScriptOnce(src) {
+  var existing = Array.from(document.scripts).find(function(script) {
+    return _scriptPathMatches(script, src);
+  });
+  if (existing) {
+    if (existing.dataset.loaded === '1' || document.readyState !== 'loading') return Promise.resolve();
+    return new Promise(function(resolve, reject) {
+      existing.addEventListener('load', resolve, { once: true });
+      existing.addEventListener('error', reject, { once: true });
+    });
+  }
+
+  return new Promise(function(resolve, reject) {
+    var script = document.createElement('script');
+    script.src = src;
+    script.defer = true;
+    script.onload = function() {
+      script.dataset.loaded = '1';
+      resolve();
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function _ensureCodexScripts() {
+  if (typeof initCodexMatrix === 'function' &&
+      typeof initCodexSpiral === 'function' &&
+      typeof initCodexLearn === 'function') {
+    return Promise.resolve();
+  }
+  if (!_codexScriptsPromise) {
+    _codexScriptsPromise = CODEX_SCRIPT_PATHS.reduce(function(chain, src) {
+      return chain.then(function() { return _loadScriptOnce(src); });
+    }, Promise.resolve()).catch(function(err) {
+      _codexScriptsPromise = null;
+      console.error('Codex script load error:', err);
+      throw err;
+    });
+  }
+  return _codexScriptsPromise;
+}
+
 function _ensureCodexMatrix(page, attempt) {
   attempt = attempt || 0;
   var wrap = page && page.querySelector('#codex-spirit-wrap');
   if (!wrap) return;
   if (typeof initCodexMatrix === 'function') {
     initCodexMatrix(wrap);
+    return;
+  }
+  if (attempt === 0) {
+    _ensureCodexScripts().then(function() { _ensureCodexMatrix(page, 1); }).catch(function() {});
     return;
   }
   if (attempt < 40) {
@@ -773,6 +844,10 @@ function _ensureCodexSpiral(page, attempt) {
   if (!root) return;
   if (typeof initCodexSpiral === 'function') {
     initCodexSpiral(root);
+    return;
+  }
+  if (attempt === 0) {
+    _ensureCodexScripts().then(function() { _ensureCodexSpiral(page, 1); }).catch(function() {});
     return;
   }
   if (attempt < 40) {
@@ -789,6 +864,10 @@ function _ensureCodexLearn(page, attempt) {
   if (!page) return;
   if (typeof initCodexLearn === 'function') {
     initCodexLearn(page);
+    return;
+  }
+  if (attempt === 0) {
+    _ensureCodexScripts().then(function() { _ensureCodexLearn(page, 1); }).catch(function() {});
     return;
   }
   if (attempt < 40) {

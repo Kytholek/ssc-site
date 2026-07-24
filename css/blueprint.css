@@ -680,48 +680,154 @@ html[data-theme='light'] body > #bp-node-card.bp-node-card {
 }
 
 .bp-cta {
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  max-width: 560px;
-  margin: 0 auto 64px;
-  padding: 32px 24px;
-  background: rgba(13, 11, 24, 0.7);
-  border: 1px solid rgba(201, 168, 76, 0.15);
-  border-radius: 8px;
+  max-width: 720px;
+  margin: 0 auto 54px;
+  padding: 42px 30px 38px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(126, 200, 200, 0.065), transparent 42%),
+    linear-gradient(135deg, rgba(18, 18, 24, 0.94), rgba(8, 9, 16, 0.9));
+  border: 1px solid rgba(192, 192, 216, 0.13);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24), inset 0 0 32px rgba(255, 255, 255, 0.012);
+}
+
+.bp-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(232, 201, 107, 0.14), transparent) top / 100% 1px no-repeat,
+    radial-gradient(circle at 50% 100%, rgba(126, 200, 200, 0.055), transparent 44%);
+}
+
+.bp-cta-eyebrow {
+  position: relative;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: rgba(126, 200, 200, 0.68);
+  margin-bottom: 12px;
 }
 
 .bp-cta h2 {
+  position: relative;
   font-family: 'Cormorant SC', serif;
-  font-size: 24px;
-  color: #e8c96b;
-  margin-bottom: 10px;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: rgba(232, 201, 107, 0.86);
+  margin-bottom: 12px;
+  text-shadow: 0 0 26px rgba(232, 201, 107, 0.12);
 }
 
 .bp-cta p {
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--text-dim, #9b9080);
-  margin-bottom: 18px;
+  position: relative;
+  font-size: 16px;
+  line-height: 1.75;
+  color: rgba(192, 192, 216, 0.62);
+  max-width: 560px;
+  margin: 0 auto 20px;
+}
+
+.bp-cta-chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.bp-cta-chips span {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(126, 200, 200, 0.72);
+  border: 1px solid rgba(126, 200, 200, 0.16);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(55, 138, 221, 0.035);
+}
+
+.bp-cta-actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 
 .bp-cta-btn {
+  position: relative;
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  padding: 14px 28px;
-  border-radius: 5px;
-  background: rgba(55, 138, 221, 0.15);
-  border: 1px solid rgba(126, 200, 200, 0.35);
-  color: rgba(126, 200, 200, 0.9);
+  padding: 15px 30px;
+  border-radius: 999px;
+  background: rgba(232, 201, 107, 0.065);
+  border: 1px solid rgba(232, 201, 107, 0.32);
+  color: rgba(232, 201, 107, 0.88);
   text-decoration: none;
   display: inline-block;
-  transition: background 0.2s, border-color 0.2s;
+  box-shadow: none;
+  transition: transform 0.2s ease, background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
 }
 
-.bp-cta-btn:hover {
-  background: rgba(55, 138, 221, 0.25);
-  border-color: rgba(126, 200, 200, 0.55);
-  color: #7ec8c8;
+.bp-cta-btn--primary:hover {
+  transform: translateY(-1px);
+  background: rgba(232, 201, 107, 0.11);
+  border-color: rgba(232, 201, 107, 0.52);
+  color: rgba(255, 238, 184, 0.96);
+  box-shadow: 0 0 22px rgba(232, 201, 107, 0.08);
+}
+
+.bp-cta-btn--secondary {
+  background: rgba(192, 192, 216, 0.028);
+  border-color: rgba(126, 200, 200, 0.2);
+  color: rgba(126, 200, 200, 0.76);
+  box-shadow: none;
+}
+
+.bp-cta-btn--secondary:hover {
+  transform: translateY(-1px);
+  background: rgba(55, 138, 221, 0.08);
+  border-color: rgba(126, 200, 200, 0.42);
+  color: rgba(158, 231, 231, 0.9);
+  box-shadow: 0 0 18px rgba(126, 200, 200, 0.08);
+}
+
+@media (max-width: 640px) {
+  .bp-cta {
+    margin: 0 16px 44px;
+    padding: 32px 18px 30px;
+  }
+
+  .bp-cta-eyebrow {
+    letter-spacing: 0.28em;
+  }
+
+  .bp-cta p {
+    font-size: 15px;
+  }
+
+  .bp-cta-actions {
+    flex-direction: column;
+  }
+
+  .bp-cta-btn {
+    width: 100%;
+    max-width: 320px;
+    padding-inline: 18px;
+    letter-spacing: 0.22em;
+  }
 }
 
 @media (max-height: 620px) {

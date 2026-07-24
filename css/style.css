@@ -4235,6 +4235,7 @@ footer {
   transition: transform .35s, box-shadow .35s, border-color .35s;
   backdrop-filter: blur(6px);
 }
+.svc-card[id] { scroll-margin-top: 96px; }
 
 /* Top gradient line */
 .svc-card::before {

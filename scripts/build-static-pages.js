@@ -122,7 +122,7 @@ function staticShell(opts) {
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
-    coreScripts.push('<script defer src="/js/calculator.js?v=20260723-ux"></script>');
+    coreScripts.push('<script defer src="/js/calculator.js?v=20260723-result-polish"></script>');
   }
 
   return `<!DOCTYPE html>
@@ -175,7 +175,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js"></script>
+<script defer src="/js/app.js?v=20260723-codex-lazy2"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -268,7 +268,7 @@ function buildBlueprint() {
     canonical: SEO.SITE_ORIGIN + '/blueprint/',
     jsonLd: blueprintJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css', '/css/blueprint.css'],
+    extraStyles: ['/css/brand-revamp.css', '/css/blueprint.css?v=20260723-softcta'],
     dataModule: '/js/blueprint-data.js',
     includeCalculator: false,
     extraScripts: [

@@ -460,6 +460,7 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
     ? '<div class="ssc-ess" style="font-family:\'Cinzel\',serif;letter-spacing:.14em;text-transform:uppercase;color:' + accentDim + ';margin-bottom:10px">' + displayEssence + '</div>'
     : '';
   var displayNum  = hasCompound ? compound + '/' + n : n;
+  var extraClass  = opts.extraClass ? ' ' + opts.extraClass : '';
   var compoundHtml = (hasCompound && COMPOUND_DESC[compound])
     ? '<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);position:relative">'
       + '<div style="font-family:\'Cinzel\',serif;font-size:9px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:' + accentLight + ';margin-bottom:8px;text-shadow:0 0 12px rgba(201,168,76,0.2)">◈&nbsp;&nbsp;Compound Frequency · ' + compound + '&nbsp;&nbsp;◈</div>'
@@ -472,7 +473,7 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
       + '</div>'
     : '';
 
-  return '<div class="ssc-fc" style="' + borderStyle + ';min-width:0;box-sizing:border-box">'
+  return '<div class="ssc-fc' + extraClass + '" style="' + borderStyle + ';min-width:0;box-sizing:border-box">'
     + codexHtml
     + '<div class="ssc-fn" style="font-family:\'Cinzel Decorative\',serif;color:' + accent + ';line-height:1;margin-bottom:10px">' + displayNum + '</div>'
     + '<div class="ssc-role" style="font-family:\'Cinzel\',serif;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px">' + role + '</div>'
@@ -495,7 +496,8 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
       accentLight: opts.accentLight,
       showCodex:   c[4] || opts.showCodex || false,
       isLast:      idx === cards.length - 1,
-      compound:    c[3]
+      compound:    c[3],
+      extraClass:  c[5] || ''
     });
   }).join('');
 
@@ -750,21 +752,21 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const lessonsBlock = buildTrinitySection(
     'of Lessons', 'Achievement · Theme · Life Path',
     'rgba(74,148,148,0.22)', 'rgba(8,20,20,0.65)',
-    [[achieve.root, 'ach', 5, achieve.compound], [theme.root, 'theme', 6, theme.compound], [lp.root, 'lp', 0, lp.compound, true]],
+    [[achieve.root, 'ach', 5, achieve.compound], [theme.root, 'theme', 6, theme.compound], [lp.root, 'lp', 0, lp.compound]],
     { accent: '#7ec8c8', accentDim: 'rgba(126,200,200,0.4)', accentLight: '#7ec8c8' }
   );
 
   const expressionBlock = buildTrinitySection(
     'of Expression', 'Soul · Outer · Expression',
     'rgba(123,79,166,0.22)', 'rgba(18,11,26,0.65)',
-    [[soul.root, 'soul', 3, soul.compound], [outer.root, 'outer', 4, outer.compound], [exp.root, 'ex', 1, exp.compound, true]],
+    [[soul.root, 'soul', 3, soul.compound], [outer.root, 'outer', 4, outer.compound], [exp.root, 'ex', 1, exp.compound]],
     { accent: '#c898f0', accentDim: 'rgba(169,110,212,0.4)', accentLight: '#c898f0' }
   );
 
   const purposeBlock = buildTrinitySection(
     'of Purpose', 'Expression · Life Path · Life Calling',
     'rgba(201,168,76,0.22)', 'rgba(26,20,8,0.65)',
-    [[exp.root, 'ex', 1, exp.compound, true], [lp.root, 'lp', 0, lp.compound, true], [calling.root, null, 2, calling.compound, true]],
+    [[exp.root, 'ex', 1, exp.compound, true, 'ssc-fc--purpose-anchor'], [lp.root, 'lp', 0, lp.compound, true, 'ssc-fc--purpose-anchor'], [calling.root, null, 2, calling.compound, true]],
     { accent: '#e8c96b', accentDim: 'rgba(201,168,76,0.4)', accentLight: '#e8c96b' }
   );
 
@@ -799,6 +801,10 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-core-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
       .ssc-core-num { font-family:'Cinzel Decorative',serif; font-size:34px; color:var(--gold-light); line-height:1; margin-bottom:8px; }
       .ssc-core-meta { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-dim); font-style:italic; }
+      .ssc-fc--purpose-anchor { position:relative; background:linear-gradient(180deg, rgba(201,168,76,.055), rgba(13,11,24,.18)); box-shadow:inset 0 0 0 1px rgba(201,168,76,.13); }
+      .ssc-fc--purpose-anchor::before { content:''; position:absolute; top:0; left:18px; right:18px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,.55), transparent); }
+      .ssc-fc--purpose-anchor .ssc-fn { color:var(--gold-light) !important; text-shadow:0 0 24px rgba(201,168,76,.22); }
+      .ssc-fc--purpose-anchor .ssc-role { color:rgba(232,201,107,.68) !important; }
       @media (min-width: 680px) {
         .ssc-rw  { max-width: 1100px; margin: 0 auto; }
         .ssc-fc  { padding: 28px 22px !important; }
@@ -948,17 +954,17 @@ function buildResultHook(firstName, lp, exp, calling) {
       animation: sscFadeIn 0.8s ease 1.6s forwards;
     ">
     <div style="
-      background: linear-gradient(135deg, rgba(13,11,24,0.9), rgba(17,15,31,0.8));
-      border: 1px solid rgba(201,168,76,0.18);
-      border-left: 3px solid rgba(201,168,76,0.45);
-      border-radius: 8px;
-      padding: 28px 24px;
+      background: linear-gradient(135deg, rgba(13,11,24,0.92), rgba(8,20,20,0.72));
+      border: 1px solid rgba(126,200,200,0.16);
+      border-radius: 12px;
+      padding: 26px 24px 24px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 18px 56px rgba(0,0,0,0.22), inset 0 0 26px rgba(255,255,255,0.012);
     ">
       <div style="
         position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+        background: linear-gradient(90deg, transparent, rgba(126,200,200,0.38), rgba(201,168,76,0.2), transparent);
       "></div>
 
       <div style="
@@ -966,23 +972,28 @@ function buildResultHook(firstName, lp, exp, calling) {
         font-size: 8px;
         letter-spacing: .4em;
         text-transform: uppercase;
-        color: var(--gold-dim);
-        margin-bottom: 14px;
-      ">&#10022; &nbsp; What This Means For You</div>
+        color: rgba(126,200,200,0.72);
+        margin-bottom: 16px;
+        padding: 9px 12px;
+        border: 1px solid rgba(126,200,200,0.12);
+        border-radius: 999px;
+        background: rgba(126,200,200,0.035);
+        display: inline-block;
+      ">What This Means For You</div>
 
       <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
-        ${firstName}, your <strong style="color:var(--gold-light)">${lp} Life Path</strong> means you will
+        ${firstName}, your <strong style="color:rgba(232,201,107,0.92)">${lp} Life Path</strong> means you will
         ${friction}. This is not bad luck — it is the curriculum your simulation is running.
       </p>
 
       <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
-        At the same time, your <strong style="color:var(--gold-light)">${exp} Expression</strong> means you are
+        At the same time, your <strong style="color:rgba(232,201,107,0.92)">${exp} Expression</strong> means you are
         ${expression}. The tension between what life presents and what you are built to express
         is the engine of your growth.
       </p>
 
       <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim);">
-        Your <strong style="color:var(--gold-light)">${calling} Life Calling</strong> is where these two circuits
+        Your <strong style="color:rgba(232,201,107,0.92)">${calling} Life Calling</strong> is where these two circuits
         converge into a single directive. Understanding it — the compound story, the shadow,
         the integration — is what the Complete Blueprint covers in full.
       </p>
@@ -990,12 +1001,12 @@ function buildResultHook(firstName, lp, exp, calling) {
       <div style="
         margin-top: 20px;
         padding-top: 18px;
-        border-top: 1px solid rgba(201,168,76,0.08);
+        border-top: 1px solid rgba(126,200,200,0.1);
         font-family: 'Cinzel', serif;
         font-size: 9px;
         letter-spacing: .25em;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: rgba(192,192,216,0.62);
       ">Your Complete Blueprint reveals the full story of each number above.</div>
     </div>
     </div>

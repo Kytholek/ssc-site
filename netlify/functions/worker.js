@@ -89,13 +89,53 @@ function escapeHtml(value) {
   }[ch]));
 }
 
+function isReadingHeading(line) {
+  return /^(Your Simulation Source Code Calculator Reading|Core Results|Trinity of .+|What This Means For You)$/.test(line)
+    || /^(Life Path|Expression|Life Calling|Soul|Outer|Achievement|Theme) \d/.test(line);
+}
+
+function formatEmailLine(line) {
+  return escapeHtml(line).replace(
+    /^(Reading for|Birth Date|Life Path|Expression|Life Calling):/,
+    '<strong>$1:</strong>'
+  );
+}
+
 function plainTextToEmailHtml(value) {
   const text = String(value || '').trim();
   if (!text) return '';
   return text
     .split(/\n{2,}/)
-    .map(paragraph => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br>')}</p>`)
+    .map(paragraph => {
+      const lines = paragraph.split('\n').map(line => line.trim()).filter(Boolean);
+      if (!lines.length) return '';
+
+      if (lines.length === 1 && isReadingHeading(lines[0])) {
+        return `<p><strong>${escapeHtml(lines[0])}</strong></p>`;
+      }
+
+      if (isReadingHeading(lines[0])) {
+        return `<p><strong>${escapeHtml(lines[0])}</strong><br>${lines.slice(1).map(formatEmailLine).join('<br>')}</p>`;
+      }
+
+      return `<p>${lines.map(formatEmailLine).join('<br>')}</p>`;
+    })
     .join('');
+}
+
+function buildCalculatorEmailCtaHtml() {
+  return `
+    <div style="margin-top:28px;padding:20px;border:1px solid rgba(201,168,76,0.25);border-radius:10px;background:#0d0b18;">
+      <p style="margin:0 0 10px;"><strong>Want the expanded version?</strong></p>
+      <p style="margin:0 0 14px;">The complete guidebook expands all seven frequencies, shadow patterns, compound meanings, and your Life Calling directive into a full written report.</p>
+      <p style="margin:0 0 10px;">
+        <a href="https://simulationsourcecode.com/services/#guidebook" style="color:#c9a84c;font-weight:bold;">Unlock the complete guidebook</a>
+      </p>
+      <p style="margin:0;">
+        <a href="https://simulationsourcecode.com/sample-guidebook.html" style="color:#c9a84c;">View a sample guidebook</a>
+      </p>
+    </div>
+  `;
 }
 
 async function logPurchaseEmail(email) {
@@ -1363,7 +1403,7 @@ async function handleSubmitEmail(request, env, origin) {
     });
   }
 
-  let sheetPayload = { email, source };
+  let sheetPayload = { email, source, origin: source };
   let calculatorEmailData = null;
 
   if (source === 'calculator') {
@@ -1398,6 +1438,7 @@ async function handleSubmitEmail(request, env, origin) {
     sheetPayload = {
       email,
       source,
+      origin: source,
       name: userData.fullName,
       full_name: userData.fullName,
       birthDate,
@@ -1438,6 +1479,7 @@ async function handleSubmitEmail(request, env, origin) {
     const html = source === 'calculator'
       ? `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
          ${calculatorReadingHtml || `<p><strong>Reading for:</strong> ${escapeHtml(calculatorEmailData?.name)}<br><strong>Birth Date:</strong> ${escapeHtml(calculatorEmailData?.birthDate)}<br><strong>Life Path:</strong> ${escapeHtml(calculatorEmailData?.lifePath)}<br><strong>Expression:</strong> ${escapeHtml(calculatorEmailData?.expression)}<br><strong>Life Calling:</strong> ${escapeHtml(calculatorEmailData?.lifeCalling)}</p>`}
+         ${buildCalculatorEmailCtaHtml()}
          <p>— Kytholek</p>`
       : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
 

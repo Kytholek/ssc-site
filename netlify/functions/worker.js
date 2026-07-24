@@ -125,14 +125,12 @@ function plainTextToEmailHtml(value) {
 
 function buildCalculatorEmailCtaHtml() {
   return `
-    <div style="margin-top:28px;padding:20px;border:1px solid rgba(201,168,76,0.25);border-radius:10px;background:#0d0b18;">
-      <p style="margin:0 0 10px;"><strong>Want the expanded version?</strong></p>
-      <p style="margin:0 0 14px;">The complete guidebook expands all seven frequencies, shadow patterns, compound meanings, and your Life Calling directive into a full written report.</p>
-      <p style="margin:0 0 10px;">
-        <a href="https://simulationsourcecode.com/services/#guidebook" style="color:#c9a84c;font-weight:bold;">Unlock the complete guidebook</a>
-      </p>
-      <p style="margin:0;">
-        <a href="https://simulationsourcecode.com/sample-guidebook.html" style="color:#c9a84c;">View a sample guidebook</a>
+    <div style="margin-top:28px;padding:22px 20px;border:1px solid rgba(201,168,76,0.35);border-radius:10px;background:#141125;text-align:center;color:#e8dfc8;">
+      <p style="margin:0 0 10px;color:#fff3cf;"><strong>Want the expanded version?</strong></p>
+      <p style="margin:0 0 18px;color:#e8dfc8;">The complete guidebook expands all seven frequencies, shadow patterns, compound meanings, and your Life Calling directive into a full written report.</p>
+      <p style="margin:0;text-align:center;">
+        <a href="https://simulationsourcecode.com/services/#guidebook" style="display:inline-block;margin:0 6px 8px;padding:10px 14px;border:1px solid rgba(201,168,76,0.55);border-radius:6px;color:#fff3cf;font-weight:bold;text-decoration:none;">Unlock the complete guidebook</a>
+        <a href="https://simulationsourcecode.com/sample-guidebook.html" style="display:inline-block;margin:0 6px 8px;padding:10px 14px;border:1px solid rgba(201,168,76,0.35);border-radius:6px;color:#fff3cf;text-decoration:none;">View a sample guidebook</a>
       </p>
     </div>
   `;
@@ -1462,7 +1460,7 @@ async function handleSubmitEmail(request, env, origin) {
 
   // Log email to Google Sheet (home page signups and calculator leads)
   try {
-    await fetch('https://script.google.com/macros/s/AKfycbxxucjttdTVhXaOsLW2PAbwQT1dNoNOnCT8xIYWwG07zLDC_Oy-7K9egqkkm7o3wT3QAQ/exec', {
+    await fetch('https://script.google.com/macros/s/AKfycby4as7NPJliyQDm-5lpJM1RjtgVMNMuudlYqfAKeSJj1drKi54yi3HVU3dREWL8lpsLVg/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sheetPayload),

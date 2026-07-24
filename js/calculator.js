@@ -563,6 +563,11 @@ function calculateReading() {
   const yearEl  = document.getElementById('calc-year');
   const nameEl  = document.getElementById('calc-fullname');
 
+  if (!monthEl || !dayEl || !yearEl || !nameEl) {
+    console.warn('Calculator form is not available yet.');
+    return;
+  }
+
   const month = parseInt(monthEl.value);
   const day   = parseInt(dayEl.value);
   const year  = parseInt(yearEl.value);

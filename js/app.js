@@ -972,10 +972,13 @@ window.closePosts  = closePosts;
 
 
 // ────────────────────────────────────────────────────────────
-//  FALLBACK for calc button
+//  Calculator button binding
 // ────────────────────────────────────────────────────────────
 document.addEventListener('click', e => {
-  if (e.target?.classList.contains('calc-btn')) calculateReading();
+  const btn = e.target?.closest?.('.calc-btn');
+  if (!btn || typeof window.calculateReading !== 'function') return;
+  e.preventDefault();
+  window.calculateReading();
 });
 
 

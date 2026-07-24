@@ -1429,6 +1429,7 @@ async function handleSubmitEmail(request, env, origin) {
     );
 
     const birthDate = `${userData.birthMonth}/${userData.birthDay}/${userData.birthYear}`;
+    const firstName = userData.fullName.trim().split(/\s+/)[0] || userData.fullName;
     const lifePath = body.life_path ?? body.lifePath ?? frequencies.lifePath;
     const expression = body.expression ?? frequencies.expression;
     const lifeCalling = body.life_calling ?? body.lifeCalling ?? body.destiny ?? frequencies.destiny;
@@ -1437,6 +1438,8 @@ async function handleSubmitEmail(request, env, origin) {
       email,
       source,
       origin: source,
+      firstName,
+      first_name: firstName,
       name: userData.fullName,
       full_name: userData.fullName,
       birthDate,
@@ -1449,6 +1452,7 @@ async function handleSubmitEmail(request, env, origin) {
       destiny: lifeCalling,
     };
     calculatorEmailData = {
+      firstName,
       name: userData.fullName,
       birthDate,
       lifePath,

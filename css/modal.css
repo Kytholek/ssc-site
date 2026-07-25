@@ -141,7 +141,7 @@ button.svc-cta {
 .modal-calculator-subtitle {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 14px;
-  font-style: italic;
+  font-style: normal;
   color: var(--text-dim);
   line-height: 1.5;
   margin: 0;

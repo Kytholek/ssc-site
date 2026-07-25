@@ -3657,7 +3657,7 @@ footer {
 .svc-testimonial-text {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 16px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1.8;
   color: var(--text-dim);
   margin-bottom: 16px;
@@ -3679,22 +3679,29 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  padding: 20px 0;
+  margin-bottom: 8px;
+  border-top: 1px solid rgba(201,168,76,.08);
+}
+.svc-google-reviews-wrap .svc-testimonials-rating {
   padding: 20px 0 8px;
+  margin-bottom: 0;
+  border-bottom: none;
   border-top: 1px solid rgba(201,168,76,.08);
 }
 
 .svc-rating-stars {
   color: var(--gold);
-  font-size: 16px;
-  letter-spacing: 3px;
+  font-size: 22px;
+  letter-spacing: 4px;
 }
 
 .svc-rating-text {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: .2em;
+  font-size: 14px;
+  letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 .svc-rating-link {
@@ -4206,6 +4213,17 @@ footer {
    ══════════════════════════════════════════════════════════ */
 
 /* ── Hero ── */
+/* Services page: keep body copy upright for readability */
+#page-services .services-hero-body,
+#page-services .svc-card-tagline,
+#page-services .svc-testimonial-text,
+#page-services .svc-quote-text,
+#page-services .modal-calculator-subtitle,
+#page-services em,
+#page-services i {
+  font-style: normal;
+}
+
 .services-hero {
   text-align: center;
   padding: 60px 24px 32px;
@@ -4224,11 +4242,37 @@ footer {
 .services-hero-body {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 18px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1.8;
   color: var(--text-dim);
   max-width: 540px;
   margin: 0 auto;
+}
+
+.services-hero-links {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px 14px;
+}
+.services-hero-links--footer {
+  margin: 8px auto 28px;
+  padding: 0 24px;
+}
+.services-hero-links a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.services-hero-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.services-hero-sep {
+  opacity: 0.45;
 }
 
 /* ── Divider ── */
@@ -4239,16 +4283,60 @@ footer {
 
 /* ── Grid wrapper ── */
 .svc-grid-wrap {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 40px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.svc-row {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.svc-row-head {
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.svc-row-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0 0 10px;
+}
+
+.svc-row-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--gold-light);
+  letter-spacing: .04em;
+  margin: 0;
+  line-height: 1.2;
 }
 
 .svc-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 24px;
   align-items: stretch;
+}
+
+.svc-grid.svc-grid--three {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+}
+
+.svc-grid.svc-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 420px));
+  justify-content: center;
 }
 
 /* ── Card base ── */
@@ -4260,7 +4348,7 @@ footer {
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  transition: transform .35s, box-shadow .35s, border-color .35s;
+  transition: transform .3s, box-shadow .3s, border-color .3s;
   backdrop-filter: blur(6px);
 }
 .svc-card[id] { scroll-margin-top: 96px; }
@@ -4276,63 +4364,174 @@ footer {
 }
 
 .svc-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(201,168,76,.08);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(201,168,76,.06);
 }
 
 /* ── Written card — gold accent ── */
 .svc-card--written {
   border-color: rgba(201,168,76,.18);
-  box-shadow: 0 0 28px rgba(201,168,76,.08), 0 0 60px rgba(201,168,76,.04);
+  box-shadow: 0 0 20px rgba(201,168,76,.06);
 }
 .svc-card--written:hover {
-  border-color: rgba(201,168,76,.45);
-  box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 40px rgba(201,168,76,.18), 0 0 80px rgba(201,168,76,.08);
+  border-color: rgba(201,168,76,.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 0 28px rgba(201,168,76,.14);
+}
+
+/* ── Primary guidebook — center, larger, raised ── */
+.svc-card.svc-card--written.svc-card--primary {
+  z-index: 2;
+  border-color: rgba(74,148,148,.45);
+  background: linear-gradient(165deg, rgba(10,22,22,.95), rgba(13,11,24,.92));
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.5),
+    0 0 36px rgba(74,148,148,.28),
+    0 0 72px rgba(74,148,148,.12);
+  transition: top .3s, box-shadow .3s, border-color .3s;
+}
+.svc-card.svc-card--written.svc-card--primary:hover {
+  border-color: rgba(126,200,200,.55);
+  box-shadow:
+    0 24px 56px rgba(0,0,0,.55),
+    0 0 48px rgba(74,148,148,.38),
+    0 0 90px rgba(74,148,148,.16);
+}
+.svc-card--primary::before {
+  background: linear-gradient(90deg, transparent, var(--teal-light), transparent);
+  opacity: 0.75;
+}
+.svc-card--primary .svc-price-amount {
+  font-size: 52px;
+  text-shadow: 0 0 40px rgba(74,148,148,.35);
+}
+.svc-card--primary .svc-card-name {
+  font-size: clamp(18px, 2.2vw, 22px);
+}
+
+@media (min-width: 1025px) {
+  /* Use top (not transform) so fadeUp fill-mode doesn't cancel the raise */
+  .svc-grid--three .svc-card--primary {
+    top: -14px;
+    padding-bottom: 4px;
+  }
+  .svc-grid--three .svc-card--primary:hover {
+    top: -18px;
+  }
 }
 
 /* ── Featured card (consultation) ── */
 .svc-card--featured {
-  border-color: rgba(169,110,212,.3);
-  background: rgba(17,11,28,.9);
-  box-shadow: 0 0 32px rgba(123,79,166,.18), 0 0 80px rgba(123,79,166,.08), inset 0 0 30px rgba(123,79,166,.03);
+  border-color: rgba(169,110,212,.22);
+  background: rgba(17,11,28,.88);
+  box-shadow: 0 0 18px rgba(123,79,166,.1);
 }
 .svc-card--featured::before {
   background: linear-gradient(90deg, transparent, var(--amethyst), transparent);
-  opacity: 0.4;
+  opacity: 0.28;
 }
 .svc-card--featured:hover {
-  border-color: rgba(169,110,212,.65);
-  box-shadow: 0 24px 64px rgba(0,0,0,.6), 0 0 60px rgba(123,79,166,.35), 0 0 120px rgba(123,79,166,.12);
+  border-color: rgba(169,110,212,.42);
+  box-shadow: 0 16px 40px rgba(0,0,0,.5), 0 0 28px rgba(123,79,166,.16);
 }
 
-/* Featured badge */
+/* Featured badge — quieter so Consultation doesn't rival Guidebook */
 .svc-featured-badge {
   position: absolute;
   top: -1px; left: 50%;
   transform: translateX(-50%);
   font-family: 'Cinzel', serif;
-  font-size: 7px;
-  letter-spacing: .3em;
+  font-size: 6px;
+  letter-spacing: .28em;
   text-transform: uppercase;
-  color: var(--void);
-  background: linear-gradient(135deg, var(--amethyst), var(--amethyst-light));
-  padding: 5px 18px;
-  border-radius: 0 0 6px 6px;
+  color: rgba(245,240,255,.85);
+  background: rgba(123,79,166,.55);
+  padding: 4px 12px;
+  border-radius: 0 0 5px 5px;
   white-space: nowrap;
   z-index: 2;
+  opacity: 0.72;
 }
 
 /* ── Membership card — teal accent ── */
 .svc-card--membership {
   border-color: rgba(74,148,148,.22);
-  box-shadow: 0 0 28px rgba(74,148,148,.09), 0 0 60px rgba(74,148,148,.04);
+  box-shadow: 0 0 20px rgba(74,148,148,.07);
 }
 .svc-card--membership:hover {
-  border-color: rgba(74,148,148,.5);
-  box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 40px rgba(74,148,148,.22), 0 0 80px rgba(74,148,148,.08);
+  border-color: rgba(74,148,148,.45);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45), 0 0 28px rgba(74,148,148,.16);
 }
 
-/* ── Coming Soon Banner ── */
+/* ── Coming soon cards — quiet offshoots; solidify on hover ── */
+.svc-card--soon {
+  border-color: rgba(201,168,76,.08);
+  background: rgba(13,11,24,.45);
+  /* Kill fadeUp fill so opacity can animate (animation locks opacity otherwise) */
+  animation: none;
+  opacity: 0.42;
+  transition: opacity .35s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.svc-card--soon:hover {
+  transform: none;
+  border-color: rgba(201,168,76,.22);
+  background: rgba(13,11,24,.85);
+  box-shadow: none;
+  opacity: 1;
+}
+.svc-card--soon .svc-card-glyph,
+.svc-card--soon .svc-glyph-icon {
+  opacity: 0.55;
+  transition: opacity .35s ease;
+}
+.svc-card--soon:hover .svc-card-glyph,
+.svc-card--soon:hover .svc-glyph-icon {
+  opacity: 1;
+}
+.svc-card--soon .svc-feature {
+  color: var(--text-muted);
+}
+.svc-card--soon .svc-feature-gem {
+  opacity: 0.45;
+}
+.svc-soon-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: 'Cinzel', serif;
+  font-size: 6.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(126,200,200,.7);
+  border: 1px solid rgba(126,200,200,.18);
+  background: rgba(8,20,20,.4);
+  padding: 4px 9px;
+  border-radius: 999px;
+  z-index: 2;
+  opacity: 0.85;
+}
+.svc-price-amount--soon {
+  font-size: 32px;
+  color: var(--text-muted);
+  text-shadow: none;
+  opacity: 0.85;
+}
+.svc-cta--soon,
+.svc-cta--soon:disabled {
+  background: rgba(255,255,255,.02);
+  color: rgba(160,155,170,.55);
+  border: 1px solid rgba(255,255,255,.05);
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.svc-cta--soon:hover {
+  transform: none;
+  filter: none;
+  box-shadow: none;
+}
+
+/* Legacy coming-soon overlay kept for older markup */
 .svc-coming-soon-banner {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -4419,7 +4618,7 @@ footer {
 .svc-card-tagline {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 15px;
-  font-style: italic;
+  font-style: normal;
   color: var(--text-dim);
   line-height: 1.5;
 }
@@ -4449,7 +4648,7 @@ footer {
 }
 .svc-price-amount {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 52px;
+  font-size: 46px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: -.01em;
@@ -4536,6 +4735,8 @@ footer {
 
 .svc-cta {
   display: block;
+  width: fit-content;
+  max-width: 100%;
   font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: .28em;
@@ -4546,7 +4747,7 @@ footer {
   transition: all .3s;
   text-decoration: none;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin: 0 auto 12px;
 }
 
 .svc-cta--gold {
@@ -4558,6 +4759,17 @@ footer {
   box-shadow: 0 4px 28px rgba(201,168,76,.4);
   transform: translateY(-2px);
   filter: brightness(1.08);
+}
+
+/* Guidebook CTA — loudest action in the written row */
+#guidebook .svc-cta--gold {
+  font-size: 10px;
+  letter-spacing: .3em;
+  padding: 16px 28px;
+  box-shadow: 0 6px 28px rgba(201,168,76,.32);
+}
+#guidebook .svc-cta--gold:hover {
+  box-shadow: 0 8px 36px rgba(201,168,76,.45);
 }
 
 .svc-cta--amethyst {
@@ -4589,21 +4801,46 @@ footer {
   text-transform: uppercase;
   color: var(--text-muted);
 }
+.svc-delivery-note a {
+  color: var(--gold-dim);
+  text-decoration: none;
+}
+.svc-delivery-note a:hover {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* ── Bottom quote ── */
 .svc-quote-wrap {
   padding: 0 24px 80px;
 }
 
+#svc-faq {
+  scroll-margin-top: 96px;
+}
+
 /* ── Responsive ── */
-@media (max-width: 900px) {
-  .svc-grid {
+@media (max-width: 1024px) {
+  .svc-grid--three {
     grid-template-columns: 1fr;
-    max-width: 480px;
+    max-width: 460px;
     margin: 0 auto;
+    align-items: stretch;
   }
-  .svc-card--featured {
-    order: -1;
+  .svc-grid--three #guidebook { order: -3; }
+  .svc-grid--three #couples { order: -2; }
+  .svc-grid--three #season { order: -1; }
+  .svc-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .svc-grid-wrap { gap: 48px; }
+  .svc-grid--two {
+    grid-template-columns: 1fr;
+    max-width: 460px;
+    margin: 0 auto;
   }
 }
 @media (max-width: 480px) {
@@ -4612,6 +4849,8 @@ footer {
   .svc-features { padding: 0 20px; }
   .svc-card-footer { padding: 20px 20px 28px; }
   .svc-price-amount { font-size: 42px; }
+  .svc-card--primary .svc-price-amount { font-size: 48px; }
+  .svc-price-amount--soon { font-size: 30px; }
 }
 
 /* ── CSS Glyph Icons (replaces inline SVG to avoid innerHTML parser issues) ── */
@@ -4697,6 +4936,60 @@ footer {
 .svc-glyph-node--tr { width:9px;height:9px;background:rgba(74,148,148,.15);border:1px solid rgba(74,148,148,.75);top:6px;right:6px;  box-shadow:0 0 6px rgba(74,148,148,.45); }
 .svc-glyph-node--bl { width:9px;height:9px;background:rgba(74,148,148,.15);border:1px solid rgba(74,148,148,.75);bottom:6px;left:6px; box-shadow:0 0 6px rgba(74,148,148,.45); }
 .svc-glyph-node--br { width:9px;height:9px;background:rgba(74,148,148,.15);border:1px solid rgba(74,148,148,.75);bottom:6px;right:6px;box-shadow:0 0 6px rgba(74,148,148,.45); }
+
+/* Couples icon — two linked nodes */
+.svc-glyph-icon--couples {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+.svc-glyph-pair {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201,168,76,.75);
+  background: rgba(201,168,76,.08);
+  top: 50%;
+  box-shadow: 0 0 8px rgba(201,168,76,.35);
+}
+.svc-glyph-pair--a { left: 10px; transform: translateY(-50%); }
+.svc-glyph-pair--b { right: 10px; transform: translateY(-50%); }
+.svc-glyph-icon--couples::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  right: 22px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201,168,76,.55), rgba(201,168,76,.2), rgba(201,168,76,.55));
+  transform: translateY(-50%);
+}
+
+/* Season / time icon — orbit */
+.svc-glyph-icon--season {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+.svc-glyph-orbit {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201,168,76,.55);
+  box-shadow: 0 0 10px rgba(201,168,76,.2);
+}
+.svc-glyph-orbit-node {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: rgba(201,168,76,.85);
+  box-shadow: 0 0 8px rgba(201,168,76,.55);
+}
 
 /* ── Fix: ensure card content stacks above ::before pseudo-element ── */
 .svc-card-header,
@@ -4853,7 +5146,7 @@ footer {
 .svc-quote-text {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 20px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1.75;
   color: var(--text-dim);
   margin-bottom: 16px;

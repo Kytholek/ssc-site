@@ -1296,7 +1296,7 @@ var MODAL_PRODUCT_COPY = {
   },
   'time-cycle': {
     title: 'Your Details',
-    subtitle: "We'll map your current time cycles and email the PDF.",
+    subtitle: "We'll build your 3-month forecast and email the PDF.",
     emailLabel: 'Where shall we send your Time Cycle?',
     btnLabel: 'Get My $17 Time Cycle',
     eventName: 'timecycle_checkout_start'

@@ -21,7 +21,7 @@ const PRODUCT_CONFIG = {
     id: 'time-cycle',
     priceCents: 1700,
     stripeName: 'SSC Time Cycle Report',
-    stripeDescription: 'Your spiral timing map — current pinnacle, 9-year epoch, personal year, 4-month window, and personal month with actions to maximize each period. Delivered as a PDF.',
+    stripeDescription: 'Your 3-month spiral forecast — month-by-month plan plus current pinnacle, year, and season timing with actions to maximize each period. Delivered as a PDF.',
     successProduct: 'time-cycle',
   },
 };

@@ -17,3 +17,7 @@ node_modules/
 
 .vercel
 .env*.local
+
+# Local product previews
+sample-time-cycle.html
+

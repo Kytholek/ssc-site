@@ -1284,8 +1284,41 @@ window.applyLanguage = applyLanguage;
 // ════════════════════════════════════════════════════════════
 
 var MODAL_CHECKOUT_BTN_LABEL = 'Get My $22 Guidebook';
+var MODAL_PRODUCT = 'guidebook';
 
-function openCalculatorModal() {
+var MODAL_PRODUCT_COPY = {
+  guidebook: {
+    title: 'Your Details',
+    subtitle: "We'll send your guidebook to your inbox.",
+    emailLabel: 'Where shall we send your guidebook?',
+    btnLabel: 'Get My $22 Guidebook',
+    eventName: 'guidebook_checkout_start'
+  },
+  'time-cycle': {
+    title: 'Your Details',
+    subtitle: "We'll map your current time cycles and email the PDF.",
+    emailLabel: 'Where shall we send your Time Cycle?',
+    btnLabel: 'Get My $17 Time Cycle',
+    eventName: 'timecycle_checkout_start'
+  }
+};
+
+function openCalculatorModal(product) {
+  MODAL_PRODUCT = (product === 'time-cycle') ? 'time-cycle' : 'guidebook';
+  var copy = MODAL_PRODUCT_COPY[MODAL_PRODUCT] || MODAL_PRODUCT_COPY.guidebook;
+  var titleEl = document.getElementById('modal-calculator-title');
+  var subEl = document.getElementById('modal-calculator-subtitle');
+  var labelEl = document.getElementById('modal-unlock-email-label');
+  var btn = document.getElementById('modal-unlock-pay-btn');
+  if (titleEl) titleEl.textContent = copy.title;
+  if (subEl) subEl.textContent = copy.subtitle;
+  if (labelEl) labelEl.textContent = copy.emailLabel;
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = copy.btnLabel;
+  }
+  MODAL_CHECKOUT_BTN_LABEL = copy.btnLabel;
+
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay) overlay.classList.add('open');
   setTimeout(function() {
@@ -1298,6 +1331,7 @@ function closeCalculatorModal() {
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay) overlay.classList.remove('open');
   resetCalculatorModal();
+  MODAL_PRODUCT = 'guidebook';
 }
 
 function initServicesPage() {
@@ -1439,18 +1473,21 @@ function handleUnlockPaymentModal() {
 
   if (errorEl) errorEl.textContent = '';
 
+  var product = MODAL_PRODUCT || 'guidebook';
+  var copy = MODAL_PRODUCT_COPY[product] || MODAL_PRODUCT_COPY.guidebook;
   var userPayload = {
     email:    email,
     name:     nameVal,
     month:    monthVal,
     day:      dayVal,
     year:     yearVal,
+    product:  product
   };
 
   try {
     sessionStorage.setItem('ssc_pending_order', JSON.stringify(userPayload));
   } catch(e) {}
-  trackSscEvent('guidebook_checkout_start', { source: 'services_modal' });
+  trackSscEvent(copy.eventName || 'guidebook_checkout_start', { source: 'services_modal', product: product });
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
@@ -1465,11 +1502,12 @@ function handleUnlockPaymentModal() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      email:  email,
-      name:   nameVal,
-      month:  monthVal,
-      day:    dayVal,
-      year:   yearVal
+      email:   email,
+      name:    nameVal,
+      month:   monthVal,
+      day:     dayVal,
+      year:    yearVal,
+      product: product
     })
   })
   .then(response => {
@@ -1488,7 +1526,7 @@ function handleUnlockPaymentModal() {
   .then(data => {
     console.log('Checkout response:', data);
     if (data.success) {
-      window.location.href = '/thank-you/?email=' + encodeURIComponent(email) + '&product=guidebook';
+      window.location.href = '/thank-you/?email=' + encodeURIComponent(email) + '&product=' + encodeURIComponent(product);
     } else if (data.url) {
       console.log('Redirecting to:', data.url);
       window.location.href = data.url;
@@ -1674,8 +1712,8 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
   // Re-bind when modal is opened
   var _origOpenModal = window.openCalculatorModal;
   if (typeof _origOpenModal === 'function') {
-    window.openCalculatorModal = function() {
-      _origOpenModal();
+    window.openCalculatorModal = function(product) {
+      _origOpenModal(product);
       setTimeout(_bindModalInputs, 100);
     };
   }

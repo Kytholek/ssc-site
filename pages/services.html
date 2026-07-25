@@ -81,13 +81,12 @@
             <li class="svc-feature"><span class="svc-feature-gem"></span>A personal map you can reopen anytime</li>
           </ul>
           <div class="svc-card-footer">
-            <button type="button" class="svc-cta svc-cta--gold" onclick="openCalculatorModal()">Get My Guidebook Report</button>
+            <button type="button" class="svc-cta svc-cta--gold" onclick="openCalculatorModal('guidebook')">Get My Guidebook Report</button>
             <p class="svc-delivery-note"><a href="/sample-guidebook.html" target="_blank" rel="noopener">View sample</a> &#183; delivered within minutes</p>
           </div>
         </div>
 
-        <div class="svc-card svc-card--soon svc-card--season a1" id="season">
-          <div class="svc-soon-badge">Coming Soon</div>
+        <div class="svc-card svc-card--written svc-card--season a1" id="season">
           <div class="svc-card-header">
             <div class="svc-card-glyph">
               <div class="svc-glyph-icon svc-glyph-icon--season" aria-hidden="true">
@@ -96,24 +95,25 @@
               </div>
             </div>
             <div class="svc-card-tier">Timed Reading</div>
-            <h3 class="svc-card-name">Season / Time Reading</h3>
-            <p class="svc-card-tagline">What this cycle is asking of you</p>
+            <h3 class="svc-card-name">Time Cycle</h3>
+            <p class="svc-card-tagline">What to do in this season of your spiral</p>
           </div>
           <div class="svc-card-price-wrap">
             <div class="svc-card-price">
-              <span class="svc-price-amount svc-price-amount--soon">Soon</span>
+              <span class="svc-price-currency">$</span>
+              <span class="svc-price-amount">17</span>
             </div>
-            <div class="svc-price-cadence">period report &#183; digital delivery</div>
+            <div class="svc-price-cadence">one-time &#183; instant delivery</div>
           </div>
           <div class="svc-card-divider"></div>
           <ul class="svc-features">
-            <li class="svc-feature"><span class="svc-feature-gem"></span>Timing windows mapped to your chart</li>
-            <li class="svc-feature"><span class="svc-feature-gem"></span>Seasonal themes &amp; pressure points</li>
-            <li class="svc-feature"><span class="svc-feature-gem"></span>Clear focus for the months ahead</li>
+            <li class="svc-feature"><span class="svc-feature-gem"></span>Actions to maximize your current pinnacle &amp; year</li>
+            <li class="svc-feature"><span class="svc-feature-gem"></span>Challenges to watch in this 4-month window</li>
+            <li class="svc-feature"><span class="svc-feature-gem"></span>Clear focus for the weeks ahead</li>
           </ul>
           <div class="svc-card-footer">
-            <button type="button" class="svc-cta svc-cta--soon" disabled>Notify Me When Ready</button>
-            <p class="svc-delivery-note">Launching soon</p>
+            <button type="button" class="svc-cta svc-cta--gold" onclick="openCalculatorModal('time-cycle')">Get My Time Cycle</button>
+            <p class="svc-delivery-note">PDF delivered within minutes</p>
           </div>
         </div>
 
@@ -286,8 +286,8 @@
       <button id="calculator-modal-close" aria-label="Close calculator" onclick="closeCalculatorModal()">&times;</button>
 
       <div class="modal-calculator-hero">
-        <div class="modal-calculator-title">Your Details</div>
-        <p class="modal-calculator-subtitle">We'll send your guidebook to your inbox.</p>
+        <div class="modal-calculator-title" id="modal-calculator-title">Your Details</div>
+        <p class="modal-calculator-subtitle" id="modal-calculator-subtitle">We'll send your guidebook to your inbox.</p>
       </div>
 
       <div id="modal-form-card" class="form-card">
@@ -327,7 +327,7 @@
         </div>
         <div class="form-section-label" style="margin-top:20px">· Email ·</div>
         <div class="field">
-          <label for="modal-unlock-email">Where shall we send your guidebook?</label>
+          <label for="modal-unlock-email" id="modal-unlock-email-label">Where shall we send your guidebook?</label>
           <input
             type="email"
             id="modal-unlock-email"

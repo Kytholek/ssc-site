@@ -7,8 +7,29 @@
  */
 
 import { buildCodexFootprintSvg, buildCodexPromptBlock } from '../../js/codex-footprint.mjs';
+import { processTimeCycleReading } from '../../js/time-cycle-reading.mjs';
 
-const GUIDEBOOK_PRICE_CENTS = 2200; // $22.00
+const PRODUCT_CONFIG = {
+  guidebook: {
+    id: 'guidebook',
+    priceCents: 2200,
+    stripeName: 'SSC Guidebook Report',
+    stripeDescription: 'Your complete personalised frequency guidebook — all 7 frequencies decoded, shadow work, and Life Calling directive. Delivered as a PDF.',
+    successProduct: 'guidebook',
+  },
+  'time-cycle': {
+    id: 'time-cycle',
+    priceCents: 1700,
+    stripeName: 'SSC Time Cycle Report',
+    stripeDescription: 'Your spiral timing map — current pinnacle, 9-year epoch, personal year, 4-month window, and personal month with actions to maximize each period. Delivered as a PDF.',
+    successProduct: 'time-cycle',
+  },
+};
+
+function resolveProduct(raw) {
+  const key = String(raw || 'guidebook').trim().toLowerCase();
+  return PRODUCT_CONFIG[key] || PRODUCT_CONFIG.guidebook;
+}
 
 let googleReviewsCache = { data: null, expires: 0 };
 
@@ -148,12 +169,12 @@ async function logPurchaseEmail(email) {
   }
 }
 
-async function enqueueGuidebook(userData, env) {
+async function enqueueReading(userData, env) {
   if (!env.READINGS_QUEUE) {
     throw new Error('READINGS_QUEUE binding missing — redeploy wrangler.jsonc with queues.producers');
   }
   await env.READINGS_QUEUE.send(userData);
-  console.log('Queued guidebook for', userData.email);
+  console.log('Queued reading', userData.product || 'guidebook', 'for', userData.email);
 }
 
 export default {
@@ -246,6 +267,7 @@ export default {
     const session = stripeEvent.data.object;
     console.log('Stripe checkout.session.completed:', session.id);
 
+    const product = resolveProduct(session.metadata?.product).id;
     const userData = {
       name:        session.metadata?.name         || session.customer_details?.name || 'Seeker',
       email:       session.customer_email         || session.metadata?.email        || session.customer_details?.email,
@@ -253,10 +275,12 @@ export default {
       birthDay:    parseInt(session.metadata?.birth_day   || session.metadata?.day, 10),
       birthYear:   parseInt(session.metadata?.birth_year  || session.metadata?.year, 10),
       fullName:    session.metadata?.full_name    || session.metadata?.name,
+      product,
     };
 
     console.log('Webhook userData:', JSON.stringify({
       sessionId: session.id,
+      product: userData.product,
       email: userData.email,
       name: userData.name,
       birthMonth: userData.birthMonth,
@@ -465,7 +489,19 @@ function calculateFrequencies(name, month, day, year) {
 // ════════════════════════════════════════════════════════════
 
 async function processReading(userData, env) {
-  console.log(`[1/4] Processing reading for ${userData.email}`);
+  const product = resolveProduct(userData.product).id;
+  console.log(`[1/4] Processing ${product} for ${userData.email}`);
+
+  if (product === 'time-cycle') {
+    await processTimeCycleReading(userData, env, {
+      convertToPDF,
+      arrayBufferToBase64,
+      formatResendFrom,
+      formatResendReplyTo,
+      getGoogleReviewUrl,
+    });
+    return;
+  }
 
   const name = userData.fullName || userData.name;
   const frequencies = calculateFrequencies(
@@ -1277,7 +1313,8 @@ async function handleCreateCheckout(request, env, origin) {
 
   const { email, name, month, day, year,
           life_path, expression, life_calling,
-          soul, outer, achievement, theme } = body;
+          soul, outer, achievement, theme, product: productRaw } = body;
+  const product = resolveProduct(productRaw);
 
   if (!email) {
     return new Response(JSON.stringify({ error: 'Email required' }), {
@@ -1286,8 +1323,11 @@ async function handleCreateCheckout(request, env, origin) {
     });
   }
 
-  if (GUIDEBOOK_PRICE_CENTS === 0) {
-    const userData = buildUserDataFromBody({ email, name, month, day, year });
+  if (product.priceCents === 0) {
+    const userData = {
+      ...buildUserDataFromBody({ email, name, month, day, year }),
+      product: product.id,
+    };
     const validationError = validateUserData(userData);
     if (validationError) {
       return new Response(JSON.stringify({ error: validationError }), {
@@ -1297,13 +1337,13 @@ async function handleCreateCheckout(request, env, origin) {
     }
     try {
       await logPurchaseEmail(userData.email);
-      await enqueueGuidebook(userData, env);
+      await enqueueReading(userData, env);
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
       });
     } catch (err) {
-      console.error('free guidebook queue error:', err);
+      console.error('free reading queue error:', err);
       return new Response(JSON.stringify({ error: err.message }), {
         status: 500,
         headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
@@ -1328,9 +1368,9 @@ async function handleCreateCheckout(request, env, origin) {
       'mode':                                           'payment',
       'customer_email':                                 email,
       'line_items[0][price_data][currency]':            'usd',
-      'line_items[0][price_data][unit_amount]':         String(GUIDEBOOK_PRICE_CENTS),
-      'line_items[0][price_data][product_data][name]':  'SSC Guidebook Report',
-      'line_items[0][price_data][product_data][description]': 'Your complete personalised frequency guidebook — all 7 frequencies decoded, shadow work, and Life Calling directive. Delivered as a PDF.',
+      'line_items[0][price_data][unit_amount]':         String(product.priceCents),
+      'line_items[0][price_data][product_data][name]':  product.stripeName,
+      'line_items[0][price_data][product_data][description]': product.stripeDescription,
       'line_items[0][quantity]':                        '1',
       'metadata[email]':                                email        || '',
       'metadata[name]':                                 name         || '',
@@ -1344,9 +1384,9 @@ async function handleCreateCheckout(request, env, origin) {
       'metadata[outer]':                                String(outer        || ''),
       'metadata[achievement]':                          String(achievement  || ''),
       'metadata[theme]':                                String(theme        || ''),
-      'metadata[product]':                              'guidebook',
-      'success_url':                                    'https://simulationsourcecode.com/thank-you/?session_id={CHECKOUT_SESSION_ID}&product=guidebook',
-      'cancel_url':                                     'https://simulationsourcecode.com/?payment=cancelled',
+      'metadata[product]':                              product.id,
+      'success_url':                                    `https://simulationsourcecode.com/thank-you/?session_id={CHECKOUT_SESSION_ID}&product=${product.successProduct}`,
+      'cancel_url':                                     'https://simulationsourcecode.com/services/?payment=cancelled',
     });
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {

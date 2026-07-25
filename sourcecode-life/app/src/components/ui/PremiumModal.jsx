@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import PremiumBadge from './PremiumBadge'
 import Modal from './Modal'
+import { auth } from '../../lib/firebase'
+import { createSclCheckout } from '../../lib/sclBilling'
 
 const FEATURES = [
   { glyph: '📜', title: 'Full Blueprint', desc: 'Complete shadow + integration reading for every number in your chart' },
@@ -17,7 +19,6 @@ const PRODUCTS = [
     label: 'Monthly',
     price: '$4.99/mo',
     badge: null,
-    stripeLink: 'https://buy.stripe.com/9B600j0qC5df1zEakm53O03',
     days: 30,
   },
   {
@@ -25,7 +26,6 @@ const PRODUCTS = [
     label: 'Annual',
     price: '$49.99/yr',
     badge: 'BEST VALUE',
-    stripeLink: 'https://buy.stripe.com/9B66oH1uG2135PUdwy53O04',
     days: 365,
   },
 ]
@@ -44,17 +44,44 @@ export default function PremiumModal({ open, onClose }) {
     return () => window.removeEventListener('scl:purchase_error', handler)
   }, [])
 
-  function handlePurchase() {
+  async function handlePurchase() {
     const product = PRODUCTS.find(p => p.id === selectedProductId)
     if (!product) return
 
     if (window.__SCL_WEB) {
-      window.location.href = product.stripeLink
-    } else {
       setLoading(true)
       setError(null)
-      window.NativePurchase?.startPurchase(selectedProductId)
+      try {
+        const user = auth.currentUser
+        if (!user) {
+          setError('Please sign in before purchasing Premium.')
+          setLoading(false)
+          return
+        }
+        const idToken = await user.getIdToken()
+        const origin = window.location.origin
+        const path = window.location.pathname || '/'
+        const successUrl =
+          `${origin}${path}?scl_purchase=true&product_id=${encodeURIComponent(product.id)}&session_id={CHECKOUT_SESSION_ID}`
+        const cancelUrl = `${origin}${path}`
+        const { url } = await createSclCheckout({
+          productId: product.id,
+          idToken,
+          successUrl,
+          cancelUrl,
+        })
+        if (!url) throw new Error('No checkout URL returned.')
+        window.location.href = url
+      } catch (e) {
+        setLoading(false)
+        setError(e.message || 'Could not start checkout.')
+      }
+      return
     }
+
+    setLoading(true)
+    setError(null)
+    window.NativePurchase?.startPurchase(selectedProductId)
   }
 
   return (
@@ -111,10 +138,10 @@ export default function PremiumModal({ open, onClose }) {
         disabled={loading}
         aria-busy={loading}
       >
-        {loading ? 'PROCESSING…' : window.__SCL_WEB ? 'PAY WITH STRIPE' : 'PURCHASE'}
+        {loading ? 'PROCESSING…' : window.__SCL_WEB ? 'SUBSCRIBE WITH STRIPE' : 'PURCHASE'}
       </button>
 
-      <p className="premium-modal-note">Secure payment. Cancel anytime.</p>
+      <p className="premium-modal-note">Secure recurring payment. Cancel anytime — keep access until period end.</p>
     </Modal>
   )
 }

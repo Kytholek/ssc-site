@@ -1,58 +1,63 @@
 {
-  "name": "ssc-site",
-  "main": "netlify/functions/worker.js",
-  "compatibility_date": "2024-09-23",
-  "routes": [
-    {
-      "pattern": "app.simulationsourcecode.com/*",
-      "zone_name": "simulationsourcecode.com"
-    },
-    {
-      "pattern": "simulationsourcecode.com/*",
-      "zone_name": "simulationsourcecode.com"
-    },
-    {
-      "pattern": "www.simulationsourcecode.com/*",
-      "zone_name": "simulationsourcecode.com"
-    },
-    {
-      "pattern": "simulationsourcecode.com",
-      "zone_name": "simulationsourcecode.com",
-      "custom_domain": true
-    }
-  ],
-  "queues": {
-    "producers": [
-      {
-        "queue": "ssc-readings",
-        "binding": "READINGS_QUEUE"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "ssc-readings"
-      }
-    ]
-  },
-  "assets": {
-    "directory": "./",
-    "binding": "ASSETS",
-    "run_worker_first": true,
-    "not_found_handling": "single-page-application"
-  },
-  "observability": {
-    "enabled": true,
-    "head_sampling_rate": 1,
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "persist": true,
-      "invocation_logs": true
-    },
-    "traces": {
-      "enabled": false,
-      "persist": true,
-      "head_sampling_rate": 1
-    }
-  }
+	"name": "ssc-site",
+	"main": "netlify/functions/worker.js",
+	"compatibility_date": "2024-09-23",
+	"routes": [
+		{
+			"pattern": "app.simulationsourcecode.com/*",
+			"zone_name": "simulationsourcecode.com"
+		},
+		{
+			"pattern": "simulationsourcecode.com/*",
+			"zone_name": "simulationsourcecode.com"
+		},
+		{
+			"pattern": "www.simulationsourcecode.com/*",
+			"zone_name": "simulationsourcecode.com"
+		},
+		{
+			"pattern": "simulationsourcecode.com",
+			"zone_name": "simulationsourcecode.com",
+			"custom_domain": true
+		}
+	],
+	"queues": {
+		"producers": [
+			{
+				"queue": "ssc-readings",
+				"binding": "READINGS_QUEUE"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "ssc-readings"
+			}
+		]
+	},
+	"assets": {
+		"directory": "./",
+		"binding": "ASSETS",
+		"run_worker_first": true,
+		"not_found_handling": "single-page-application"
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"persist": true,
+			"invocation_logs": true
+		},
+		"traces": {
+			"enabled": false,
+			"persist": true,
+			"head_sampling_rate": 1
+		}
+	},
+	"vars": {
+		"STRIPE_PRICE_SCL_MONTHLY": "price_1TNzNjFhtVJMJohmQRI5UJ30",
+		"STRIPE_PRICE_SCL_ANNUAL": "price_1TNzR4FhtVJMJohmy0BqCaGh",
+		"FIREBASE_WEB_API_KEY": "AIzaSyBA82OFYJm47yRF59DuQSoo8_piOyP1hZs"
+	}
 }

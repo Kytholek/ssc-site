@@ -4,14 +4,18 @@
  * Shows character frequencies, account controls (sign out, reset, delete,
  * change password), theme picker, and notification settings.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
-import { useGameState } from '../../state/GameContext'
+import { useGameState, useGameDispatch } from '../../state/GameContext'
+import { ACTIONS } from '../../state/actions'
 import { fmt } from '../../lib/numerology'
 import { clearLocalSession } from '../../lib/storage'
 import { setTheme } from '../../lib/theme'
 import GiftCodeRedeemer from '../ui/GiftCodeRedeemer'
 import { createEarnedGiftCode, generateCode } from '../../lib/giftCodes'
+import { fetchUserProfile, updateUserProfileFields } from '../auth/firestoreprofile'
+import { auth } from '../../lib/firebase'
+import { cancelSclSubscription } from '../../lib/sclBilling'
 
 // ── Notification prefs ────────────────────────────────────────────────────────
 const LS_NOTIF_PREFS = 'scl_notif_prefs'
@@ -227,8 +231,17 @@ export default function SettingsTab() {
   const { playerData, currentUser } = useAppState()
   const { user } = useGameState()
   const dispatch = useAppDispatch()
+  const gameDispatch = useGameDispatch()
   const [showCpPanel, setShowCpPanel] = useState(false)
   const [showDeletePanel, setShowDeletePanel] = useState(false)
+  const [showCancelPremium, setShowCancelPremium] = useState(false)
+  const [billing, setBilling] = useState({
+    subscriptionId: null,
+    cancelAtPeriodEnd: false,
+    premiumExpires: null,
+    loading: true,
+  })
+  const [cancelLoading, setCancelLoading] = useState(false)
   const [activeTheme, setActiveTheme] = useState(
     (() => { try { return localStorage.getItem('scl_theme') || 'fantasy' } catch { return 'fantasy' } })()
   )
@@ -238,10 +251,68 @@ export default function SettingsTab() {
   const [generatedCode, setGeneratedCode] = useState(null)
   const [giftLoading, setGiftLoading] = useState(false)
 
+  useEffect(() => {
+    let cancelled = false
+    async function loadBilling() {
+      if (!currentUser?.uid) {
+        if (!cancelled) setBilling(b => ({ ...b, loading: false }))
+        return
+      }
+      try {
+        const profile = await fetchUserProfile(currentUser.uid)
+        if (cancelled) return
+        setBilling({
+          subscriptionId: profile.stripeSubscriptionId || null,
+          cancelAtPeriodEnd: !!profile.subscriptionCancelAtPeriodEnd,
+          premiumExpires: user.premiumExpires || null,
+          loading: false,
+        })
+      } catch {
+        if (!cancelled) setBilling(b => ({ ...b, loading: false }))
+      }
+    }
+    loadBilling()
+    return () => { cancelled = true }
+  }, [currentUser?.uid, user.premiumExpires])
+
   function handleSignOut() {
     clearLocalSession()
     if (typeof window.NativeAuth !== 'undefined') window.NativeAuth.signOut()
     dispatch({ type: 'SIGN_OUT' })
+  }
+
+  async function handleCancelPremium() {
+    if (!billing.subscriptionId || !auth.currentUser) return
+    setCancelLoading(true)
+    try {
+      const idToken = await auth.currentUser.getIdToken()
+      const result = await cancelSclSubscription({
+        subscriptionId: billing.subscriptionId,
+        idToken,
+      })
+      await updateUserProfileFields(currentUser.uid, {
+        subscriptionCancelAtPeriodEnd: true,
+      })
+      setBilling(b => ({ ...b, cancelAtPeriodEnd: true }))
+      setShowCancelPremium(false)
+      const endLabel = result.currentPeriodEnd
+        ? new Date(result.currentPeriodEnd * 1000).toLocaleDateString()
+        : (billing.premiumExpires ? new Date(billing.premiumExpires).toLocaleDateString() : 'period end')
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: {
+          msg: `✓ Billing cancelled. Premium stays active until ${endLabel}.`,
+          color: 'var(--gold)',
+        },
+      })
+    } catch (e) {
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: `⚠ ${e.message || 'Could not cancel subscription.'}`, color: 'var(--red)' },
+      })
+    } finally {
+      setCancelLoading(false)
+    }
   }
 
   function handleTheme(id) {
@@ -349,15 +420,61 @@ export default function SettingsTab() {
       <section className="settings-section">
         <h3 className="settings-section-title">ACCOUNT</h3>
 
-        {!showCpPanel && !showDeletePanel && (
+        {!showCpPanel && !showDeletePanel && !showCancelPremium && (
           <div className="flex flex-col gap-2 mt-2">
-            <button className="settings-btn" onClick={() => { setShowCpPanel(true); setShowDeletePanel(false) }}>▶ CHANGE PASSWORD</button>
+            <button className="settings-btn" onClick={() => { setShowCpPanel(true); setShowDeletePanel(false); setShowCancelPremium(false) }}>▶ CHANGE PASSWORD</button>
             <button className="settings-btn" onClick={handleSignOut}>⏏ SIGN OUT</button>
-            <button className="settings-btn settings-btn-danger" onClick={() => { setShowDeletePanel(true); setShowCpPanel(false) }}>✕ DELETE ACCOUNT</button>
+            {billing.subscriptionId && billing.cancelAtPeriodEnd && (
+              <p className="setting-val setting-val-dim" style={{ marginTop: 4 }}>
+                Premium billing cancelled
+                {billing.premiumExpires
+                  ? ` — access until ${new Date(billing.premiumExpires).toLocaleDateString()}`
+                  : ' — access continues until period end'}
+              </p>
+            )}
+            {billing.subscriptionId && !billing.cancelAtPeriodEnd && !billing.loading && (
+              <button
+                className="settings-btn settings-btn-danger"
+                onClick={() => { setShowCancelPremium(true); setShowCpPanel(false); setShowDeletePanel(false) }}
+              >
+                ✕ CANCEL PREMIUM
+              </button>
+            )}
+            <button className="settings-btn settings-btn-danger" onClick={() => { setShowDeletePanel(true); setShowCpPanel(false); setShowCancelPremium(false) }}>✕ DELETE ACCOUNT</button>
           </div>
         )}
 
-        {showCpPanel     && <ChangePasswordPanel onClose={() => setShowCpPanel(false)} />}
+        {showCpPanel && <ChangePasswordPanel onClose={() => setShowCpPanel(false)} />}
+        {showCancelPremium && (
+          <div className="settings-panel flex flex-col gap-3">
+            <p className="auth-error" style={{ marginBottom: 4 }}>
+              Cancel recurring billing? You keep Premium until
+              {' '}
+              {billing.premiumExpires
+                ? new Date(billing.premiumExpires).toLocaleDateString()
+                : 'the end of your current period'}
+              .
+            </p>
+            <div className="flex gap-2">
+              <button
+                className="auth-btn"
+                style={{ background: '#7f1d1d', color: '#fca5a5' }}
+                onClick={handleCancelPremium}
+                disabled={cancelLoading}
+              >
+                {cancelLoading ? 'CANCELLING…' : 'CONFIRM CANCEL'}
+              </button>
+              <button
+                className="auth-btn"
+                style={{ background: 'transparent', border: '1px solid #2a2d3e', color: '#6b6882' }}
+                onClick={() => setShowCancelPremium(false)}
+                disabled={cancelLoading}
+              >
+                KEEP PREMIUM
+              </button>
+            </div>
+          </div>
+        )}
         {showDeletePanel && <DeleteAccountPanel  onClose={() => setShowDeletePanel(false)} />}
       </section>
 

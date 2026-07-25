@@ -128,7 +128,15 @@ export function pickObj(pool, seed) {
 }
 
 export function getCreatorTier() {
-  const isPremium = localStorage.getItem('scl_premium') === '1'
+  // Timed premium uses scl_premium_expires; lifetime uses scl_premium=1
+  let isPremium = false
+  try {
+    if (localStorage.getItem('scl_premium') === '1') isPremium = true
+    else {
+      const exp = localStorage.getItem('scl_premium_expires')
+      if (exp && new Date(exp) > new Date()) isPremium = true
+    }
+  } catch { /* intentional */ }
   if (isPremium) return 3
   const all = getAcceptedQuests()
   const completedCount = Object.values(all).filter(q => q.status === 'completed').length

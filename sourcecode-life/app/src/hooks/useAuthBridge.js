@@ -15,12 +15,17 @@ import { computeAll } from '../lib/numerology'
 import {
   saveLocalUser,
   saveLocalPlayer,
-  LS_USER,
-  LS_PLAYER,
 } from '../lib/storage'
 import { fetchUserProfile } from '../components/auth/firestoreprofile'
 import { doc, updateDoc } from 'firebase/firestore'
-import { db } from '../lib/firebase'
+import { auth, db } from '../lib/firebase'
+import {
+  parseEntitlementExpiry,
+  entitlementForPeriodEnd,
+  daysUntilIso,
+  fetchSclCheckoutSession,
+  fetchSclSubscription,
+} from '../lib/sclBilling'
 
 // Helper: map Firebase error codes → human messages
 function friendlyError(raw) {
@@ -54,6 +59,97 @@ function parseDob(dob) {
   }
   // p0 is year (YYYY/M/D)
   return { y: p0, m: p1, d: p2 }
+}
+
+function flushPendingPurchase() {
+  try {
+    const pendingProductId = sessionStorage.getItem('scl_pending_purchase')
+    if (pendingProductId) {
+      sessionStorage.removeItem('scl_pending_purchase')
+      window.NativePurchase_onPurchaseResult?.(true, pendingProductId, '')
+    }
+  } catch { /* intentional */ }
+}
+
+async function syncSubscriptionRenewal(uid, profile, gameDispatch) {
+  const subscriptionId = profile.stripeSubscriptionId
+  if (!subscriptionId || !auth.currentUser) return profile
+
+  let idToken
+  try {
+    idToken = await auth.currentUser.getIdToken()
+  } catch {
+    return profile
+  }
+
+  let sub
+  try {
+    sub = await fetchSclSubscription({ subscriptionId, idToken })
+  } catch (e) {
+    console.warn('[SCL] subscription sync failed:', e.message)
+    return profile
+  }
+
+  const updates = {}
+  if (typeof sub.cancelAtPeriodEnd === 'boolean'
+      && sub.cancelAtPeriodEnd !== !!profile.subscriptionCancelAtPeriodEnd) {
+    updates.subscriptionCancelAtPeriodEnd = sub.cancelAtPeriodEnd
+  }
+
+  const periodEndIso = sub.currentPeriodEnd
+    ? new Date(sub.currentPeriodEnd * 1000).toISOString()
+    : null
+  const active = sub.status === 'active' || sub.status === 'trialing'
+
+  if (active && periodEndIso) {
+    const entitlements = Array.isArray(profile.entitlements) ? [...profile.entitlements] : []
+    const timed = entitlements.find(e => /^premium_\d+d:/.test(e))
+    const currentExpiry = timed ? parseEntitlementExpiry(timed) : null
+    if (!currentExpiry || new Date(periodEndIso) > new Date(currentExpiry)) {
+      const productId = profile.stripeProductId
+        || (timed?.startsWith('premium_365d') ? 'premium_annual' : 'premium_monthly')
+      const nextEntitlement = entitlementForPeriodEnd(productId, sub.currentPeriodEnd)
+      const next = entitlements.filter(e => !/^premium_\d+d:/.test(e))
+      next.push(nextEntitlement)
+      updates.entitlements = next
+      gameDispatch({
+        type: ACTIONS.REDEEM_GIFT_CODE,
+        payload: { daysGranted: daysUntilIso(periodEndIso) },
+      })
+    }
+  }
+
+  if (Object.keys(updates).length) {
+    try {
+      await updateDoc(doc(db, 'players', uid), updates)
+      return { ...profile, ...updates }
+    } catch (e) {
+      console.warn('[SCL] failed to persist subscription sync:', e)
+    }
+  }
+  return profile
+}
+
+function applyEntitlementsToState(entitlements, gameDispatch) {
+  let isLifetime = false
+  let timedEntry
+  try {
+    isLifetime = entitlements.includes('premium_lifetime')
+    timedEntry = entitlements.find(e => /^premium_\d+d:/.test(e))
+  } catch (e) {
+    console.error('❌ Error processing entitlements:', e)
+  }
+  if (isLifetime) {
+    gameDispatch({ type: ACTIONS.IS_PREMIUM })
+  } else if (timedEntry) {
+    const expiry = parseEntitlementExpiry(timedEntry)
+    if (expiry && new Date(expiry) > new Date()) {
+      gameDispatch({
+        type: ACTIONS.REDEEM_GIFT_CODE,
+        payload: { daysGranted: daysUntilIso(expiry) },
+      })
+    }
+  }
 }
 
 export function useAuthBridge() {
@@ -120,36 +216,23 @@ export function useAuthBridge() {
 
     // ── NativeAuth.loadPlayer() result ──────────────────────────────────────
     window.NativeAuth_onLoadPlayerResult = async (found, uid, name, dob, email) => {
+      window._currentUid = uid || window._currentUid
+      if (uid) {
+        try { localStorage.setItem('scl_uid', uid) } catch { /* intentional */ }
+      }
+
       if (found && name && dob) {
         const { m, d, y } = parseDob(dob)
         const user       = { uid, email }
         const playerData = computeAll(m, d, y, name)
-        window._currentUid = uid
-        try { localStorage.setItem('scl_uid', uid) } catch { /* intentional */ }
         saveLocalUser(email)
         saveLocalPlayer(playerData)
 
-        // Restore premium from Firestore entitlements
-        const profile = await fetchUserProfile(uid)
+        // Restore premium from Firestore entitlements (+ subscription renewal sync)
+        let profile = await fetchUserProfile(uid)
+        profile = await syncSubscriptionRenewal(uid, profile, gameDispatch)
         const entitlements = Array.isArray(profile.entitlements) ? profile.entitlements : []
-
-        let isLifetime = false
-        let timedEntry = undefined
-        try {
-          isLifetime = entitlements.includes('premium_lifetime')
-          timedEntry = entitlements.find(e => /^premium_\d+d:/.test(e))
-        } catch (e) {
-          console.error('❌ Error processing entitlements:', e)
-        }
-        if (isLifetime) {
-          gameDispatch({ type: ACTIONS.IS_PREMIUM })
-        } else if (timedEntry) {
-          const expiry = timedEntry.split(':')[1]
-          if (new Date(expiry) > new Date()) {
-            const daysRemaining = Math.ceil((new Date(expiry) - new Date()) / (1000 * 60 * 60 * 24))
-            gameDispatch({ type: ACTIONS.REDEEM_GIFT_CODE, payload: { daysGranted: daysRemaining } })
-          }
-        }
+        applyEntitlementsToState(entitlements, gameDispatch)
 
         // Pending ally request (returning user via invite link)
         try {
@@ -166,8 +249,12 @@ export function useAuthBridge() {
         } else {
           dispatch({ type: 'LAUNCH_APP', payload: { user, playerData } })
         }
+
+        flushPendingPurchase()
       } else {
         dispatch({ type: 'SET_SCREEN', payload: 'charCreate' })
+        // Profile incomplete but uid known — still apply queued Stripe purchase
+        flushPendingPurchase()
       }
     }
 
@@ -188,8 +275,9 @@ export function useAuthBridge() {
         try {
           ['scl_user','scl_player','scl_avatar',
            'scl_notif_enabled','scl_notif_hour','scl_notif_minute',
-           'scl_theme'].forEach(k => localStorage.removeItem(k))
+           'scl_theme', 'scl_uid'].forEach(k => localStorage.removeItem(k))
         } catch { /* intentional */ }
+        window._currentUid = null
         if (typeof window.NativeNotif !== 'undefined' && window.NativeNotif.cancelDaily) {
           window.NativeNotif.cancelDaily()
         }
@@ -217,7 +305,10 @@ export function useAuthBridge() {
       if (success) {
         dispatch({ type: 'AUTH_SUCCESS', payload: { field: 'cpSuccess', message: '✓ Password updated successfully.' } })
       } else {
-        dispatch({ type: 'AUTH_ERROR', payload: { field: 'cpError', message: '⚠ ' + friendlyError(errorMsg || '') } })
+        dispatch({
+          type: 'AUTH_ERROR',
+          payload: { field: 'cpError', message: '⚠ ' + friendlyError(errorMsg || '') },
+        })
       }
     }
 
@@ -247,40 +338,120 @@ export function useAuthBridge() {
         return
       }
 
-      const uid = window._currentUid
-      if (!uid) return
+      if (!productId) {
+        window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+          detail: 'Purchase succeeded but product was missing. Contact support.',
+        }))
+        gameDispatch({
+          type: ACTIONS.SET_TOAST,
+          payload: { msg: '⚠ Purchase could not be applied — missing product. Contact support.', color: 'var(--red)' },
+        })
+        return
+      }
+
+      let uid = window._currentUid
+      if (!uid) {
+        try { uid = localStorage.getItem('scl_uid') || '' } catch { uid = '' }
+      }
+      if (!uid) {
+        try { sessionStorage.setItem('scl_pending_purchase', productId) } catch { /* intentional */ }
+        return
+      }
+      window._currentUid = uid
+
+      let sessionId = null
+      try { sessionId = sessionStorage.getItem('scl_pending_session') || null } catch { /* intentional */ }
 
       let entitlement
-      if (productId === 'premium_lifetime') {
-        entitlement = 'premium_lifetime'
-      } else if (productId === 'premium_annual') {
-        const expiry = new Date()
-        expiry.setFullYear(expiry.getFullYear() + 1)
-        entitlement = `premium_365d:${expiry.toISOString()}`
-      } else if (productId === 'premium_monthly') {
-        const expiry = new Date()
-        expiry.setDate(expiry.getDate() + 30)
-        entitlement = `premium_30d:${expiry.toISOString()}`
+      let stripeFields = {}
+      let periodEndIso = null
+
+      if (sessionId) {
+        try {
+          const session = await fetchSclCheckoutSession(sessionId)
+          if (session.productId && session.productId !== productId) {
+            productId = session.productId
+          }
+          if (session.currentPeriodEnd) {
+            entitlement = entitlementForPeriodEnd(productId, session.currentPeriodEnd)
+            periodEndIso = new Date(session.currentPeriodEnd * 1000).toISOString()
+          }
+          stripeFields = {
+            stripeCustomerId: session.customerId || null,
+            stripeSubscriptionId: session.subscriptionId || null,
+            stripeProductId: productId,
+            subscriptionCancelAtPeriodEnd: !!session.cancelAtPeriodEnd,
+          }
+        } catch (e) {
+          console.warn('[SCL] checkout session sync failed, falling back to local grant:', e.message)
+        }
+      }
+
+      if (!entitlement) {
+        if (productId === 'premium_lifetime') {
+          entitlement = 'premium_lifetime'
+        } else if (productId === 'premium_annual') {
+          const expiry = new Date()
+          expiry.setFullYear(expiry.getFullYear() + 1)
+          entitlement = `premium_365d:${expiry.toISOString()}`
+          periodEndIso = expiry.toISOString()
+        } else if (productId === 'premium_monthly') {
+          const expiry = new Date()
+          expiry.setDate(expiry.getDate() + 30)
+          entitlement = `premium_30d:${expiry.toISOString()}`
+          periodEndIso = expiry.toISOString()
+        } else {
+          window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+            detail: 'Unknown premium product. Contact support.',
+          }))
+          return
+        }
       }
 
       try {
         const profile = await fetchUserProfile(uid)
         const entitlements = Array.isArray(profile.entitlements) ? [...profile.entitlements] : []
-        if (!entitlements.includes(entitlement)) entitlements.push(entitlement)
+        const next = entitlements.filter(e => {
+          if (entitlement === 'premium_lifetime') return e !== 'premium_lifetime'
+          return !/^premium_\d+d:/.test(e)
+        })
+        next.push(entitlement)
         const profileRef = doc(db, 'players', uid)
-        await updateDoc(profileRef, { entitlements })
+        await updateDoc(profileRef, {
+          entitlements: next,
+          ...stripeFields,
+        })
       } catch (e) {
         console.error('[SCL] Failed to write entitlement to players/{uid}:', e)
+        try { sessionStorage.setItem('scl_pending_purchase', productId) } catch { /* intentional */ }
+        window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+          detail: 'Could not save premium. Reopen the app to retry.',
+        }))
+        gameDispatch({
+          type: ACTIONS.SET_TOAST,
+          payload: { msg: '⚠ Could not save premium. Reopen the app to retry.', color: 'var(--red)' },
+        })
+        return
       }
 
       if (productId === 'premium_lifetime') {
         gameDispatch({ type: ACTIONS.IS_PREMIUM })
       } else {
-        const days = productId === 'premium_annual' ? 365 : 30
+        const days = periodEndIso
+          ? daysUntilIso(periodEndIso)
+          : (productId === 'premium_annual' ? 365 : 30)
         gameDispatch({ type: ACTIONS.REDEEM_GIFT_CODE, payload: { daysGranted: days } })
       }
 
+      try {
+        sessionStorage.removeItem('scl_pending_purchase')
+        sessionStorage.removeItem('scl_pending_session')
+      } catch { /* intentional */ }
       dispatch({ type: 'CLOSE_PREMIUM_MODAL' })
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Decode → Blueprint.', color: 'var(--gold)' },
+      })
     }
 
     return () => {
@@ -295,5 +466,5 @@ export function useAuthBridge() {
       ]
       bridgeFns.forEach(fn => { delete window[fn] })
     }
-  }, [dispatch])
+  }, [dispatch, gameDispatch])
 }

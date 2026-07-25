@@ -35,10 +35,18 @@ let googleReviewsCache = { data: null, expires: 0 };
 
 const ALLOWED_ORIGINS = [
   'https://simulationsourcecode.com',
+  'https://portal.simulationsourcecode.com',
   'http://127.0.0.1:5500',
   'http://localhost:5500',
   'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
 ];
+
+const SCL_PRODUCT_PRICE_ENV = {
+  premium_monthly: 'STRIPE_PRICE_SCL_MONTHLY',
+  premium_annual:  'STRIPE_PRICE_SCL_ANNUAL',
+};
 
 function getGoogleReviewUrl(env) {
   const placeId = env.GOOGLE_PLACE_ID;
@@ -53,7 +61,7 @@ function corsHeaders(requestOrigin) {
   return {
     'Access-Control-Allow-Origin':  origin,
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   };
 }
 
@@ -224,6 +232,22 @@ export default {
       return handleGetCheckoutSession(request, env, origin);
     }
 
+    if (request.method === 'POST' && url.pathname === '/api/scl/checkout') {
+      return handleSclCheckout(request, env, origin);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/scl/session') {
+      return handleSclSession(request, env, origin);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/scl/subscription') {
+      return handleSclSubscription(request, env, origin);
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/scl/cancel') {
+      return handleSclCancel(request, env, origin);
+    }
+
     if (request.method === 'GET' && url.pathname === '/api/google-reviews') {
       return handleGoogleReviews(request, env, origin);
     }
@@ -259,6 +283,20 @@ export default {
       return new Response(`Webhook signature error: ${err.message}`, { status: 400 });
     }
 
+    // SCL subscription events — client syncs entitlements; acknowledge without guidebook flow
+    if (
+      stripeEvent.type === 'invoice.paid' ||
+      stripeEvent.type === 'customer.subscription.updated' ||
+      stripeEvent.type === 'customer.subscription.deleted'
+    ) {
+      const obj = stripeEvent.data.object;
+      const isScl = obj?.metadata?.source === 'scl'
+        || obj?.metadata?.firebaseUid
+        || obj?.lines?.data?.some?.(li => li.metadata?.source === 'scl');
+      console.log('Stripe SCL-related event:', stripeEvent.type, isScl ? '(scl)' : '(non-scl/unknown)');
+      return new Response('OK', { status: 200 });
+    }
+
     if (stripeEvent.type !== 'checkout.session.completed') {
       console.log('Stripe webhook ignored event type:', stripeEvent.type);
       return new Response('Event type ignored', { status: 200 });
@@ -266,6 +304,11 @@ export default {
 
     const session = stripeEvent.data.object;
     console.log('Stripe checkout.session.completed:', session.id);
+
+    if (session.metadata?.source === 'scl' || session.metadata?.product?.startsWith?.('premium_')) {
+      console.log('SCL checkout completed — client applies entitlement:', session.id);
+      return new Response('OK', { status: 200 });
+    }
 
     const product = resolveProduct(session.metadata?.product).id;
     const userData = {
@@ -1708,5 +1751,327 @@ async function handleGoogleReviews(request, env, origin) {
       status: 500,
       headers: jsonHeaders,
     });
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SCL PREMIUM BILLING (subscription checkout / cancel / sync)
+//  Appended into worker.js — keep as reference fragment if needed.
+// ════════════════════════════════════════════════════════════
+
+async function verifyFirebaseIdToken(idToken, env) {
+  const apiKey = env.FIREBASE_WEB_API_KEY;
+  if (!apiKey) throw new Error('FIREBASE_WEB_API_KEY not configured');
+  if (!idToken) throw new Error('idToken required');
+
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || 'Invalid Firebase token');
+  }
+  const user = data.users && data.users[0];
+  if (!user?.localId) throw new Error('Invalid Firebase token');
+  return { uid: user.localId, email: user.email || '' };
+}
+
+function stripeAuthHeaders(stripeKey) {
+  return {
+    Authorization: `Bearer ${stripeKey}`,
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+}
+
+async function stripeGet(path, stripeKey) {
+  const res = await fetch(`https://api.stripe.com/v1${path}`, {
+    headers: { Authorization: `Bearer ${stripeKey}` },
+  });
+  const data = await res.json();
+  return { res, data };
+}
+
+async function stripePost(path, stripeKey, params) {
+  const res = await fetch(`https://api.stripe.com/v1${path}`, {
+    method: 'POST',
+    headers: stripeAuthHeaders(stripeKey),
+    body: params.toString(),
+  });
+  const data = await res.json();
+  return { res, data };
+}
+
+function resolveSclPriceId(productId, env) {
+  const envKey = SCL_PRODUCT_PRICE_ENV[productId];
+  if (!envKey) return null;
+  return env[envKey] || null;
+}
+
+async function handleSclCheckout(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+  }
+
+  const { productId, idToken, successUrl, cancelUrl } = body || {};
+  if (!productId || !idToken || !successUrl || !cancelUrl) {
+    return new Response(JSON.stringify({ error: 'productId, idToken, successUrl, and cancelUrl required' }), {
+      status: 400,
+      headers,
+    });
+  }
+
+  const priceId = resolveSclPriceId(productId, env);
+  if (!priceId) {
+    return new Response(JSON.stringify({
+      error: `Stripe price not configured for ${productId}. Set ${SCL_PRODUCT_PRICE_ENV[productId] || 'price env'}.`,
+    }), { status: 500, headers });
+  }
+
+  const stripeKey = env.STRIPE_SECRET || env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return new Response(JSON.stringify({ error: 'Stripe is not configured' }), { status: 500, headers });
+  }
+
+  let uid;
+  let email;
+  try {
+    ({ uid, email } = await verifyFirebaseIdToken(idToken, env));
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 401, headers });
+  }
+
+  try {
+    const params = new URLSearchParams({
+      mode: 'subscription',
+      'payment_method_types[0]': 'card',
+      client_reference_id: uid,
+      'line_items[0][price]': priceId,
+      'line_items[0][quantity]': '1',
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      'metadata[source]': 'scl',
+      'metadata[product]': productId,
+      'metadata[firebaseUid]': uid,
+      'subscription_data[metadata][source]': 'scl',
+      'subscription_data[metadata][product]': productId,
+      'subscription_data[metadata][firebaseUid]': uid,
+    });
+    if (email) params.set('customer_email', email);
+
+    const { res, data } = await stripePost('/checkout/sessions', stripeKey, params);
+    if (!res.ok) {
+      console.error('SCL checkout error:', data.error?.message);
+      return new Response(JSON.stringify({ error: data.error?.message || 'Stripe error' }), {
+        status: 500,
+        headers,
+      });
+    }
+
+    return new Response(JSON.stringify({ url: data.url, sessionId: data.id }), {
+      status: 200,
+      headers,
+    });
+  } catch (err) {
+    console.error('SCL checkout exception:', err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
+  }
+}
+
+async function handleSclSession(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+  const url = new URL(request.url);
+  const sessionId = url.searchParams.get('session_id');
+  if (!sessionId) {
+    return new Response(JSON.stringify({ error: 'session_id required' }), { status: 400, headers });
+  }
+
+  const stripeKey = env.STRIPE_SECRET || env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return new Response(JSON.stringify({ error: 'Stripe is not configured' }), { status: 500, headers });
+  }
+
+  try {
+    const { res, data: session } = await stripeGet(
+      `/checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=subscription`,
+      stripeKey
+    );
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: session.error?.message || 'Session not found' }), {
+        status: res.status === 404 ? 404 : 500,
+        headers,
+      });
+    }
+
+    if (session.metadata?.source !== 'scl' && !String(session.metadata?.product || '').startsWith('premium_')) {
+      return new Response(JSON.stringify({ error: 'Not an SCL checkout session' }), { status: 400, headers });
+    }
+
+    let subscription = session.subscription;
+    if (typeof subscription === 'string') {
+      const subRes = await stripeGet(`/subscriptions/${encodeURIComponent(subscription)}`, stripeKey);
+      subscription = subRes.data;
+    }
+
+    return new Response(JSON.stringify({
+      sessionId: session.id,
+      customerId: typeof session.customer === 'string' ? session.customer : session.customer?.id || null,
+      subscriptionId: typeof subscription === 'string'
+        ? subscription
+        : (subscription?.id || (typeof session.subscription === 'string' ? session.subscription : null)),
+      productId: session.metadata?.product || null,
+      status: subscription?.status || session.status || null,
+      cancelAtPeriodEnd: !!subscription?.cancel_at_period_end,
+      currentPeriodEnd: subscription?.current_period_end || null,
+    }), { status: 200, headers });
+  } catch (err) {
+    console.error('SCL session error:', err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
+  }
+}
+
+async function handleSclSubscription(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+  const url = new URL(request.url);
+  const subscriptionId = url.searchParams.get('subscription_id');
+  const idToken = url.searchParams.get('idToken');
+  if (!subscriptionId || !idToken) {
+    return new Response(JSON.stringify({ error: 'subscription_id and idToken required' }), {
+      status: 400,
+      headers,
+    });
+  }
+
+  const stripeKey = env.STRIPE_SECRET || env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return new Response(JSON.stringify({ error: 'Stripe is not configured' }), { status: 500, headers });
+  }
+
+  let uid;
+  try {
+    ({ uid } = await verifyFirebaseIdToken(idToken, env));
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 401, headers });
+  }
+
+  try {
+    const { res, data: sub } = await stripeGet(
+      `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      stripeKey
+    );
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: sub.error?.message || 'Subscription not found' }), {
+        status: res.status === 404 ? 404 : 500,
+        headers,
+      });
+    }
+
+    if (sub.metadata?.firebaseUid && sub.metadata.firebaseUid !== uid) {
+      return new Response(JSON.stringify({ error: 'Subscription does not belong to this user' }), {
+        status: 403,
+        headers,
+      });
+    }
+
+    return new Response(JSON.stringify({
+      subscriptionId: sub.id,
+      status: sub.status,
+      cancelAtPeriodEnd: !!sub.cancel_at_period_end,
+      currentPeriodEnd: sub.current_period_end || null,
+      productId: sub.metadata?.product || null,
+    }), { status: 200, headers });
+  } catch (err) {
+    console.error('SCL subscription error:', err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
+  }
+}
+
+async function handleSclCancel(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+  }
+
+  const { subscriptionId, idToken } = body || {};
+  if (!subscriptionId || !idToken) {
+    return new Response(JSON.stringify({ error: 'subscriptionId and idToken required' }), {
+      status: 400,
+      headers,
+    });
+  }
+
+  const stripeKey = env.STRIPE_SECRET || env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return new Response(JSON.stringify({ error: 'Stripe is not configured' }), { status: 500, headers });
+  }
+
+  let uid;
+  try {
+    ({ uid } = await verifyFirebaseIdToken(idToken, env));
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 401, headers });
+  }
+
+  try {
+    const { res: getRes, data: sub } = await stripeGet(
+      `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      stripeKey
+    );
+    if (!getRes.ok) {
+      return new Response(JSON.stringify({ error: sub.error?.message || 'Subscription not found' }), {
+        status: getRes.status === 404 ? 404 : 500,
+        headers,
+      });
+    }
+
+    if (sub.metadata?.firebaseUid && sub.metadata.firebaseUid !== uid) {
+      return new Response(JSON.stringify({ error: 'Subscription does not belong to this user' }), {
+        status: 403,
+        headers,
+      });
+    }
+
+    if (sub.cancel_at_period_end) {
+      return new Response(JSON.stringify({
+        subscriptionId: sub.id,
+        status: sub.status,
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: sub.current_period_end || null,
+      }), { status: 200, headers });
+    }
+
+    const params = new URLSearchParams({ cancel_at_period_end: 'true' });
+    const { res, data } = await stripePost(
+      `/subscriptions/${encodeURIComponent(subscriptionId)}`,
+      stripeKey,
+      params
+    );
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: data.error?.message || 'Cancel failed' }), {
+        status: 500,
+        headers,
+      });
+    }
+
+    return new Response(JSON.stringify({
+      subscriptionId: data.id,
+      status: data.status,
+      cancelAtPeriodEnd: !!data.cancel_at_period_end,
+      currentPeriodEnd: data.current_period_end || null,
+    }), { status: 200, headers });
+  } catch (err) {
+    console.error('SCL cancel error:', err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
   }
 }

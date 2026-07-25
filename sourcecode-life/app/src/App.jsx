@@ -34,17 +34,26 @@ function AppRoot() {
   // Load theme on mount
   useEffect(() => { loadSavedTheme() }, [])
 
-  // Handle Stripe purchase redirect
+  // Handle Stripe purchase redirect — unlock/toast happen in useAuthBridge after uid is ready
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('scl_purchase') === 'true') {
       const productId = params.get('product_id')
+      const sessionId = params.get('session_id')
       window.history.replaceState({}, '', window.location.pathname)
+      if (!productId) {
+        gameDispatch({
+          type: ACTIONS.SET_TOAST,
+          payload: { msg: '⚠ Purchase could not be applied — missing product. Contact support.', color: 'var(--red)' },
+        })
+        return
+      }
+      // Persist before callback so a missing/early handler cannot drop the purchase
+      try {
+        sessionStorage.setItem('scl_pending_purchase', productId)
+        if (sessionId) sessionStorage.setItem('scl_pending_session', sessionId)
+      } catch { /* intentional */ }
       window.NativePurchase_onPurchaseResult?.(true, productId, '')
-      gameDispatch({
-        type: ACTIONS.SET_TOAST,
-        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Decode → Blueprint.', color: 'var(--gold)' },
-      })
     }
   }, [gameDispatch])
 

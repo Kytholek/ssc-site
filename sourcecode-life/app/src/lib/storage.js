@@ -61,7 +61,8 @@ export function clearLocalSession() {
   const keys = [
     LS_USER, LS_PLAYER, LS_CHAR_ALIAS,
     'scl_avatar', 'scl_notif_enabled', 'scl_notif_hour',
-    'scl_notif_minute', 'scl_theme',
+    'scl_notif_minute', 'scl_theme', 'scl_uid',
   ]
   keys.forEach(k => { try { localStorage.removeItem(k) } catch { /* intentional */ } })
+  try { window._currentUid = null } catch { /* intentional */ }
 }

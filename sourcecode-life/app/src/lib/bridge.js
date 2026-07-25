@@ -598,8 +598,10 @@ function _isPremiumFromEntitlements(entitlements) {
   if (!Array.isArray(entitlements)) return false
   if (entitlements.includes('premium_lifetime')) return true
   const timed = entitlements.find(e => /^premium_\d+d:/.test(e))
-  if (timed) return new Date(timed.split(':')[1]) > new Date()
-  return false
+  if (!timed) return false
+  const i = timed.indexOf(':')
+  if (i < 0) return false
+  return new Date(timed.slice(i + 1)) > new Date()
 }
 
 function _linkAllies(uidA, uidB) {

@@ -212,6 +212,13 @@
     }
 
     setupGoogleOptIn(email, sessionId, product);
+    if (product === 'guidebook' && typeof window.sscTrackEvent === 'function') {
+      window.sscTrackEvent('guidebook_purchase_thank_you', {
+        product: product,
+        has_session_id: !!sessionId,
+        has_email: !!email
+      });
+    }
 
     try {
       var configRes = await fetch('/api/site-config');

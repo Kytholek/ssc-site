@@ -3334,6 +3334,34 @@ footer {
   color: var(--text);
   font-weight: 500;
 }
+
+.unlock-bridge {
+  max-width: 520px;
+  margin: 0 auto 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(126,200,200,.18);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(8,20,20,.38), rgba(201,168,76,.055));
+  color: var(--text-dim);
+  position: relative;
+}
+.unlock-bridge-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 10px;
+}
+.unlock-bridge p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.unlock-bridge strong {
+  color: var(--gold-light);
+  font-weight: 500;
+}
  
 /* ── Feature list ── */
 .unlock-features {

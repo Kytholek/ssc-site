@@ -18,6 +18,19 @@ const SITE = {
   baseUrl     : 'https://simulationsourcecode.com',
 };
 
+function trackSscEvent(eventName, payload) {
+  if (!eventName) return;
+  if (window.sscTrackEvent && window.sscTrackEvent !== trackSscEvent) {
+    window.sscTrackEvent(eventName, payload);
+    return;
+  }
+  if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+    window.dataLayer.push(Object.assign({ event: eventName }, payload || {}));
+  }
+}
+
+window.sscTrackEvent = window.sscTrackEvent || trackSscEvent;
+
 // Maps legacy SPA post ids (?post=post-…) to /blog/{slug}/ — keep in sync with admin.js POST_REGISTRY.
 const LEGACY_POST_SLUGS = {
   'post-simulation': 'simulation-theory-numerology-source-code',
@@ -412,10 +425,22 @@ async function handleDeepLink() {
   const params    = new URLSearchParams(window.location.search);
   const postId    = params.get('post');
   const pageId    = params.get('page');  // legacy ?page= support
+  const payment   = params.get('payment');
   const pathname  = window.location.pathname.replace(/^\//, '').replace(/\/$/, ''); // e.g. 'services'
 
   if (postId) {
     redirectToBlogPost(postId);
+    return;
+  }
+
+  if (payment === 'cancelled') {
+    showPage('calculator', false);
+    history.replaceState({ page: 'calculator', post: null }, document.title, '/calculator/');
+    setTimeout(function() {
+      restorePendingGuidebookDetails();
+      showPaymentCancelledNotice();
+      trackSscEvent('guidebook_checkout_cancelled', { source: 'stripe' });
+    }, 80);
     return;
   }
 
@@ -468,6 +493,50 @@ async function handleDeepLink() {
     showPage('home', false);
     history.replaceState({ page: 'home', post: null }, document.title, '/');
   }
+}
+
+function restorePendingGuidebookDetails() {
+  var pending = {};
+  try { pending = JSON.parse(sessionStorage.getItem('ssc_pending_order') || '{}'); } catch(e) {}
+  if (!pending || typeof pending !== 'object') return;
+
+  var values = {
+    'calc-month': pending.month,
+    'calc-day': pending.day,
+    'calc-year': pending.year,
+    'calc-fullname': pending.name,
+    'unlock-email': pending.email,
+    'calc-lead-email': pending.email,
+  };
+
+  Object.keys(values).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && values[id]) el.value = values[id];
+  });
+}
+
+function showPaymentCancelledNotice() {
+  if (document.getElementById('ssc-payment-cancelled')) return;
+  var notice = document.createElement('div');
+  notice.id = 'ssc-payment-cancelled';
+  notice.setAttribute('role', 'status');
+  notice.setAttribute('aria-live', 'polite');
+  notice.style.cssText = [
+    'position:fixed','left:50%','bottom:24px','transform:translateX(-50%)',
+    'z-index:9999','max-width:min(520px, calc(100vw - 32px))',
+    'padding:16px 20px','border:1px solid rgba(201,168,76,.35)',
+    'border-radius:10px','background:rgba(13,11,24,.94)',
+    'box-shadow:0 18px 48px rgba(0,0,0,.35)','color:var(--text)',
+    'font-family:EB Garamond, serif','font-size:16px','line-height:1.5',
+    'text-align:center','backdrop-filter:blur(12px)'
+  ].join(';');
+  notice.innerHTML = 'Checkout was cancelled. Your details are still here if you want to continue with the Guidebook Report.';
+  document.body.appendChild(notice);
+  setTimeout(function() {
+    notice.style.transition = 'opacity .5s ease';
+    notice.style.opacity = '0';
+    setTimeout(function() { if (notice.parentNode) notice.remove(); }, 550);
+  }, 8000);
 }
 
 
@@ -1214,7 +1283,7 @@ window.applyLanguage = applyLanguage;
 //  Pop-up calculator overlay for guidebook purchase flow
 // ════════════════════════════════════════════════════════════
 
-var MODAL_CHECKOUT_BTN_LABEL = 'Continue to Payment · $11';
+var MODAL_CHECKOUT_BTN_LABEL = 'Get My $22 Guidebook';
 
 function openCalculatorModal() {
   var overlay = document.getElementById('calculator-modal-overlay');
@@ -1381,6 +1450,7 @@ function handleUnlockPaymentModal() {
   try {
     sessionStorage.setItem('ssc_pending_order', JSON.stringify(userPayload));
   } catch(e) {}
+  trackSscEvent('guidebook_checkout_start', { source: 'services_modal' });
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
@@ -1428,6 +1498,10 @@ function handleUnlockPaymentModal() {
   })
   .catch(err => {
     console.error('Checkout error:', err);
+    trackSscEvent('guidebook_checkout_error', {
+      source: 'services_modal',
+      message: err && err.message ? err.message : 'unknown'
+    });
     if (errorEl) {
       errorEl.textContent = 'Checkout failed: ' + err.message;
       errorEl.style.color = 'var(--rose-light)';

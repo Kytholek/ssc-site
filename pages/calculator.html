@@ -53,7 +53,7 @@
         <div class="calc-field-message" id="calc-fullname-message"></div>
       </div>
       <div class="field calc-email-field">
-        <label for="calc-lead-email">Send a copy to email</label>
+        <label for="calc-lead-email">Email me a free copy (optional)</label>
         <input type="email" id="calc-lead-email" placeholder="your@email.com" autocomplete="email">
         <div class="calc-field-message calc-lead-message" id="calc-lead-message" role="status" aria-live="polite"></div>
       </div>
@@ -86,6 +86,16 @@
 
         <h2 class="unlock-title">Unlock Your Full Blueprint</h2>
 
+        <div class="unlock-bridge" aria-live="polite">
+          <div class="unlock-bridge-eyebrow">Your free result revealed the coordinates</div>
+          <p>
+            Your <strong>Life Path <span id="unlock-life-path">-</span></strong>,
+            <strong>Expression <span id="unlock-expression">-</span></strong>, and
+            <strong>Life Calling <span id="unlock-life-calling">-</span></strong>
+            are the opening map. The Guidebook Report expands how those three forces interact across all seven frequencies.
+          </p>
+        </div>
+
         <p class="unlock-body">
           The numbers above show you <em>what</em> frequencies you carry.
           Your <strong>Complete Blueprint</strong> shows you <em>what to do with them</em> —
@@ -106,7 +116,7 @@
 
         <!-- Sample preview link -->
         <p class="unlock-sample-link">
-          <a href="/sample-guidebook.html" target="_blank" rel="noopener">See a sample guidebook &#8594;</a>
+          <a href="/sample-guidebook.html" id="guidebook-sample-link" target="_blank" rel="noopener">See a sample Guidebook Report &#8594;</a>
         </p>
 
         <!-- Email field -->
@@ -136,7 +146,7 @@
   id="unlock-pay-btn"
   onclick="handleUnlockPayment()"
 >
-  ⬡ Receive My Guidebook ⬡
+  ⬡ Get My Full $22 Guidebook ⬡
 </button>
 
         <p class="unlock-reassurance">

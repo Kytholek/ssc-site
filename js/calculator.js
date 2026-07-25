@@ -8,6 +8,15 @@
 // Checkout API — Cloudflare Worker POST /api/session (see wrangler.jsonc).
 var SSC_CHECKOUT_URL = '/api/session';
 
+function sscTrackEvent(eventName, payload) {
+  if (!eventName) return;
+  if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+    window.dataLayer.push(Object.assign({ event: eventName }, payload || {}));
+  }
+}
+
+window.sscTrackEvent = window.sscTrackEvent || sscTrackEvent;
+
 /* ═══════════════════════════════════════════════════════════════
    i18n helper — reads from SSC_TRANSLATIONS if available,
    falls back to the English value stored in the data objects.
@@ -679,6 +688,22 @@ function _isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function _setTextById(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function _prefillUnlockEmailFromLead() {
+  var leadEmailEl = document.getElementById('calc-lead-email');
+  var unlockEmailEl = document.getElementById('unlock-email');
+  var email = (leadEmailEl ? leadEmailEl.value : '').trim();
+  if (!unlockEmailEl || !email || !_isValidEmail(email)) return;
+  if (!unlockEmailEl.value.trim() || unlockEmailEl.dataset.prefilled === '1') {
+    unlockEmailEl.value = email;
+    unlockEmailEl.dataset.prefilled = '1';
+  }
+}
+
 function _scrollResultIntoViewIfNeeded(resultsTarget) {
   if (!resultsTarget || typeof resultsTarget.getBoundingClientRect !== 'function') return;
   var rect = resultsTarget.getBoundingClientRect();
@@ -724,6 +749,7 @@ function submitCalculatorLead() {
   })
   .then(function() {
     _setCalculatorLeadMessage('Your blueprint summary is saved.', false);
+    window.sscTrackEvent('calculator_lead_submit_success', { source: 'calculator' });
     if (emailInput) emailInput.value = '';
   })
   .catch(function(err) {
@@ -960,6 +986,20 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
     cta.style.display = 'block';
     cta.removeAttribute('aria-hidden');
   }
+  _setTextById('unlock-life-path', lp.root);
+  _setTextById('unlock-expression', exp.root);
+  _setTextById('unlock-life-calling', calling.root);
+  _prefillUnlockEmailFromLead();
+  window.sscTrackEvent('calculator_decode_success', {
+    life_path: lp.root,
+    expression: exp.root,
+    life_calling: calling.root
+  });
+  window.sscTrackEvent('guidebook_upsell_view', {
+    life_path: lp.root,
+    expression: exp.root,
+    life_calling: calling.root
+  });
 
   _setCalculatorLeadMessage('', false);
   var leadEmailEl = document.getElementById('calc-lead-email');
@@ -1345,6 +1385,7 @@ function handleUnlockPayment() {
   };
 
   try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(payload)); } catch(e) {}
+  window.sscTrackEvent('guidebook_checkout_start', { source: 'calculator' });
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
@@ -1382,12 +1423,16 @@ function handleUnlockPayment() {
   })
   .catch(function(err) {
     console.error('Checkout error:', err);
+    window.sscTrackEvent('guidebook_checkout_error', {
+      source: 'calculator',
+      message: err && err.message ? err.message : 'unknown'
+    });
     if (errorEl) {
       errorEl.textContent = 'Checkout failed: ' + err.message;
       errorEl.style.color = 'var(--rose-light)';
     }
     btn.disabled    = false;
-    btn.textContent = '⬡  Receive My Guidebook  ⬡';
+    btn.textContent = '⬡  Get My Full $22 Guidebook  ⬡';
   });
 }
 
@@ -1405,8 +1450,8 @@ window.COMPOUND_DESC    = COMPOUND_DESC;
 window.handleUnlockPayment = handleUnlockPayment;
 
 document.addEventListener('click', function(e) {
-  if (e.target && e.target.id === 'unlock-pay-btn') {
-    handleUnlockPayment();
+  if (e.target && e.target.id === 'guidebook-sample-link') {
+    window.sscTrackEvent('guidebook_sample_click', { source: 'calculator_upsell' });
   }
 });
 

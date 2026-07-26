@@ -1,0 +1,209 @@
+/* SSC site assistant — floating chat widget */
+.ssc-chat-root {
+  --ssc-chat-bg: #0b0b14;
+  --ssc-chat-panel: #10101c;
+  --ssc-chat-border: rgba(212, 168, 67, 0.35);
+  --ssc-chat-gold: #d4a843;
+  --ssc-chat-text: #c8d8f0;
+  --ssc-chat-dim: #8898a8;
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 99990;
+  font-family: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+}
+
+.ssc-chat-fab {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid var(--ssc-chat-border);
+  background: linear-gradient(160deg, #16162a 0%, #0a0a12 100%);
+  color: var(--ssc-chat-gold);
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.ssc-chat-fab:hover {
+  transform: translateY(-2px);
+  border-color: var(--ssc-chat-gold);
+}
+
+.ssc-chat-fab svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+.ssc-chat-panel {
+  display: none;
+  width: min(360px, calc(100vw - 28px));
+  height: min(480px, calc(100vh - 100px));
+  margin-bottom: 12px;
+  flex-direction: column;
+  background: var(--ssc-chat-panel);
+  border: 1px solid var(--ssc-chat-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.ssc-chat-root.is-open .ssc-chat-panel {
+  display: flex;
+}
+
+.ssc-chat-root.is-open .ssc-chat-fab {
+  display: none;
+}
+
+.ssc-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(212, 168, 67, 0.18);
+  background: linear-gradient(180deg, #161628 0%, #10101c 100%);
+}
+
+.ssc-chat-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ssc-chat-gold);
+  margin: 0;
+}
+
+.ssc-chat-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ssc-chat-dim);
+}
+
+.ssc-chat-close {
+  background: transparent;
+  border: 0;
+  color: var(--ssc-chat-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.ssc-chat-close:hover {
+  color: var(--ssc-chat-text);
+}
+
+.ssc-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background:
+    radial-gradient(ellipse at top right, rgba(212, 168, 67, 0.06), transparent 45%),
+    var(--ssc-chat-bg);
+}
+
+.ssc-chat-bubble {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ssc-chat-bubble--bot {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(200, 216, 240, 0.1);
+  color: var(--ssc-chat-text);
+}
+
+.ssc-chat-bubble--user {
+  align-self: flex-end;
+  background: rgba(212, 168, 67, 0.12);
+  border: 1px solid rgba(212, 168, 67, 0.28);
+  color: #f0e2b8;
+}
+
+.ssc-chat-bubble a {
+  color: var(--ssc-chat-gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ssc-chat-bubble--pending {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.ssc-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(212, 168, 67, 0.18);
+  background: #0d0d18;
+}
+
+.ssc-chat-input {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  height: 42px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(200, 216, 240, 0.14);
+  background: #08080f;
+  color: var(--ssc-chat-text);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.ssc-chat-input:focus {
+  outline: none;
+  border-color: rgba(212, 168, 67, 0.55);
+}
+
+.ssc-chat-send {
+  border: 1px solid var(--ssc-chat-border);
+  background: rgba(212, 168, 67, 0.14);
+  color: var(--ssc-chat-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.ssc-chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ssc-chat-send:not(:disabled):hover {
+  background: rgba(212, 168, 67, 0.24);
+}
+
+@media (max-width: 520px) {
+  .ssc-chat-root {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .ssc-chat-panel {
+    width: calc(100vw - 24px);
+    height: min(70vh, 520px);
+  }
+}

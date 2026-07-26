@@ -247,8 +247,39 @@ async function loadNav() {
         hamburger.onclick = toggleMenu;
       }
     }
+    ensureChatWidget();
   } catch (err) {
     console.error('loadNav error:', err);
+  }
+}
+
+/** Load site assistant widget (CSS + JS) once — SPA shell and blog pages. */
+function ensureChatWidget() {
+  try {
+    if (!document.getElementById('ssc-chat-widget-css')) {
+      var link = document.createElement('link');
+      link.id = 'ssc-chat-widget-css';
+      link.rel = 'stylesheet';
+      link.href = '/css/chat-widget.css?v=20260726-chat';
+      document.head.appendChild(link);
+    }
+    if (typeof window.initChatWidget === 'function') {
+      window.initChatWidget();
+      return;
+    }
+    if (document.querySelector('script[data-ssc-chat-widget]')) {
+      return;
+    }
+    var script = document.createElement('script');
+    script.src = '/js/chat-widget.js?v=20260726-chat';
+    script.defer = true;
+    script.dataset.sscChatWidget = '1';
+    script.onload = function () {
+      if (typeof window.initChatWidget === 'function') window.initChatWidget();
+    };
+    document.head.appendChild(script);
+  } catch (err) {
+    console.error('ensureChatWidget error:', err);
   }
 }
 
@@ -553,6 +584,7 @@ async function initApp() {
   _initNavHero();
   initHomePage();
   initCodexPage();
+  ensureChatWidget();
 }
 
 

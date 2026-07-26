@@ -10,7 +10,8 @@
     "build:sitemap": "node scripts/build-sitemap.js",
     "build:rss": "node scripts/build-rss.js",
     "build:seo": "node scripts/build-static-pages.js && node scripts/build-about-static.js && node scripts/build-sitemap.js && node scripts/build-rss.js",
-    "deploy": "wrangler deploy --config wrangler.jsonc"
+    "build:chat-knowledge": "node scripts/build-chat-knowledge.js",
+    "deploy": "npm run build:chat-knowledge && wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
     "wrangler": "4.77.0"

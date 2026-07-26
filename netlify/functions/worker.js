@@ -4,10 +4,21 @@
  *       (paid: Stripe checkout → webhook → queue)
  *       (free:  POST /api/session → queue directly)
  *       GET /api/checkout-session, /api/google-reviews, /api/site-config
+ *       POST /api/chat — site assistant (site + blog grounded, single-turn)
  */
 
 import { buildCodexFootprintSvg, buildCodexPromptBlock } from '../../js/codex-footprint.mjs';
 import { processTimeCycleReading } from '../../js/time-cycle-reading.mjs';
+import {
+  CHAT_MAX_MESSAGE_CHARS,
+  CHAT_MODEL,
+  CHAT_SYSTEM_PROMPT,
+  OFFTOPIC_REPLY,
+  buildChatUserPrompt,
+  isObviousOffTopic,
+  retrieveChatContext,
+  sanitizeChatMessage,
+} from '../../js/chat-assistant.mjs';
 
 const PRODUCT_CONFIG = {
   guidebook: {
@@ -35,13 +46,19 @@ let googleReviewsCache = { data: null, expires: 0 };
 
 const ALLOWED_ORIGINS = [
   'https://simulationsourcecode.com',
+  'https://www.simulationsourcecode.com',
   'https://portal.simulationsourcecode.com',
   'http://127.0.0.1:5500',
   'http://localhost:5500',
   'http://localhost:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'http://127.0.0.1:8377',
+  'http://localhost:8377',
 ];
+
+const CHAT_RATE_LIMIT = 20;
+const CHAT_RATE_WINDOW_MS = 10 * 60 * 1000;
 
 const SCL_PRODUCT_PRICE_ENV = {
   premium_monthly: 'STRIPE_PRICE_SCL_MONTHLY',
@@ -165,26 +182,91 @@ function buildCalculatorEmailCtaHtml() {
   `;
 }
 
-// Shared email collector — origins: calculator | webapp | guidebook | signup
+// Shared email collector — origins: calculator | webapp | guidebook | time-cycle | signup
+// Sheet Apps Script syncs contacts to Brevo (ORIGIN attribute = these values)
 const EMAIL_SHEET_URL =
   'https://script.google.com/macros/s/AKfycby4as7NPJliyQDm-5lpJM1RjtgVMNMuudlYqfAKeSJj1drKi54yi3HVU3dREWL8lpsLVg/exec';
 
-const EMAIL_ORIGINS = new Set(['calculator', 'webapp', 'guidebook', 'signup']);
+const EMAIL_ORIGINS = new Set(['calculator', 'webapp', 'guidebook', 'time-cycle', 'signup']);
 
 async function logEmailToSheet(payload) {
   try {
-    await fetch(EMAIL_SHEET_URL, {
+    // text/plain avoids Apps Script JSON preflight quirks; body is still JSON
+    const res = await fetch(EMAIL_SHEET_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
+      redirect: 'follow',
     });
+    if (!res.ok) {
+      console.error('sheets-log HTTP', res.status, await res.text().catch(() => ''));
+    } else {
+      console.log('sheets-log ok', payload.origin || payload.source, payload.email);
+    }
   } catch (err) {
     console.error('sheets-log error:', err);
   }
 }
 
+/** Log a services purchase to Sheet → Brevo with contact + blueprint fields. */
+async function logPurchaseToSheet(userData, extras = {}) {
+  const email = String(userData?.email || '').trim().toLowerCase();
+  if (!email) return;
+
+  const product = resolveProduct(userData.product).id;
+  const origin = EMAIL_ORIGINS.has(product) ? product : 'guidebook';
+
+  const fullName = String(userData.fullName || userData.name || '').trim();
+  const firstName =
+    String(extras.firstName || extras.first_name || '').trim()
+    || (fullName ? fullName.split(/\s+/)[0] : '');
+
+  const birthMonth = parseInt(userData.birthMonth ?? userData.month, 10);
+  const birthDay = parseInt(userData.birthDay ?? userData.day, 10);
+  const birthYear = parseInt(userData.birthYear ?? userData.year, 10);
+  const birthDate =
+    birthMonth && birthDay && birthYear
+      ? `${birthMonth}/${birthDay}/${birthYear}`
+      : String(extras.birthDate || extras.birth_date || '');
+
+  let lifePath = extras.lifePath ?? extras.life_path ?? '';
+  let expression = extras.expression ?? '';
+  let lifeCalling = extras.lifeCalling ?? extras.life_calling ?? extras.destiny ?? '';
+
+  if (fullName && birthMonth && birthDay && birthYear && (!lifePath || !expression || !lifeCalling)) {
+    try {
+      const freq = calculateFrequencies(fullName, birthMonth, birthDay, birthYear);
+      lifePath = lifePath || freq.lifePath;
+      expression = expression || freq.expression;
+      lifeCalling = lifeCalling || freq.destiny;
+    } catch (err) {
+      console.error('purchase frequency calc error:', err);
+    }
+  }
+
+  // Match calculator /submit-email field names so Apps Script + Brevo map the same way
+  await logEmailToSheet({
+    email,
+    source: origin,
+    origin,
+    product,
+    firstName,
+    first_name: firstName,
+    name: fullName,
+    full_name: fullName,
+    birthDate,
+    birth_date: birthDate,
+    lifePath: lifePath === '' || lifePath == null ? '' : String(lifePath),
+    life_path: lifePath === '' || lifePath == null ? '' : String(lifePath),
+    expression: expression === '' || expression == null ? '' : String(expression),
+    lifeCalling: lifeCalling === '' || lifeCalling == null ? '' : String(lifeCalling),
+    life_calling: lifeCalling === '' || lifeCalling == null ? '' : String(lifeCalling),
+    destiny: lifeCalling === '' || lifeCalling == null ? '' : String(lifeCalling),
+  });
+}
+
 async function logPurchaseEmail(email) {
-  await logEmailToSheet({ email, source: 'guidebook', origin: 'guidebook' });
+  await logPurchaseToSheet({ email, product: 'guidebook' });
 }
 
 async function enqueueReading(userData, env) {
@@ -221,7 +303,11 @@ export default {
     if (request.method === 'OPTIONS') {
       // Ensure preflight succeeds for the checkout endpoints.
       // Some edge cases/mismatches can otherwise return 405/"Method not allowed".
-      if (url.pathname === '/api/session' || url.pathname === '/submit-email') {
+      if (
+        url.pathname === '/api/session'
+        || url.pathname === '/api/chat'
+        || url.pathname === '/submit-email'
+      ) {
         return new Response(null, { status: 204, headers: corsHeaders(origin) });
       }
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
@@ -268,6 +354,10 @@ export default {
 
     if (request.method === 'POST' && url.pathname === '/submit-email') {
       return handleSubmitEmail(request, env, origin);
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/chat') {
+      return handleChat(request, env, origin);
     }
 
     if (url.pathname !== '/webhook/stripe') {
@@ -360,8 +450,12 @@ export default {
       return new Response('Queue not configured', { status: 500 });
     }
 
-    // Log guidebook purchase email to Google Sheet
-    await logPurchaseEmail(userData.email);
+    // Log purchase to Google Sheet → Brevo (origin = product)
+    await logPurchaseToSheet(userData, {
+      lifePath: session.metadata?.life_path,
+      expression: session.metadata?.expression,
+      lifeCalling: session.metadata?.life_calling,
+    });
 
     try {
       await env.READINGS_QUEUE.send(userData);
@@ -1381,7 +1475,11 @@ async function handleCreateCheckout(request, env, origin) {
       });
     }
     try {
-      await logPurchaseEmail(userData.email);
+      await logPurchaseToSheet(userData, {
+        lifePath: life_path,
+        expression,
+        lifeCalling: life_calling,
+      });
       await enqueueReading(userData, env);
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
@@ -1463,6 +1561,159 @@ async function handleCreateCheckout(request, env, origin) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  SITE CHAT — POST /api/chat (single-turn, site+blog grounded)
+// ════════════════════════════════════════════════════════════
+
+function chatClientIp(request) {
+  return (
+    request.headers.get('cf-connecting-ip')
+    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || 'unknown'
+  );
+}
+
+async function checkChatRateLimit(request) {
+  const ip = chatClientIp(request);
+  const key = new Request(`https://ssc-chat-rate.local/${encodeURIComponent(ip)}`);
+  try {
+    const cache = caches.default;
+    const hit = await cache.match(key);
+    let count = 0;
+    let resetAt = Date.now() + CHAT_RATE_WINDOW_MS;
+    if (hit) {
+      const data = await hit.json();
+      count = Number(data.count) || 0;
+      resetAt = Number(data.resetAt) || resetAt;
+      if (Date.now() > resetAt) {
+        count = 0;
+        resetAt = Date.now() + CHAT_RATE_WINDOW_MS;
+      }
+    }
+    if (count >= CHAT_RATE_LIMIT) {
+      return { ok: false, retryAfter: Math.max(1, Math.ceil((resetAt - Date.now()) / 1000)) };
+    }
+    const body = JSON.stringify({ count: count + 1, resetAt });
+    const ttl = Math.max(60, Math.ceil((resetAt - Date.now()) / 1000));
+    await cache.put(
+      key,
+      new Response(body, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': `public, max-age=${ttl}`,
+        },
+      })
+    );
+    return { ok: true };
+  } catch (err) {
+    console.error('chat rate-limit error (allowing):', err?.message || err);
+    return { ok: true };
+  }
+}
+
+async function handleChat(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return new Response(JSON.stringify({ error: 'Content-Type must be application/json' }), {
+      status: 415,
+      headers,
+    });
+  }
+
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 4096) {
+    return new Response(JSON.stringify({ error: 'Request too large' }), {
+      status: 413,
+      headers,
+    });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+  }
+
+  // Single-turn only — ignore any history arrays clients might send
+  const message = sanitizeChatMessage(body?.message);
+  const page = String(body?.page || '').slice(0, 200);
+
+  if (!message) {
+    return new Response(JSON.stringify({ error: 'Message required' }), { status: 400, headers });
+  }
+  if (message.length > CHAT_MAX_MESSAGE_CHARS) {
+    return new Response(JSON.stringify({ error: 'Message too long' }), { status: 400, headers });
+  }
+
+  const rate = await checkChatRateLimit(request);
+  if (!rate.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests. Try again shortly.' }), {
+      status: 429,
+      headers: { ...headers, 'Retry-After': String(rate.retryAfter || 60) },
+    });
+  }
+
+  if (isObviousOffTopic(message)) {
+    return new Response(JSON.stringify({ reply: OFFTOPIC_REPLY }), { status: 200, headers });
+  }
+
+  if (!env.ANTHROPIC_API_KEY) {
+    console.error('ANTHROPIC_API_KEY missing for /api/chat');
+    return new Response(JSON.stringify({ error: 'Chat unavailable' }), { status: 503, headers });
+  }
+
+  const chunks = retrieveChatContext(message);
+  const userPrompt = buildChatUserPrompt(message, page, chunks);
+
+  try {
+    const antRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: CHAT_MODEL,
+        max_tokens: 500,
+        system: CHAT_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+
+    const antJson = await antRes.json();
+    if (!antRes.ok) {
+      console.error('chat anthropic error:', antJson?.error?.message || antRes.status);
+      return new Response(JSON.stringify({ error: 'Chat temporarily unavailable' }), {
+        status: 502,
+        headers,
+      });
+    }
+
+    const reply = (antJson.content || [])
+      .filter((b) => b.type === 'text')
+      .map((b) => b.text)
+      .join('\n')
+      .trim();
+
+    if (!reply) {
+      return new Response(JSON.stringify({ error: 'Empty reply' }), { status: 502, headers });
+    }
+
+    return new Response(JSON.stringify({ reply }), { status: 200, headers });
+  } catch (err) {
+    console.error('handleChat error:', err?.message || err);
+    return new Response(JSON.stringify({ error: 'Chat temporarily unavailable' }), {
+      status: 500,
+      headers,
     });
   }
 }

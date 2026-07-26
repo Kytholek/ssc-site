@@ -225,13 +225,22 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 }
 
 .page:not(#page-services):not(#page-calculator) .hp-ssc-title,
-.page:not(#page-services):not(#page-calculator) .hp-scl-title {
+.page:not(#page-services):not(#page-calculator):not(#page-home) .hp-scl-title {
   font-family: 'Cormorant SC', serif !important;
   font-weight: 300 !important;
   font-size: clamp(28px, 4vw, 52px) !important;
   color: var(--gold) !important;
   text-shadow: 0 0 24px rgba(212,168,67,0.3) !important;
   letter-spacing: .04em !important;
+}
+#page-home .hp-scl-title {
+  font-family: 'Cormorant SC', serif !important;
+  font-weight: 300 !important;
+  font-size: clamp(26px, 3.2vw, 42px) !important;
+  color: var(--gold) !important;
+  text-shadow: 0 0 24px rgba(212,168,67,0.3) !important;
+  letter-spacing: .04em !important;
+  text-align: right;
 }
 
 .page:not(#page-services):not(#page-calculator) .hp-ssc-eyebrow,
@@ -348,83 +357,9 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
   border-top: 1px solid var(--border) !important;
   border-bottom: 1px solid var(--border) !important;
 }
-#page-home .hp-scl-terminal {
-  box-shadow: 0 0 40px rgba(0,229,204,0.1), 0 0 0 1px rgba(0,229,204,0.06) !important;
-}
 
-/* Tester section */
-#page-home .hp-tester-section {
-  background: var(--bg-panel) !important;
-  border-top: 1px solid rgba(212,168,67,0.12) !important;
-}
-#page-home .hp-tester-title {
-  font-family: 'Cormorant SC', serif !important;
-  font-weight: 300 !important;
-  font-size: clamp(22px, 3vw, 34px) !important;
-  letter-spacing: .05em !important;
-  color: var(--white) !important;
-}
-#page-home .hp-tester-title span { color: var(--teal) !important; }
-#page-home .hp-tester-label {
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 7px !important;
-  color: var(--teal) !important;
-  text-shadow: 0 0 10px rgba(0,229,204,0.3) !important;
-  opacity: 0.85 !important;
-}
-#page-home .hp-tester-sub {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--text-dim) !important;
-}
-#page-home .hp-tester-body {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--text-dim) !important;
-}
-#page-home .hp-tester-divider { background: rgba(0,229,204,0.4) !important; }
-#page-home .hp-tester-btn {
-  font-family: 'Press Start 2P', monospace !important;
-  font-size: 8px !important;
-  background: var(--teal) !important;
-  color: var(--bg-deep) !important;
-  border-radius: 0 !important;
-  box-shadow: 0 0 24px rgba(0,229,204,0.3) !important;
-}
-#page-home .hp-tester-btn:hover {
-  background: var(--teal-light) !important;
-  box-shadow: 0 0 40px rgba(0,229,204,0.45) !important;
-}
-#page-home .hp-tester-step {
-  background: rgba(0,229,204,0.03) !important;
-  border: 1px solid rgba(0,229,204,0.12) !important;
-  border-radius: 0 !important;
-}
-#page-home .hp-tester-step:hover {
-  background: rgba(0,229,204,0.08) !important;
-  border-color: rgba(0,229,204,0.3) !important;
-}
-#page-home .hp-tester-step-num {
-  font-family: 'Press Start 2P', monospace !important;
-  color: var(--teal-light) !important;
-  opacity: 1 !important;
-}
-#page-home .hp-tester-step-title {
-  font-family: 'Cormorant SC', serif !important;
-  font-weight: 300 !important;
-  font-size: 14px !important;
-  letter-spacing: .04em !important;
-  color: var(--white) !important;
-}
-#page-home .hp-tester-step-desc {
-  font-family: 'Share Tech Mono', monospace !important;
-  color: var(--text-muted) !important;
-}
-#page-home .hp-tester-step-arrow { color: var(--teal) !important; }
 
-/* Codex SVG diagram */
-#page-home .hp-codex-node circle {
-  stroke: rgba(0,229,204,0.5) !important;
-  fill: #0b0b14 !important;
-}
+
 #page-home .hp-codex-node text {
   fill: rgba(0,229,204,0.8) !important;
   font-family: 'Share Tech Mono', monospace !important;
@@ -720,7 +655,6 @@ nav.nav-hero .nav-cta {
 #page-home .hp-hero-sub,
 #page-home .hp-hero-sub--full,
 #page-home .hp-hero-sub--short,
-#page-home .hp-proof-pill,
 #page-home .hp-services-all,
 #page-home .hp-ssc-body,
 #page-home .hp-scl-body {

@@ -305,9 +305,7 @@
   #page-home .hp-faq-eyebrow {
     font-size: 10px;
     letter-spacing: 0.28em;
-  }
-  #page-home .hp-proof-pill,
-  #page-home .hp-article-tag,
+  }  #page-home .hp-article-tag,
   #page-home .hp-service-tier {
     font-size: 9px;
     letter-spacing: 0.12em;
@@ -339,11 +337,7 @@
 @media (prefers-reduced-motion: reduce) {
   .hp-hero::before {
     animation: none !important;
-  }
-  .hp-scl-boot-line {
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  }
   .hp-sticky-calc-cta {
     transition: none;
   }

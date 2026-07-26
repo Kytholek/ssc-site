@@ -220,7 +220,7 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html?v=20260705', { cache: 'no-store' });
+    const response = await fetch('/pages/nav.html?v=20260726-about-dd', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
@@ -261,7 +261,7 @@ async function loadFooter() {
     if (!placeholder) return;
     if (placeholder.innerHTML.trim().length > 0) return;
 
-    const response = await fetch('/pages/footer.html');
+    const response = await fetch('/pages/footer.html?v=20260726-nosubstack');
     if (!response.ok) throw new Error('Failed to load footer');
     const html = await response.text();
     const temp = document.createElement('div');
@@ -635,8 +635,57 @@ function initHomePage() {
         heroImg.style.transform = 'translateY(' + (window.scrollY * 0.2) + 'px)';
       }, { passive: true });
     }
+    initHomeFaqAccordion();
+    initHomeStickyCta();
+    initHomeCtaTracking();
     _homePageInited = true;
   }
+}
+
+function initHomeFaqAccordion() {
+  if (window._homeFaqBound) return;
+  window._homeFaqBound = true;
+
+  // Keep one FAQ open at a time; icons handled via CSS on [open]
+  document.addEventListener('toggle', function (e) {
+    var item = e.target;
+    if (!item || !item.classList || !item.classList.contains('hp-faq-item')) return;
+    if (!item.open) return;
+    document.querySelectorAll('.hp-faq-item[open]').forEach(function (other) {
+      if (other !== item) other.removeAttribute('open');
+    });
+  }, true);
+}
+
+function initHomeStickyCta() {
+  var sticky = document.querySelector('.hp-sticky-calc-cta');
+  if (!sticky || !window.matchMedia('(max-width: 600px)').matches) return;
+  function updateSticky() {
+    var onHome = document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active');
+    if (!onHome) {
+      sticky.classList.remove('is-visible');
+      return;
+    }
+    if (window.scrollY > 420) sticky.classList.add('is-visible');
+    else sticky.classList.remove('is-visible');
+  }
+  window.addEventListener('scroll', updateSticky, { passive: true });
+  updateSticky();
+}
+
+function initHomeCtaTracking() {
+  if (window._homeCtaBound) return;
+  window._homeCtaBound = true;
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('.js-track-cta') : null;
+    if (!el || !document.getElementById('page-home')) return;
+    if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+      window.dataLayer.push({
+        event: 'home_cta_click',
+        cta_id: el.getAttribute('data-cta') || 'unknown'
+      });
+    }
+  });
 }
 
 // ────────────────────────────────────────────────────────────

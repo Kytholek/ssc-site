@@ -189,8 +189,8 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
   letter-spacing: .06em !important;
 }
 
-.page:not(#page-services):not(#page-calculator) .hp-hero-title,
-.page:not(#page-services):not(#page-calculator) [class*="hero-title"] {
+.page:not(#page-services):not(#page-calculator):not(#page-home) .hp-hero-title,
+.page:not(#page-services):not(#page-calculator):not(#page-home) [class*="hero-title"] {
   font-family: 'Cormorant SC', serif !important;
   font-weight: 300 !important;
   font-size: clamp(36px, 6vw, 72px) !important;
@@ -198,7 +198,12 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
   text-shadow: 0 0 40px rgba(0,229,204,0.12) !important;
   letter-spacing: .04em !important;
 }
-.page:not(#page-services):not(#page-calculator) .hp-hero-title span {
+
+/* Home hero title — keep smaller; do not use quest 72px scale */
+#page-home .hp-hero-title {
+  font-size: clamp(28px, 3.6vw, 42px) !important;
+}
+.page:not(#page-services):not(#page-calculator):not(#page-home) .hp-hero-title span {
   color: var(--teal) !important;
   text-shadow: 0 0 24px rgba(0,229,204,0.6) !important;
 }
@@ -685,7 +690,7 @@ nav.nav-hero .nav-cta {
 }
 
 .page:not(#page-services):not(#page-calculator) [class*="-body"],
-.page:not(#page-services):not(#page-calculator) p,
+.page:not(#page-services):not(#page-calculator) p:not(.hp-hero-micro),
 .page:not(#page-services):not(#page-calculator) li {
   color: var(--text-dim) !important;
   font-size: max(16px, 1rem) !important;
@@ -700,11 +705,21 @@ nav.nav-hero .nav-cta {
   letter-spacing: 0.14em !important;
 }
 
+
+/* Home hero micro — do not inherit global p 16px */
+#page-home.page p.hp-hero-micro,
+#page-home .hp-hero-micro {
+  font-size: 7px !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.14em !important;
+  color: rgba(201, 168, 76, 0.62) !important;
+  text-transform: uppercase !important;
+}
+
 /* Home hero + proof row — brighter secondary copy on dark */
 #page-home .hp-hero-sub,
 #page-home .hp-hero-sub--full,
 #page-home .hp-hero-sub--short,
-#page-home .hp-hero-micro,
 #page-home .hp-proof-pill,
 #page-home .hp-services-all,
 #page-home .hp-ssc-body,

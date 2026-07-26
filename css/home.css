@@ -10,8 +10,6 @@
 #page-home .hp-freq-calling-wrap:focus-visible,
 #page-home .hp-scl-install-step:focus-visible,
 #page-home .hp-cta-text:focus-visible,
-#page-home .hp-how-link:focus-visible,
-#page-home .hp-codex-bridge-cta:focus-visible,
 #page-home .hp-service-card:focus-visible,
 #page-home .hp-faq-q:focus-visible,
 #page-home .hp-sticky-calc-cta:focus-visible,
@@ -256,7 +254,10 @@
   font-weight: 300;
   color: var(--text);
   transition: color 0.2s;
+  list-style: none;
 }
+.hp-faq-q::-webkit-details-marker { display: none; }
+.hp-faq-q::marker { content: ''; }
 .hp-faq-q:hover {
   color: var(--gold);
 }
@@ -266,6 +267,12 @@
   font-size: 18px;
   color: var(--gold-dim);
   line-height: 1;
+}
+.hp-faq-icon::before {
+  content: '+';
+}
+.hp-faq-item[open] .hp-faq-icon::before {
+  content: '\2212';
 }
 .hp-faq-a {
   font-family: 'EB Garamond', serif;
@@ -293,8 +300,6 @@
 /* Mobile micro-label readability */
 @media (max-width: 600px) {
   #page-home .hp-hero-eyebrow,
-  #page-home .hp-codex-bridge-eyebrow,
-  #page-home .hp-how-label,
   #page-home .hp-ssc-eyebrow,
   #page-home .hp-services-eyebrow,
   #page-home .hp-faq-eyebrow {

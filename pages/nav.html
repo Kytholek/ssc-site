@@ -37,18 +37,17 @@
   </div>
   <div class="nav-links">
     <a class="nav-link" id="nav-calculator" href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}" data-i18n="nav.calculator">Calculator</a>
+    <a class="nav-link" id="nav-services" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">Services</a>
     <div class="nav-dropdown">
-      <a class="nav-link nav-dropdown-toggle" id="nav-codex" href="/codex/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('codex', false);setCodexView('matrix', true);}">Codex</a>
-      <div class="nav-submenu" aria-label="Codex submenu">
-        <a class="nav-submenu-link" href="/codex/" onclick="navigateCodex('matrix', event)">Consciousness Matrix</a>
+      <a class="nav-link nav-dropdown-toggle" id="nav-about" href="/about" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}" data-i18n="nav.about">About</a>
+      <div class="nav-submenu" aria-label="About submenu">
+        <a class="nav-submenu-link" id="nav-blog" href="/blog/" data-i18n="nav.blog">Blog</a>
+        <a class="nav-submenu-link" id="nav-books" href="/books" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}" data-i18n="nav.books">Books</a>
+        <a class="nav-submenu-link" id="nav-codex" href="/codex/" onclick="navigateCodex('matrix', event)">Consciousness Matrix</a>
         <a class="nav-submenu-link" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event)">Evolution of Energy</a>
         <a class="nav-submenu-link" href="/blueprint/">Triune Trinity Blueprint</a>
       </div>
     </div>
-    <a class="nav-link" id="nav-services" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">Services</a>
-    <a class="nav-link" id="nav-blog"       href="/blog/"                                                                                                        data-i18n="nav.blog">Blog</a>
-    <a class="nav-link" id="nav-books"      href="/books"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}"      data-i18n="nav.books">Books</a>
-    <a class="nav-link" id="nav-about"      href="/about"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}"      data-i18n="nav.about">About</a>
   </div>
   <div class="nav-right">
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Switch to dark theme" title="Switch theme">Dark</button>
@@ -61,13 +60,13 @@
 </nav>
 <div class="nav-mobile" id="mobile-menu">
   <a class="nav-link" href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}toggleMenu();" data-i18n="nav.calculator">Calculator</a>
-  <a class="nav-link" href="/codex/" onclick="navigateCodex('matrix', event);toggleMenu();">Codex</a>
+  <a class="nav-link" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}toggleMenu();">Services</a>
+  <a class="nav-link" href="/about" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}toggleMenu();" data-i18n="nav.about">About</a>
+  <a class="nav-link nav-mobile-sub" href="/blog/" onclick="toggleMenu();" data-i18n="nav.blog">Blog</a>
+  <a class="nav-link nav-mobile-sub" href="/books" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}toggleMenu();" data-i18n="nav.books">Books</a>
+  <a class="nav-link nav-mobile-sub" href="/codex/" onclick="navigateCodex('matrix', event);toggleMenu();">Consciousness Matrix</a>
   <a class="nav-link nav-mobile-sub" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event);toggleMenu();">Evolution of Energy</a>
   <a class="nav-link nav-mobile-sub" href="/blueprint/" onclick="toggleMenu();">Triune Trinity Blueprint</a>
-  <a class="nav-link" href="/services"   onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}toggleMenu();">Services</a>
-  <a class="nav-link" href="/blog/"                                                                                                                       data-i18n="nav.blog">Blog</a>
-  <a class="nav-link" href="/books"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}toggleMenu();"      data-i18n="nav.books">Books</a>
-  <a class="nav-link" href="/about"      onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('about');}toggleMenu();"      data-i18n="nav.about">About</a>
   <button class="theme-toggle theme-toggle-mobile" onclick="toggleTheme()" id="theme-toggle-mobile" aria-label="Switch theme">Dark</button>
   <a href="https://portal.simulationsourcecode.com" class="nav-cta" data-i18n="nav.cta">&#11041;&nbsp;Launch App</a>
   <button class="lang-toggle lang-toggle-mobile" onclick="toggleLang()" id="lang-toggle-mobile" aria-label="Switch language">ES</button>

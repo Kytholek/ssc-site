@@ -242,7 +242,7 @@ body { padding-top: 64px; }
   position: absolute;
   top: calc(100% + 12px);
   left: 0;
-  min-width: 220px;
+  min-width: 260px;
   background: rgba(10, 10, 16, .98);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -274,7 +274,8 @@ body { padding-top: 64px; }
   border-radius: 6px;
   border: 1px solid transparent;
 }
-.nav-submenu-link:hover {
+.nav-submenu-link:hover,
+.nav-submenu-link.active {
   color: var(--gold);
   border-color: var(--border-mid);
   background: rgba(201,168,76,.06);

@@ -1683,7 +1683,7 @@ async function handleChat(request, env, origin) {
       },
       body: JSON.stringify({
         model: CHAT_MODEL,
-        max_tokens: 500,
+        max_tokens: 220,
         system: CHAT_SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       }),

@@ -14,10 +14,13 @@ import {
   CHAT_MODEL,
   CHAT_SYSTEM_PROMPT,
   OFFTOPIC_REPLY,
+  buildBirthDateNumbersReply,
   buildChatUserPrompt,
   isObviousOffTopic,
+  resolveDateFrequenciesFromMessage,
   retrieveChatContext,
   sanitizeChatMessage,
+  wantsPersonalNumbers,
 } from '../../js/chat-assistant.mjs';
 
 const PRODUCT_CONFIG = {
@@ -1665,13 +1668,22 @@ async function handleChat(request, env, origin) {
     return new Response(JSON.stringify({ reply: OFFTOPIC_REPLY }), { status: 200, headers });
   }
 
+  // Deterministic SSC math for birth-date numbers — do not let the model invent digits.
+  const dateFreqs = resolveDateFrequenciesFromMessage(message);
+  if (dateFreqs && wantsPersonalNumbers(message)) {
+    return new Response(
+      JSON.stringify({ reply: buildBirthDateNumbersReply(dateFreqs) }),
+      { status: 200, headers }
+    );
+  }
+
   if (!env.ANTHROPIC_API_KEY) {
     console.error('ANTHROPIC_API_KEY missing for /api/chat');
     return new Response(JSON.stringify({ error: 'Chat unavailable' }), { status: 503, headers });
   }
 
   const chunks = retrieveChatContext(message);
-  const userPrompt = buildChatUserPrompt(message, page, chunks);
+  const userPrompt = buildChatUserPrompt(message, page, chunks, dateFreqs);
 
   try {
     const antRes = await fetch('https://api.anthropic.com/v1/messages', {

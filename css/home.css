@@ -1,4 +1,4 @@
-/* Home page UX additions — services, SCL teaser, FAQ, a11y */
+/* Home page UX additions — services, FAQ, a11y */
 
 #page-home {
   padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
@@ -13,7 +13,6 @@
 #page-home .hp-how-link:focus-visible,
 #page-home .hp-codex-bridge-cta:focus-visible,
 #page-home .hp-service-card:focus-visible,
-#page-home .hp-scl-teaser-cta:focus-visible,
 #page-home .hp-faq-q:focus-visible,
 #page-home .hp-sticky-calc-cta:focus-visible,
 #page-home .hp-article-card:focus-visible {
@@ -21,7 +20,6 @@
   outline-offset: 3px;
 }
 
-#page-home .hp-scl-teaser-cta:focus-visible,
 #page-home .hp-scl-install-step:focus-visible {
   outline-color: var(--teal);
 }
@@ -36,84 +34,6 @@
 }
 .hp-hero-tertiary .hp-cta-text {
   margin-right: 16px;
-}
-
-/* SCL compact teaser */
-.hp-scl-teaser {
-  padding: 48px 80px;
-  border-top: 1px solid rgba(0, 229, 204, 0.12);
-  border-bottom: 1px solid rgba(0, 229, 204, 0.12);
-  background: linear-gradient(135deg, rgba(0, 229, 204, 0.04), rgba(201, 168, 76, 0.02));
-}
-.hp-scl-teaser-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex-wrap: wrap;
-}
-.hp-scl-teaser-copy {
-  flex: 1 1 280px;
-  min-width: 0;
-}
-.hp-scl-teaser-eyebrow {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--teal);
-  margin-bottom: 10px;
-}
-.hp-scl-teaser-title {
-  font-family: 'Cormorant SC', serif;
-  font-weight: 300;
-  font-size: clamp(24px, 3vw, 36px);
-  color: var(--gold);
-  margin-bottom: 10px;
-  line-height: 1.15;
-}
-.hp-scl-teaser-body {
-  font-family: 'EB Garamond', serif;
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--text-dim);
-  margin: 0;
-  max-width: 520px;
-}
-.hp-scl-teaser-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  flex-shrink: 0;
-}
-.hp-scl-teaser-cta {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 14px 22px;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-.hp-scl-teaser-cta--primary {
-  background: rgba(0, 229, 204, 0.1);
-  border: 1px solid rgba(0, 229, 204, 0.35);
-  color: var(--teal);
-}
-.hp-scl-teaser-cta--primary:hover {
-  background: rgba(0, 229, 204, 0.16);
-  border-color: rgba(0, 229, 204, 0.55);
-}
-.hp-scl-teaser-cta--ghost {
-  background: transparent;
-  border: 1px solid rgba(201, 168, 76, 0.25);
-  color: var(--gold-dim);
-}
-.hp-scl-teaser-cta--ghost:hover {
-  border-color: var(--gold);
-  color: var(--gold);
 }
 
 /* Services band */
@@ -387,7 +307,6 @@
     font-size: 9px;
     letter-spacing: 0.12em;
   }
-  .hp-scl-teaser,
   .hp-services-section,
   .hp-faq-section {
     padding-left: 24px;
@@ -396,14 +315,9 @@
   .hp-services-grid {
     grid-template-columns: 1fr;
   }
-  .hp-scl-teaser-inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 @media (max-width: 1100px) {
-  .hp-scl-teaser,
   .hp-services-section,
   .hp-faq-section {
     padding-left: 40px;

@@ -165,16 +165,26 @@ function buildCalculatorEmailCtaHtml() {
   `;
 }
 
-async function logPurchaseEmail(email) {
+// Shared email collector — origins: calculator | webapp | guidebook | signup
+const EMAIL_SHEET_URL =
+  'https://script.google.com/macros/s/AKfycby4as7NPJliyQDm-5lpJM1RjtgVMNMuudlYqfAKeSJj1drKi54yi3HVU3dREWL8lpsLVg/exec';
+
+const EMAIL_ORIGINS = new Set(['calculator', 'webapp', 'guidebook', 'signup']);
+
+async function logEmailToSheet(payload) {
   try {
-    await fetch('https://script.google.com/macros/s/AKfycbz_G8BxEgYBPpWNPO6vmGEPiITYUAH3px8TxyaSZCME4W_3y7MQ_IPdzdi2tdiX1X7w9w/exec', {
+    await fetch(EMAIL_SHEET_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, source: 'purchase' }),
+      body: JSON.stringify(payload),
     });
   } catch (err) {
     console.error('sheets-log error:', err);
   }
+}
+
+async function logPurchaseEmail(email) {
+  await logEmailToSheet({ email, source: 'guidebook', origin: 'guidebook' });
 }
 
 async function enqueueReading(userData, env) {
@@ -350,16 +360,8 @@ export default {
       return new Response('Queue not configured', { status: 500 });
     }
 
-    // Log purchase email to Google Sheet
-    try {
-      await fetch('https://script.google.com/macros/s/AKfycbz_G8BxEgYBPpWNPO6vmGEPiITYUAH3px8TxyaSZCME4W_3y7MQ_IPdzdi2tdiX1X7w9w/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userData.email, source: 'purchase' }),
-      });
-    } catch (err) {
-      console.error('sheets-log error:', err);
-    }
+    // Log guidebook purchase email to Google Sheet
+    await logPurchaseEmail(userData.email);
 
     try {
       await env.READINGS_QUEUE.send(userData);
@@ -1482,7 +1484,8 @@ async function handleSubmitEmail(request, env, origin) {
   }
 
   const email = String(body.email || '').trim();
-  const source = body.source === 'calculator' ? 'calculator' : 'signup';
+  const requestedSource = String(body.source || body.origin || 'signup').trim().toLowerCase();
+  const source = EMAIL_ORIGINS.has(requestedSource) ? requestedSource : 'signup';
 
   if (!email || !isValidEmail(email)) {
     return new Response(JSON.stringify({ error: 'Email required' }), {
@@ -1552,44 +1555,39 @@ async function handleSubmitEmail(request, env, origin) {
     };
   }
 
-  // Log email to Google Sheet (home page signups and calculator leads)
-  try {
-    await fetch('https://script.google.com/macros/s/AKfycby4as7NPJliyQDm-5lpJM1RjtgVMNMuudlYqfAKeSJj1drKi54yi3HVU3dREWL8lpsLVg/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sheetPayload),
-    });
-  } catch (err) {
-    console.error('sheets-log error:', err);
-  }
+  // Log email to Google Sheet (calculator / webapp / signup)
+  await logEmailToSheet(sheetPayload);
 
-  try {
-    const subject = source === 'calculator'
-      ? 'Your Free Numerology Blueprint — Simulation Source Code'
-      : 'Your Free Life Path Intro — Simulation Source Code';
-    const calculatorReadingHtml = plainTextToEmailHtml(calculatorEmailData?.readingText);
-    const html = source === 'calculator'
-      ? `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
-         ${calculatorReadingHtml || `<p><strong>Reading for:</strong> ${escapeHtml(calculatorEmailData?.name)}<br><strong>Birth Date:</strong> ${escapeHtml(calculatorEmailData?.birthDate)}<br><strong>Life Path:</strong> ${escapeHtml(calculatorEmailData?.lifePath)}<br><strong>Expression:</strong> ${escapeHtml(calculatorEmailData?.expression)}<br><strong>Life Calling:</strong> ${escapeHtml(calculatorEmailData?.lifeCalling)}</p>`}
-         ${buildCalculatorEmailCtaHtml()}
-         <p>— Kytholek</p>`
-      : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
+  // Webapp waitlist: sheet only — no autoresponder
+  if (source !== 'webapp') {
+    try {
+      const subject = source === 'calculator'
+        ? 'Your Free Numerology Blueprint — Simulation Source Code'
+        : 'Your Free Life Path Intro — Simulation Source Code';
+      const calculatorReadingHtml = plainTextToEmailHtml(calculatorEmailData?.readingText);
+      const html = source === 'calculator'
+        ? `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
+           ${calculatorReadingHtml || `<p><strong>Reading for:</strong> ${escapeHtml(calculatorEmailData?.name)}<br><strong>Birth Date:</strong> ${escapeHtml(calculatorEmailData?.birthDate)}<br><strong>Life Path:</strong> ${escapeHtml(calculatorEmailData?.lifePath)}<br><strong>Expression:</strong> ${escapeHtml(calculatorEmailData?.expression)}<br><strong>Life Calling:</strong> ${escapeHtml(calculatorEmailData?.lifeCalling)}</p>`}
+           ${buildCalculatorEmailCtaHtml()}
+           <p>— Kytholek</p>`
+        : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type':  'application/json',
-      },
-      body: JSON.stringify({
-        from:    formatResendFrom(env.FROM_EMAIL),
-        to:      [email],
-        subject,
-        html,
-      }),
-    });
-  } catch (err) {
-    console.error('submit-email error:', err);
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          from:    formatResendFrom(env.FROM_EMAIL),
+          to:      [email],
+          subject,
+          html,
+        }),
+      });
+    } catch (err) {
+      console.error('submit-email error:', err);
+    }
   }
 
   return new Response(JSON.stringify({ ok: true }), {

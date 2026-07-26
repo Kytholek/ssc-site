@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOURCE CODE: LIFE — Download the App</title>
-<meta name="description" content="Download SOURCE CODE: LIFE on iOS and Android. Decode your 7 numerological frequencies as an RPG character sheet.">
+<title>SOURCE CODE: LIFE — Quest App Now Live</title>
+<meta name="description" content="Source Code: Life Quest app is now live. Play your numerology blueprint in the game of life — seven frequencies as an RPG character sheet on Android beta, with iOS coming soon.">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
@@ -520,11 +520,11 @@ footer {
     <div class="hero-corner bl"></div>
     <div class="hero-corner br"></div>
 
-    <div class="app-eyebrow">◈ DOWNLOAD &amp; PLAY</div>
-    <h1 class="app-title">GET THE<br><span>APP</span></h1>
-    <div class="app-subtitle">YOUR SIMULATION. YOUR FREQUENCIES.</div>
+    <div class="app-eyebrow">◈ SOURCE CODE: LIFE QUEST APP IS NOW LIVE</div>
+    <h1 class="app-title">PLAY YOUR<br><span>BLUEPRINT</span></h1>
+    <div class="app-subtitle">YOUR NUMEROLOGY. THE GAME OF LIFE.</div>
     <p class="app-desc">
-      SOURCE CODE: LIFE is coming to iOS and Android. Enter your birth name and date — the engine decodes your 7 core numerological frequencies and builds your playable RPG character sheet.
+      Source Code: Life turns your seven numerological frequencies into a playable RPG character sheet — quests, journaling, and real-world objectives. Android beta is live now; iOS is coming soon.
     </p>
 
     <!-- Store buttons -->
@@ -539,12 +539,12 @@ footer {
         </div>
       </a>
 
-      <a href="#notify" class="store-btn coming-soon" aria-label="Google Play — Coming Soon">
+      <a href="https://play.google.com/store/apps/details?id=com.sourcecodelife.app" class="store-btn" target="_blank" rel="noopener noreferrer" aria-label="Google Play — Android Beta Live">
         <div class="store-icon">▶</div>
         <div class="store-text-group">
           <div class="store-label">GET IT ON</div>
           <div class="store-name">GOOGLE PLAY</div>
-          <div class="soon-badge">COMING SOON</div>
+          <div class="soon-badge" style="color:var(--sage);border-color:var(--sage)">BETA LIVE</div>
         </div>
       </a>
 
@@ -554,7 +554,7 @@ footer {
     <div class="notify-bar" id="notify">
       <span>◈</span>
       <span id="notify-text">
-        Be the first to know when we launch — drop your email below<span class="cursor">_</span>
+        Want iOS launch updates — or Android beta tips? Drop your email below<span class="cursor">_</span>
       </span>
     </div>
 
@@ -608,7 +608,7 @@ footer {
     <div class="features-inner">
       <div class="section-label">◈ WHAT YOU GET</div>
       <h2 class="section-title">Everything in the<br><span>Simulation</span></h2>
-      <p class="section-body">One app. Seven frequencies. A fully playable RPG built from your birth data.</p>
+      <p class="section-body">One Quest app. Seven frequencies. Play your numerology blueprint in the game of life.</p>
 
       <div class="feat-grid">
         <div class="feat-card">
@@ -708,7 +708,7 @@ footer {
   <section class="cta-banner">
     <div class="section-label" style="text-align:center;margin-bottom:16px">◈ BEGIN</div>
     <h2 class="section-title" style="text-align:center;max-width:500px;margin:0 auto 16px">Ready to read your<br><span>source code?</span></h2>
-    <p class="section-body" style="text-align:center">Try the web calculator now while the app is in development. Same engine, same frequencies — in your browser.</p>
+    <p class="section-body" style="text-align:center">Android beta is live — or try the web calculator first. Same engine, same frequencies.</p>
     <a class="btn-primary" href="index.html#calculator">▶ TRY THE CALCULATOR</a>
   </section>
 
@@ -738,6 +738,7 @@ footer {
 function submitNotify() {
   var input   = document.getElementById('notify-email');
   var confirm = document.getElementById('notify-confirm');
+  var btn     = document.querySelector('[onclick="submitNotify()"]');
   var email   = (input.value || '').trim();
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -746,22 +747,38 @@ function submitNotify() {
     return;
   }
 
-  // Store locally (replace this with your backend / Mailchimp / etc.)
-  try {
-    var stored = JSON.parse(localStorage.getItem('ssc-notify-emails') || '[]');
-    if (!stored.includes(email)) {
-      stored.push(email);
-      localStorage.setItem('ssc-notify-emails', JSON.stringify(stored));
-    }
-  } catch (e) {}
+  if (btn) btn.disabled = true;
+  confirm.style.color = 'var(--muted, #9b9080)';
+  confirm.textContent = '> REGISTERING…';
 
-  input.value = '';
-  confirm.style.color = 'var(--sage)';
-  confirm.textContent = '> REGISTERED — we\'ll contact you at launch ◈';
+  fetch('/submit-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, source: 'webapp', origin: 'webapp' }),
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('submit failed');
+      try {
+        var stored = JSON.parse(localStorage.getItem('ssc-notify-emails') || '[]');
+        if (!stored.includes(email)) {
+          stored.push(email);
+          localStorage.setItem('ssc-notify-emails', JSON.stringify(stored));
+        }
+      } catch (e) {}
 
-  // Update notify bar text
-  document.getElementById('notify-text').innerHTML =
-    'You\'re on the list. We\'ll reach out when the simulation goes live.<span class="cursor">_</span>';
+      input.value = '';
+      confirm.style.color = 'var(--sage)';
+      confirm.textContent = '> REGISTERED — we\'ll contact you at launch ◈';
+      document.getElementById('notify-text').innerHTML =
+        'You\'re on the list. We\'ll reach out when the simulation goes live.<span class="cursor">_</span>';
+    })
+    .catch(function () {
+      confirm.style.color = 'var(--rose)';
+      confirm.textContent = '> CONNECTION ERROR — try again';
+    })
+    .finally(function () {
+      if (btn) btn.disabled = false;
+    });
 }
 
 // Allow Enter key on email input

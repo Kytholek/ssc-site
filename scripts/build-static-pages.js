@@ -55,7 +55,9 @@ function servicesJsonLd() {
 
   return JSON.stringify({
     '@context': 'https://schema.org',
-    '@type': 'Service',
+    // Product is required so Google Review Snippets accept nested reviews
+    // (Service alone triggers "Invalid object type for field <parent_node>").
+    '@type': ['Service', 'Product'],
     name: 'Numerology Readings — Simulation Source Code',
     url: SEO.SITE_ORIGIN + '/services/',
     description: 'Personalised numerology guidebook PDF, live consultation, and group membership.',
@@ -64,6 +66,10 @@ function servicesJsonLd() {
       name: 'Simulation Source Code',
       url: SEO.SITE_ORIGIN,
       sameAs: SEO.SOCIAL_PROFILES,
+    },
+    brand: {
+      '@type': 'Brand',
+      name: 'Simulation Source Code',
     },
     aggregateRating: {
       '@type': 'AggregateRating',

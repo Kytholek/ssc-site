@@ -1539,16 +1539,6 @@ function initServicesSectionNav() {
   nav.dataset.bound = '1';
 
   var links = Array.prototype.slice.call(nav.querySelectorAll('.svc-section-nav-link'));
-  var sections = ['guidebooks', 'readings', 'books']
-    .map(function(id) { return document.getElementById(id); })
-    .filter(Boolean);
-
-  function setActive(id) {
-    links.forEach(function(link) {
-      var href = link.getAttribute('href') || '';
-      link.classList.toggle('is-active', href === '#' + id);
-    });
-  }
 
   links.forEach(function(link) {
     link.addEventListener('click', function(e) {
@@ -1563,28 +1553,8 @@ function initServicesSectionNav() {
         '/services/' + href
       );
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setActive(href.slice(1));
     });
   });
-
-  function updateNavCompact() {
-    nav.classList.toggle('is-compact', window.scrollY > 80);
-  }
-  updateNavCompact();
-  window.addEventListener('scroll', updateNavCompact, { passive: true });
-
-  if (!('IntersectionObserver' in window) || !sections.length) return;
-
-  var observer = new IntersectionObserver(function(entries) {
-    var visible = entries
-      .filter(function(entry) { return entry.isIntersecting; })
-      .sort(function(a, b) { return b.intersectionRatio - a.intersectionRatio; });
-    if (visible[0] && visible[0].target && visible[0].target.id) {
-      setActive(visible[0].target.id);
-    }
-  }, { rootMargin: '-30% 0px -55% 0px', threshold: [0.1, 0.25, 0.5] });
-
-  sections.forEach(function(section) { observer.observe(section); });
 }
 
 var SVC_BOOKS = {

@@ -956,7 +956,7 @@ html[data-theme='light'] .field select:focus {
   margin: 0 auto;
 }
 
-/* ── Shop intro + sticky section nav ── */
+/* ── Shop intro + section nav ── */
 .svc-shop-intro {
   text-align: center;
   padding: 48px 24px 20px;
@@ -988,26 +988,34 @@ html[data-theme='light'] .field select:focus {
   margin: 0;
 }
 
-.svc-section-nav {
-  position: sticky;
-  top: 64px;
-  z-index: 150;
-  display: flex;
+/* Isolate from global `nav { position:fixed; height:64px }` site header rules */
+.svc-section-nav,
+nav.svc-section-nav:not(.breadcrumb) {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center;
   justify-content: center;
   gap: 4px;
   flex-wrap: nowrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 10px 16px;
+  padding: 10px 16px !important;
   margin: 0 auto 8px;
-  transition: padding .25s ease, max-width .25s ease, gap .25s ease, border-radius .25s ease, box-shadow .25s ease;
   max-width: 720px;
-  background: linear-gradient(180deg, rgba(8,6,16,.92), rgba(8,6,16,.78));
-  border: 1px solid rgba(201,168,76,.14);
+  background: linear-gradient(180deg, rgba(8,6,16,.92), rgba(8,6,16,.78)) !important;
+  border: 1px solid rgba(201,168,76,.14) !important;
+  border-bottom-color: rgba(201,168,76,.14) !important;
   border-radius: 999px;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 8px 28px rgba(0,0,0,.35);
+  transition: none !important;
 }
 .svc-section-nav::-webkit-scrollbar { display: none; }
 .svc-section-nav-link {
@@ -1020,29 +1028,13 @@ html[data-theme='light'] .field select:focus {
   color: var(--text-dim);
   padding: 10px 18px;
   border-radius: 999px;
-  transition: color .2s, background .2s, border-color .2s, padding .25s ease, font-size .25s ease, letter-spacing .25s ease;
+  transition: color .2s, background .2s, border-color .2s;
   border: 1px solid transparent;
   white-space: nowrap;
 }
 .svc-section-nav-link:hover {
   color: var(--gold-light);
   background: rgba(201,168,76,.08);
-}
-.svc-section-nav-link.is-active {
-  color: var(--gold);
-  background: rgba(201,168,76,.12);
-  border-color: rgba(201,168,76,.28);
-}
-.svc-section-nav.is-compact {
-  padding: 4px 8px;
-  max-width: 420px;
-  gap: 2px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.4);
-}
-.svc-section-nav.is-compact .svc-section-nav-link {
-  padding: 6px 12px;
-  font-size: 8px;
-  letter-spacing: .14em;
 }
 
 #guidebooks,
@@ -2250,10 +2242,12 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     margin: 0 auto;
   }
   .svc-shop-intro { padding: 36px 16px 16px; }
-  .svc-section-nav {
+  .svc-section-nav,
+  nav.svc-section-nav:not(.breadcrumb) {
     max-width: calc(100% - 24px);
     justify-content: flex-start;
     border-radius: 14px;
+    height: auto !important;
   }
   .svc-section-nav-link { padding: 10px 14px; letter-spacing: .16em; }
 }

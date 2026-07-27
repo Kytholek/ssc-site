@@ -956,6 +956,90 @@ html[data-theme='light'] .field select:focus {
   margin: 0 auto;
 }
 
+/* ── Shop intro + sticky section nav ── */
+.svc-shop-intro {
+  text-align: center;
+  padding: 48px 24px 20px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.svc-shop-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 14px;
+}
+.svc-shop-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: .06em;
+  color: var(--gold-light);
+  margin: 0 0 12px;
+  line-height: 1.15;
+}
+.svc-shop-lead {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.svc-section-nav {
+  position: sticky;
+  top: 64px;
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 10px 16px;
+  margin: 0 auto 8px;
+  max-width: 720px;
+  background: linear-gradient(180deg, rgba(8,6,16,.92), rgba(8,6,16,.78));
+  border: 1px solid rgba(201,168,76,.14);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+.svc-section-nav::-webkit-scrollbar { display: none; }
+.svc-section-nav-link {
+  flex: 0 0 auto;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text-dim);
+  padding: 10px 18px;
+  border-radius: 999px;
+  transition: color .2s, background .2s, border-color .2s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.svc-section-nav-link:hover {
+  color: var(--gold-light);
+  background: rgba(201,168,76,.08);
+}
+.svc-section-nav-link.is-active {
+  color: var(--gold);
+  background: rgba(201,168,76,.12);
+  border-color: rgba(201,168,76,.28);
+}
+
+#guidebooks,
+#readings,
+#books,
+.svc-card[id] {
+  scroll-margin-top: 140px;
+}
+
 /* ── Divider ── */
 .svc-divider {
   padding: 24px 24px 0;
@@ -966,10 +1050,10 @@ html[data-theme='light'] .field select:focus {
 .svc-grid-wrap {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: 28px 24px 80px;
   display: flex;
   flex-direction: column;
-  gap: 56px;
+  gap: 72px;
 }
 
 .svc-grid {
@@ -987,6 +1071,55 @@ html[data-theme='light'] .field select:focus {
 .svc-grid.svc-grid--two {
   grid-template-columns: repeat(2, minmax(0, 420px));
   justify-content: center;
+}
+
+.svc-grid.svc-grid--equal-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 20px;
+}
+
+.svc-books-grid {
+  margin-top: 8px;
+}
+.svc-books-more {
+  text-align: center;
+  margin: 28px 0 0;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+.svc-books-more a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201,168,76,.35);
+}
+.svc-books-more a:hover {
+  border-bottom-color: var(--gold);
+}
+
+.book-card.coming-soon {
+  position: relative;
+}
+.book-btn--disabled {
+  opacity: .55;
+  pointer-events: none;
+  cursor: default;
+}
+.books-kytholek-pointer {
+  text-align: center;
+  margin: 8px 0 32px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+.books-kytholek-pointer a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201,168,76,.35);
+}
+.books-kytholek-pointer a:hover {
+  border-bottom-color: var(--gold);
 }
 
 /* ── Card base ── */
@@ -1179,6 +1312,20 @@ html[data-theme='light'] .field select:focus {
   box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 40px rgba(74,148,148,.22), 0 0 80px rgba(74,148,148,.08);
 }
 
+/* ── Tarot card — rose accent ── */
+.svc-card--tarot {
+  border-color: rgba(160,64,112,.22);
+  box-shadow: 0 0 28px rgba(160,64,112,.09), 0 0 60px rgba(160,64,112,.04);
+}
+.svc-card--tarot::before {
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  opacity: 0.35;
+}
+.svc-card--tarot:hover {
+  border-color: rgba(160,64,112,.48);
+  box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 40px rgba(160,64,112,.2), 0 0 80px rgba(160,64,112,.08);
+}
+
 /* ── Coming Soon Banner ── */
 .svc-coming-soon-banner {
   position: absolute;
@@ -1238,6 +1385,15 @@ html[data-theme='light'] .field select:focus {
 .svc-card--membership:hover .svc-card-glyph {
   filter: drop-shadow(0 0 18px rgba(74,148,148,.52)) drop-shadow(0 0 40px rgba(74,148,148,.18));
 }
+.svc-card--tarot .svc-card-glyph,
+.svc-card-glyph--rose {
+  border-color: rgba(160,64,112,.25);
+  background: rgba(28,11,20,.9);
+  filter: drop-shadow(0 0 12px rgba(160,64,112,.32)) drop-shadow(0 0 28px rgba(160,64,112,.1));
+}
+.svc-card--tarot:hover .svc-card-glyph {
+  filter: drop-shadow(0 0 18px rgba(160,64,112,.52)) drop-shadow(0 0 40px rgba(160,64,112,.18));
+}
 
 .svc-card-tier {
   font-family: 'Cinzel', serif;
@@ -1250,6 +1406,7 @@ html[data-theme='light'] .field select:focus {
 .svc-card--featured .svc-card-tier { color: var(--amethyst-light); }
 .svc-card--consult .svc-card-tier { color: var(--teal) !important; }
 .svc-card--membership .svc-card-tier { color: var(--teal); }
+.svc-card--tarot .svc-card-tier { color: var(--rose-light); }
 
 .svc-card-name {
   font-family: 'Cormorant SC', serif;
@@ -1265,6 +1422,7 @@ html[data-theme='light'] .field select:focus {
 .svc-card--consult .svc-card-name { color: var(--teal-light) !important; }
 .svc-card--featured .svc-card-name { color: var(--amethyst-light); }
 .svc-card--membership .svc-card-name { color: var(--teal-light); }
+.svc-card--tarot .svc-card-name { color: var(--rose-light); }
 
 .svc-card-tagline {
   font-family: 'EB Garamond', Georgia, serif;
@@ -1289,6 +1447,7 @@ html[data-theme='light'] .field select:focus {
 }
 .svc-card-price--amethyst { color: var(--amethyst-light); }
 .svc-card-price--teal { color: var(--teal-light); }
+.svc-card-price--rose { color: var(--rose-light); }
 
 .svc-price-currency {
   font-family: 'Cinzel', serif;
@@ -1329,6 +1488,9 @@ html[data-theme='light'] .field select:focus {
 }
 .svc-card-divider--teal {
   background: linear-gradient(90deg, transparent, rgba(74,148,148,.22), transparent);
+}
+.svc-card-divider--rose {
+  background: linear-gradient(90deg, transparent, rgba(160,64,112,.28), transparent);
 }
 
 /* ── Feature list ── */
@@ -1607,6 +1769,14 @@ html[data-theme='light'] .hero-proof {
   border-color: rgba(0,0,0,0.08) !important;
   box-shadow: 0 20px 45px rgba(0,0,0,0.06) !important;
 }
+html[data-theme='light'] .svc-section-nav {
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(0,0,0,.08) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08) !important;
+}
+html[data-theme='light'] .svc-shop-title {
+  color: var(--gold) !important;
+}
 
 html[data-theme='light'] .hero::before,
 html[data-theme='light'] .hero::after,
@@ -1768,6 +1938,10 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   background: var(--teal);
   box-shadow: 0 0 6px rgba(74,148,148,.4);
 }
+.svc-feature-gem--rose {
+  background: var(--rose);
+  box-shadow: 0 0 6px rgba(160,64,112,.4);
+}
 .svc-feature-gem--off {
   background: var(--text-muted);
   opacity: 0.3;
@@ -1841,6 +2015,23 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   filter: brightness(1.08);
 }
 
+.svc-cta--rose {
+  background: linear-gradient(135deg, rgba(80,24,48,.95), var(--rose));
+  color: #fff8fb;
+  box-shadow: 0 4px 20px rgba(160,64,112,.22);
+}
+.svc-cta--rose:hover {
+  box-shadow: 0 4px 28px rgba(160,64,112,.4);
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.svc-cta--rose[aria-disabled='true'] {
+  opacity: .7;
+  pointer-events: none;
+  cursor: default;
+  transform: none;
+}
+
 .svc-delivery-note {
   font-family: 'Cinzel', serif;
   font-size: 7px;
@@ -1868,6 +2059,11 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   .svc-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .svc-grid--equal-three {
+    grid-template-columns: 1fr;
+    max-width: 460px;
+    margin: 0 auto;
+  }
 }
 @media (max-width: 720px) {
   .svc-grid-wrap { gap: 48px; }
@@ -1876,9 +2072,16 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     max-width: 460px;
     margin: 0 auto;
   }
+  .svc-shop-intro { padding: 36px 16px 16px; }
+  .svc-section-nav {
+    max-width: calc(100% - 24px);
+    justify-content: flex-start;
+    border-radius: 14px;
+  }
+  .svc-section-nav-link { padding: 10px 14px; letter-spacing: .16em; }
 }
 @media (max-width: 480px) {
-  .svc-grid-wrap { padding: 32px 16px 64px; }
+  .svc-grid-wrap { padding: 24px 16px 64px; }
   .svc-card-header { padding: 28px 20px 0; }
   .svc-features { padding: 0 20px; }
   .svc-card-footer { padding: 20px 20px 28px; }
@@ -1921,6 +2124,26 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   color: rgba(201,168,76,.65);
   margin-top: 4px;
   text-shadow: 0 0 6px rgba(201,168,76,.6), 0 0 14px rgba(201,168,76,.2);
+}
+
+/* Tarot icon */
+.svc-glyph-icon--tarot {
+  position: relative;
+}
+.svc-glyph-tarot-card {
+  display: block;
+  width: 22px;
+  height: 32px;
+  border: 1.5px solid rgba(212,122,160,.75);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(160,64,112,.45), inset 0 0 8px rgba(160,64,112,.15);
+  background: linear-gradient(165deg, rgba(160,64,112,.2), transparent 60%);
+}
+.svc-glyph-tarot-star {
+  position: absolute;
+  font-size: 11px;
+  color: rgba(212,122,160,.85);
+  text-shadow: 0 0 8px rgba(160,64,112,.6);
 }
 
 /* Video icon */

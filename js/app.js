@@ -149,8 +149,8 @@ const PAGE_META = {
     description: 'Simulation Source Code is a numerology framework built on Pythagorean principles, simulation theory, and consciousness research — offering practical, grounded readings of your seven encoded frequencies.',
   },
   services: {
-    title      : 'Numerology Services · Guidebook, Consultation & Membership · SSC',
-    description: 'Choose your depth of decoding — a personalised PDF guidebook, a live one-on-one consultation, or a monthly membership to learn the system yourself.',
+    title      : 'Numerology Services · Guidebooks, Readings & Books · SSC',
+    description: 'Shop guidebooks, live readings, TellTale Tarot, and original books by Kytholek — PDF reports, consultation, community, and more.',
   },
   codex: {
     title      : 'The Codex — Nine Frequencies · Simulation Source Code',
@@ -338,9 +338,12 @@ function showPage(name, pushState = true) {
   }
 
   const page = document.getElementById('page-' + name);
+  const hashTarget = (name === 'services' && window.location.hash)
+    ? window.location.hash.slice(1)
+    : '';
   if (page) {
     page.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!hashTarget) window.scrollTo({ top: 0, behavior: 'smooth' });
     if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
   } else {
     // SECONDARY pages load async — retry once after they arrive
@@ -348,7 +351,7 @@ function showPage(name, pushState = true) {
       const p2 = document.getElementById('page-' + name);
       if (p2) {
         p2.classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (!hashTarget) window.scrollTo({ top: 0, behavior: 'smooth' });
         if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
       }
     }, 600);
@@ -403,12 +406,13 @@ function _injectPageSchema(name) {
       '@type'   : 'Service',
       'name'    : 'Numerology Readings — Simulation Source Code',
       'url'     : 'https://simulationsourcecode.com/services/',
-      'description': 'Personalised numerology guidebook PDF, live consultation, and group membership.',
+      'description': 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
       'provider': { '@type': 'Organization', 'name': 'Simulation Source Code' },
       'offers'  : [
-        { '@type': 'Offer', 'name': 'Holographic Blueprint PDF', 'price': '37', 'priceCurrency': 'USD' },
-        { '@type': 'Offer', 'name': 'Personal Consultation',     'price': '55','priceCurrency': 'USD' },
-        { '@type': 'Offer', 'name': 'Monthly Membership',        'price': '20', 'priceCurrency': 'USD', 'priceSpecification': { '@type': 'RecurringCharges', 'billingPeriod': 'Month' } }
+        { '@type': 'Offer', 'name': 'Guidebook Report', 'price': '22', 'priceCurrency': 'USD' },
+        { '@type': 'Offer', 'name': 'Time Cycle', 'price': '17', 'priceCurrency': 'USD' },
+        { '@type': 'Offer', 'name': 'Personal Consultation', 'price': '88', 'priceCurrency': 'USD' },
+        { '@type': 'Offer', 'name': 'TellTale Tarot Reading', 'price': '20', 'priceCurrency': 'USD' }
       ]
     });
   } else if (name === 'about') {
@@ -497,7 +501,8 @@ async function handleDeepLink() {
           : '/codex/'
       );
     } else {
-      history.replaceState({ page: pageId, post: null }, document.title, '/' + pageId + '/');
+      const keepHash = pageId === 'services' ? (window.location.hash || '') : '';
+      history.replaceState({ page: pageId, post: null }, document.title, '/' + pageId + '/' + keepHash);
     }
   } else if (pathname && PAGE_META[pathname]) {
     if (pathname === 'codex' && typeof window.ensureCodexPageLoaded === 'function') {
@@ -518,7 +523,8 @@ async function handleDeepLink() {
           : '/codex/'
       );
     } else {
-      history.replaceState({ page: pathname, post: null }, document.title, '/' + pathname + '/');
+      const keepHash = pathname === 'services' ? (window.location.hash || '') : '';
+      history.replaceState({ page: pathname, post: null }, document.title, '/' + pathname + '/' + keepHash);
     }
   } else {
     showPage('home', false);
@@ -1517,6 +1523,64 @@ function closeCalculatorModal() {
   MODAL_PRODUCT = 'guidebook';
 }
 
+function scrollServicesHash() {
+  var id = (window.location.hash || '').replace(/^#/, '');
+  if (!id) return;
+  var el = document.getElementById(id);
+  if (!el) return;
+  requestAnimationFrame(function() {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function initServicesSectionNav() {
+  var nav = document.querySelector('#page-services .svc-section-nav');
+  if (!nav || nav.dataset.bound === '1') return;
+  nav.dataset.bound = '1';
+
+  var links = Array.prototype.slice.call(nav.querySelectorAll('.svc-section-nav-link'));
+  var sections = ['guidebooks', 'readings', 'books']
+    .map(function(id) { return document.getElementById(id); })
+    .filter(Boolean);
+
+  function setActive(id) {
+    links.forEach(function(link) {
+      var href = link.getAttribute('href') || '';
+      link.classList.toggle('is-active', href === '#' + id);
+    });
+  }
+
+  links.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var href = link.getAttribute('href') || '';
+      if (href.charAt(0) !== '#') return;
+      var target = document.getElementById(href.slice(1));
+      if (!target) return;
+      e.preventDefault();
+      history.replaceState(
+        { page: 'services', post: null },
+        document.title,
+        '/services/' + href
+      );
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActive(href.slice(1));
+    });
+  });
+
+  if (!('IntersectionObserver' in window) || !sections.length) return;
+
+  var observer = new IntersectionObserver(function(entries) {
+    var visible = entries
+      .filter(function(entry) { return entry.isIntersecting; })
+      .sort(function(a, b) { return b.intersectionRatio - a.intersectionRatio; });
+    if (visible[0] && visible[0].target && visible[0].target.id) {
+      setActive(visible[0].target.id);
+    }
+  }, { rootMargin: '-30% 0px -55% 0px', threshold: [0.1, 0.25, 0.5] });
+
+  sections.forEach(function(section) { observer.observe(section); });
+}
+
 function initServicesPage() {
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay && overlay.dataset.bound !== '1') {
@@ -1525,6 +1589,8 @@ function initServicesPage() {
       if (e.target === overlay) closeCalculatorModal();
     });
   }
+  initServicesSectionNav();
+  scrollServicesHash();
   loadGoogleReviews();
 }
 

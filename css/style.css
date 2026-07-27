@@ -783,6 +783,26 @@ body { padding-top: 64px; }
   text-decoration: none; display: block;
 }
 .book-btn:hover { background: rgba(201,168,76,.15); border-color: var(--gold-dim); }
+.book-btn--disabled {
+  opacity: .55;
+  pointer-events: none;
+  cursor: default;
+}
+.books-kytholek-pointer {
+  text-align: center;
+  margin: 8px 0 32px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+.books-kytholek-pointer a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(201,168,76,.35);
+}
+.books-kytholek-pointer a:hover {
+  border-bottom-color: var(--gold);
+}
 
 .books-section-title {
   font-family: 'Cormorant SC', serif; font-size: 10px; letter-spacing: .4em;

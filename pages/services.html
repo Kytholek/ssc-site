@@ -1,11 +1,23 @@
 <div class="page" id="page-services">
 
+  <header class="svc-shop-intro">
+    <p class="svc-shop-eyebrow">Shop &amp; Services</p>
+    <h1 class="svc-shop-title">Choose your path</h1>
+    <p class="svc-shop-lead">Guidebooks, live readings, and original books — one place to decode.</p>
+  </header>
+
+  <nav class="svc-section-nav" aria-label="Shop sections">
+    <a class="svc-section-nav-link" href="#guidebooks">Guidebooks</a>
+    <a class="svc-section-nav-link" href="#readings">Readings</a>
+    <a class="svc-section-nav-link" href="#books">Books</a>
+  </nav>
+
 <div class="svc-grid-wrap">
 
-    <section class="svc-row" aria-labelledby="svc-row-written-title">
+    <section class="svc-row" id="guidebooks" aria-labelledby="svc-row-guidebooks-title">
       <header class="svc-row-head">
-        <p class="svc-row-eyebrow">Written &amp; Timed</p>
-        <h2 class="svc-row-title" id="svc-row-written-title">Decode on your own time</h2>
+        <p class="svc-row-eyebrow">Guidebooks</p>
+        <h2 class="svc-row-title" id="svc-row-guidebooks-title">Decode on your own time</h2>
       </header>
       <div class="svc-grid svc-grid--three">
 
@@ -108,12 +120,12 @@
       </div>
     </section>
 
-    <section class="svc-row" aria-labelledby="svc-row-live-title">
+    <section class="svc-row" id="readings" aria-labelledby="svc-row-readings-title">
       <header class="svc-row-head">
-        <p class="svc-row-eyebrow">Live Guidance</p>
-        <h2 class="svc-row-title" id="svc-row-live-title">Go deeper with support</h2>
+        <p class="svc-row-eyebrow">Readings</p>
+        <h2 class="svc-row-title" id="svc-row-readings-title">Go deeper with support</h2>
       </header>
-      <div class="svc-grid svc-grid--two">
+      <div class="svc-grid svc-grid--equal-three">
 
         <div class="svc-card svc-card--consult svc-card--featured a2">
           <div class="svc-featured-badge">Most Personal</div>
@@ -148,7 +160,7 @@
           </div>
         </div>
 
-        <div class="svc-card svc-card--membership a3">
+        <div class="svc-card svc-card--membership a2">
           <div class="svc-card-header">
             <div class="svc-card-glyph svc-card-glyph--teal">
               <div class="svc-glyph-icon svc-glyph-icon--group">
@@ -182,7 +194,103 @@
           </div>
         </div>
 
+        <div class="svc-card svc-card--tarot a3" id="tarot">
+          <div class="svc-card-header">
+            <div class="svc-card-glyph svc-card-glyph--rose">
+              <div class="svc-glyph-icon svc-glyph-icon--tarot" aria-hidden="true">
+                <span class="svc-glyph-tarot-card"></span>
+                <span class="svc-glyph-tarot-star">&#10022;</span>
+              </div>
+            </div>
+            <div class="svc-card-tier">Card Reading</div>
+            <h3 class="svc-card-name">TellTale Tarot Reading</h3>
+            <p class="svc-card-tagline">A focused spread for the story unfolding now</p>
+          </div>
+          <div class="svc-card-price-wrap">
+            <div class="svc-card-price svc-card-price--rose">
+              <span class="svc-price-currency">$</span>
+              <span class="svc-price-amount">20</span>
+            </div>
+            <div class="svc-price-cadence">one-time &#183; written delivery</div>
+          </div>
+          <div class="svc-card-divider svc-card-divider--rose"></div>
+          <ul class="svc-features">
+            <li class="svc-feature"><span class="svc-feature-gem svc-feature-gem--rose"></span>A clear reading of the cards in front of you</li>
+            <li class="svc-feature"><span class="svc-feature-gem svc-feature-gem--rose"></span>Themes, timing cues, and what to watch</li>
+            <li class="svc-feature"><span class="svc-feature-gem svc-feature-gem--rose"></span>Practical next steps written for you</li>
+          </ul>
+          <div class="svc-card-footer">
+            <a href="#" class="svc-cta svc-cta--rose" id="svc-tarot-cta" aria-disabled="true">Link Coming Soon</a>
+            <p class="svc-delivery-note">Booking link available soon</p>
+          </div>
+        </div>
+
       </div>
+    </section>
+
+    <section class="svc-row" id="books" aria-labelledby="svc-row-books-title">
+      <header class="svc-row-head">
+        <p class="svc-row-eyebrow">Books</p>
+        <h2 class="svc-row-title" id="svc-row-books-title">By Kytholek</h2>
+      </header>
+      <div class="book-grid svc-books-grid a3">
+        <div class="book-card">
+          <div class="book-cover"><picture><source srcset="/Images/realitylostcovermain.webp" type="image/webp"><img src="/Images/realitylostcovermain.png" alt="Reality Lost" loading="lazy" decoding="async"></picture></div>
+          <div class="book-info">
+            <div class="book-tag">Original</div>
+            <div class="book-title">Reality/Lost</div>
+            <div class="book-author">Kytholek</div>
+            <p class="book-desc">What happens to people when they do not seem to fit into their own lives?</p>
+            <p class="book-desc">This question shapes the entire story you are about to read.</p>
+            <a href="https://amzn.to/41nny6V" class="book-btn" target="_blank" rel="noopener noreferrer">View Book &#8594;</a>
+          </div>
+        </div>
+        <div class="book-card coming-soon">
+          <div class="coming-soon-banner">Coming Soon</div>
+          <div class="book-cover"><picture><source srcset="/Images/SSCbook.webp" type="image/webp"><img src="/Images/SSCbook.png" alt="Simulation Source Code" loading="lazy" decoding="async"></picture></div>
+          <div class="book-info">
+            <div class="book-tag">Original</div>
+            <div class="book-title">Simulation Source Code</div>
+            <div class="book-author">Kytholek</div>
+            <p class="book-desc">The complete framework for understanding numerology as the underlying code of reality.</p>
+            <span class="book-btn book-btn--disabled" aria-disabled="true">Coming Soon</span>
+          </div>
+        </div>
+        <div class="book-card coming-soon">
+          <div class="coming-soon-banner">Coming Soon</div>
+          <div class="book-cover"><picture><source srcset="/Images/forgettingtoremember.webp" type="image/webp"><img src="/Images/forgettingtoremember.png" alt="Forgetting to Remember Again" loading="lazy" decoding="async"></picture></div>
+          <div class="book-info">
+            <div class="book-tag">Original</div>
+            <div class="book-title">Forgetting to Remember Again</div>
+            <div class="book-author">Kytholek</div>
+            <p class="book-desc">A guide to retrieving forgotten truths about your identity and purpose.</p>
+            <span class="book-btn book-btn--disabled" aria-disabled="true">Coming Soon</span>
+          </div>
+        </div>
+        <div class="book-card coming-soon">
+          <div class="coming-soon-banner">Coming Soon</div>
+          <div class="book-cover"><div class="book-cover-sigil" aria-hidden="true">&#10022;</div></div>
+          <div class="book-info">
+            <div class="book-tag">Original</div>
+            <div class="book-title">True Baptism</div>
+            <div class="book-author">Kytholek</div>
+            <p class="book-desc">A forthcoming work exploring initiation, identity, and the crossing into a truer self.</p>
+            <span class="book-btn book-btn--disabled" aria-disabled="true">Coming Soon</span>
+          </div>
+        </div>
+        <div class="book-card coming-soon">
+          <div class="coming-soon-banner">Coming Soon</div>
+          <div class="book-cover"><div class="book-cover-sigil" aria-hidden="true">&#8734;</div></div>
+          <div class="book-info">
+            <div class="book-tag">Original</div>
+            <div class="book-title">Out of Place</div>
+            <div class="book-author">Kytholek</div>
+            <p class="book-desc">A forthcoming exploration of belonging, displacement, and finding where you actually fit.</p>
+            <span class="book-btn book-btn--disabled" aria-disabled="true">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+      <p class="svc-books-more">Looking for recommended reading? Browse the <a href="/books/">recommended books library</a>.</p>
     </section>
 
   </div>

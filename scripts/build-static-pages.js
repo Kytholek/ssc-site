@@ -60,7 +60,7 @@ function servicesJsonLd() {
     '@type': ['Service', 'Product'],
     name: 'Numerology Readings — Simulation Source Code',
     url: SEO.SITE_ORIGIN + '/services/',
-    description: 'Personalised numerology guidebook PDF, live consultation, and group membership.',
+    description: 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
     provider: {
       '@type': 'Organization',
       name: 'Simulation Source Code',
@@ -80,9 +80,10 @@ function servicesJsonLd() {
     },
     review: reviews,
     offers: [
-      { '@type': 'Offer', name: 'Holographic Blueprint PDF', price: '37', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Personal Consultation', price: '55', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Monthly Membership', price: '20', priceCurrency: 'USD', priceSpecification: { '@type': 'UnitPriceSpecification', billingDuration: 'P1M' } },
+      { '@type': 'Offer', name: 'Guidebook Report', price: '22', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Time Cycle', price: '17', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Personal Consultation', price: '88', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'TellTale Tarot Reading', price: '20', priceCurrency: 'USD' },
     ],
   }, null, 2);
 }
@@ -202,8 +203,8 @@ function buildServices() {
   const html     = staticShell({
     pageId: 'services',
     marker: 'SERVICES_BODY',
-    title: 'Numerology Services · Guidebook, Consultation & Membership · SSC',
-    description: 'Choose your depth of decoding — a personalised PDF guidebook, a live one-on-one consultation, or a monthly membership to learn the system yourself.',
+    title: 'Numerology Services · Guidebooks, Readings & Books · SSC',
+    description: 'Shop guidebooks, live readings, TellTale Tarot, and original books by Kytholek — PDF reports, consultation, community, and more.',
     canonical: SEO.SITE_ORIGIN + '/services/',
     jsonLd: servicesJsonLd(),
     body: body,

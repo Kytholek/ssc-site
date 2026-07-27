@@ -4422,7 +4422,7 @@ footer {
   opacity: 0.75;
 }
 .svc-card--primary .svc-price-amount {
-  font-size: 52px;
+  font-size: 26px;
   text-shadow: 0 0 40px rgba(74,148,148,.35);
 }
 .svc-card--primary .svc-card-name {
@@ -4531,7 +4531,7 @@ footer {
   opacity: 0.85;
 }
 .svc-price-amount--soon {
-  font-size: 32px;
+  font-size: 16px;
   color: var(--text-muted);
   text-shadow: none;
   opacity: 0.85;
@@ -4662,14 +4662,14 @@ footer {
 
 .svc-price-currency {
   font-family: 'Cinzel', serif;
-  font-size: 20px;
+  font-size: 12px;
   font-weight: 600;
   margin-top: 8px;
   opacity: 0.8;
 }
 .svc-price-amount {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 46px;
+  font-size: 26px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: -.01em;
@@ -4869,9 +4869,9 @@ footer {
   .svc-card-header { padding: 28px 20px 0; }
   .svc-features { padding: 0 20px; }
   .svc-card-footer { padding: 20px 20px 28px; }
-  .svc-price-amount { font-size: 42px; }
-  .svc-card--primary .svc-price-amount { font-size: 48px; }
-  .svc-price-amount--soon { font-size: 30px; }
+  .svc-price-amount { font-size: 22px; }
+  .svc-card--primary .svc-price-amount { font-size: 24px; }
+  .svc-price-amount--soon { font-size: 15px; }
 }
 
 /* ── CSS Glyph Icons (replaces inline SVG to avoid innerHTML parser issues) ── */

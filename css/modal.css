@@ -284,3 +284,183 @@ button.svc-cta {
     padding: 16px;
   }
 }
+
+/* ════ BOOK DETAIL MODAL ════ */
+#book-detail-overlay {
+  display: none;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(17, 15, 31, 0.88));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease-out;
+  overflow-y: auto;
+}
+#book-detail-overlay.open {
+  display: flex;
+}
+#book-detail-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 40px);
+  margin: auto;
+  overflow-y: auto;
+  flex-shrink: 0;
+  background: linear-gradient(165deg, rgba(17, 15, 31, 0.97), rgba(28, 22, 48, 0.94));
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: 10px;
+  padding: 28px;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.55), 0 0 40px rgba(201, 168, 76, 0.08);
+  animation: slideUp 0.28s ease-out;
+}
+#book-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold-light);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+#book-detail-close:hover {
+  transform: rotate(90deg);
+  border-color: rgba(201, 168, 76, 0.55);
+}
+.book-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.book-detail-cover {
+  width: 100%;
+  min-height: 280px;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(160deg, rgba(8,6,16,.95), rgba(20,16,32,.9));
+  border: 1px solid rgba(201, 168, 76, 0.18);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.book-detail-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.book-detail-tag {
+  font-family: 'Cormorant SC', serif;
+  font-size: 9px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 10px;
+}
+.book-detail-title {
+  font-family: 'Cormorant SC', serif;
+  font-size: clamp(20px, 3vw, 28px);
+  letter-spacing: .06em;
+  color: var(--gold-light);
+  margin: 0 0 8px;
+  line-height: 1.2;
+  padding-right: 36px;
+}
+.book-detail-author {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+.book-detail-desc {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-dim);
+  margin: 0 0 24px;
+}
+.book-detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+.book-detail-cta {
+  display: inline-block;
+  text-align: center;
+  min-width: 180px;
+}
+.book-detail-cta[hidden] {
+  display: none !important;
+}
+.book-detail-cta.is-disabled,
+.book-detail-cta[aria-disabled='true'] {
+  opacity: .55;
+  pointer-events: none;
+  cursor: default;
+}
+.book-detail-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.book-format-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border-radius: 5px;
+  border: 1px solid rgba(201,168,76,.2);
+  background: rgba(201,168,76,.06);
+  color: var(--text-muted);
+  opacity: .45;
+  cursor: not-allowed;
+}
+.book-format-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.book-detail-formats-note {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: .7;
+}
+@media (max-width: 640px) {
+  .book-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .book-detail-cover {
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  #book-detail-modal {
+    padding: 24px 18px 20px;
+  }
+}

@@ -1001,6 +1001,7 @@ html[data-theme='light'] .field select:focus {
   scrollbar-width: none;
   padding: 10px 16px;
   margin: 0 auto 8px;
+  transition: padding .25s ease, max-width .25s ease, gap .25s ease, border-radius .25s ease, box-shadow .25s ease;
   max-width: 720px;
   background: linear-gradient(180deg, rgba(8,6,16,.92), rgba(8,6,16,.78));
   border: 1px solid rgba(201,168,76,.14);
@@ -1019,7 +1020,7 @@ html[data-theme='light'] .field select:focus {
   color: var(--text-dim);
   padding: 10px 18px;
   border-radius: 999px;
-  transition: color .2s, background .2s, border-color .2s;
+  transition: color .2s, background .2s, border-color .2s, padding .25s ease, font-size .25s ease, letter-spacing .25s ease;
   border: 1px solid transparent;
   white-space: nowrap;
 }
@@ -1032,12 +1033,23 @@ html[data-theme='light'] .field select:focus {
   background: rgba(201,168,76,.12);
   border-color: rgba(201,168,76,.28);
 }
+.svc-section-nav.is-compact {
+  padding: 4px 8px;
+  max-width: 420px;
+  gap: 2px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
+.svc-section-nav.is-compact .svc-section-nav-link {
+  padding: 6px 12px;
+  font-size: 8px;
+  letter-spacing: .14em;
+}
 
 #guidebooks,
 #readings,
 #books,
 .svc-card[id] {
-  scroll-margin-top: 140px;
+  scroll-margin-top: 120px;
 }
 
 /* ── Divider ── */
@@ -1068,6 +1080,28 @@ html[data-theme='light'] .field select:focus {
   gap: 20px;
 }
 
+/* Guidebooks row: equal side cards; center taller above + below */
+#guidebooks .svc-grid.svc-grid--three {
+  align-items: center;
+  padding-block: 24px;
+}
+#guidebooks .svc-grid--three #couples,
+#guidebooks .svc-grid--three #season {
+  align-self: center;
+  height: auto;
+}
+#guidebooks .svc-grid--three #couples .svc-card-tagline,
+#guidebooks .svc-grid--three #season .svc-card-tagline {
+  min-height: 2.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#guidebooks .svc-grid--three #couples .svc-features,
+#guidebooks .svc-grid--three #season .svc-features {
+  min-height: 7.5em;
+}
+
 .svc-grid.svc-grid--two {
   grid-template-columns: repeat(2, minmax(0, 420px));
   justify-content: center;
@@ -1081,6 +1115,135 @@ html[data-theme='light'] .field select:focus {
 
 .svc-books-grid {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+/* Match Reality/Lost + Out of Place cover width to the side tiles in the row above (1fr of 1 / 1.22 / 1) */
+.svc-books-grid .svc-grid.svc-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: calc((100% - 40px) * 2 / 3.22 + 20px);
+  max-width: 100%;
+  margin-inline: auto;
+  justify-content: center;
+  gap: 20px;
+}
+.svc-books-grid .book-card--tile {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.svc-books-grid .book-card--tile:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201,168,76,.28);
+  box-shadow: 0 16px 40px rgba(0,0,0,.4);
+}
+.svc-books-grid .book-cover {
+  height: auto;
+  aspect-ratio: 2 / 3;
+  width: 100%;
+  background: linear-gradient(160deg, rgba(8,6,16,.98), rgba(20,16,32,.95));
+  border-bottom: none;
+}
+.svc-books-grid .book-cover img,
+.svc-books-grid .book-cover picture {
+  width: 100%;
+  height: 100%;
+}
+.svc-books-grid .book-cover img {
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.7;
+  filter: brightness(0.85);
+  transition: opacity .3s ease, filter .3s ease;
+}
+.svc-books-grid .book-card--tile.coming-soon .book-cover img {
+  opacity: 0.35;
+  filter: brightness(0.4);
+}
+.svc-books-grid .book-card--tile:hover .book-cover img,
+.svc-books-grid .book-card--tile:focus-visible .book-cover img {
+  opacity: 1;
+  filter: brightness(1);
+}
+.svc-books-grid .book-card--tile.coming-soon:hover .book-cover img,
+.svc-books-grid .book-card--tile.coming-soon:focus-visible .book-cover img {
+  opacity: 0.65;
+  filter: brightness(0.7);
+}
+.svc-books-grid .book-cover::before {
+  opacity: 0.2;
+}
+.svc-books-grid .book-info {
+  padding: 12px 10px 14px;
+  background: rgba(13,11,24,.9);
+  border: 1px solid rgba(201,168,76,.12);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+}
+.svc-books-grid .book-card--tile .book-cover {
+  border: 1px solid rgba(201,168,76,.12);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+.svc-books-grid .book-title {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.svc-books-grid .book-author {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.svc-books-grid .book-card--primary {
+  z-index: 2;
+  position: relative;
+}
+.svc-books-grid .book-card--primary .book-title {
+  font-size: 16px;
+}
+.svc-books-grid .book-card--primary .book-cover,
+.svc-books-grid .book-card--primary .book-info {
+  border-color: rgba(201,168,76,.35);
+  box-shadow: 0 12px 36px rgba(0,0,0,.35), 0 0 28px rgba(201,168,76,.12);
+}
+.svc-books-grid .book-card.coming-soon {
+  opacity: 1;
+}
+.svc-books-grid .book-soon-chip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(8,6,16,.82);
+  border: 1px solid rgba(201,168,76,.35);
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+@media (min-width: 1025px) {
+  .svc-books-grid .svc-grid--three .book-card--primary {
+    top: -10px;
+    transform: scale(1.04);
+  }
+  .svc-books-grid .svc-grid--three .book-card--primary:hover {
+    transform: scale(1.04) translateY(-4px);
+  }
 }
 .svc-books-more {
   text-align: center;
@@ -1183,20 +1346,29 @@ html[data-theme='light'] .field select:focus {
   opacity: 0.75;
 }
 .svc-card--primary .svc-price-amount {
-  font-size: 52px;
+  font-size: 26px;
   text-shadow: 0 0 40px rgba(74,148,148,.35);
 }
 .svc-card--primary .svc-card-name {
   font-size: clamp(18px, 2.2vw, 22px);
 }
 @media (min-width: 1025px) {
-  /* Use top (not transform) so fadeUp fill-mode doesn't cancel the raise */
-  .svc-grid--three .svc-card--primary {
-    top: -14px;
-    padding-bottom: 4px;
+  /* Center guidebook sticks out above and below equal side cards */
+  #guidebooks .svc-grid--three .svc-card--primary {
+    top: auto;
+    margin-block: -22px;
+    padding-top: 12px;
+    padding-bottom: 16px;
+    align-self: stretch;
   }
-  .svc-grid--three .svc-card--primary:hover {
-    top: -18px;
+  #guidebooks .svc-grid--three .svc-card--primary:hover {
+    top: auto;
+    margin-block: -26px;
+  }
+  #guidebooks .svc-grid--three #couples,
+  #guidebooks .svc-grid--three #season {
+    align-self: center;
+    max-width: none;
   }
 }
 
@@ -1281,7 +1453,7 @@ html[data-theme='light'] .field select:focus {
   opacity: 0.85;
 }
 .svc-price-amount--soon {
-  font-size: 32px;
+  font-size: 16px;
   color: var(--text-muted);
   text-shadow: none;
   opacity: 0.85;
@@ -1451,14 +1623,14 @@ html[data-theme='light'] .field select:focus {
 
 .svc-price-currency {
   font-family: 'Cinzel', serif;
-  font-size: 20px;
+  font-size: 12px;
   font-weight: 600;
   margin-top: 8px;
   opacity: 0.8;
 }
 .svc-price-amount {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 52px;
+  font-size: 26px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: -.01em;
@@ -2059,6 +2231,11 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   .svc-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .svc-books-grid .svc-grid.svc-grid--two {
+    width: 100%;
+    max-width: 460px;
+    grid-template-columns: 1fr;
+  }
   .svc-grid--equal-three {
     grid-template-columns: 1fr;
     max-width: 460px;
@@ -2085,7 +2262,7 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   .svc-card-header { padding: 28px 20px 0; }
   .svc-features { padding: 0 20px; }
   .svc-card-footer { padding: 20px 20px 28px; }
-  .svc-price-amount { font-size: 42px; }
+  .svc-price-amount { font-size: 22px; }
 }
 
 /* ── CSS Glyph Icons (replaces inline SVG to avoid innerHTML parser issues) ── */

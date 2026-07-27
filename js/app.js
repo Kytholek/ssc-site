@@ -1567,6 +1567,12 @@ function initServicesSectionNav() {
     });
   });
 
+  function updateNavCompact() {
+    nav.classList.toggle('is-compact', window.scrollY > 80);
+  }
+  updateNavCompact();
+  window.addEventListener('scroll', updateNavCompact, { passive: true });
+
   if (!('IntersectionObserver' in window) || !sections.length) return;
 
   var observer = new IntersectionObserver(function(entries) {
@@ -1581,6 +1587,141 @@ function initServicesSectionNav() {
   sections.forEach(function(section) { observer.observe(section); });
 }
 
+var SVC_BOOKS = {
+  'true-baptism': {
+    title: 'True Baptism',
+    author: 'Kytholek',
+    tag: 'Original',
+    img: '/Images/truebaptism.png',
+    desc: 'The Ideals of Simulation Source Code, now within Biblical Scripture. Rather than treating scripture as distant history or abstract theology, this book approaches it as a living framework, one that describes the internal condition of the individual and the process of real change and transfiguration that happens with being Baptised in the Holy Spirit.',
+    url: 'https://amzn.to/4vVM10j'
+  },
+  ssc: {
+    title: 'Simulation Source Code',
+    author: 'Kytholek',
+    tag: 'Original',
+    img: '/Images/SSCbook.png',
+    desc: 'The complete framework for understanding numerology as the underlying code of reality.',
+    url: null
+  },
+  forgetting: {
+    title: 'Forgetting to Remember Again',
+    author: 'Kytholek',
+    tag: 'Original',
+    img: '/Images/forgettingtoremember.png',
+    desc: 'A guide to retrieving forgotten truths about your identity and purpose.',
+    url: null
+  },
+  'reality-lost': {
+    title: 'Reality/Lost',
+    author: 'Kytholek',
+    tag: 'Original',
+    img: '/Images/realitylostcovermain.png',
+    desc: 'After a promising path in the Marine Corps ends in an Other Than Honorable discharge, a man is cast outside the system he once trusted and forced into confrontation with his past, his addictions, and the nature of reality itself.',
+    url: 'https://amzn.to/41nny6V'
+  },
+  'out-of-place': {
+    title: 'Out of Place',
+    author: 'Giada Ferrari',
+    tag: 'Featured',
+    img: '/Images/outofplace.png',
+    desc: 'When you\'re born feeling different, the entire world can become a constant trap from which you must escape. But what happens when you discover that the problem isn\'t the place you are trying to escape?\n\nBetween sudden departures, scarring loves, existential questions, identity crises, psychotherapy, spirituality, and a constant dialogue with the relentless "background noise", this memoir explores the sense of belonging, the weight of inherited beliefs, and the courage needed to question everything we think we know about ourselves and learn to look at it with different eyes.\n\nA true story of searching, falls and rebirth, dedicated to those who have felt out of place at least once. Because sometimes what makes us different is not a curse, but a guide to finding our way home.',
+    url: 'https://amzn.to/4yJz24h'
+  }
+};
+
+function openBookDetail(id) {
+  var book = SVC_BOOKS[id];
+  if (!book) return;
+  var overlay = document.getElementById('book-detail-overlay');
+  var img = document.getElementById('book-detail-img');
+  var tag = document.getElementById('book-detail-tag');
+  var title = document.getElementById('book-detail-title');
+  var author = document.getElementById('book-detail-author');
+  var desc = document.getElementById('book-detail-desc');
+  var cta = document.getElementById('book-detail-cta');
+  if (!overlay || !img || !tag || !title || !author || !desc || !cta) return;
+
+  // Page fade animation uses transform, which traps position:fixed — park on body.
+  if (overlay.parentNode !== document.body) {
+    document.body.appendChild(overlay);
+  }
+
+  img.src = book.img;
+  img.alt = book.title;
+  tag.textContent = book.tag;
+  title.textContent = book.title;
+  author.textContent = book.author;
+  desc.textContent = book.desc;
+  desc.style.whiteSpace = 'pre-line';
+
+  if (book.url) {
+    cta.hidden = false;
+    cta.href = book.url;
+    cta.textContent = 'View on Amazon \u2192';
+    cta.removeAttribute('aria-disabled');
+    cta.classList.remove('is-disabled');
+    cta.target = '_blank';
+    cta.rel = 'noopener noreferrer';
+  } else {
+    cta.hidden = true;
+    cta.href = '#';
+    cta.removeAttribute('target');
+    cta.removeAttribute('rel');
+  }
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var closeBtn = document.getElementById('book-detail-close');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeBookDetail() {
+  var overlay = document.getElementById('book-detail-overlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function initBookDetailModal() {
+  var overlay = document.getElementById('book-detail-overlay');
+  if (!overlay) return;
+  if (overlay.parentNode !== document.body) {
+    document.body.appendChild(overlay);
+  }
+  if (overlay.dataset.bound === '1') return;
+  overlay.dataset.bound = '1';
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeBookDetail();
+  });
+
+  var closeBtn = document.getElementById('book-detail-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeBookDetail);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      closeBookDetail();
+    }
+  });
+
+  document.querySelectorAll('#page-services [data-book-id]').forEach(function(tile) {
+    tile.addEventListener('click', function() {
+      openBookDetail(tile.getAttribute('data-book-id'));
+    });
+  });
+
+  var cta = document.getElementById('book-detail-cta');
+  if (cta) {
+    cta.addEventListener('click', function(e) {
+      if (cta.classList.contains('is-disabled') || cta.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+      }
+    });
+  }
+}
+
 function initServicesPage() {
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay && overlay.dataset.bound !== '1') {
@@ -1589,6 +1730,7 @@ function initServicesPage() {
       if (e.target === overlay) closeCalculatorModal();
     });
   }
+  initBookDetailModal();
   initServicesSectionNav();
   scrollServicesHash();
   loadGoogleReviews();
@@ -1858,6 +2000,8 @@ window.rpCarouselTo = rpCarouselTo;
 // Expose
 window.openCalculatorModal = openCalculatorModal;
 window.closeCalculatorModal = closeCalculatorModal;
+window.openBookDetail = openBookDetail;
+window.closeBookDetail = closeBookDetail;
 window.initServicesPage = initServicesPage;
 
 document.addEventListener('keydown', function(e) {
@@ -1865,6 +2009,10 @@ document.addEventListener('keydown', function(e) {
   var modalOverlay = document.getElementById('calculator-modal-overlay');
   if (modalOverlay && modalOverlay.classList.contains('open')) {
     closeCalculatorModal();
+  }
+  var bookOverlay = document.getElementById('book-detail-overlay');
+  if (bookOverlay && bookOverlay.classList.contains('open')) {
+    closeBookDetail();
   }
 });
 window.calculateReadingModal = validateModalGuidebookFields;

@@ -547,7 +547,7 @@ body { padding-top: 64px; }
    CALCULATOR PAGE
 ═══════════════════════════════════════ */
 .calc-page-hero {
-  text-align: center; padding: 60px 24px 40px;
+  text-align: center; padding: 48px 24px 28px;
 }
 .calc-page-eyebrow {
   font-family: 'Cormorant SC', serif; font-size: 9px; letter-spacing: .45em;
@@ -566,6 +566,19 @@ body { padding-top: 64px; }
   font-size: 18px; color: var(--text-dim); font-style: italic; line-height: 1.7;
   max-width: 500px; margin: 0 auto;
 }
+.calc-social-proof {
+  margin-top: 12px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+}
+.calc-social-proof a {
+  color: var(--gold-dim);
+  text-decoration: none;
+}
+.calc-social-proof a:hover {
+  color: var(--gold);
+}
 
 .calc-container { max-width: 760px; margin: 0 auto; padding: 20px 24px 80px; }
 
@@ -580,8 +593,8 @@ body { padding-top: 64px; }
 }
 .calc-form-head {
   text-align: center;
-  margin-bottom: 28px;
-  padding-bottom: 22px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
   border-bottom: 1px solid rgba(201,168,76,0.1);
 }
 .calc-form-step {
@@ -680,10 +693,85 @@ body { padding-top: 64px; }
   border-radius: 10px; padding: 48px 28px; text-align: center;
   margin-top: 32px;
 }
+.results-area--empty,
+#results-area[hidden] {
+  display: none !important;
+}
 .results-placeholder-icon { font-size: 36px; margin-bottom: 16px; opacity: .4; }
 .results-placeholder-text {
   font-family: 'Cormorant SC', serif; font-size: 10px; letter-spacing: .25em;
   text-transform: uppercase; color: var(--text-muted);
+}
+
+.calc-how-it-works {
+  max-width: 520px;
+  margin: 28px auto 0;
+  text-align: center;
+}
+.calc-how-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  font-weight: 400;
+  margin: 0 0 14px;
+}
+.calc-how-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+.calc-how-steps li {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  padding-left: 0;
+}
+.calc-how-steps strong {
+  color: var(--gold-light);
+  font-weight: 500;
+}
+
+.calc-faq-wrap {
+  max-width: 640px;
+  margin: 56px auto 0;
+  padding: 0 4px;
+}
+.calc-faq-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 28px;
+}
+.calc-faq-item {
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  padding: 18px 0;
+}
+.calc-faq-item--last {
+  border-bottom: none;
+}
+.calc-faq-item summary {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+.calc-faq-item summary::-webkit-details-marker { display: none; }
+.calc-faq-item p {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-dim);
 }
 
 .calc-learn-more {
@@ -3337,7 +3425,7 @@ footer {
   color: var(--gold-light);
   letter-spacing: .08em;
   line-height: 1.15;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   text-shadow: 0 0 40px rgba(201,168,76,.25);
   position: relative;
 }
@@ -3390,8 +3478,8 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-width: 380px;
-  margin: 0 auto 32px;
+  max-width: 400px;
+  margin: 0 auto 24px;
   text-align: left;
   position: relative;
 }
@@ -4472,6 +4560,17 @@ footer {
   z-index: 2;
   opacity: 0.72;
 }
+.svc-featured-badge--gold {
+  color: rgba(20, 14, 8, .92);
+  background: linear-gradient(180deg, #e4c76a, #c9a84c);
+  letter-spacing: .22em;
+  opacity: 1;
+}
+.svc-price-was {
+  text-decoration: line-through;
+  opacity: .55;
+  margin-right: 2px;
+}
 
 /* ── Membership card — teal accent ── */
 .svc-card--membership {
@@ -4782,14 +4881,14 @@ footer {
   filter: brightness(1.08);
 }
 
-/* Guidebook CTA — loudest action in the written row */
-#guidebook .svc-cta--gold {
+/* Bundle CTA — loudest action in the written row */
+#bundle .svc-cta--gold {
   font-size: 10px;
   letter-spacing: .3em;
   padding: 16px 28px;
   box-shadow: 0 6px 28px rgba(201,168,76,.32);
 }
-#guidebook .svc-cta--gold:hover {
+#bundle .svc-cta--gold:hover {
   box-shadow: 0 8px 36px rgba(201,168,76,.45);
 }
 
@@ -4849,8 +4948,8 @@ footer {
     margin: 0 auto;
     align-items: stretch;
   }
-  .svc-grid--three #guidebook { order: -3; }
-  .svc-grid--three #couples { order: -2; }
+  .svc-grid--three #bundle { order: -3; }
+  .svc-grid--three #guidebook { order: -2; }
   .svc-grid--three #season { order: -1; }
   .svc-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));

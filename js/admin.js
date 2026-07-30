@@ -73,7 +73,7 @@ var adminSystem = (function () {
     { id:'post-exp7',                    path:'expression-7-numerology',                            title:'Expression 7',                                             category:'numbers'     },
     { id:'post-exp8',                    path:'expression-8-numerology',                            title:'Expression 8',                                             category:'numbers'     },
     { id:'post-exp9',                    path:'expression-9-numerology',                            title:'Expression 9',                                             category:'numbers'     },
-    { id:'post-exp11',                   path:'expression-11-numerology',                           title:'Expression 11',                                            category:'numbers'     },
+    { id:'post-exp11',                   path:'expression-11-numerology',                           title:'Expression 11/2: The Illuminated Bridge',                   category:'numbers'     },
     { id:'post-exp22',                   path:'expression-22-numerology',                           title:'Expression 22',                                            category:'numbers'     },
     { id:'post-exp33',                   path:'expression-33-numerology',                           title:'Expression 33',                                            category:'numbers'     },
     // Soul Urge

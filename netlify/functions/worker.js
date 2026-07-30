@@ -30,6 +30,7 @@ const PRODUCT_CONFIG = {
     stripeName: 'SSC Guidebook Report',
     stripeDescription: 'Your complete personalised frequency guidebook — all 7 frequencies decoded, shadow work, and Life Calling directive. Delivered as a PDF.',
     successProduct: 'guidebook',
+    fulfillProducts: ['guidebook'],
   },
   'time-cycle': {
     id: 'time-cycle',
@@ -37,11 +38,23 @@ const PRODUCT_CONFIG = {
     stripeName: 'SSC Time Cycle Report',
     stripeDescription: 'Your 3-month spiral forecast — month-by-month plan plus current pinnacle, year, and season timing with actions to maximize each period. Delivered as a PDF.',
     successProduct: 'time-cycle',
+    fulfillProducts: ['time-cycle'],
+  },
+  bundle: {
+    id: 'bundle',
+    priceCents: 2900,
+    stripeName: 'SSC Blueprint Bundle',
+    stripeDescription: 'Guidebook Report + Time Cycle — both PDFs. Save $10 vs buying separately ($39). Delivered to your email within minutes.',
+    successProduct: 'bundle',
+    fulfillProducts: ['guidebook', 'time-cycle'],
   },
 };
 
 function resolveProduct(raw) {
   const key = String(raw || 'guidebook').trim().toLowerCase();
+  if (key === 'guidebook-bundle' || key === 'blueprint-bundle') {
+    return PRODUCT_CONFIG.bundle;
+  }
   return PRODUCT_CONFIG[key] || PRODUCT_CONFIG.guidebook;
 }
 
@@ -190,7 +203,7 @@ function buildCalculatorEmailCtaHtml() {
 const EMAIL_SHEET_URL =
   'https://script.google.com/macros/s/AKfycby4as7NPJliyQDm-5lpJM1RjtgVMNMuudlYqfAKeSJj1drKi54yi3HVU3dREWL8lpsLVg/exec';
 
-const EMAIL_ORIGINS = new Set(['calculator', 'webapp', 'guidebook', 'time-cycle', 'signup']);
+const EMAIL_ORIGINS = new Set(['calculator', 'webapp', 'guidebook', 'time-cycle', 'bundle', 'signup']);
 
 async function logEmailToSheet(payload) {
   try {
@@ -278,6 +291,15 @@ async function enqueueReading(userData, env) {
   }
   await env.READINGS_QUEUE.send(userData);
   console.log('Queued reading', userData.product || 'guidebook', 'for', userData.email);
+}
+
+/** Queue one job per fulfill product (bundle → guidebook + time-cycle). */
+async function enqueueFulfillment(userData, env) {
+  const product = resolveProduct(userData.product);
+  const fulfillProducts = product.fulfillProducts || [product.id];
+  for (const pid of fulfillProducts) {
+    await enqueueReading({ ...userData, product: pid }, env);
+  }
 }
 
 export default {
@@ -461,8 +483,8 @@ export default {
     });
 
     try {
-      await env.READINGS_QUEUE.send(userData);
-      console.log('Queued reading for', userData.email);
+      await enqueueFulfillment(userData, env);
+      console.log('Queued fulfillment for', userData.email, 'product:', userData.product);
     } catch (err) {
       console.error('READINGS_QUEUE.send failed:', err);
       return new Response(`Queue error: ${err.message}`, { status: 500 });
@@ -633,6 +655,12 @@ function calculateFrequencies(name, month, day, year) {
 async function processReading(userData, env) {
   const product = resolveProduct(userData.product).id;
   console.log(`[1/4] Processing ${product} for ${userData.email}`);
+
+  if (product === 'bundle') {
+    await processReading({ ...userData, product: 'guidebook' }, env);
+    await processReading({ ...userData, product: 'time-cycle' }, env);
+    return;
+  }
 
   if (product === 'time-cycle') {
     await processTimeCycleReading(userData, env, {
@@ -1483,7 +1511,7 @@ async function handleCreateCheckout(request, env, origin) {
         expression,
         lifeCalling: life_calling,
       });
-      await enqueueReading(userData, env);
+      await enqueueFulfillment(userData, env);
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },

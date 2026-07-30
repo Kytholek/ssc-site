@@ -321,115 +321,6 @@ function buildCodexCardHtml(n, accentDim, accentLight) {
     + '<a href="' + href + '" class="ssc-cdx-link" style="display:inline-block;font-family:\'Cinzel\',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:' + accentLight + ';text-decoration:none;margin-bottom:12px;opacity:.85" onclick="' + onclick + '">' + linkText + '</a>';
 }
 
-var CODEX_GRID_XY = {
-  '1': { x: 96, y: 96, r: 16 },
-  '2': { x: 204, y: 96, r: 16 },
-  '3': { x: 150, y: 42, r: 16 },
-  '4': { x: 42, y: 150, r: 16 },
-  '5': { x: 258, y: 150, r: 16 },
-  '6': { x: 150, y: 258, r: 16 },
-  '7': { x: 96, y: 204, r: 16 },
-  '8': { x: 204, y: 204, r: 16 },
-  '9': { x: 150, y: 150, r: 22 }
-};
-
-function buildCodexFootprintMap(lp, exp, calling) {
-  var highlights = [
-    { key: 'lp', root: getCodexRoot(lp.root), label: _t('calc.codex.legend_lp') || 'Life Path', color: '#7ec8c8' },
-    { key: 'exp', root: getCodexRoot(exp.root), label: _t('calc.codex.legend_exp') || 'Expression', color: '#c898f0' },
-    { key: 'calling', root: getCodexRoot(calling.root), label: _t('calc.codex.legend_calling') || 'Life Calling', color: '#e8c96b' }
-  ];
-
-  var byNode = {};
-  highlights.forEach(function (h) {
-    var k = String(h.root);
-    if (!byNode[k]) byNode[k] = [];
-    byNode[k].push(h);
-  });
-
-  var lpMeta = getCodexNodeMeta(lp.root);
-  var expMeta = getCodexNodeMeta(exp.root);
-  var callMeta = getCodexNodeMeta(calling.root);
-
-  var narrativeTpl = _t('calc.codex.narrative') ||
-    'Your Life Path sits at Node {lpn} · {lpp}. Your Expression at Node {expn} · {expp}. They converge in Life Calling · Node {calln}.';
-  var narrative = narrativeTpl
-    .replace('{lpn}', lpMeta.root).replace('{lpp}', lpMeta.placement)
-    .replace('{expn}', expMeta.root).replace('{expp}', expMeta.placement)
-    .replace('{calln}', callMeta.root);
-
-  var ariaTpl = _t('calc.codex.map_aria') || 'Codex map: {details}';
-  var ariaDetails = highlights.map(function (h) { return h.label + ' node ' + h.root; }).join(', ');
-  var ariaLabel = ariaTpl.replace('{details}', ariaDetails);
-
-  var title = _t('calc.codex.footprint_title') || 'Your Codex Footprint';
-  var subtitle = _t('calc.codex.footprint_subtitle') || 'Where your Purpose triangle sits in the universal field';
-
-  var lines = [
-    [150, 42, 96, 96], [150, 42, 204, 96], [96, 96, 150, 150], [204, 96, 150, 150],
-    [96, 204, 150, 150], [204, 204, 150, 150], [150, 258, 96, 204], [150, 258, 204, 204],
-    [42, 150, 150, 150], [258, 150, 150, 150]
-  ];
-  var lineHtml = lines.map(function (l) {
-    return '<line class="ssc-cdx-map-line" x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '"/>';
-  }).join('');
-
-  function ringHtml(cx, cy, baseR, colors) {
-    if (colors.length === 1) {
-      return '<circle class="ssc-cdx-map-ring ssc-cdx-map-pulse" cx="' + cx + '" cy="' + cy + '" r="' + (baseR + 5) + '" fill="none" stroke="' + colors[0].color + '" stroke-width="2.5" opacity="0.9"/>';
-    }
-    var seg = Math.PI * (baseR + 5) * 2 / colors.length;
-    var dash = seg.toFixed(1);
-    return colors.map(function (c, i) {
-      var r = baseR + 5 + i * 4;
-      var offset = (seg * i).toFixed(1);
-      return '<circle class="ssc-cdx-map-ring" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + c.color + '" stroke-width="2.5" stroke-dasharray="' + dash + ' ' + dash + '" stroke-dashoffset="' + offset + '" opacity="0.92"/>';
-    }).join('');
-  }
-
-  var nodeOrder = ['3', '4', '5', '6', '1', '2', '7', '8', '9'];
-  var nodesHtml = nodeOrder.map(function (num) {
-    var pos = CODEX_GRID_XY[num];
-    var active = byNode[num];
-    var openLabel = (_t('calc.codex.open_node') || 'Open Node {n} in Codex').replace('{n}', num);
-    var meta = (window.CODEX_NODES && window.CODEX_NODES[num]) || {};
-    var titleAttr = meta.name ? num + ' — ' + meta.name : 'Node ' + num;
-    var fill = active ? 'rgba(8,12,18,0.92)' : 'rgba(5,4,10,0.75)';
-    var stroke = active ? (active.length === 1 ? active[0].color : 'rgba(201,168,76,0.5)') : 'rgba(201,168,76,0.18)';
-    var textFill = active ? (active.length === 1 ? active[0].color : '#e8c96b') : 'rgba(201,168,76,0.35)';
-    var ring = active ? ringHtml(pos.x, pos.y, pos.r, active) : '';
-    var pulseClass = active && active.length === 1 ? ' ssc-cdx-map-node--active' : (active ? ' ssc-cdx-map-node--fusion' : '');
-    var onclick = "if(typeof navigateCodexNode==='function'){event.preventDefault();navigateCodexNode(" + num + ",event);}";
-    return '<a class="ssc-cdx-map-node' + pulseClass + '" href="/codex/?node=' + num + '" aria-label="' + openLabel + '" onclick="' + onclick + '">'
-      + ring
-      + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + pos.r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (active ? 2 : 1) + '"/>'
-      + '<text x="' + pos.x + '" y="' + pos.y + '" fill="' + textFill + '">' + num + '</text>'
-      + '<title>' + titleAttr + (active ? ' · ' + active.map(function (a) { return a.label; }).join(', ') : '') + '</title>'
-      + '</a>';
-  }).join('');
-
-  var legendHtml = highlights.map(function (h) {
-    return '<span class="ssc-cdx-legend-item"><span class="ssc-cdx-legend-dot" style="background:' + h.color + '"></span>' + h.label + '</span>';
-  }).join('');
-
-  return '<section class="ssc-cdx-footprint ssc-mobile-chart" aria-labelledby="ssc-cdx-footprint-title">'
-    + '<div class="ssc-cdx-footprint-head">'
-    + '<div class="ssc-cdx-footprint-eyebrow" data-i18n="calc.codex.footprint_eyebrow">Codex Placement</div>'
-    + '<h3 id="ssc-cdx-footprint-title" class="ssc-cdx-footprint-title" data-i18n="calc.codex.footprint_title">' + title + '</h3>'
-    + '<p class="ssc-cdx-footprint-sub" data-i18n="calc.codex.footprint_subtitle">' + subtitle + '</p>'
-    + '</div>'
-    + '<div class="ssc-cdx-map-wrap">'
-    + '<svg class="ssc-cdx-map-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + ariaLabel + '">'
-    + '<desc>' + ariaLabel + '</desc>'
-    + lineHtml
-    + nodesHtml
-    + '</svg>'
-    + '</div>'
-    + '<div class="ssc-cdx-legend" aria-hidden="false">' + legendHtml + '</div>'
-    + '<p class="ssc-cdx-narrative">' + narrative + '</p>'
-    + '</section>';
-}
-
 /* ═══════════════════════════════════════════════════════════════
    TRINITY RESULT CARD HELPERS
 ═══════════════════════════════════════════════════════════════ */
@@ -900,8 +791,11 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const hookCopy = buildResultHook(firstName, lp.root, exp.root, calling.root);
 
   const coreSummary = buildCoreSummary(lp, exp, calling);
-  const codexFootprint = buildCodexFootprintMap(lp, exp, calling);
 
+  resultsTarget.classList.remove('results-area--empty', 'results-placeholder');
+  resultsTarget.removeAttribute('hidden');
+  var howEl = document.querySelector('.calc-how-it-works');
+  if (howEl) howEl.hidden = true;
   resultsTarget.innerHTML = `
     <style>
       .ssc-rw { }
@@ -972,10 +866,9 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:44px">
         ${buildFreqChart(numbers)}
       </div>
-      <div class="ssc-reveal ssc-delay-2">${codexFootprint}</div>
-      <div class="ssc-reveal ssc-delay-3">${lessonsBlock}</div>
-      <div class="ssc-reveal ssc-delay-4">${expressionBlock}</div>
-      <div class="ssc-reveal ssc-delay-5">${purposeBlock}</div>
+      <div class="ssc-reveal ssc-delay-2">${lessonsBlock}</div>
+      <div class="ssc-reveal ssc-delay-3">${expressionBlock}</div>
+      <div class="ssc-reveal ssc-delay-4">${purposeBlock}</div>
       <div class="ssc-reveal ssc-delay-5">${hookCopy}</div>
     </div>
   `;
@@ -990,6 +883,8 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   _setTextById('unlock-expression', exp.root);
   _setTextById('unlock-life-calling', calling.root);
   _prefillUnlockEmailFromLead();
+  var leadField = document.querySelector('.calc-email-field');
+  if (leadField) leadField.hidden = true;
   window.sscTrackEvent('calculator_decode_success', {
     life_path: lp.root,
     expression: exp.root,

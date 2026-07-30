@@ -125,18 +125,6 @@ var SSC_TRANSLATIONS = {
 
   'calc.codex.label' : { en: '◈ Codex · Node', es: '◈ Códice · Nodo' },
   'calc.codex.explore' : { en: 'Explore node {n} in the Codex →', es: 'Explorar nodo {n} en el Códice →' },
-  'calc.codex.footprint_eyebrow' : { en: 'Codex Placement', es: 'Ubicación en el Códice' },
-  'calc.codex.footprint_title' : { en: 'Your Codex Footprint', es: 'Tu Huella en el Códice' },
-  'calc.codex.footprint_subtitle' : { en: 'Where your Purpose triangle sits in the universal field', es: 'Dónde se sitúa tu triángulo de Propósito en el campo universal' },
-  'calc.codex.legend_lp' : { en: 'Life Path', es: 'Camino de Vida' },
-  'calc.codex.legend_exp' : { en: 'Expression', es: 'Expresión' },
-  'calc.codex.legend_calling' : { en: 'Life Calling', es: 'Llamado de Vida' },
-  'calc.codex.narrative' : {
-    en: 'Your Life Path sits at Node {lpn} · {lpp}. Your Expression at Node {expn} · {expp}. They converge in Life Calling · Node {calln}.',
-    es: 'Tu Camino de Vida se sitúa en el Nodo {lpn} · {lpp}. Tu Expresión en el Nodo {expn} · {expp}. Convergen en el Llamado de Vida · Nodo {calln}.'
-  },
-  'calc.codex.map_aria' : { en: 'Codex map: {details}', es: 'Mapa del Códice: {details}' },
-  'calc.codex.open_node' : { en: 'Open Node {n} in Codex', es: 'Abrir Nodo {n} en el Códice' },
 
 
   // ── Footer ─────────────────────────────────────────

@@ -1077,19 +1077,19 @@ nav.svc-section-nav:not(.breadcrumb) {
   align-items: center;
   padding-block: 24px;
 }
-#guidebooks .svc-grid--three #couples,
+#guidebooks .svc-grid--three #guidebook,
 #guidebooks .svc-grid--three #season {
   align-self: center;
   height: auto;
 }
-#guidebooks .svc-grid--three #couples .svc-card-tagline,
+#guidebooks .svc-grid--three #guidebook .svc-card-tagline,
 #guidebooks .svc-grid--three #season .svc-card-tagline {
   min-height: 2.8em;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-#guidebooks .svc-grid--three #couples .svc-features,
+#guidebooks .svc-grid--three #guidebook .svc-features,
 #guidebooks .svc-grid--three #season .svc-features {
   min-height: 7.5em;
 }
@@ -1357,7 +1357,7 @@ nav.svc-section-nav:not(.breadcrumb) {
     top: auto;
     margin-block: -26px;
   }
-  #guidebooks .svc-grid--three #couples,
+  #guidebooks .svc-grid--three #guidebook,
   #guidebooks .svc-grid--three #season {
     align-self: center;
     max-width: none;
@@ -1395,6 +1395,17 @@ nav.svc-section-nav:not(.breadcrumb) {
   white-space: nowrap;
   z-index: 2;
   opacity: 0.72;
+}
+.svc-featured-badge--gold {
+  color: rgba(20, 14, 8, .92);
+  background: linear-gradient(180deg, #e4c76a, #c9a84c);
+  letter-spacing: .22em;
+  opacity: 1;
+}
+.svc-price-was {
+  text-decoration: line-through;
+  opacity: .55;
+  margin-right: 2px;
 }
 
 /* ── Coming soon cards — quiet offshoots; solidify on hover ── */
@@ -2146,14 +2157,14 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   filter: brightness(1.08);
 }
 
-/* Guidebook CTA — loudest action in the written row */
-#guidebook .svc-cta--gold {
+/* Bundle CTA — loudest action in the written row */
+#bundle .svc-cta--gold {
   font-size: 10px;
   letter-spacing: .3em;
   padding: 16px 28px;
   box-shadow: 0 6px 28px rgba(201,168,76,.32);
 }
-#guidebook .svc-cta--gold:hover {
+#bundle .svc-cta--gold:hover {
   box-shadow: 0 8px 36px rgba(201,168,76,.45);
 }
 
@@ -2217,8 +2228,8 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     margin: 0 auto;
     align-items: stretch;
   }
-  .svc-grid--three #guidebook { order: -3; }
-  .svc-grid--three #couples { order: -2; }
+  .svc-grid--three #bundle { order: -3; }
+  .svc-grid--three #guidebook { order: -2; }
   .svc-grid--three #season { order: -1; }
   .svc-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2969,7 +2980,6 @@ html:not([data-theme='light']) .unlock-email-label {
 }
 
 html:not([data-theme='light']) .calc-page-sub,
-html:not([data-theme='light']) .calc-social-proof,
 html:not([data-theme='light']) .services-hero-body,
 html:not([data-theme='light']) .blog-idx-sub,
 html:not([data-theme='light']) .blog-hero-body,

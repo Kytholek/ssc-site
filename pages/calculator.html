@@ -4,14 +4,13 @@
     <div class="calc-page-eyebrow" data-i18n="calc.eyebrow">Source Decoder</div>
     <h1 class="calc-page-title" data-i18n="calc.title">Free Numerology Calculator</h1>
     <p class="calc-page-sub" data-i18n="calc.subtitle">Enter your birth date and full name to calculate Life Path, Expression, Soul Urge, and all seven core frequencies.</p>
-    <p class="calc-social-proof" style="margin-top:16px;font-size:14px;color:var(--text-dim);">
-      Rated 5.0 on Facebook · <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer" style="color:var(--gold);">See reviews</a>
+    <p class="calc-social-proof">
+      Rated 5.0 on Facebook · <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer">See reviews</a>
     </p>
   </div>
   <div class="calc-container">
     <div class="form-card a1">
       <div class="calc-form-head">
-        <div class="calc-form-step">Step 1 · Enter Your Code</div>
         <p class="calc-form-note">Use your full birth name and birth date for the cleanest frequency map.</p>
       </div>
       <div class="form-section-label" data-i18n="calc.label.birthdate">· Birth Date ·</div>
@@ -59,18 +58,26 @@
       </div>
     </div>
     <button type="button" class="calc-btn a2" data-i18n="calc.btn">⬡&nbsp;Decode My Map&nbsp;⬡</button>
-    <div class="results-placeholder a3" id="results-area">
+
+    <section class="calc-how-it-works a2" aria-labelledby="calc-how-title">
+      <h2 class="calc-how-title" id="calc-how-title">How it works</h2>
+      <ol class="calc-how-steps">
+        <li><strong>Birth date</strong> — calculates Life Path, Theme, and Achievement</li>
+        <li><strong>Full birth name</strong> — calculates Soul Urge, Outer Persona, and Expression</li>
+        <li><strong>Decode</strong> — Life Calling fuses Path and Expression into your purpose directive</li>
+      </ol>
+    </section>
+
+    <div class="results-placeholder results-area--empty a3" id="results-area" hidden>
       <div class="results-placeholder-icon">✦</div>
       <div class="results-placeholder-text" data-i18n="calc.results.placeholder">Your reading will appear here</div>
     </div>
 
     <!-- ════ UNLOCK FULL BLUEPRINT CTA ════
          Hidden by default. Shown by calculator.js after results render.
-         Your Stripe Payment Link goes in the data-stripe-url attribute.
     ════ -->
     <div class="unlock-cta a4" id="unlock-cta" style="display:none;" aria-hidden="true">
 
-      <!-- Decorative top rule -->
       <div class="unlock-divider">
         <span class="unlock-divider-line"></span>
         <span class="unlock-divider-sigil">✦</span>
@@ -78,11 +85,7 @@
       </div>
 
       <div class="unlock-card">
-
-        <!-- Glow orb (CSS only) -->
         <div class="unlock-glow" aria-hidden="true"></div>
-
-        <div class="unlock-eyebrow">Your frequencies have been decoded</div>
 
         <h2 class="unlock-title">Unlock Your Full Blueprint</h2>
 
@@ -92,34 +95,20 @@
             Your <strong>Life Path <span id="unlock-life-path">-</span></strong>,
             <strong>Expression <span id="unlock-expression">-</span></strong>, and
             <strong>Life Calling <span id="unlock-life-calling">-</span></strong>
-            are the opening map. The Guidebook Report expands how those three forces interact across all seven frequencies.
+            are the opening map. The Guidebook expands how those forces interact across all seven frequencies.
           </p>
         </div>
 
-        <p class="unlock-body">
-          The numbers above show you <em>what</em> frequencies you carry.
-          Your <strong>Complete Blueprint</strong> shows you <em>what to do with them</em> —
-          the compound story behind each number, the shadow patterns running on autopilot,
-          and the specific directive your Life Calling encodes.
-        </p>
-
-        <!-- Feature list -->
         <ul class="unlock-features" aria-label="What's included">
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Full compound number interpretation for all 7 frequencies</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Shadow &amp; positive expression of each number</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Your personal star chart — all 7 nodes mapped</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> External Circuit decoded — Theme, Life Path, Achievement</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Internal Circuit decoded — Soul, Outer, Expression</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Life Calling directive &amp; Quest Directive — your specific mission</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Delivered as a branded PDF to your inbox within minutes</li>
+          <li><span class="unlock-check" aria-hidden="true">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
+          <li><span class="unlock-check" aria-hidden="true">◈</span> Life Calling directive written in clear language</li>
+          <li><span class="unlock-check" aria-hidden="true">◈</span> Branded PDF delivered to your inbox within minutes</li>
         </ul>
 
-        <!-- Sample preview link -->
         <p class="unlock-sample-link">
           <a href="/sample-guidebook.html" id="guidebook-sample-link" target="_blank" rel="noopener">See a sample Guidebook Report &#8594;</a>
         </p>
 
-        <!-- Email field -->
         <div class="unlock-email-wrap">
           <label class="unlock-email-label" for="unlock-email">Where shall we send your guidebook?</label>
           <input
@@ -133,7 +122,6 @@
           <div class="unlock-email-hint" id="unlock-email-error" role="alert" aria-live="polite"></div>
         </div>
 
-        <!-- Price + CTA -->
         <div class="unlock-price-row">
           <div class="unlock-price">
             <span class="unlock-price-amount">$22</span>
@@ -141,13 +129,13 @@
           </div>
         </div>
 
-      <button
-  class="unlock-btn"
-  id="unlock-pay-btn"
-  onclick="handleUnlockPayment()"
->
-  ⬡ Get My Full $22 Guidebook ⬡
-</button>
+        <button
+          class="unlock-btn"
+          id="unlock-pay-btn"
+          onclick="handleUnlockPayment()"
+        >
+          ⬡ Get My Full $22 Guidebook ⬡
+        </button>
 
         <p class="unlock-reassurance">
           Secure payment via Stripe · No subscription · PDF delivered by email
@@ -155,6 +143,35 @@
 
       </div><!-- /unlock-card -->
     </div><!-- /unlock-cta -->
+
+    <div class="calc-faq-wrap" id="calc-faq">
+      <div class="calc-faq-label">&#10022;&nbsp;&nbsp;Common Questions&nbsp;&nbsp;&#10022;</div>
+
+      <details class="calc-faq-item">
+        <summary>What is a Life Path number?</summary>
+        <p>Your Life Path number is calculated from your full date of birth. It represents the core theme and curriculum of your life — the lessons the simulation has designed for you to learn and embody.</p>
+      </details>
+
+      <details class="calc-faq-item">
+        <summary>What is numerology?</summary>
+        <p>Numerology is the study of the symbolic meaning of numbers and their relationship to events, personality, and life patterns. Simulation Source Code uses the Pythagorean system to calculate seven distinct frequencies from your birth date and full birth name.</p>
+      </details>
+
+      <details class="calc-faq-item">
+        <summary>What is the Life Calling number?</summary>
+        <p>The Life Calling is the fusion of your Life Path and Expression numbers. It represents the specific directive that emerges when your external curriculum and internal frequency are combined — your unique mission.</p>
+      </details>
+
+      <details class="calc-faq-item">
+        <summary>How is the Expression number calculated?</summary>
+        <p>The Expression number is calculated from your full birth name using the Pythagorean system, where each letter is assigned a numerical value. It represents your natural talents and the authentic frequency you are here to express.</p>
+      </details>
+
+      <details class="calc-faq-item calc-faq-item--last">
+        <summary>What are master numbers in numerology?</summary>
+        <p>Master numbers in the Simulation Source Code system are 11, 22, 33, and 44. These numbers are not reduced to a single digit and carry amplified potential and challenge. 11 operates from 2 as its foundation, 22 from 4, 33 from 6, and 44 from 8.</p>
+      </details>
+    </div>
 
     <section class="calc-learn-more" aria-label="Learn more about numerology">
       <p class="calc-learn-more-label">Learn More</p>

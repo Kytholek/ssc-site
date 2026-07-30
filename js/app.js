@@ -138,7 +138,7 @@ const PAGE_META = {
   },
   calculator: {
     title      : 'Free Numerology Calculator · Seven Frequencies · Simulation Source Code',
-    description: 'Calculate your seven core numerology frequencies instantly. Life Path, Expression, Soul Urge, Outer Persona, Achievement, Theme, and Life Calling — from your birth date and full name.',
+    description: 'Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.',
   },
   books: {
     title      : 'Recommended Numerology Books · Simulation Source Code',
@@ -1489,11 +1489,20 @@ var MODAL_PRODUCT_COPY = {
     emailLabel: 'Where shall we send your Time Cycle?',
     btnLabel: 'Get My $17 Time Cycle',
     eventName: 'timecycle_checkout_start'
+  },
+  bundle: {
+    title: 'Your Details',
+    subtitle: "We'll send both PDFs — Guidebook + Time Cycle — to your inbox.",
+    emailLabel: 'Where shall we send your bundle?',
+    btnLabel: 'Get Both for $29',
+    eventName: 'bundle_checkout_start'
   }
 };
 
 function openCalculatorModal(product) {
-  MODAL_PRODUCT = (product === 'time-cycle') ? 'time-cycle' : 'guidebook';
+  if (product === 'time-cycle') MODAL_PRODUCT = 'time-cycle';
+  else if (product === 'bundle') MODAL_PRODUCT = 'bundle';
+  else MODAL_PRODUCT = 'guidebook';
   var copy = MODAL_PRODUCT_COPY[MODAL_PRODUCT] || MODAL_PRODUCT_COPY.guidebook;
   var titleEl = document.getElementById('modal-calculator-title');
   var subEl = document.getElementById('modal-calculator-subtitle');

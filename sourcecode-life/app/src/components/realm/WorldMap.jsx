@@ -103,6 +103,26 @@ function FlyToLocation({ coords }) {
   useEffect(() => { if (coords) map.flyTo(coords, 13, { duration: 1.4 }) }, [coords, map])
   return null
 }
+/** Recalculate Leaflet size after flex/tab layout settles. */
+function InvalidateSizeOnMount() {
+  const map = useMap()
+  useEffect(() => {
+    const run = () => map.invalidateSize()
+    const raf = requestAnimationFrame(run)
+    const t = setTimeout(run, 100)
+    const ro = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(run)
+      : null
+    const el = map.getContainer()
+    if (ro && el) ro.observe(el.parentElement || el)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(t)
+      ro?.disconnect()
+    }
+  }, [map])
+  return null
+}
 
 // ── Quest Popup ───────────────────────────────────────────────────────────────
 function QuestPopup({ quest, myUid, onAccept }) {
@@ -385,6 +405,7 @@ export default function WorldMapView({ playerData }) {
       <div className="rm-map-wrap">
         <MapContainer center={userCoords || [20, 0]} zoom={userCoords ? 13 : 3} className="rm-leaflet" zoomControl>
           <TileLayer url={DARK_TILE} attribution={TILE_ATTRIB} maxZoom={19} />
+          <InvalidateSizeOnMount />
           <MapClickHandler onMapClick={handleMapClick} />
           {flyTo && <FlyToLocation coords={flyTo} />}
           {userCoords && (

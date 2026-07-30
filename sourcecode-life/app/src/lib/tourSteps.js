@@ -56,7 +56,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: '[data-tour="tab-stats"]',
     title: 'Stats',
-    body: 'Skill tree, spiral progression, and innate gifts — how your character grows over time.',
+    body: 'Innate gifts, skill tree, and spiral progression — how your character grows over time.',
     placement: 'above',
   },
   {

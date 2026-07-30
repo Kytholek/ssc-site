@@ -1,7 +1,7 @@
 /**
  * SkillsTab (rendered as the PROFILE tab)
  *
- * Sub-tabs: SKILLS | STATS | SPIRAL
+ * Sub-tabs: STATS | SKILLS | SPIRAL
  */
 import { useState, useEffect } from 'react'
 import { useAppState } from '../../context/AppContext'
@@ -11,14 +11,14 @@ import NumerologySpiral from '../spirals/NumerologySpiral'
 import PremiumLockOverlay from '../ui/PremiumLockOverlay'
 
 const PROFILE_TABS = [
-  { id: 'skills', label: '◇ SKILLS' },
   { id: 'stats',  label: '◈ STATS'  },
+  { id: 'skills', label: '◇ SKILLS' },
   { id: 'spiral', label: '◎ SPIRAL' },
 ]
 
 export default function SkillsTab() {
   const { playerData } = useAppState()
-  const [tab, setTab] = useState('skills')
+  const [tab, setTab] = useState('stats')
 
   useEffect(() => {
     window.scrollTo(0, 0)

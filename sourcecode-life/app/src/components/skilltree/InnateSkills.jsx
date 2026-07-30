@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 import SkillTree from './SkillTree.jsx'
@@ -176,7 +177,14 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
     return () => window.removeEventListener('resize', fn)
   }, [])
 
-  return (
+  // Lock body scroll while the sheet is open
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
+  return createPortal(
     <>
       {/* Backdrop */}
       <motion.div
@@ -211,6 +219,7 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
           borderTop:    isMobile ? `3px solid ${cfg.color}` : 'none',
           borderRadius: isMobile ? '20px 20px 0 0' : 0,
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          paddingBottom: isMobile ? 'env(safe-area-inset-bottom)' : 0,
           boxShadow: isMobile
             ? `0 -8px 40px rgba(0,0,0,0.6)`
             : `-8px 0 40px rgba(0,0,0,0.5)`,
@@ -305,7 +314,8 @@ function GiftSidebar({ gift, cfg, label, n, onClose }) {
           </div>
         </motion.div>
       </motion.div>
-    </>
+    </>,
+    document.body
   )
 }
 

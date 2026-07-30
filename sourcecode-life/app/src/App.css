@@ -8183,7 +8183,7 @@ body.scl-realm-open .tab-bar {
 .simulation-matrix--inline .rm-world-map-view .rm-map-wrap {
   flex: 1 1 auto;
   min-height: 360px;
-  height: auto;
+  height: min(55svh, 480px);
 }
 .rm-leaflet  { width: 100%; height: 100%; }
 
@@ -8964,7 +8964,8 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Leaflet overrides — keep dark RPG look */
-.rm-leaflet .leaflet-container {
+.rm-leaflet.leaflet-container,
+.rm-leaflet {
   background: #04121e !important;
   cursor: crosshair;
 }

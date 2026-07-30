@@ -1433,6 +1433,9 @@ body.scl-realm-open .tab-bar {
 .tab-panel-content--blueprint .profile-navbar {
   margin: 8px 10px 0;
 }
+.tab-panel-content--blueprint .char-guidebook-cta-wrap {
+  padding: 10px 10px 4px;
+}
 
 .tab-placeholder {
   display: flex; align-items: center; justify-content: center;
@@ -2892,6 +2895,76 @@ body.scl-realm-open .tab-bar {
   color: #f87171; background: rgba(248,113,113,0.04);
 }
 .settings-panel { padding-top: 12px; }
+
+/* ── Character Guidebook CTA ─────────────────────────────────────────────── */
+.char-guidebook-cta-wrap {
+  padding: 10px 14px 4px;
+}
+.char-guidebook-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-decoration: none;
+  padding: 14px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(201, 168, 76, 0.12) 0%, transparent 55%),
+    linear-gradient(155deg, #18161f 0%, #0e1018 100%);
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  box-sizing: border-box;
+}
+.char-guidebook-cta:hover {
+  border-color: rgba(201, 168, 76, 0.65);
+  background:
+    radial-gradient(ellipse 80% 120% at 0% 50%, rgba(201, 168, 76, 0.18) 0%, transparent 55%),
+    linear-gradient(155deg, #1c1924 0%, #10121a 100%);
+  transform: translateY(-1px);
+}
+.char-guidebook-cta-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  color: #c9a84c;
+  font-size: 14px;
+  background: rgba(201, 168, 76, 0.08);
+}
+.char-guidebook-cta-body { flex: 1; min-width: 0; }
+.char-guidebook-cta-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #c9a84c;
+  margin-bottom: 4px;
+}
+.char-guidebook-cta-desc {
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #8a8699;
+}
+.char-guidebook-cta-arrow {
+  flex-shrink: 0;
+  color: #c9a84c;
+  font-size: 16px;
+  opacity: 0.7;
+}
+.char-guidebook-cta--compact {
+  padding: 12px;
+}
+.char-guidebook-settings-lead {
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6b6882;
+  margin: 0 0 12px;
+}
 
 /* ── Notification toggles ─────────────────────────────────────────────────── */
 .notif-toggle-row {

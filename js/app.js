@@ -220,7 +220,7 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html?v=20260726-about-dd', { cache: 'no-store' });
+    const response = await fetch('/pages/nav.html?v=20260730-other-nav', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
@@ -1525,6 +1525,62 @@ function openCalculatorModal(product) {
   }, 100);
 }
 
+/**
+ * Prefill + auto-open guidebook checkout from query params
+ * (e.g. life app Character Guidebook CTA).
+ * Expected: ?product=guidebook&name=...&month=...&day=...&year=...&email=...&source=scl
+ */
+function applyGuidebookPrefillFromQuery() {
+  var params = new URLSearchParams(window.location.search);
+  var product = (params.get('product') || '').toLowerCase();
+  var source = (params.get('source') || '').toLowerCase();
+  var name = params.get('name');
+  var month = params.get('month');
+  var day = params.get('day');
+  var year = params.get('year');
+  var email = params.get('email');
+
+  var knownProduct = product === 'guidebook' || product === 'bundle' || product === 'time-cycle';
+  var hasIdentity = !!(name || month || day || year || email);
+  if (!knownProduct && !(source === 'scl' && hasIdentity)) return;
+
+  if (!knownProduct) product = 'guidebook';
+
+  var monthEl = document.getElementById('modal-calc-month');
+  var dayEl   = document.getElementById('modal-calc-day');
+  var yearEl  = document.getElementById('modal-calc-year');
+  var nameEl  = document.getElementById('modal-calc-fullname');
+  var emailEl = document.getElementById('modal-unlock-email');
+
+  if (monthEl && month) monthEl.value = String(parseInt(month, 10) || '');
+  if (dayEl && day) dayEl.value = String(parseInt(day, 10) || '');
+  if (yearEl && year) yearEl.value = String(parseInt(year, 10) || '');
+  if (nameEl && name) nameEl.value = name;
+  if (emailEl && email) emailEl.value = email;
+
+  openCalculatorModal(product);
+
+  if (typeof trackSscEvent === 'function') {
+    trackSscEvent('guidebook_prefill_open', {
+      source: source || 'query',
+      product: product,
+      has_name: !!name,
+      has_dob: !!(month && day && year),
+      has_email: !!email,
+    });
+  }
+
+  // Drop query params so refresh does not reopen the modal; keep product hash
+  try {
+    var hash = product === 'bundle' ? 'bundle' : product === 'time-cycle' ? 'season' : 'guidebook';
+    history.replaceState(
+      { page: 'services', post: null },
+      document.title,
+      '/services/#' + hash
+    );
+  } catch (e) { /* ignore */ }
+}
+
 function closeCalculatorModal() {
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay) overlay.classList.remove('open');
@@ -1713,6 +1769,7 @@ function initServicesPage() {
   initServicesSectionNav();
   scrollServicesHash();
   loadGoogleReviews();
+  applyGuidebookPrefillFromQuery();
 }
 
 function renderGoogleReviewStars(rating) {

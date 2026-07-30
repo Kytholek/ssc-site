@@ -11,6 +11,7 @@ import InsightsSummary from '../charts/InsightsSummary'
 import PolarityStatCard from '../charts/PolarityStatCard'
 import LifeQuestRoadmap from '../charts/LifeQuestRoadmap'
 import PremiumLockOverlay from '../ui/PremiumLockOverlay'
+import CharacterGuidebookCta from '../ui/CharacterGuidebookCta'
 
 // ── Blueprint section ────────────────────────────────────────────────────────
 import PurposeFlow from '../flow/PurposeFlow'
@@ -116,6 +117,11 @@ export default function ProfileTab() {
             {s.label}
           </button>
         ))}
+      </div>
+
+      {/* Always visible — not behind premium lock */}
+      <div className="char-guidebook-cta-wrap">
+        <CharacterGuidebookCta />
       </div>
 
       {isBlueprint         && <BlueprintSection />}

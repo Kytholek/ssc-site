@@ -12,6 +12,7 @@ import { fmt } from '../../lib/numerology'
 import { clearLocalSession } from '../../lib/storage'
 import { setTheme } from '../../lib/theme'
 import GiftCodeRedeemer from '../ui/GiftCodeRedeemer'
+import CharacterGuidebookCta from '../ui/CharacterGuidebookCta'
 import { createEarnedGiftCode, generateCode } from '../../lib/giftCodes'
 import { fetchUserProfile, updateUserProfileFields } from '../auth/firestoreprofile'
 import { auth } from '../../lib/firebase'
@@ -394,6 +395,17 @@ export default function SettingsTab() {
           <FrequencyRow label="Outer"        obj={playerData.ou} color="#94a3b8" />
           <FrequencyRow label="Achievement"  obj={playerData.ac} color="#fb923c" />
           <FrequencyRow label="Theme"        obj={playerData.th} color="#7dd3fc" />
+        </section>
+      )}
+
+      {/* ── Character Guidebook (written PDF via Services) ── */}
+      {playerData && (
+        <section className="settings-section">
+          <h3 className="settings-section-title">CHARACTER GUIDEBOOK</h3>
+          <p className="char-guidebook-settings-lead">
+            Get the full written report for this character — same name and birth data, delivered as a PDF.
+          </p>
+          <CharacterGuidebookCta compact />
         </section>
       )}
 

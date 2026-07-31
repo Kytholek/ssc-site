@@ -456,35 +456,54 @@ html[data-theme='light'] .field select:focus {
    QUOTE BLOCK — enhanced frame
    ══════════════════════════════════════════════════════════ */
 .quote-block {
-  background: linear-gradient(135deg, rgba(17,15,31,.9), rgba(32,29,58,.8));
-  border: 1px solid var(--border-mid);
-  border-radius: 10px;
-  padding: 52px 44px;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(201,168,76,.10), transparent 70%),
+    linear-gradient(180deg, rgba(18,15,30,.95), rgba(8,6,16,.98));
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 4px;
+  padding: 48px 40px 40px;
   text-align: center;
   position: relative;
-  margin: 64px auto;
-  max-width: 700px;
-  backdrop-filter: blur(6px);
+  margin: 56px auto 48px;
+  max-width: 680px;
+  box-shadow: 0 18px 48px rgba(0,0,0,.35);
+  overflow: visible;
 }
 .quote-block::before {
   content: '⬡';
   position: absolute;
-  top: -16px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--void);
-  padding: 0 18px;
-  font-size: 22px;
+  background: transparent;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
   color: var(--gold);
   filter: drop-shadow(0 0 8px rgba(201,168,76,.4));
+  z-index: 1;
+}
+.quote-block::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,.55), transparent);
+}
+.quote-block .quote-text {
+  margin-top: 18px;
 }
 .quote-text {
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 22px;
+  font-size: clamp(20px, 2.4vw, 24px);
   font-style: italic;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--text);
-  margin-bottom: 22px;
+  margin: 0 0 26px;
+  position: relative;
+  z-index: 1;
 }
 .quote-attr {
   font-family: 'Cinzel', serif;
@@ -492,6 +511,20 @@ html[data-theme='light'] .field select:focus {
   letter-spacing: .38em;
   text-transform: uppercase;
   color: var(--gold-dim);
+  position: relative;
+  z-index: 1;
+  padding-top: 18px;
+  border-top: 1px solid rgba(201,168,76,.16);
+  display: inline-block;
+}
+.about-quote {
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 600px) {
+  .quote-block {
+    padding: 40px 22px 32px;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2936,8 +2969,8 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   border-radius: 50%;
   object-fit: cover;
   object-position: center top;
-  border: 1px solid rgba(30,60,120,.8);
-  box-shadow: 0 0 40px rgba(20,40,120,.45), 0 0 80px rgba(10,20,80,.25);
+  border: 1px solid rgba(201,168,76,.25);
+  box-shadow: none;
   display: block;
   margin: 0 auto;
 }
@@ -2945,20 +2978,26 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
 /* Reality/Lost block */
 .about-book-block {
   display: flex;
-  align-items: flex-start;
-  gap: 28px;
+  align-items: center;
+  gap: 36px;
   max-width: 720px;
   margin: 0 auto 48px;
-  padding: 28px 32px;
+  padding: 32px 36px;
   background: rgba(13,11,24,.6);
   border: 1px solid var(--border-mid);
   border-radius: 8px;
 }
 
 .about-book-cover-wrap {
-  flex: 0 0 80px;
-  width: 80px;
-  max-width: 80px;
+  flex: 0 0 180px;
+  width: 180px;
+  max-width: 180px;
+  display: block;
+  transition: transform .25s ease;
+}
+
+.about-book-cover-wrap:hover {
+  transform: translateY(-4px);
 }
 
 .about-book-cover {
@@ -2966,7 +3005,25 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   height: auto;
   display: block;
   border-radius: 4px;
-  box-shadow: 0 6px 24px rgba(0,0,0,.6);
+  box-shadow: 0 12px 40px rgba(0,0,0,.65), 0 0 0 1px rgba(201,168,76,.18);
+}
+
+.about-book-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 8px;
+}
+
+.about-book-title {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  text-align: left;
+  font-size: clamp(22px, 3vw, 30px) !important;
+  letter-spacing: .08em !important;
 }
 
 .about-book-text p {
@@ -2977,7 +3034,28 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
 }
 
 .about-book-btn {
+  display: inline-block;
+  margin-top: 22px;
   font-size: 13px !important;
+}
+
+.about-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  text-decoration: none;
+  transition: color .2s, gap .2s;
+}
+
+.about-more-link:hover {
+  color: var(--gold);
+  gap: 12px;
 }
 
 @media (max-width: 600px) {
@@ -2989,9 +3067,12 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     gap: 24px;
   }
   .about-book-cover-wrap {
-    flex-basis: 72px;
-    width: 72px;
-    max-width: 72px;
+    flex-basis: 160px;
+    width: 160px;
+    max-width: 160px;
+  }
+  .about-book-title {
+    text-align: center;
   }
 }
 

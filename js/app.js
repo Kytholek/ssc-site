@@ -350,7 +350,7 @@ function showPage(name, pushState = true) {
   if (page) {
     page.classList.add('active');
     if (!hashTarget) window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
+    if (typeof applyLanguage === 'function') applyLanguage(getLang());
   } else {
     // SECONDARY pages load async — retry once after they arrive
     setTimeout(function () {
@@ -358,7 +358,7 @@ function showPage(name, pushState = true) {
       if (p2) {
         p2.classList.add('active');
         if (!hashTarget) window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (name === 'about' && typeof applyLanguage === 'function') applyLanguage(getLang());
+        if (typeof applyLanguage === 'function') applyLanguage(getLang());
       }
     }, 600);
   }
@@ -1460,11 +1460,16 @@ function applyLanguage(lang, opts) {
 
 // Keep the toggle button label in sync
 function _updateLangToggle(lang) {
-  const btn = document.getElementById('lang-toggle');
-  if (!btn) return;
-  btn.textContent = lang === 'en' ? 'ES' : 'EN';
-  btn.setAttribute('aria-label', lang === 'en' ? 'Switch to Spanish' : 'Switch to English');
-  btn.setAttribute('title',      lang === 'en' ? 'Ver en Español'    : 'View in English');
+  const label = lang === 'en' ? 'ES' : 'EN';
+  const aria = lang === 'en' ? 'Switch to Spanish' : 'Switch to English';
+  const title = lang === 'en' ? 'Ver en Español' : 'View in English';
+  ['lang-toggle', 'lang-toggle-mobile'].forEach(function (id) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.textContent = label;
+    btn.setAttribute('aria-label', aria);
+    btn.setAttribute('title', title);
+  });
 }
 
 // Expose

@@ -125,7 +125,7 @@ function staticShell(opts) {
 
   const dataModule = opts.dataModule || '/js/codex-data.js';
   const coreScripts = [
-    '<script src="/js/translations.js"></script>',
+    '<script src="/js/translations.js?v=20260731-es-fix"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
@@ -182,7 +182,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260731-logo-only"></script>
+<script defer src="/js/app.js?v=20260731-es-fix"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

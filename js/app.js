@@ -1413,7 +1413,9 @@ function applyLanguage(lang, opts) {
   if (isSwap) els.forEach(el => el.classList.add('lang-switching'));
 
   const doSwap = () => {
-    els.forEach(el => {
+    // Re-query so late-loaded includes (about, books, etc.) get translated too
+    const liveEls = document.querySelectorAll('[data-i18n]');
+    liveEls.forEach(el => {
       const key   = el.dataset.i18n;
       const entry = SSC_TRANSLATIONS[key];
       if (!entry) return;
@@ -1432,9 +1434,7 @@ function applyLanguage(lang, opts) {
       if (entry) el.placeholder = entry[lang] || entry[I18N_DEFAULT] || '';
     });
     document.documentElement.lang = lang;
-    if (isSwap) {
-      requestAnimationFrame(() => els.forEach(el => el.classList.remove('lang-switching')));
-    }
+    document.querySelectorAll('[data-i18n].lang-switching').forEach(el => el.classList.remove('lang-switching'));
 
     // Re-render an active reading only when the user switched language
     if (opts.recalcIfReading) {
@@ -1475,7 +1475,9 @@ function _updateLangToggle(lang) {
 // Expose
 window.toggleLang    = toggleLang;
 window.setLang       = setLang;
+window.getLang       = getLang;
 window.applyLanguage = applyLanguage;
+window._updateLangToggle = _updateLangToggle;
 
 
 // ════════════════════════════════════════════════════════════

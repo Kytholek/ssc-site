@@ -125,7 +125,7 @@ function staticShell(opts) {
 
   const dataModule = opts.dataModule || '/js/codex-data.js';
   const coreScripts = [
-    '<script src="/js/translations.js?v=20260731-es-fix"></script>',
+    '<script src="/js/translations.js?v=20260731-es-freq"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
@@ -158,7 +158,7 @@ ${opts.jsonLd}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260731-logo-only">
+  <link rel="stylesheet" href="/css/style.css?v=20260731-es-freq">
 ${extraStyles}
   <style>
     body { padding-top: 64px; }
@@ -182,7 +182,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260731-es-fix"></script>
+<script defer src="/js/app.js?v=20260731-es-freq"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -208,7 +208,7 @@ function buildServices() {
     canonical: SEO.SITE_ORIGIN + '/services/',
     jsonLd: servicesJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-logo-only', '/css/modal.css'],
+    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/modal.css'],
     bootScript: "if (typeof initServicesPage === 'function') initServicesPage();\n    if (typeof applyLanguage === 'function') applyLanguage(getLang());",
   });
 
@@ -230,7 +230,7 @@ function buildCodex() {
     canonical: SEO.SITE_ORIGIN + '/codex/',
     jsonLd: codexJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-logo-only', '/css/quest-theme.css?v=20260731-logo-only'],
+    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/quest-theme.css?v=20260731-es-freq'],
     extraScripts: [
       '/js/codex-spiral.js',
       '/js/codex-spiral-learn.js',
@@ -275,7 +275,7 @@ function buildBlueprint() {
     canonical: SEO.SITE_ORIGIN + '/blueprint/',
     jsonLd: blueprintJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-logo-only', '/css/blueprint.css?v=20260723-softcta'],
+    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/blueprint.css?v=20260723-softcta'],
     dataModule: '/js/blueprint-data.js',
     includeCalculator: false,
     extraScripts: [

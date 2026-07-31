@@ -156,10 +156,17 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 }
 
 /* ── Section backgrounds ──────────────────────────────── */
-.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) section,
-.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) .section,
-.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) [class*="-section"] {
+/* Only real section containers — not titles like .about-section-title */
+.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) > section,
+.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) section.hero,
+.page:not(#page-services):not(#page-calculator):not(#page-home):not(#page-codex) .section {
   background: var(--bg-deep) !important;
+}
+
+.about-section,
+.about-section-title,
+.about-book-title {
+  background: transparent !important;
 }
 
 /* ── Animated grid on hero ────────────────────────────── */
@@ -505,10 +512,13 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
   border-radius: 0 !important;
 }
 
-.page:not(#page-services):not(#page-calculator) [class*="-divider"],
+.page:not(#page-services):not(#page-calculator) [class*="-divider"]:not(.about-codex-divider),
 .page:not(#page-services):not(#page-calculator) hr {
   border-color: var(--border) !important;
   background: var(--border) !important;
+}
+.about-codex-divider {
+  background: transparent !important;
 }
 
 .page:not(#page-services):not(#page-calculator) [class*="feature-list"] li::before,

@@ -72,9 +72,9 @@ function buildShell(body) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260731-logo-only">
-  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260731-logo-only">
-  <link rel="stylesheet" href="/css/quest-theme.css?v=20260731-logo-only">
+  <link rel="stylesheet" href="/css/style.css?v=20260731-es-freq">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260731-es-freq">
+  <link rel="stylesheet" href="/css/quest-theme.css?v=20260731-es-freq">
   <style>
     body { padding-top: 64px; }
     .page { display: block !important; opacity: 1 !important; }
@@ -93,8 +93,8 @@ ${MARKER_END}
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js?v=20260731-es-fix"></script>
-<script src="/js/app.js?v=20260731-es-fix"></script>
+<script src="/js/translations.js?v=20260731-es-freq"></script>
+<script src="/js/app.js?v=20260731-es-freq"></script>
 <script>
   (async function () {
     if (typeof loadNav === 'function') await loadNav();

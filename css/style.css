@@ -3170,12 +3170,21 @@ footer {
 .about-codex-divider {
   margin: 40px auto;
   max-width: 600px;
-  opacity: 0.6;
+  opacity: 0.75;
+  color: var(--gold-dim);
 }
 .about-codex-divider svg {
   width: 100%;
   height: auto;
   display: block;
+}
+.about-codex-divider-disc {
+  fill: var(--bg-deep, var(--bg, #050508));
+  stroke: var(--gold);
+}
+.about-codex-divider-line,
+.about-codex-divider-cross {
+  stroke: var(--gold-dim);
 }
 
 /* Pillars - richer brand feel */

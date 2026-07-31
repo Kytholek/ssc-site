@@ -698,12 +698,21 @@ html[data-theme='light'] .field select:focus {
 .about-codex-divider {
   margin: 40px auto;
   max-width: 600px;
-  opacity: 0.6;
+  opacity: 0.75;
+  color: var(--gold-dim);
 }
 .about-codex-divider svg {
   width: 100%;
   height: auto;
   display: block;
+}
+.about-codex-divider-disc {
+  fill: var(--bg-deep, var(--bg, #050508));
+  stroke: var(--gold);
+}
+.about-codex-divider-line,
+.about-codex-divider-cross {
+  stroke: var(--gold-dim);
 }
 
 /* Pillars ? richer brand feel */
@@ -3089,6 +3098,7 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
   text-align: left;
   font-size: clamp(22px, 3vw, 30px) !important;
   letter-spacing: .08em !important;
+  background: transparent !important;
 }
 
 .about-book-text p {

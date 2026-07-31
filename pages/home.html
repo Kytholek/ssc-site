@@ -209,6 +209,8 @@
 .hp-articles {
   flex: 2 1 0;
   min-width: 240px;
+  /* Match .hp-ssc content inset so "Pillar Reads" isn't flush to the section edge */
+  padding-top: 56px;
 }
 .hp-articles-title {
   font-family: 'Cormorant SC', serif;
@@ -218,7 +220,7 @@
   text-transform: uppercase;
   color: var(--gold-dim);
   margin-bottom: 24px;
-  padding-bottom: 12px;
+  padding: 0 2px 14px;
   border-bottom: 1px solid rgba(201,168,76,0.1);
 }
 .hp-article-card {
@@ -996,6 +998,7 @@
   .hp-scl-actions .hp-scl-install-details { max-width: none; }
   .hp-scl-section { padding: 120px 40px; }
   .hp-ssc { padding: 40px 32px; } { flex-direction: column; gap: 32px; } { flex-direction: column; }
+  .hp-articles { padding-top: 40px; }
 }
 @media (max-width: 700px) {
   .hp-freq-row { grid-template-columns: 1fr; }
@@ -1028,6 +1031,7 @@
   .hp-scl-section { padding: 100px 24px; }
   .hp-frequencies { grid-template-columns: 1fr 1fr; }
   .hp-ssc { padding: 28px 20px; overflow: visible; }
+  .hp-articles { padding-top: 28px; }
   .hp-freq-chip { padding: 12px 12px; }
   .hp-freq-calling-wrap { padding: 14px 16px; }
   .hp-freq-calling-inner { gap: 12px; }
@@ -1037,6 +1041,7 @@
 }
 @media (max-width: 400px) {
   .hp-ssc { padding: 24px 16px; }
+  .hp-articles { padding-top: 24px; }
 }
 
 .hp-sticky-calc-cta {

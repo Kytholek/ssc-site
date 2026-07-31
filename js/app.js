@@ -256,11 +256,17 @@ async function loadNav() {
 /** Load site assistant widget (CSS + JS) once — SPA shell and blog pages. */
 function ensureChatWidget() {
   try {
-    if (!document.getElementById('ssc-chat-widget-css')) {
+    var chatCssHref = '/css/chat-widget.css?v=20260731-parchment2';
+    var existingCss = document.getElementById('ssc-chat-widget-css');
+    if (existingCss) {
+      if (existingCss.getAttribute('href') !== chatCssHref) {
+        existingCss.href = chatCssHref;
+      }
+    } else {
       var link = document.createElement('link');
       link.id = 'ssc-chat-widget-css';
       link.rel = 'stylesheet';
-      link.href = '/css/chat-widget.css?v=20260726-chat';
+      link.href = chatCssHref;
       document.head.appendChild(link);
     }
     if (typeof window.initChatWidget === 'function') {

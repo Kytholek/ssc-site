@@ -10,8 +10,8 @@
 /* Every rule that could bleed into services/calculator
    is prefixed with one of these :not() guards.          */
 
-/* ── CSS Variable Overrides ───────────────────────────── */
-:root {
+/* ── CSS Variable Overrides (dark / quest aesthetic only) ─ */
+:root:not([data-theme='light']) {
   --bg-deep:      #050508;
   --bg-panel:     #0b0b14;
   --bg-panel2:    #0f0f1c;
@@ -43,6 +43,25 @@
   --deep:         #050508;
   --abyss:        #020204;
   --void:         #020204;
+}
+
+:root[data-theme='light'] {
+  --bg-deep:      #ebe2d0;
+  --bg-panel:     #f5ede0;
+  --bg-panel2:    #e0d4be;
+  --bg-inset:     #f0ebe0;
+  --border-glow:  rgba(0,0,0,0.08);
+  --gold-bright:  #c5aa78;
+  --gold-muted:   #e8dfc8;
+  --teal-dim:     #4c7f7f;
+  --teal-muted:   #d8ebe9;
+  --purple:       #7e6f9d;
+  --purple-dim:   #5f5483;
+  --amber:        #b07a30;
+  --sage:         #4d8a5c;
+  --silver:       #5f574d;
+  --silver-dim:   #b8b1a6;
+  --white:        #1f1a14;
 }
 
 
@@ -683,4 +702,69 @@ nav.nav-hero .nav-cta {
   .nav-mobile .nav-link.nav-mobile-sub {
     color: var(--gold-light) !important;
   }
+}
+
+/* Light theme: restore parchment surfaces */
+html[data-theme='light'] body {
+  background: var(--void) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme='light'] body::before,
+html[data-theme='light'] body::after {
+  opacity: 0 !important;
+  background: none !important;
+}
+
+html[data-theme='light'] #qt-scanline {
+  display: none !important;
+}
+
+html[data-theme='light'] #page-home .hp-scl-section {
+  background: var(--surface-card-muted) !important;
+  border-top-color: var(--border-dim) !important;
+  border-bottom-color: var(--border-dim) !important;
+}
+
+html[data-theme='light'] .page:not(#page-services):not(#page-calculator) [class*="testimonial"],
+html[data-theme='light'] .page:not(#page-services):not(#page-calculator) [class*="review-card"] {
+  background: var(--surface-card) !important;
+  border-color: var(--border-dim) !important;
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme='light'] #page-home .hp-article-card,
+html[data-theme='light'] #page-home .hp-freq-chip,
+html[data-theme='light'] #page-home .hp-ssc-card {
+  background: var(--gradient-card) !important;
+  border-color: rgba(143, 124, 79, 0.22) !important;
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme='light'] #page-home .hp-article-card {
+  padding: 16px 16px 18px !important;
+  margin-bottom: 14px !important;
+  border-radius: 12px !important;
+  border-bottom: none !important;
+}
+
+html[data-theme='light'] #page-home .hp-articles-title {
+  padding: 0 4px 14px !important;
+  margin-bottom: 20px !important;
+}
+
+html[data-theme='light'] #page-home .hp-codex-node text {
+  fill: var(--gold) !important;
+}
+
+html[data-theme='light'] #page-home .hp-codex-line {
+  stroke: rgba(76, 127, 127, 0.35) !important;
+}
+
+html[data-theme='light'] #page-home .hp-codex-node--center circle {
+  stroke: var(--teal) !important;
+}
+
+html[data-theme='light'] #page-home .hp-codex-node--center text {
+  fill: var(--teal) !important;
 }

@@ -8,6 +8,14 @@
   --abyss: #110f1f;
   --panel: #201d3a;
   --surface: #181530;
+  --surface-card: rgba(13,11,24,.85);
+  --surface-card-muted: rgba(13,11,24,.6);
+  --surface-elevated: #181530;
+  --surface-inset: rgba(5,4,10,.9);
+  --gradient-card: linear-gradient(180deg, rgba(18,15,30,.95), rgba(8,6,16,.98));
+  --gradient-card-teal: linear-gradient(165deg, rgba(10,22,22,.95), rgba(13,11,24,.92));
+  --overlay: rgba(5,4,10,.8);
+  --shadow-card: 0 18px 48px rgba(0,0,0,.35);
   --gold: #c9a84c;
   --gold-light: #e8c96b;
   --gold-dim: #9a7f45;
@@ -31,11 +39,19 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --void: #fcfbf7;
-  --deep: #f2efe5;
-  --abyss: #e7e2d7;
-  --panel: #ffffff;
-  --surface: #faf6ef;
+  --void: #e8dfcc;
+  --deep: #ddd2bb;
+  --abyss: #d2c4a8;
+  --panel: #f0e4cc;
+  --surface: #e2d6be;
+  --surface-card: #efe2c8;
+  --surface-card-muted: #d9cbb0;
+  --surface-elevated: #f5ead4;
+  --surface-inset: #d2c2a4;
+  --gradient-card: linear-gradient(175deg, #f2e6ce 0%, #e8d6b5 62%, #dfc9a4 100%);
+  --gradient-card-teal: linear-gradient(165deg, #d4e5e1 0%, #dde8df 38%, #e8d6b5 100%);
+  --overlay: rgba(40, 32, 24, 0.45);
+  --shadow-card: 0 16px 34px rgba(62, 48, 28, 0.14), inset 0 1px 0 rgba(255, 248, 230, 0.55);
   --gold: #9c8357;
   --gold-light: #c5ad84;
   --gold-dim: #7c6a49;
@@ -61,7 +77,7 @@
 }
 
 :root[data-theme='light'] nav {
-  background: rgba(255,255,255,0.95);
+  background: rgba(248, 242, 232, 0.94);
   border-bottom-color: rgba(0,0,0,0.08);
 }
 
@@ -73,9 +89,9 @@
 }
 
 :root[data-theme='light'] .nav-submenu {
-  background: rgba(255,255,255,0.98);
+  background: rgba(248, 242, 232, 0.98);
   border-color: rgba(0,0,0,0.08);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.12);
+  box-shadow: 0 14px 34px rgba(62, 48, 28, 0.1);
 }
 
 :root[data-theme='light'] .nav-submenu-link {
@@ -571,7 +587,7 @@ body { padding-top: 64px; }
 
 /* Panel section with background */
 .panel-section {
-  background: linear-gradient(180deg, transparent 0%, rgba(13,11,24,.8) 20%, rgba(13,11,24,.8) 80%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, var(--surface-card) 20%, var(--surface-card) 80%, transparent 100%);
   border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim);
   padding: 80px 24px;
 }
@@ -1031,7 +1047,7 @@ body { padding-top: 64px; }
   max-width: 720px;
   margin: 0 auto 48px;
   padding: 32px 36px;
-  background: rgba(13,11,24,.6);
+  background: var(--surface-card-muted);
   border: 1px solid var(--border-mid);
   border-radius: 8px;
 }
@@ -1193,7 +1209,7 @@ body { padding-top: 64px; }
 ═══════════════════════════════════════ */
 footer {
   border-top: 1px solid var(--border-dim);
-  background: rgba(5,4,10,.8);
+  background: var(--deep);
   padding: 56px 32px 40px;
   position: relative; z-index: 1;
 }
@@ -1234,7 +1250,7 @@ footer {
 }
 
 /* Social links */
-.social-row { display: flex; gap: 12px; margin-top: 20px; align-items: center; justify-content: center; }
+.social-row { display: flex; gap: 12px; margin-top: 20px; align-items: center; justify-content: flex-start; }
 .social-btn {
   width: 36px; height: 36px; border: 1px solid var(--border-dim);
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -1812,7 +1828,7 @@ footer {
   top: 72px;
   left: 24px;
   z-index: 200;
-  background: rgba(5,4,10,0.85);
+  background: var(--surface-inset);
   padding: 8px 16px;
   border-radius: 4px;
   border: 1px solid var(--border-dim);
@@ -2858,7 +2874,7 @@ footer {
    FREQUENCY CARDS - richer brand-token theming
    ---------------------------------------------------------- */
 .freq-card {
-  background: rgba(13,11,24,.8);
+  background: var(--surface-card);
   border: 1px solid var(--border-dim);
   border-radius: 8px;
   padding: 28px 24px;
@@ -2924,7 +2940,7 @@ footer {
 .quote-block {
   background:
     radial-gradient(ellipse 70% 55% at 50% 0%, rgba(201,168,76,.10), transparent 70%),
-    linear-gradient(180deg, rgba(18,15,30,.95), rgba(8,6,16,.98));
+    var(--gradient-card);
   border: 1px solid rgba(201,168,76,.22);
   border-radius: 4px;
   padding: 48px 40px 40px;
@@ -2932,7 +2948,7 @@ footer {
   position: relative;
   margin: 56px auto 48px;
   max-width: 680px;
-  box-shadow: 0 18px 48px rgba(0,0,0,.35);
+  box-shadow: var(--shadow-card);
   overflow: visible;
 }
 .quote-block::before {
@@ -2997,7 +3013,7 @@ footer {
    FORM INPUTS - subtler refinement
    ---------------------------------------------------------- */
 .field select, .field input {
-  background: rgba(5,4,10,.9);
+  background: var(--surface-inset);
   border: 1px solid rgba(201,168,76,.12);
   color: var(--text);
   font-family: 'EB Garamond', serif;
@@ -3163,7 +3179,7 @@ footer {
   margin-top: 24px;
 }
 .pillar {
-  background: rgba(13,11,24,.8);
+  background: var(--surface-card);
   border: 1px solid var(--border-dim);
   border-radius: 8px;
   padding: 26px 20px;
@@ -3273,7 +3289,7 @@ footer {
 
 /* Blog card - enhanced hover, tighter brand feel */
 .blog-card {
-  background: rgba(13,11,24,.85);
+  background: var(--surface-card);
   border: 1px solid var(--border-dim);
   border-radius: 10px;
   overflow: hidden;
@@ -3475,7 +3491,7 @@ footer {
 /* ── Card shell ── */
 .unlock-card {
   position: relative;
-  background: linear-gradient(135deg, rgba(13,11,24,.88), rgba(18,11,26,.72));
+  background: var(--gradient-card);
   border: 1px solid rgba(201,168,76,.14);
   border-radius: 12px;
   padding: 34px 32px 38px;
@@ -3845,7 +3861,7 @@ footer {
 }
 
 .svc-testimonial {
-  background: rgba(13,11,24,.8);
+  background: var(--surface-card);
   border: 1px solid rgba(201,168,76,.1);
   border-radius: 8px;
   padding: 24px 22px;
@@ -4007,7 +4023,7 @@ footer {
 }
 
 .home-circuit {
-  background: rgba(13,11,24,0.7);
+  background: var(--surface-card-muted);
   border: 1px solid rgba(201,168,76,0.1);
   border-radius: 8px;
   padding: 28px 24px;
@@ -4185,7 +4201,7 @@ footer {
 .home-circuit--calling {
   border-top: 2px solid rgba(201,168,76,0.55);
   border-color: rgba(201,168,76,0.2);
-  background: linear-gradient(135deg, rgba(13,11,24,0.85), rgba(20,17,35,0.8));
+  background: linear-gradient(135deg, var(--surface-card), rgba(20,17,35,0.8));
   width: 100%;
   text-align: center;
   box-shadow: 0 0 32px rgba(201,168,76,0.06);
@@ -4222,7 +4238,7 @@ footer {
 .post-cta-block {
   margin-top: 48px;
   padding: 32px 28px;
-  background: linear-gradient(135deg, rgba(13,11,24,0.9), rgba(24,21,48,0.8));
+  background: linear-gradient(135deg, var(--surface-card), rgba(24,21,48,0.8));
   border: 1px solid rgba(201,168,76,0.2);
   border-radius: 10px;
   text-align: center;
@@ -4269,7 +4285,7 @@ footer {
   height: 2px;
 }
 .about-col-card--gold {
-  background: rgba(13,11,24,0.8);
+  background: var(--surface-card);
   border: 1px solid rgba(201,168,76,0.15);
 }
 .about-col-card--gold::before {
@@ -4329,7 +4345,7 @@ footer {
 }
 
 .about-testimonial {
-  background: rgba(13,11,24,0.8);
+  background: var(--surface-card);
   border: 1px solid rgba(201,168,76,0.1);
   border-radius: 8px;
   padding: 22px 20px;
@@ -4557,7 +4573,7 @@ footer {
 
 /* ── Card base ── */
 .svc-card {
-  background: rgba(13,11,24,.85);
+  background: var(--surface-card);
   border: 1px solid var(--border-dim);
   border-radius: 12px;
   display: flex;
@@ -4598,7 +4614,7 @@ footer {
 .svc-card.svc-card--written.svc-card--primary {
   z-index: 2;
   border-color: rgba(74,148,148,.45);
-  background: linear-gradient(165deg, rgba(10,22,22,.95), rgba(13,11,24,.92));
+  background: var(--gradient-card-teal);
   box-shadow:
     0 18px 48px rgba(0,0,0,.5),
     0 0 36px rgba(74,148,148,.28),
@@ -4692,7 +4708,7 @@ footer {
 /* ── Coming soon cards — quiet offshoots; solidify on hover ── */
 .svc-card--soon {
   border-color: rgba(201,168,76,.08);
-  background: rgba(13,11,24,.45);
+  background: var(--surface-card-muted);
   /* Kill fadeUp fill so opacity can animate (animation locks opacity otherwise) */
   animation: none;
   opacity: 0.42;
@@ -4701,7 +4717,7 @@ footer {
 .svc-card--soon:hover {
   transform: none;
   border-color: rgba(201,168,76,.22);
-  background: rgba(13,11,24,.85);
+  background: var(--surface-card);
   box-shadow: none;
   opacity: 1;
 }
@@ -4792,7 +4808,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(5,4,10,.8);
+  background: var(--overlay);
   border: 1px solid var(--border-dim);
   border-radius: 50%;
   filter: drop-shadow(0 0 12px rgba(201,168,76,.25)) drop-shadow(0 0 28px rgba(201,168,76,.08));
@@ -5387,15 +5403,23 @@ footer {
 }
 
 /* ==========================================================================
-   READABILITY OVERHAUL - charcoal palette
+   READABILITY OVERHAUL - charcoal palette (dark only)
    Backup: css/backup-before-readable-charcoal-2026-06-12
    ========================================================================== */
-:root {
+:root:not([data-theme='light']) {
   --void: #111214;
   --deep: #17191c;
   --abyss: #1d2024;
   --panel: #23272d;
   --surface: #2a2f36;
+  --surface-card: rgba(29,32,36,0.92);
+  --surface-card-muted: rgba(29,32,36,0.78);
+  --surface-elevated: #2a2f36;
+  --surface-inset: rgba(17,18,20,0.88);
+  --gradient-card: linear-gradient(180deg, rgba(35,39,45,0.96), rgba(29,32,36,0.94));
+  --gradient-card-teal: linear-gradient(165deg, rgba(24,36,36,0.96), rgba(29,32,36,0.94));
+  --overlay: rgba(17,18,20,0.8);
+  --shadow-card: 0 18px 48px rgba(0,0,0,.4);
   --gold: #d8b75f;
   --gold-light: #f0d27a;
   --gold-dim: #a98942;
@@ -5471,7 +5495,7 @@ a {
 }
 
 nav {
-  background: rgba(17,18,20,0.96);
+  background: color-mix(in srgb, var(--void) 96%, transparent);
   border-bottom-color: var(--border-mid);
   min-height: 72px;
   height: 72px;
@@ -5483,7 +5507,7 @@ nav:not(.breadcrumb) {
 
 nav.nav-hero:not(.breadcrumb) {
   height: 88px !important;
-  background: rgba(17,18,20,0.82) !important;
+  background: color-mix(in srgb, var(--void) 82%, transparent) !important;
 }
 
 .nav-logo-text,
@@ -5512,7 +5536,7 @@ nav a:hover,
 }
 
 .nav-submenu {
-  background: rgba(29,32,36,0.98);
+  background: var(--surface-card);
   border-color: var(--border);
 }
 
@@ -5540,7 +5564,7 @@ nav.nav-hero .nav-cta {
 
 .nav-mobile {
   inset: 72px 0 0;
-  background: rgba(17,18,20,0.985);
+  background: var(--void);
 }
 
 .nav-mobile .nav-link,
@@ -5581,13 +5605,13 @@ nav.nav-hero .nav-cta {
 .freq-card,
 .testimonial-card,
 .modal-card {
-  background: rgba(29,32,36,0.92) !important;
+  background: var(--surface-card) !important;
   border-color: var(--border-mid) !important;
 }
 
 .svc-card--featured,
 .svc-card--consult {
-  background: rgba(35,39,45,0.94) !important;
+  background: var(--surface-elevated) !important;
   border-color: rgba(185,150,217,0.30) !important;
 }
 
@@ -5625,7 +5649,7 @@ input,
 select,
 textarea,
 .unlock-email-input {
-  background: rgba(17,18,20,0.88) !important;
+  background: var(--surface-inset) !important;
   border-color: var(--border) !important;
   color: var(--text) !important;
   font-size: 17px;

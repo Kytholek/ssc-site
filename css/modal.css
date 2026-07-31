@@ -187,7 +187,7 @@ button.svc-cta {
 
 #modal-form-card .field input,
 #modal-form-card .field select {
-  background: rgba(5, 4, 10, 0.8);
+  background: var(--surface-inset);
   border: 1px solid rgba(126, 200, 200, 0.25);
   color: var(--text);
   font-family: 'EB Garamond', serif;
@@ -203,7 +203,7 @@ button.svc-cta {
 #modal-form-card .field select:focus {
   outline: none;
   border-color: rgba(126, 200, 200, 0.6);
-  background: rgba(5, 4, 10, 0.9);
+  background: var(--surface-inset);
   box-shadow: 0 0 20px rgba(126, 200, 200, 0.15), inset 0 0 8px rgba(126, 200, 200, 0.04);
 }
 
@@ -353,7 +353,7 @@ button.svc-cta {
   width: 100%;
   min-height: 280px;
   aspect-ratio: 2 / 3;
-  background: linear-gradient(160deg, rgba(8,6,16,.95), rgba(20,16,32,.9));
+  background: var(--gradient-card);
   border: 1px solid rgba(201, 168, 76, 0.18);
   border-radius: 6px;
   overflow: hidden;
@@ -463,4 +463,50 @@ button.svc-cta {
   #book-detail-modal {
     padding: 24px 18px 20px;
   }
+}
+
+/* ---- LIGHT THEME ---- */
+html[data-theme='light'] #calculator-modal-overlay,
+html[data-theme='light'] #book-detail-overlay {
+  background: linear-gradient(135deg, rgba(40, 32, 24, 0.45), rgba(60, 48, 36, 0.5));
+}
+
+html[data-theme='light'] #calculator-modal {
+  background: var(--gradient-card);
+  border-color: rgba(76, 127, 127, 0.35);
+  box-shadow: var(--shadow-card), 0 0 28px rgba(76, 127, 127, 0.12);
+}
+
+html[data-theme='light'] #book-detail-modal {
+  background: var(--gradient-card);
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme='light'] #modal-form-card .field input,
+html[data-theme='light'] #modal-form-card .field select {
+  background: var(--surface-inset);
+  border-color: rgba(76, 127, 127, 0.3);
+  color: var(--text);
+}
+
+html[data-theme='light'] #modal-form-card .field input:focus,
+html[data-theme='light'] #modal-form-card .field select:focus {
+  background: #faf6ee;
+  border-color: rgba(76, 127, 127, 0.55);
+}
+
+html[data-theme='light'] .book-detail-cover {
+  background: var(--gradient-card);
+  border-color: var(--border-dim);
+}
+
+html[data-theme='light'] #calculator-modal,
+html[data-theme='light'] #book-detail-modal,
+html[data-theme='light'] #calculator-modal .modal-calculator-title,
+html[data-theme='light'] #calculator-modal .modal-calculator-subtitle,
+html[data-theme='light'] #book-detail-modal .book-detail-title,
+html[data-theme='light'] #book-detail-modal .book-detail-desc,
+html[data-theme='light'] #book-detail-modal .book-detail-author {
+  color: var(--text);
 }

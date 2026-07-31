@@ -84,22 +84,25 @@ html[data-theme='light'] .field select:focus {
     ? upgrade sigil size + text refinement
    ?????????????????????????????????????????????????????????? */
 .nav-logo-sigil {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
-  animation: rotateSlow 28s linear infinite;
-  will-change: transform;
-  transform: translate3d(0,0,0);
+  animation: none;
+  will-change: auto;
+  transform: none;
+}
+
+.nav-logo .nav-logo-text {
+  display: none;
 }
 .nav-logo-sigil svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 10px rgba(201,168,76,.5));
+  filter: drop-shadow(0 0 8px rgba(201,168,76,.35));
 }
 
-/* Pause rotation on hover ? makes it feel intentional */
 .nav-logo:hover .nav-logo-sigil {
-  animation-play-state: paused;
+  animation: none;
 }
 
 .nav-logo-text {
@@ -256,17 +259,45 @@ html[data-theme='light'] .field select:focus {
    FOOTER SIGIL
    ?????????????????????????????????????????????????????????? */
 .footer-sigil {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   margin-bottom: 16px;
-  opacity: 0.55;
-  animation: rotateSlow 40s linear infinite;
-  will-change: transform;
-  transform: translate3d(0,0,0);
+  opacity: 0.85;
+  animation: none;
+  will-change: auto;
+  transform: none;
 }
 .footer-sigil svg {
   width: 100%;
   height: 100%;
+}
+
+/* Shared Codex logo mark (nav + footer) */
+.ssc-logo-codex {
+  display: block;
+  overflow: visible;
+}
+.ssc-logo-codex .ssc-logo-line {
+  stroke: rgba(201, 168, 76, 0.5);
+  stroke-width: 2.4;
+  fill: none;
+}
+.ssc-logo-codex .ssc-logo-node circle {
+  fill: #0d0c18;
+  stroke: rgba(201, 168, 76, 0.7);
+  stroke-width: 2;
+}
+.ssc-logo-codex .ssc-logo-node text {
+  fill: rgba(201, 168, 76, 0.92);
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+}
+.ssc-logo-codex .ssc-logo-node--center circle {
+  stroke: rgba(126, 200, 200, 0.9);
+  stroke-width: 2.4;
+}
+.ssc-logo-codex .ssc-logo-node--center text {
+  fill: #7ec8c8;
 }
 
 .footer-logo-text {
@@ -3402,9 +3433,30 @@ html[data-theme='light'] footer .social-btn:hover {
 }
 
 html[data-theme='light'] .footer-sigil {
-  opacity: 0.75;
+  opacity: 0.95;
 }
 
-html[data-theme='light'] .footer-sigil circle[fill='#03020a'] {
+html[data-theme='light'] .ssc-logo-codex .ssc-logo-line {
+  stroke: rgba(143, 124, 79, 0.55);
+}
+
+html[data-theme='light'] .ssc-logo-codex .ssc-logo-node circle {
   fill: #f5ead4;
+  stroke: rgba(143, 124, 79, 0.7);
+}
+
+html[data-theme='light'] .ssc-logo-codex .ssc-logo-node text {
+  fill: #5c4a2a;
+}
+
+html[data-theme='light'] .ssc-logo-codex .ssc-logo-node--center circle {
+  stroke: rgba(76, 127, 127, 0.9);
+}
+
+html[data-theme='light'] .ssc-logo-codex .ssc-logo-node--center text {
+  fill: #4c7f7f;
+}
+
+html[data-theme='light'] .nav-logo-sigil svg {
+  filter: none;
 }

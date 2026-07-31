@@ -164,7 +164,7 @@
   <script src="/js/translations.js"></script>
   <script type="module" src="/js/codex-data.js"></script>
   <script defer src="/js/calculator.js?v=20260723-result-polish"></script>
-  <script defer src="/js/app.js?v=20260731-light"></script>
+  <script defer src="/js/app.js?v=20260731-codex-logo"></script>
   <!-- Non-critical scripts  —  deferred, don't block rendering -->
   <script src="/js/simulation.js" defer></script>
   <script src="/js/admin.js" defer></script>
@@ -174,9 +174,9 @@
     (function () {
       // Critical pages ? fetched immediately, app boots when these are done
       var CRITICAL = [
-        { id: 'include-nav',    src: '/pages/nav.html?v=20260730-about-other' },
+        { id: 'include-nav',    src: '/pages/nav.html?v=20260731-logo-only' },
         { id: 'include-home',   src: '/pages/home.html?v=20260726-hero9'   },
-        { id: 'include-footer', src: '/pages/footer.html?v=20260726-nosubstack' },
+        { id: 'include-footer', src: '/pages/footer.html?v=20260731-codex-logo' },
       ];
 
       // Secondary pages ? fetched in background, don't block app init

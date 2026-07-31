@@ -220,7 +220,7 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html?v=20260730-about-other', { cache: 'no-store' });
+    const response = await fetch('/pages/nav.html?v=20260731-logo-only', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
@@ -298,7 +298,7 @@ async function loadFooter() {
     if (!placeholder) return;
     if (placeholder.innerHTML.trim().length > 0) return;
 
-    const response = await fetch('/pages/footer.html?v=20260726-nosubstack');
+    const response = await fetch('/pages/footer.html?v=20260731-codex-logo');
     if (!response.ok) throw new Error('Failed to load footer');
     const html = await response.text();
     const temp = document.createElement('div');

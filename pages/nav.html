@@ -1,39 +1,32 @@
 <!-- ════ NAVIGATION ════ -->
 <nav>
-  <div class="nav-logo" onclick="if(document.getElementById('page-home')){showPage('home');}else{window.location.href='/';}">
-    <div class="nav-logo-sigil">
-      <!-- Codex Mark — Concept A — The primary sigil -->
-      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="tealGlow_nav_html_1" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#4a9494" stop-opacity="0.3"/>
-              <stop offset="50%" stop-color="#c9a84c" stop-opacity="0.15"/>
-              <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <circle cx="80" cy="80" r="72" fill="none" stroke="#c9a84c" stroke-width="0.7" opacity="0.35"/>
-          <circle cx="80" cy="80" r="66" fill="none" stroke="#c9a84c" stroke-width="0.3" opacity="0.12" stroke-dasharray="3 6"/>
-          <circle cx="80" cy="80" r="36" fill="url(#tealGlow_nav_html_1)"/>
-          <line x1="80" y1="14" x2="80" y2="146" stroke="#4a9494" stroke-width="1" opacity="0.4"/>
-          <line x1="14" y1="80" x2="146" y2="80" stroke="#4a9494" stroke-width="1" opacity="0.4"/>
-          <line x1="29" y1="29" x2="131" y2="131" stroke="#c9a84c" stroke-width="0.6" opacity="0.18"/>
-          <line x1="131" y1="29" x2="29" y2="131" stroke="#c9a84c" stroke-width="0.6" opacity="0.18"/>
-          <circle cx="80"  cy="16"  r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/>
-          <circle cx="144" cy="80"  r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/>
-          <circle cx="80"  cy="144" r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/>
-          <circle cx="16"  cy="80"  r="8" fill="#03020a" stroke="#4a9494" stroke-width="1"/>
-          <circle cx="80"  cy="16"  r="2.5" fill="#7ec8c8" opacity="0.85"/>
-          <circle cx="144" cy="80"  r="2.5" fill="#7ec8c8" opacity="0.85"/>
-          <circle cx="80"  cy="144" r="2.5" fill="#7ec8c8" opacity="0.85"/>
-          <circle cx="16"  cy="80"  r="2.5" fill="#7ec8c8" opacity="0.85"/>
-          <circle cx="31"  cy="31"  r="6" fill="#03020a" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
-          <circle cx="129" cy="31"  r="6" fill="#03020a" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
-          <circle cx="31"  cy="129" r="6" fill="#03020a" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
-          <circle cx="129" cy="129" r="6" fill="#03020a" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
-          <circle cx="80" cy="80" r="18" fill="#03020a" stroke="#c9a84c" stroke-width="1.5"/>
-        </svg>
+  <div class="nav-logo" onclick="if(document.getElementById('page-home')){showPage('home');}else{window.location.href='/';}" aria-label="Simulation Source Code — Home" title="Simulation Source Code">
+    <div class="nav-logo-sigil" aria-hidden="true">
+      <!-- Home-page Codex mark (static) -->
+      <svg class="ssc-logo-codex" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line class="ssc-logo-line" x1="150" y1="42"  x2="96"  y2="96"/>
+        <line class="ssc-logo-line" x1="150" y1="42"  x2="204" y2="96"/>
+        <line class="ssc-logo-line" x1="96"  y1="96"  x2="150" y2="150"/>
+        <line class="ssc-logo-line" x1="204" y1="96"  x2="150" y2="150"/>
+        <line class="ssc-logo-line" x1="96"  y1="204" x2="150" y2="150"/>
+        <line class="ssc-logo-line" x1="204" y1="204" x2="150" y2="150"/>
+        <line class="ssc-logo-line" x1="150" y1="258" x2="96"  y2="204"/>
+        <line class="ssc-logo-line" x1="150" y1="258" x2="204" y2="204"/>
+        <line class="ssc-logo-line" x1="42"  y1="150" x2="150" y2="150"/>
+        <line class="ssc-logo-line" x1="258" y1="150" x2="150" y2="150"/>
+        <g font-size="18" text-anchor="middle" dominant-baseline="central">
+          <g class="ssc-logo-node"><circle cx="150" cy="42"  r="18"/><text x="150" y="42">3</text></g>
+          <g class="ssc-logo-node"><circle cx="42"  cy="150" r="18"/><text x="42"  y="150">4</text></g>
+          <g class="ssc-logo-node"><circle cx="258" cy="150" r="18"/><text x="258" y="150">5</text></g>
+          <g class="ssc-logo-node"><circle cx="150" cy="258" r="18"/><text x="150" y="258">6</text></g>
+          <g class="ssc-logo-node"><circle cx="96"  cy="96"  r="18"/><text x="96"  y="96">1</text></g>
+          <g class="ssc-logo-node"><circle cx="204" cy="96"  r="18"/><text x="204" y="96">2</text></g>
+          <g class="ssc-logo-node"><circle cx="96"  cy="204" r="18"/><text x="96"  y="204">7</text></g>
+          <g class="ssc-logo-node"><circle cx="204" cy="204" r="18"/><text x="204" y="204">8</text></g>
+          <g class="ssc-logo-node ssc-logo-node--center"><circle cx="150" cy="150" r="24"/><text x="150" y="150">9</text></g>
+        </g>
+      </svg>
     </div>
-    <div class="nav-logo-text">&#10022;&nbsp;Simulation Source Code</div>
   </div>
   <div class="nav-links">
     <a class="nav-link" id="nav-calculator" href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}" data-i18n="nav.calculator">Calculator</a>

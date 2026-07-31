@@ -236,8 +236,9 @@ body { padding-top: 64px; }
   display: flex; align-items: center; gap: 12px;
   text-decoration: none; cursor: pointer;
 }
-.nav-logo-sigil { width: 30px; height: 30px; flex-shrink: 0; animation: rotateSlow 20s linear infinite; will-change: transform; transform: translate3d(0,0,0); }
-.nav-logo-sigil svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(201,168,76,.45)); }
+.nav-logo-sigil { width: 44px; height: 44px; flex-shrink: 0; animation: none; will-change: auto; transform: none; }
+.nav-logo .nav-logo-text { display: none; }
+.nav-logo-sigil svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(201,168,76,.35)); }
 .nav-logo-text { font-family: 'Cormorant SC', serif; font-size: 10px; letter-spacing: .4em; text-transform: uppercase; color: var(--gold-dim); }
 
 .nav-links {
@@ -2661,22 +2662,21 @@ footer {
    NAV - upgrade sigil size + text refinement
    ---------------------------------------------------------- */
 .nav-logo-sigil {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  animation: rotateSlow 28s linear infinite;
-  will-change: transform;
-  transform: translate3d(0,0,0);
+  animation: none;
+  will-change: auto;
+  transform: none;
 }
 .nav-logo-sigil svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 10px rgba(201,168,76,.5));
+  filter: drop-shadow(0 0 8px rgba(201,168,76,.35));
 }
 
-/* Pause rotation on hover - makes it feel intentional */
 .nav-logo:hover .nav-logo-sigil {
-  animation-play-state: paused;
+  animation: none;
 }
 
 .nav-logo-text {
@@ -2800,17 +2800,44 @@ footer {
    FOOTER SIGIL
    ---------------------------------------------------------- */
 .footer-sigil {
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   margin-bottom: 16px;
-  opacity: 0.55;
-  animation: rotateSlow 40s linear infinite;
-  will-change: transform;
-  transform: translate3d(0,0,0);
+  opacity: 0.85;
+  animation: none;
+  will-change: auto;
+  transform: none;
 }
 .footer-sigil svg {
   width: 100%;
   height: 100%;
+}
+
+.ssc-logo-codex {
+  display: block;
+  overflow: visible;
+}
+.ssc-logo-codex .ssc-logo-line {
+  stroke: rgba(201, 168, 76, 0.5);
+  stroke-width: 2.4;
+  fill: none;
+}
+.ssc-logo-codex .ssc-logo-node circle {
+  fill: #0d0c18;
+  stroke: rgba(201, 168, 76, 0.7);
+  stroke-width: 2;
+}
+.ssc-logo-codex .ssc-logo-node text {
+  fill: rgba(201, 168, 76, 0.92);
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+}
+.ssc-logo-codex .ssc-logo-node--center circle {
+  stroke: rgba(126, 200, 200, 0.9);
+  stroke-width: 2.4;
+}
+.ssc-logo-codex .ssc-logo-node--center text {
+  fill: #7ec8c8;
 }
 
 .footer-logo-text {

@@ -1,6 +1,6 @@
-import { calcPersonalDay, calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, reduceToSimple } from './numerology'
+import { calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, reduceToSimple } from './numerology'
 import { getCycleObjectives, getCommitmentObjective, TIER_COMMITMENT_DAYS } from './objectives'
-import { resolveBlueprintNode } from './questBlueprint'
+import { findBlueprintKeyByRoot } from './questBlueprint'
 import {
   QuestEngine_completeFreqQuest,
   QuestEngine_markLQPObjective,
@@ -11,7 +11,13 @@ import {
 import { applyQuestSkillReward } from './skillQuestBridge'
 import { beginMultiDayQuest, checkinMultiDayQuest, getActiveMultiDayQuests } from './numerologyQuests'
 
-const MONTH_STATE_VERSION = 2
+const MONTH_STATE_VERSION = 3
+
+function tierFromFreqLevel(freqLevel = 1) {
+  if (freqLevel >= 25) return 3
+  if (freqLevel >= 10) return 2
+  return 1
+}
 
 function getMonthStateKey(lpRoot, yearKey, monthNum) {
   return `scl_month_season_${lpRoot}_${yearKey}_${monthNum}`
@@ -73,7 +79,6 @@ function ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum) {
 export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1, playerData = null) {
   const pm = calcPersonalMonth(m, d)
   const py = calcPersonalYear(m, d)
-  const pd = calcPersonalDay(m, d)
   const yearKey = py.cycleStartYear
   const monthNum = pm.monthNum
   const profile = playerData || window.__scl_playerData__
@@ -96,15 +101,17 @@ export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1, playerData = nu
     state.tierDays = null
   }
 
-  const questKey = profile ? resolveBlueprintNode(profile, pd, pm, freqLevel) : 'cl'
-  const lqpTier = getActiveTier(questKey) || 1
-  const nodeRoot = profile?.[questKey]?.root ?? pm.root
+  // Season commitment always follows the Personal Month frequency on the card.
+  // Only link LQP progress when a blueprint node actually shares that month root.
+  const monthRoot = reduceToSimple(pm.root)
+  const questKey = profile ? findBlueprintKeyByRoot(profile, monthRoot, freqLevel) : null
+  const lqpTier = questKey ? (getActiveTier(questKey) || 1) : tierFromFreqLevel(freqLevel)
 
-  const objs = getCycleObjectives('personalMonth', pm.root, freqLevel, lqpTier)
+  const objs = getCycleObjectives('personalMonth', monthRoot, freqLevel, lqpTier)
   state.objectives = objs.map(o => ({ id: o.id, text: o.text, duration: o.duration }))
 
   if (!state.lockedObj) {
-    const commitment = getCommitmentObjective(nodeRoot, lqpTier)
+    const commitment = getCommitmentObjective(monthRoot, lqpTier)
     if (commitment) {
       state.lockedObj = {
         id: commitment.id,
@@ -113,8 +120,8 @@ export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1, playerData = nu
         tierAtLock: lqpTier,
         objIdx: commitment.objIdx,
         commitmentDays: commitment.commitmentDays,
-        questKey,
-        nodeRoot,
+        questKey, // null when no blueprint node matches this month
+        nodeRoot: monthRoot,
       }
       state.tierDays = commitment.commitmentDays
       ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum)
@@ -239,12 +246,14 @@ export function completeMonthSeason(lpRoot, m, d) {
 
   if (state.lockedObj) {
     const { tierAtLock, objIdx, questKey } = state.lockedObj
-    const lqpKey = questKey || 'cl'
 
-    QuestEngine_markLQPObjective(lqpKey, tierAtLock, objIdx ?? 2)
+    // Only advance Life Quest when the season frequency matches a blueprint node
+    if (questKey) {
+      QuestEngine_markLQPObjective(questKey, tierAtLock, objIdx ?? 2)
+    }
     applyQuestSkillReward({
       root: pm.root,
-      tier: tierAtLock,
+      tier: tierAtLock || 1,
       questKind: 'season',
       difficulty: 'medium',
     }, earnStatXP, (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail: detail || null })))

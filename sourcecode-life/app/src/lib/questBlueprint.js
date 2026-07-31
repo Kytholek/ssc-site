@@ -20,6 +20,28 @@ export const BLUEPRINT_UNLOCK_LV = {
 
 const TIER_LABELS = { 1: 'Apprentice', 2: 'Adept', 3: 'Master' }
 
+function unlockedBlueprintKeys(playerData, freqLevel = 1) {
+  if (!playerData) return []
+  return BLUEPRINT_NODES.filter((key) => {
+    const unlock = BLUEPRINT_UNLOCK_LV[key] ?? 0
+    if (freqLevel < unlock) return false
+    return !!playerData[key]
+  })
+}
+
+/**
+ * Find a blueprint node whose root matches the given frequency.
+ * Returns null when no unlocked node shares that root.
+ */
+export function findBlueprintKeyByRoot(playerData, root, freqLevel = 1) {
+  if (!playerData || root == null) return null
+  const simple = reduceToSimple(root)
+  for (const key of unlockedBlueprintKeys(playerData, freqLevel)) {
+    if (reduceToSimple(playerData[key].root) === simple) return key
+  }
+  return null
+}
+
 /**
  * Pick blueprint node: personal day root → personal month root → cl (Life Calling).
  */
@@ -28,12 +50,7 @@ export function resolveBlueprintNode(playerData, pd, pm, freqLevel = 1) {
 
   const simpleDay = reduceToSimple(pd.root)
   const simpleMonth = reduceToSimple(pm.root)
-
-  const unlocked = BLUEPRINT_NODES.filter((key) => {
-    const unlock = BLUEPRINT_UNLOCK_LV[key] ?? 0
-    if (freqLevel < unlock) return false
-    return !!playerData[key]
-  })
+  const unlocked = unlockedBlueprintKeys(playerData, freqLevel)
 
   for (const key of unlocked) {
     if (reduceToSimple(playerData[key].root) === simpleDay) return key

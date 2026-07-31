@@ -298,7 +298,7 @@ async function loadFooter() {
     if (!placeholder) return;
     if (placeholder.innerHTML.trim().length > 0) return;
 
-    const response = await fetch('/pages/footer.html?v=20260731-codex-logo');
+    const response = await fetch('/pages/footer.html?v=20260731-logo-only');
     if (!response.ok) throw new Error('Failed to load footer');
     const html = await response.text();
     const temp = document.createElement('div');

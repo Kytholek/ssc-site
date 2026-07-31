@@ -192,11 +192,6 @@ nav.nav-hero .nav-logo-sigil {
   height: 48px !important;
   transition: width .4s ease, height .4s ease;
 }
-nav.nav-hero .nav-logo-text {
-  font-size: 14px !important;
-  letter-spacing: .45em !important;
-  transition: font-size .4s ease, letter-spacing .4s ease;
-}
 nav.nav-hero .nav-link {
   font-size: 11px !important;
   letter-spacing: .3em !important;
@@ -208,7 +203,6 @@ nav.nav-hero .nav-cta {
   transition: font-size .4s ease, padding .4s ease;
 }
 .nav-logo-sigil { transition: width .4s ease, height .4s ease; }
-.nav-logo-text  { transition: font-size .4s ease, letter-spacing .4s ease; }
 .nav-link       { transition: font-size .4s ease, color .2s; }
 .nav-cta        { transition: font-size .4s ease, padding .4s ease, box-shadow .3s, transform .3s, filter .3s; }
 
@@ -237,9 +231,7 @@ body { padding-top: 64px; }
   text-decoration: none; cursor: pointer;
 }
 .nav-logo-sigil { width: 44px; height: 44px; flex-shrink: 0; animation: none; will-change: auto; transform: none; }
-.nav-logo .nav-logo-text { display: none; }
 .nav-logo-sigil svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(201,168,76,.35)); }
-.nav-logo-text { font-family: 'Cormorant SC', serif; font-size: 10px; letter-spacing: .4em; text-transform: uppercase; color: var(--gold-dim); }
 
 .nav-links {
   display: flex; align-items: center; gap: 4px;
@@ -2677,18 +2669,6 @@ footer {
 
 .nav-logo:hover .nav-logo-sigil {
   animation: none;
-}
-
-.nav-logo-text {
-  font-family: 'Cormorant SC', serif;
-  font-size: 9px;
-  letter-spacing: .42em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-  transition: color .25s;
-}
-.nav-logo:hover .nav-logo-text {
-  color: var(--gold);
 }
 
 /* ----------------------------------------------------------
@@ -5537,14 +5517,6 @@ nav.nav-hero:not(.breadcrumb) {
   background: color-mix(in srgb, var(--void) 82%, transparent) !important;
 }
 
-.nav-logo-text,
-nav.nav-hero .nav-logo-text {
-  color: var(--gold-light) !important;
-  font-size: 12px !important;
-  letter-spacing: 0.12em !important;
-  line-height: 1.2;
-}
-
 .nav-link,
 nav.nav-hero .nav-link {
   color: var(--text-dim) !important;
@@ -5748,11 +5720,6 @@ article h3 {
 @media (max-width: 900px) {
   nav {
     padding: 0 18px;
-  }
-
-  .nav-logo-text {
-    font-size: 11px !important;
-    letter-spacing: 0.08em !important;
   }
 }
 

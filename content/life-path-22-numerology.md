@@ -1,15 +1,20 @@
 ---
-title: Life Path 22 in Numerology: The Master Builder — Meaning, Shadow & Integration
+title: Life Path 22 Meaning — The Master Builder
 slug: life-path-22-numerology
 date: 2026-03-25
 category: life-path
 glyph: 22
 eyebrow: Master Numbers  ·  March 2026  ·  Codex Position 4
 excerpt: The Life Path number is calculated by summing every digit across your full date of birth and reducing until a single or master number remains. Life Path 22 is a **master number — it is not reduced to 4**. When the pre-final-reduction sum lands on exactly 22, the simulation encodes a fundamentally different curriculum than the one Life Path 4 carries. The frequency does not collapse. It holds.
-description: Life Path 22 is the rarest master number — the frequency that builds for civilisations, not just lifetimes. Dual vibration, shadow patterns, and integration.
-keywords: life path 22 numerology, life path 22 meaning, master number 22 life path, 22 life path numerology, master builder numerology, life path 22 master number
-breadcrumb-name: Life Path 22 in Numerology: The Master Builder — Meaning, Shadow & Integration
+description: Life Path 22 meaning — the Master Builder. Civilisational-scale building, dual vibration, shadow, and integration.
+keywords: life path 22 meaning, life path 22 numerology, life path number 22, numerology life path 22
+breadcrumb-name: Life Path 22 Meaning
 cta: Your Life Path 22 is one frequency in a seven-number blueprint. How the 22 interacts with your Expression, Soul Urge, and the compound story of your full birth date — that is the complete architecture of your encoded curriculum.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-11-numerology/|Life Path 11 Meaning|Read Deep Dive
+  - /blog/life-path-33-numerology/|Life Path 33 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is a Life Path 22?

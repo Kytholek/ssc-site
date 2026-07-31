@@ -1,15 +1,20 @@
 ---
-title: Life Path 6 in Numerology: The Nurturer — Meaning, Shadow & Integration
+title: Life Path 6 Meaning — The Nurturer
 slug: life-path-6-numerology
 date: 2026-01-01
 category: life-path
 glyph: 6
 eyebrow: 
 excerpt: Sum every digit in your full date of birth and reduce to a single digit. Life Path 6 means the simulation is running a curriculum centred on care, responsibility, and the question of whether you can give without losing yourself in the giving.
-description: Life Path 6 keeps placing people who need your care in your path — asking if you can meet that need without making their need your identity.
-keywords: life path 6 numerology, life path 6 meaning, numerology 6, life path number 6, SSC numerology, simulation source code
-breadcrumb-name: Life Path 6 Numerology
+description: Life Path 6 meaning in numerology — the Nurturer. Care without identity fusion, compound story, and shadow patterns.
+keywords: life path 6 meaning, life path 6 numerology, life path number 6, numerology life path 6
+breadcrumb-name: Life Path 6 Meaning
 cta: Your Life Path 6 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-5-numerology/|Life Path 5 Meaning|Read Deep Dive
+  - /blog/life-path-7-numerology/|Life Path 7 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is a Life Path 6?

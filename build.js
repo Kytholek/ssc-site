@@ -261,7 +261,7 @@ ${relatedHtml}
 
     <div class="post-cta-block">
       <p>${ctaText}</p>
-      <a href="/#calculator" onclick="if(typeof showPage==='function'){showPage('calculator');return false;}">&#11042;&nbsp;Calculate Your Full Blueprint</a>
+      <a href="/calculator/">&#11042;&nbsp;Free Numerology Calculator — Life Path &amp; Full Blueprint</a>
     </div>
 
   </div>

@@ -1,15 +1,20 @@
 ---
-title: Life Path 7 in Numerology: The Seeker — Meaning, Shadow & Integration
+title: Life Path 7 Meaning — The Seeker
 slug: life-path-7-numerology
 date: 2026-01-01
 category: life-path
 glyph: 7
 eyebrow: 
 excerpt: Sum every digit in your full date of birth and reduce to a single digit. Life Path 7 means the simulation is running a curriculum of investigation, discernment, and the search for what is genuinely true beneath surface appearances.
-description: Life Path 7 keeps stripping away what you thought was solid. SSC decodes the compound numbers and shadow patterns behind your search for truth.
-keywords: life path 7 numerology, life path 7 meaning, numerology 7, life path number 7, SSC numerology, simulation source code
-breadcrumb-name: Life Path 7 Numerology
+description: Life Path 7 meaning in numerology — the Seeker. Truth-seeking curriculum, compound numbers, and shadow of withdrawal.
+keywords: life path 7 meaning, life path 7 numerology, life path number 7, numerology life path 7
+breadcrumb-name: Life Path 7 Meaning
 cta: Your Life Path 7 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-6-numerology/|Life Path 6 Meaning|Read Deep Dive
+  - /blog/life-path-8-numerology/|Life Path 8 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is a Life Path 7?

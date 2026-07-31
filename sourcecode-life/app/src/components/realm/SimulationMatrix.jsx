@@ -1,7 +1,7 @@
 /**
  * SimulationMatrix — the full-screen realm experience.
  * Entered from the portal in MapTab.
- * HUB tab: Digital Map (quest world) + World Map + Make Quest
+ * HUB tab: World Map + Side Quests + Digital Map (fantasy overworld)
  * SOCIAL tab: Ranks + Allies + Chat
  */
 import { useState, useCallback, useEffect } from 'react'
@@ -226,7 +226,7 @@ function ChatView({ onGoToAllies }) {
 export default function SimulationMatrix({ onExit, inline = false }) {
   const { playerData } = useAppState()
   const [mainTab, setMainTab]   = useState('hub')
-  const [hubSub, setHubSub]     = useState('digital')
+  const [hubSub, setHubSub]     = useState('world')
   const [socialSub, setSocialSub] = useState('leaderboard')
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [showRealmCoach, setShowRealmCoach] = useState(() => {

@@ -3,12 +3,12 @@
 export const LS_MAP_QUESTS = 'scl_map_quests'
 
 export const QUEST_TYPES = [
-  { key: 'exploration', label: '🗺 EXPLORE' },
-  { key: 'connection',  label: '⚔ CONNECT'  },
-  { key: 'achievement', label: '▲ ACHIEVE'  },
-  { key: 'healing',     label: '✦ HEAL'     },
-  { key: 'creation',    label: '◈ CREATE'   },
-  { key: 'reflection',  label: '◇ REFLECT'  },
+  { key: 'exploration', label: '🗺 EXPLORE', color: '#00e5cc' },
+  { key: 'connection',  label: '⚔ CONNECT',  color: '#2ecc71' },
+  { key: 'achievement', label: '▲ ACHIEVE',  color: '#f0c060' },
+  { key: 'healing',     label: '✦ HEAL',     color: '#f472b6' },
+  { key: 'creation',    label: '◈ CREATE',   color: '#a78bfa' },
+  { key: 'reflection',  label: '◇ REFLECT',  color: '#fbbf24' },
 ]
 
 export const SEEKER_TYPES = ['solo', 'partner', 'group']

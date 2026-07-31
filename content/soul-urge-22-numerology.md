@@ -125,7 +125,7 @@ Example: If your vowels sum to 13 → reduces to 4. Soul Urge 4, not 22. If your
 A confirmed Soul Urge 22 requires the vowels to sum to 22 directly: for example, vowels that add to 22 as a first total (e.g. A=1, I=9, O=6, E=5, A=1 = 22). That is 22 held unreduced. Any path that goes through 22 on the way to a higher total and then reduces back is not a master Soul Urge 22.
 
     
-If you are uncertain, [calculate your full blueprint](/#calculator) using the complete birth name exactly as it appears on your birth certificate. The full legal name is the encoded document — shortened versions, nicknames, or married names do not apply to this calculation.
+If you are uncertain, [calculate your full blueprint](/calculator/) using the complete birth name exactly as it appears on your birth certificate. The full legal name is the encoded document — shortened versions, nicknames, or married names do not apply to this calculation.
 
     
 ## Soul Urge 22 and the Trinity

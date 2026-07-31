@@ -125,7 +125,7 @@ Now take a name where the vowels sum to 11 directly — for example, **Ana Eli**
 A direct 11: vowels that sum to 11 without passing through a higher two-digit number first. Example: A (1), I (9), A (1) = 11 exactly. That is a confirmed Soul Urge 11. The vowels must hit 11 as their first reduced or unreduced total — not pass through it on the way down from a higher sum.
 
     
-If you are uncertain, [calculate your full blueprint](/#calculator) using your complete birth name as it appears on your birth certificate. Do not use nicknames or shortened versions — the full legal name is the encoded document.
+If you are uncertain, [calculate your full blueprint](/calculator/) using your complete birth name as it appears on your birth certificate. Do not use nicknames or shortened versions — the full legal name is the encoded document.
 
     
 ## Soul Urge 11 and the Trinity

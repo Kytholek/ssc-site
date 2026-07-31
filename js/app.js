@@ -137,8 +137,8 @@ const PAGE_META = {
     description: 'The complete Simulation Source Code framework — seven frequencies encoded in your birth date and name. Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self decoded.',
   },
   calculator: {
-    title      : 'Free Numerology Calculator · Seven Frequencies · Simulation Source Code',
-    description: 'Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.',
+    title      : 'Free Numerology Calculator · Life Path & Seven Frequencies · SSC',
+    description: 'Free numerology calculator for your Life Path number and six more frequencies — Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme from birth date and name.',
   },
   books: {
     title      : 'Recommended Numerology Books · Simulation Source Code',
@@ -149,8 +149,8 @@ const PAGE_META = {
     description: 'Simulation Source Code is a numerology framework built on Pythagorean principles, simulation theory, and consciousness research — offering practical, grounded readings of your seven encoded frequencies.',
   },
   services: {
-    title      : 'Numerology Services · Guidebooks, Readings & Books · SSC',
-    description: 'Shop guidebooks, live readings, TellTale Tarot, and original books by Kytholek — PDF reports, consultation, community, and more.',
+    title      : 'Numerology Reading & Guidebook Report · Services · SSC',
+    description: 'Order a numerology guidebook report or live numerology reading — PDF blueprint, consultation, TellTale Tarot, and original books by Kytholek.',
   },
   codex: {
     title      : 'The Codex — Nine Frequencies · Simulation Source Code',
@@ -220,7 +220,7 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html?v=20260730-other-nav', { cache: 'no-store' });
+    const response = await fetch('/pages/nav.html?v=20260730-about-other', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
@@ -318,7 +318,7 @@ function showPage(name, pushState = true) {
   }
 
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.nav-link, .nav-submenu-link').forEach(l => l.classList.remove('active'));
 
   // Reset codex initiation state when navigating to it fresh
   if (name === 'codex') {

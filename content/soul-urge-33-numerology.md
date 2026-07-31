@@ -128,7 +128,7 @@ Example of what does not qualify: vowels summing to 15 → 1+5=6. Soul Urge 6. V
 A confirmed Soul Urge 33: vowels that sum directly to 33. For example, a name with vowels adding to 33 without passing through a higher two-digit number: I(9) + E(5) + I(9) + O(6) + A(1) + I(9) = 39 → 3+9=12 → 1+2=3. Not 33. The calculation must hit 33 as a two-digit sum, not as a further-reduced total from a higher number. This is why it is so rare — the vowel pattern has to produce 33 as the sum of all vowels in the complete birth name, before reduction.
 
     
-If you are uncertain, [calculate your full blueprint](/#calculator) using your complete legal birth name exactly as it appears on your birth certificate. Proceed carefully and sum every vowel individually before reducing anything.
+If you are uncertain, [calculate your full blueprint](/calculator/) using your complete legal birth name exactly as it appears on your birth certificate. Proceed carefully and sum every vowel individually before reducing anything.
 
     
 ## Soul Urge 33 and the Trinity

@@ -120,7 +120,7 @@ var SSC_TRANSLATIONS = {
   'calc.month.9' : { en: 'September', es: 'Septiembre' },
   'calc.placeholder.name' : { en: 'e.g. Jane Marie Smith', es: 'ej. María Guadalupe López' },
   'calc.results.placeholder' : { en: 'Your reading will appear here', es: 'Tu lectura aparecerá aquí' },
-  'calc.subtitle' : { en: 'Enter your birth date and full name to calculate Life Path, Expression, Soul Urge, and all seven core frequencies.', es: 'Ingresa tu fecha de nacimiento y nombre completo para calcular el Camino de Vida, la Expresión, el Impulso del Alma y las siete frecuencias centrales.' },
+  'calc.subtitle' : { en: 'Use this free numerology calculator to find your Life Path number and six more frequencies — Expression, Soul Urge, Life Calling, Outer Persona, Achievement, and Theme — from your birth date and full name.', es: 'Usa esta calculadora de numerología gratis para hallar tu número de Camino de Vida y seis frecuencias más — Expresión, Impulso del Alma, Llamado de Vida, Persona Exterior, Logro y Tema — desde tu fecha de nacimiento y nombre completo.' },
   'calc.title' : { en: 'Free Numerology Calculator', es: 'Calculadora de Numerología Gratis' },
 
   'calc.codex.label' : { en: '◈ Codex · Node', es: '◈ Códice · Nodo' },
@@ -197,8 +197,8 @@ var SSC_TRANSLATIONS = {
 
   'home.revamp.hero.eyebrow' : { en: '// Simulation Source Code', es: '// Simulation Source Code' },
   'home.revamp.hero.title' : { en: 'Using Numerology to<br><span>Map out Life Direction</span>', es: 'Usando la Numerología para<br><span>Trazar la Dirección de Vida</span>' },
-  'home.revamp.hero.sub.full' : { en: 'SSC is a new system of numerology, built from bridging it with metaphysics and simulation theory. Seven frequencies from your birth date and name that map out your life goals and challenges. Rebuilding numerology into a system that you actually apply to your life by creating a map for direction.', es: 'SSC es un nuevo sistema de numerología, construido al unirlo con la metafísica y la teoría de la simulación. Siete frecuencias de tu fecha de nacimiento y nombre que mapean tus metas y desafíos de vida. Reconstruyendo la numerología en un sistema que realmente aplicas a tu vida creando un mapa para la dirección.' },
-  'home.revamp.hero.sub.short' : { en: 'Metaphysics, simulation theory, and consciousness — rebuilt as a numerology you can actually apply to your life.', es: 'Metafísica, teoría de la simulación y conciencia — reconstruidas como una numerología que puedes aplicar a tu vida.' },
+  'home.revamp.hero.sub.full' : { en: 'SSC is a new system of numerology, built from bridging it with metaphysics and simulation theory. Start with a free numerology calculator for your Life Path and six more frequencies from birth date and name — a map you can actually apply.', es: 'SSC es un nuevo sistema de numerología, unido a la metafísica y la teoría de la simulación. Empieza con una calculadora de numerología gratis para tu Camino de Vida y seis frecuencias más desde nacimiento y nombre — un mapa que sí puedes aplicar.' },
+  'home.revamp.hero.sub.short' : { en: 'Free numerology calculator for your Life Path — metaphysics and simulation theory rebuilt as a map you can apply.', es: 'Calculadora de numerología gratis para tu Camino de Vida — metafísica y teoría de la simulación reconstruidas como un mapa aplicable.' },
   'home.revamp.hero.cta.primary' : { en: '▶ Decode your Map', es: '▶ Decodifica tu Mapa' },
   'home.revamp.hero.cta.secondary' : { en: 'Map Guidebooks', es: 'Guías del Mapa' },
   'home.revamp.hero.micro' : { en: 'Free decode in 60 seconds · Full written guidebooks when you want depth', es: 'Decodificación gratis en 60 segundos · Guías escritas cuando quieras profundidad' },
@@ -237,9 +237,11 @@ var SSC_TRANSLATIONS = {
 
   // ── Navigation ─────────────────────────────────────
   'nav.about' : { en: 'About', es: 'Acerca' },
+  'nav.other' : { en: 'Other', es: 'Más' },
   'nav.blog' : { en: 'Blog', es: 'Blog' },
   'nav.books' : { en: 'Books', es: 'Libros' },
   'nav.calculator' : { en: 'Calculator', es: 'Calculadora' },
+  'nav.services' : { en: 'Services', es: 'Servicios' },
   'nav.cta' : { en: '⬡ Launch App', es: '⬡ Lanzar App' },
   'nav.home' : { en: 'Home', es: 'Inicio' },
   'nav.privacy' : { en: 'Privacy', es: 'Privacidad' },

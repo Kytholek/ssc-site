@@ -1,15 +1,20 @@
 ---
-title: Life Path 1 in Numerology: The Initiator — Meaning, Shadow & Integration
+title: Life Path 1 Meaning — The Initiator
 slug: life-path-1-numerology
 date: 2026-03-20
 category: life-path
 glyph: 1
 eyebrow: The Numbers  ·  March 2026  ·  Codex Position 1
 excerpt: Your Life Path is calculated by summing every digit in your full date of birth and reducing to a single digit. A Life Path 1 means that reduction lands on 1 — the first frequency, the initiating force.
-description: Life Path 1 means the simulation keeps placing you at beginnings and demanding you go first. Discover the compound story, shadow expression, and how to work with your 1 Life Path.
-keywords: life path 1 numerology, numerology, life path number, SSC numerology, simulation source code
-breadcrumb-name: Life Path 1 Numerology
+description: Life Path 1 meaning in numerology — the Initiator. Compound story, shadow patterns, and how to work with a 1 Life Path.
+keywords: life path 1 meaning, life path 1 numerology, life path number 1, numerology life path 1
+breadcrumb-name: Life Path 1 Meaning
 cta: Your Life Path 1 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-44-numerology/|Life Path 44 Meaning|Read Deep Dive
+  - /blog/life-path-2-numerology/|Life Path 2 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is a Life Path 1?

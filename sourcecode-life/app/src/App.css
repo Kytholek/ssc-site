@@ -897,6 +897,23 @@
     rgba(0,0,0,0.025) 3px, rgba(0,0,0,0.025) 4px
   );
 }
+/* Realm open: app-main stops scrolling; Simulation Matrix owns the viewport */
+body.scl-realm-open .app-main {
+  overflow: hidden;
+  padding-bottom: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+body.scl-realm-open .sm-tab-panel,
+body.scl-realm-open .map-tab {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
 .app-header-wrap {
@@ -6974,7 +6991,11 @@ body.scl-realm-open .tab-bar {
 /* ════════════════════════════════════════════════════════════
    MAP TAB
    ════════════════════════════════════════════════════════════ */
-.map-tab { overflow: hidden; display: flex; flex-direction: column; }
+.map-tab {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
 /* ── Location / place-quest bar ────────────────────────────── */
 .map-panel { display: flex; flex-direction: column; gap: 0; }
@@ -7691,9 +7712,14 @@ body.scl-realm-open .tab-bar {
   left: auto;
   transform: none;
   width: 100%;
-  min-height: calc(100svh - 100px);
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
   z-index: auto;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -7795,14 +7821,16 @@ body.scl-realm-open .tab-bar {
 /* Content area */
 .sm-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
 }
 .simulation-matrix--inline .sm-content {
   min-height: 0;
-  padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
 
 /* Sub toggle */
@@ -7868,7 +7896,66 @@ body.scl-realm-open .tab-bar {
 .rm-empty { color: var(--text-dim); font-size: 12px; line-height: 1.6; }
 
 /* ── Digital map ─────────────────────────────── */
-.rm-digital-view { padding-bottom: 12px; }
+.rm-digital-view {
+  padding-bottom: 24px;
+  flex: 1 0 auto;
+}
+.rm-digital-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rm-region-panel--primary {
+  margin: 0;
+  width: 100%;
+}
+.rm-realm-gate-strip {
+  margin: 0;
+  border-style: dashed;
+  opacity: 0.85;
+}
+.rm-realm-gate-card--compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 10px 12px;
+}
+.rm-realm-gate-card--compact .rm-realm-gate-title {
+  margin: 0;
+  font-size: 10px;
+}
+.rm-realm-gate-card--compact .rm-realm-gate-copy {
+  flex: 1 1 160px;
+  margin: 0;
+  font-size: 11px;
+}
+.rm-realm-gate-card--compact .rm-realm-gate-btn {
+  margin-left: auto;
+  padding: 6px 10px;
+  font-size: 7px;
+}
+.rm-realm-banner--digital {
+  border-color: rgba(201, 168, 76, 0.28);
+  background:
+    linear-gradient(120deg, rgba(201, 168, 76, 0.14) 0%, transparent 42%),
+    linear-gradient(300deg, rgba(0, 229, 204, 0.1) 0%, transparent 40%),
+    rgba(12, 14, 22, 0.92);
+  box-shadow: inset 0 1px 0 rgba(201, 168, 76, 0.12);
+}
+.rm-realm-banner--digital .rm-realm-title {
+  font-size: 20px;
+  margin-top: 6px;
+}
+.rm-realm-banner--digital .rm-realm-copy {
+  margin-top: 6px;
+  max-width: 340px;
+}
+.rm-realm-banner-text { min-width: 0; }
+.rm-realm-stage-wrap--digital {
+  border-radius: 10px;
+  border-color: rgba(0, 229, 204, 0.12);
+}
 .rm-world-map-view {
   display: flex;
   flex-direction: column;
@@ -8063,13 +8150,15 @@ body.scl-realm-open .tab-bar {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  pointer-events: none;
 }
 .rm-realm-hero-ring {
   position: absolute;
   inset: -16px;
   border-radius: 50%;
-  border: 1px solid rgba(212,168,67,0.24);
-  box-shadow: 0 0 22px rgba(212,168,67,0.1);
+  border: 1px solid rgba(212,168,67,0.28);
+  box-shadow: 0 0 22px rgba(212,168,67,0.14);
+  transform-origin: center center;
 }
 .rm-hero-sigil {
   position: relative;
@@ -8582,6 +8671,26 @@ body.scl-realm-open .tab-bar {
   }
   .rm-realm-grid {
     grid-template-columns: 1fr;
+  }
+  .rm-digital-stage {
+    height: min(52svh, 360px);
+  }
+}
+
+@media (min-width: 821px) {
+  .rm-digital-stage {
+    height: min(48svh, 400px);
+    aspect-ratio: 16 / 11;
+    max-height: 400px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rm-digital-stage .rm-realm-aura,
+  .rm-digital-stage .rm-realm-hero-ring,
+  .rm-region-panel--primary,
+  .rm-region-quest-list .rm-quest-card {
+    animation: none !important;
   }
 }
 
@@ -18637,10 +18746,12 @@ body.scl-realm-open .tab-bar {
 .rm-digital-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 320px;
+  height: min(52svh, 380px);
+  aspect-ratio: auto;
+  max-height: none;
   background:
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,229,204,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,229,204,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 35% at 50% 48%, rgba(201,168,76,0.06) 0%, transparent 65%),
     repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,255,255,0.02) 32px),
     repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,0.02) 32px),
     #06060e;
@@ -18655,45 +18766,106 @@ body.scl-realm-open .tab-bar {
   inset: 0;
   background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 4px);
   pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes rm-aura-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.08); }
+}
+@keyframes rm-hero-ring-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.06); }
+}
+@keyframes rm-quest-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rm-region-panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rm-digital-stage .rm-realm-aura {
+  animation: rm-aura-pulse 5.5s ease-in-out infinite;
+}
+.rm-digital-stage .rm-realm-aura-2 {
+  animation-delay: 1.8s;
+}
+.rm-digital-stage .rm-realm-hero-ring {
+  animation: rm-hero-ring-pulse 3.2s ease-in-out infinite;
+}
+.rm-region-panel--primary {
+  animation: rm-region-panel-in 0.28s ease-out;
+}
+.rm-region-quest-list .rm-quest-card {
+  animation: rm-quest-card-in 0.32s ease-out both;
 }
 
 .rm-region-node {
   position: absolute;
+  z-index: 2;
   width: 72px;
   height: 72px;
   transform: translate(-50%, -50%);
-  border: 1px solid color-mix(in srgb, var(--node-color) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--node-color) 40%, transparent);
   border-radius: 4px;
   background: linear-gradient(145deg,
     color-mix(in srgb, var(--node-color) 12%, #0a0a12) 0%,
     #0a0a12 100%);
   box-shadow:
-    0 0 16px color-mix(in srgb, var(--node-color) 25%, transparent),
+    0 0 12px color-mix(in srgb, var(--node-color) 18%, transparent),
     inset 0 1px 0 rgba(255,255,255,0.05);
   cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease, opacity 0.22s ease;
   clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% 100%, calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
+  opacity: 0.82;
 }
 
 .rm-region-node:hover {
+  opacity: 1;
   box-shadow:
     0 0 24px color-mix(in srgb, var(--node-color) 40%, transparent),
     inset 0 1px 0 rgba(255,255,255,0.05);
-  transform: translate(-50%, -50%) scale(1.04);
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .rm-region-node--selected {
+  opacity: 1;
+  z-index: 4;
+  border-color: color-mix(in srgb, var(--node-color) 75%, transparent);
   box-shadow:
-    0 0 28px color-mix(in srgb, var(--node-color) 55%, transparent),
-    inset 0 0 12px color-mix(in srgb, var(--node-color) 15%, transparent);
-  transform: translate(-50%, -50%) scale(1.08);
+    0 0 32px color-mix(in srgb, var(--node-color) 55%, transparent),
+    inset 0 0 14px color-mix(in srgb, var(--node-color) 18%, transparent);
+  transform: translate(-50%, -50%) scale(1.1);
 }
-
+.rm-region-node.has-quests::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--node-color, #00e5cc);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--node-color, #00e5cc) 70%, transparent);
+}
+.rm-region-node-count {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  color: var(--node-color);
+  opacity: 0.9;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
 .rm-region-node-icon {
   font-size: 20px;
 }
@@ -18705,6 +18877,18 @@ body.scl-realm-open .tab-bar {
   color: var(--node-color);
   text-transform: uppercase;
   opacity: 0.8;
+}
+.rm-digital-sync {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #00e5cc;
+  opacity: 0.75;
+  padding: 0 12px 8px;
+}
+.rm-quest-card--personal {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: linear-gradient(145deg, rgba(201, 168, 76, 0.08) 0%, rgba(10, 10, 18, 0.9) 100%);
 }
 
 .rm-region-panel {

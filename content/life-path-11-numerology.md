@@ -1,15 +1,20 @@
 ---
-title: Life Path 11 in Numerology: The Illuminated Bridge — Master Number Meaning, Shadow & Integration
+title: Life Path 11 Meaning — The Illuminated Bridge
 slug: life-path-11-numerology
 date: 2026-03-25
 category: life-path
 glyph: 11
 eyebrow: Master Numbers  ·  March 2026  ·  Codex Position 2
 excerpt: The Life Path number is calculated by summing every digit in your full birth date — month, day, and year — and reducing to a final number. For most people, that final number is a single digit between 1 and 9. The Life Path 11 is different: it is a **master number**, and it does not get reduced further. When the pre-final sum of your birth date digits hits exactly 11, the calculation stops there. The 11 holds.
-description: Life Path 11 is the master number of illuminated bridging. Understand the 11/2 dual vibration, shadow patterns, compound story, and how to work with your master number 11 life path.
-keywords: life path 11 numerology, life path 11 meaning, master number 11 life path, 11 life path numerology, life path 11 master number, numerology 11 life path
-breadcrumb-name: Life Path 11 in Numerology: The Illuminated Bridge — Master Number Meaning, Shadow & Integration
+description: Life Path 11 meaning — master number of illuminated bridging. Dual 11/2 vibration, shadow, and integration.
+keywords: life path 11 meaning, life path 11 numerology, life path number 11, numerology life path 11
+breadcrumb-name: Life Path 11 Meaning
 cta: Your Life Path 11 is one signal in a complete blueprint. The full picture — Expression number, Soul Urge, Life Calling, and how they interact with the master frequency — is what the Full Blueprint Reading reveals. Calculate yours now.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-9-numerology/|Life Path 9 Meaning|Read Deep Dive
+  - /blog/life-path-22-numerology/|Life Path 22 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is a Life Path 11?

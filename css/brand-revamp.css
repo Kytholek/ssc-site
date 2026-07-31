@@ -1111,6 +1111,50 @@ nav.svc-section-nav:not(.breadcrumb) {
   flex-direction: column;
   gap: 28px;
 }
+.svc-books-subhead {
+  margin: 48px 0 8px;
+  padding: 36px 16px 8px;
+  text-align: center;
+  position: relative;
+}
+.svc-books-subhead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(220px, 55%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.45), transparent);
+}
+.svc-books-subhead-eyebrow {
+  margin: 0 0 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+.svc-books-subhead-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: .06em;
+  line-height: 1.2;
+  color: var(--gold-light);
+}
+.svc-books-subhead-ornament {
+  font-size: 11px;
+  letter-spacing: 0;
+  color: var(--gold-dim);
+  opacity: .75;
+}
 /* Match Reality/Lost + Out of Place cover width to the side tiles in the row above (1fr of 1 / 1.22 / 1) */
 .svc-books-grid .svc-grid.svc-grid--two {
   grid-template-columns: repeat(2, minmax(0, 1fr));

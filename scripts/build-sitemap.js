@@ -16,7 +16,12 @@ const OUT      = path.join(ROOT, 'sitemap.xml');
 
 function isoDate(d) {
   if (!d) return new Date().toISOString().slice(0, 10);
-  return String(d).slice(0, 10);
+  if (d instanceof Date) return d.toISOString().slice(0, 10);
+  const s = String(d);
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const parsed = new Date(d);
+  if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  return new Date().toISOString().slice(0, 10);
 }
 
 function fileLastMod(filePath) {

@@ -1,15 +1,19 @@
 ---
-title: Expression 7 in Numerology: The Inner Truth Holder
+title: Expression Number 7 Meaning — Inner Truth Holder
 slug: expression-7-numerology
 date: 2026-03-24
 category: expression
 glyph: 7
 eyebrow: Expression Numbers  ·  March 2026  ·  Internal Circuit
 excerpt: The Expression number is calculated from the full birth name — every letter converted to its numerical value, the total reduced to a single digit. It encodes **the internal mode of being** that you carry into every context — how your name-frequency shapes the way you perceive, process, and contribute.
-description: Expression 7 in numerology encodes the inner truth holder — built to seek, analyse, and distil genuine understanding from direct inner experience. Discover the shadow and compound numbers.
-keywords: expression number 7 numerology, expression 7 meaning, numerology expression number, destiny number 7, SSC numerology, simulation source code
+description: Expression number 7 meaning in numerology — the Inner Truth Holder. Destiny number depth, shadow, and compounds.
+keywords: expression number 7 meaning, expression 7 numerology, destiny number 7, numerology expression number
 breadcrumb-name: Expression 7 Numerology
 cta: Your Expression number is one of seven encoded frequencies. The Full Blueprint reveals the complete architecture — how your seeker's depth interacts with your Life Path and the specific directive your Life Calling encodes.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning|Read Guide
+  - /blog/how-to-read-numerology-blueprint/|How to Read Your Blueprint|Read Guide
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## What Is an Expression Number?

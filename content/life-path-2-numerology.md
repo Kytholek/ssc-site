@@ -1,15 +1,20 @@
 ---
-title: Life Path 2 in Numerology: The Bridge — Meaning, Shadow & Integration
+title: Life Path 2 Meaning — The Bridge
 slug: life-path-2-numerology
 date: 2026-03-20
 category: life-path
 glyph: 2
 eyebrow: The Numbers  ·  March 2026  ·  Codex Position 2
 excerpt: The NumbersMarch 2026
-description: Life Path 2 keeps placing you in dynamics testing whether you can stay connected to others without losing yourself. Includes the 11/2 master number, compound breakdown, and integration practice.
-keywords: life path 2 numerology, numerology, life path number, SSC numerology, simulation source code
-breadcrumb-name: Life Path 2 Numerology
+description: Life Path 2 meaning in numerology — the Bridge. Connection without self-loss, 11/2 master dual vibration, and integration.
+keywords: life path 2 meaning, life path 2 numerology, life path number 2, numerology life path 2
+breadcrumb-name: Life Path 2 Meaning
 cta: Your Life Path 2 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-1-numerology/|Life Path 1 Meaning|Read Deep Dive
+  - /blog/life-path-3-numerology/|Life Path 3 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 The NumbersMarch 2026

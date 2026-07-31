@@ -1,19 +1,19 @@
 ---
-title: How to Read Your Full Numerology Blueprint
+title: How to Read a Numerology Blueprint — 7 Numbers
 slug: how-to-read-numerology-blueprint
 date: 2026-03-27
 category: system
 glyph: ◉
 eyebrow: The System · March 2026 · Getting Started
 excerpt: Your numerology blueprint is not one number — it is seven. Each number is calculated from a different piece of your birth data and measures a different layer of the simulation you are running.
-description: A step-by-step guide to reading your full numerology blueprint — Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self explained in order.
-keywords: numerology blueprint, full numerology reading, life path expression soul urge
+description: How to read a full numerology blueprint: Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self — in order.
+keywords: how to read numerology blueprint, numerology reading guide, life path expression soul urge, seven frequencies
 breadcrumb-name: Reading Your Blueprint
 cta: Ready to run your full blueprint? The calculator generates all seven numbers — Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self — in under 60 seconds.
 related:
-  - /blog/decoding-the-matrix-simulation-source-code/|Numerology as Source Code — The Architecture|Read Article
-  - /codex|The Codex Matrix — Map All 9 Frequencies|Explore
-  - /blog/life-path-1-numerology/|Life Path 1 — The Initiator|Read Deep Dive
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/how-to-calculate-life-path-number/|How to Calculate Life Path Number|Read Guide
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 ## The Seven Numbers

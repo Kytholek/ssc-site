@@ -1,15 +1,20 @@
 ---
-title: Life Path 4 in Numerology: The Builder — Meaning, Shadow & Integration
+title: Life Path 4 Meaning — The Builder
 slug: life-path-4-numerology
 date: 2026-03-20
 category: life-path
 glyph: 4
 eyebrow: 
 excerpt: The NumbersMarch 2026
-description: Life Path 4 means the simulation collapses whatever you build on unstable ground. Includes the 22/4 master builder, compound breakdown, and integration practice.
-keywords: life path 4 numerology, life path 4 meaning, numerology 4, life path number 4, SSC numerology, simulation source code
-breadcrumb-name: Life Path 4 Numerology
+description: Life Path 4 meaning in numerology — the Builder. Stable foundations, 22/4 master builder, compound story, and shadow work.
+keywords: life path 4 meaning, life path 4 numerology, life path number 4, numerology life path 4
+breadcrumb-name: Life Path 4 Meaning
 cta: Your Life Path 4 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
+related:
+  - /blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide
+  - /blog/life-path-3-numerology/|Life Path 3 Meaning|Read Deep Dive
+  - /blog/life-path-5-numerology/|Life Path 5 Meaning|Read Deep Dive
+  - /calculator/|Free Numerology Calculator|Calculate
 ---
 
 The NumbersMarch 2026

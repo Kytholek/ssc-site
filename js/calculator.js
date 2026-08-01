@@ -1279,56 +1279,15 @@ function handleUnlockPayment() {
     year:  (document.getElementById('calc-year')     || {}).value || '',
   };
 
+  // Route through /checkout/ so Meta Pixel can measure guidebook checkout on our domain
+  // before the Stripe redirect (Stripe's hosted page cannot host our pixel).
+  payload.product = 'guidebook';
   try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(payload)); } catch(e) {}
-  window.sscTrackEvent('guidebook_checkout_start', { source: 'calculator' });
+  window.sscTrackEvent('guidebook_checkout_start', { source: 'calculator', product: 'guidebook' });
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
-
-  console.log('Sending payload:', JSON.stringify(payload));
-
-  fetch(SSC_CHECKOUT_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload),
-  })
-  .then(function(res) {
-    console.log('Fetch response status:', res.status);
-    if (!res.ok) {
-      return res.text().then(function(text) {
-        var data = {};
-        try { data = JSON.parse(text); } catch (_) {}
-        var msg = data.error || text || ('HTTP ' + res.status);
-        console.error('Error response:', msg);
-        throw new Error(msg);
-      });
-    }
-    return res.json();
-  })
-  .then(function(data) {
-    console.log('Checkout response:', data);
-    if (data.success) {
-      window.location.href = '/thank-you/?email=' + encodeURIComponent(email) + '&product=guidebook';
-    } else if (data.url) {
-      console.log('Redirecting to:', data.url);
-      window.location.href = data.url;
-    } else {
-      throw new Error(data.error || 'No checkout URL returned');
-    }
-  })
-  .catch(function(err) {
-    console.error('Checkout error:', err);
-    window.sscTrackEvent('guidebook_checkout_error', {
-      source: 'calculator',
-      message: err && err.message ? err.message : 'unknown'
-    });
-    if (errorEl) {
-      errorEl.textContent = 'Checkout failed: ' + err.message;
-      errorEl.style.color = 'var(--rose-light)';
-    }
-    btn.disabled    = false;
-    btn.textContent = '⬡  Get My Full $22 Guidebook  ⬡';
-  });
+  window.location.href = '/checkout/?product=guidebook&email=' + encodeURIComponent(email);
 }
 
 window.handleUnlockPayment = handleUnlockPayment;

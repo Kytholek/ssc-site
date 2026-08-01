@@ -1929,6 +1929,8 @@ function handleUnlockPaymentModal() {
     product:  product
   };
 
+  // Route through /checkout/ so Meta Pixel can measure InitiateCheckout on our domain
+  // before Stripe (hosted Stripe Checkout cannot embed our pixel).
   try {
     sessionStorage.setItem('ssc_pending_order', JSON.stringify(userPayload));
   } catch(e) {}
@@ -1936,62 +1938,8 @@ function handleUnlockPaymentModal() {
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
-
-  console.log('Sending payload:', JSON.stringify(userPayload));
-
-  var checkoutUrl = (typeof SSC_CHECKOUT_URL !== 'undefined')
-    ? SSC_CHECKOUT_URL
-    : '/api/session';
-
-  fetch(checkoutUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email:   email,
-      name:    nameVal,
-      month:   monthVal,
-      day:     dayVal,
-      year:    yearVal,
-      product: product
-    })
-  })
-  .then(response => {
-    console.log('Fetch response status:', response.status);
-    if (!response.ok) {
-      return response.text().then(text => {
-        var data = {};
-        try { data = JSON.parse(text); } catch (_) {}
-        var msg = data.error || text || ('HTTP ' + response.status);
-        console.error('Error response:', msg);
-        throw new Error(msg);
-      });
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Checkout response:', data);
-    if (data.success) {
-      window.location.href = '/thank-you/?email=' + encodeURIComponent(email) + '&product=' + encodeURIComponent(product);
-    } else if (data.url) {
-      console.log('Redirecting to:', data.url);
-      window.location.href = data.url;
-    } else {
-      throw new Error(data.error || 'Failed to create checkout session');
-    }
-  })
-  .catch(err => {
-    console.error('Checkout error:', err);
-    trackSscEvent('guidebook_checkout_error', {
-      source: 'services_modal',
-      message: err && err.message ? err.message : 'unknown'
-    });
-    if (errorEl) {
-      errorEl.textContent = 'Checkout failed: ' + err.message;
-      errorEl.style.color = 'var(--rose-light)';
-    }
-    btn.disabled    = false;
-    btn.textContent = MODAL_CHECKOUT_BTN_LABEL;
-  });
+  window.location.href = '/checkout/?product=' + encodeURIComponent(product)
+    + '&email=' + encodeURIComponent(email);
 }
 
 // Email capture form handler

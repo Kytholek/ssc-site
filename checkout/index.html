@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Checkout · Simulation Source Code</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Secure checkout for SSC Guidebook Report, Time Cycle, and Blueprint Bundle.">
+  <link rel="canonical" href="https://simulationsourcecode.com/checkout/">
+  <link rel="icon" type="image/svg+xml" href="/Images/infinity codex_logo_outline.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '3127826867426600');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+  <script src="/js/meta-pixel.js"></script>
+
+  <style>
+    body { padding-top: 64px; }
+    .co-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 80px 24px 120px;
+      text-align: center;
+    }
+    .co-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+      color: var(--gold-dim, #7a6330);
+      margin-bottom: 16px;
+    }
+    .co-title {
+      font-family: 'Cormorant SC', serif;
+      font-weight: 300;
+      font-size: clamp(28px, 4vw, 40px);
+      color: var(--gold, #c9a84c);
+      margin-bottom: 12px;
+    }
+    .co-product {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-mid, #c8b89a);
+      margin-bottom: 28px;
+    }
+    .co-body {
+      font-family: 'EB Garamond', serif;
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text-dim, #9b9080);
+      margin-bottom: 28px;
+    }
+    .co-status {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold, #c9a84c);
+      min-height: 1.5em;
+    }
+    .co-error {
+      font-family: 'EB Garamond', serif;
+      font-size: 16px;
+      color: var(--rose-light, #f472b6);
+      margin-top: 16px;
+    }
+    .co-actions { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .co-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 24px;
+      border: 1px solid var(--gold-dim, #7a6330);
+      color: var(--gold, #c9a84c);
+      background: transparent;
+      cursor: pointer;
+    }
+    .co-btn:hover { border-color: var(--gold, #c9a84c); background: rgba(201,168,76,0.06); }
+  </style>
+</head>
+<body>
+<nav id="main-nav"></nav>
+
+<main class="co-wrap">
+  <div class="co-eyebrow">Secure Checkout</div>
+  <h1 class="co-title">Connecting to Stripe</h1>
+  <div class="co-product" id="coProduct">Guidebook Report</div>
+  <p class="co-body">
+    You’re leaving Simulation Source Code for Stripe’s secure payment page.
+    Your order details stay with us so we can deliver your PDF after payment.
+  </p>
+  <div class="co-status" id="coStatus">Preparing checkout…</div>
+  <div class="co-error" id="coError" hidden></div>
+  <div class="co-actions" id="coActions" hidden>
+    <button type="button" class="co-btn" id="coRetry">Try again</button>
+    <a class="co-btn" href="/services/#guidebook">Back to Services</a>
+  </div>
+</main>
+
+<footer class="footer" id="footer"></footer>
+
+<script src="/js/translations.js"></script>
+<script src="/js/app.js"></script>
+<script>
+(function () {
+  if (typeof loadNav === 'function') loadNav();
+  if (typeof loadFooter === 'function') loadFooter();
+
+  var LABELS = {
+    guidebook: 'Guidebook Report — $22',
+    'time-cycle': 'Time Cycle — $17',
+    bundle: 'Blueprint Bundle — $29',
+    consultation: 'Personal Consultation — $88'
+  };
+
+  var EVENT_BY_PRODUCT = {
+    guidebook: 'guidebook_checkout_start',
+    'time-cycle': 'timecycle_checkout_start',
+    bundle: 'bundle_checkout_start',
+    consultation: 'guidebook_checkout_start'
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var pending = null;
+  try { pending = JSON.parse(sessionStorage.getItem('ssc_pending_order') || 'null'); } catch (e) {}
+
+  var product = (params.get('product') || (pending && pending.product) || 'guidebook').toLowerCase();
+  if (product === 'timecycle') product = 'time-cycle';
+
+  var order = {
+    email: params.get('email') || (pending && pending.email) || '',
+    name: params.get('name') || (pending && pending.name) || '',
+    month: params.get('month') || (pending && pending.month) || '',
+    day: params.get('day') || (pending && pending.day) || '',
+    year: params.get('year') || (pending && pending.year) || '',
+    product: product,
+    life_path: (pending && pending.life_path) || '',
+    expression: (pending && pending.expression) || '',
+    life_calling: (pending && pending.life_calling) || '',
+    soul: (pending && pending.soul) || '',
+    outer: (pending && pending.outer) || '',
+    achievement: (pending && pending.achievement) || '',
+    theme: (pending && pending.theme) || ''
+  };
+
+  document.getElementById('coProduct').textContent = LABELS[product] || LABELS.guidebook;
+
+  function setStatus(msg) {
+    document.getElementById('coStatus').textContent = msg;
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('coError');
+    el.hidden = false;
+    el.textContent = msg;
+    document.getElementById('coActions').hidden = false;
+    setStatus('Checkout paused');
+  }
+
+  function fireCheckoutPixel() {
+    var eventName = EVENT_BY_PRODUCT[product] || 'guidebook_checkout_start';
+    if (typeof window.sscTrackEvent === 'function') {
+      window.sscTrackEvent(eventName, { source: 'checkout_page', product: product });
+    } else if (typeof fbq === 'function' && window.sscMetaPixel) {
+      window.sscMetaPixel.bridgeEvent(eventName, { source: 'checkout_page', product: product });
+    } else if (typeof fbq === 'function') {
+      fbq('track', 'InitiateCheckout', {
+        content_name: product,
+        content_category: 'checkout',
+        currency: 'USD',
+        value: product === 'bundle' ? 29 : product === 'time-cycle' ? 17 : product === 'consultation' ? 88 : 22
+      });
+    }
+  }
+
+  function goTo(url) {
+    // Give Meta Pixel a moment to flush InitiateCheckout before leaving the domain.
+    setTimeout(function () { window.location.href = url; }, 450);
+  }
+
+  function startCheckout() {
+    document.getElementById('coError').hidden = true;
+    document.getElementById('coActions').hidden = true;
+
+    if (!order.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.email)) {
+      showError('Missing email. Please return to Services or the Calculator and start checkout again.');
+      return;
+    }
+
+    try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(order)); } catch (e) {}
+
+    setStatus('Firing checkout event…');
+    fireCheckoutPixel();
+
+    setStatus('Opening Stripe…');
+    fetch('/api/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    })
+      .then(function (res) {
+        if (!res.ok) {
+          return res.text().then(function (text) {
+            var data = {};
+            try { data = JSON.parse(text); } catch (_) {}
+            throw new Error(data.error || text || ('HTTP ' + res.status));
+          });
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        if (data.success) {
+          setStatus('Payment recorded — redirecting…');
+          goTo('/thank-you/?email=' + encodeURIComponent(order.email) + '&product=' + encodeURIComponent(product));
+          return;
+        }
+        if (data.url) {
+          setStatus('Redirecting to Stripe…');
+          goTo(data.url);
+          return;
+        }
+        throw new Error(data.error || 'No checkout URL returned');
+      })
+      .catch(function (err) {
+        if (typeof window.sscTrackEvent === 'function') {
+          window.sscTrackEvent('guidebook_checkout_error', {
+            source: 'checkout_page',
+            product: product,
+            message: err && err.message ? err.message : 'unknown'
+          });
+        }
+        showError('Checkout failed: ' + (err && err.message ? err.message : 'unknown error'));
+      });
+  }
+
+  document.getElementById('coRetry').addEventListener('click', startCheckout);
+  startCheckout();
+})();
+</script>
+</body>
+</html>

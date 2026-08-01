@@ -1,33 +1,13 @@
 /**
- * Meta Pixel — Simulation Source Code
- * Boot + PageView + bridge from sscTrackEvent → Facebook standard events.
- * Safe to include on every public marketing page (idempotent).
+ * Meta Pixel event bridge — Simulation Source Code
+ *
+ * The official Meta Pixel base code (fbq init + PageView) must be inlined
+ * in each page <head> so Meta's verification tools can detect it.
+ * This file only maps sscTrackEvent → Facebook standard events and SPA PageViews.
  */
 (function () {
-  var PIXEL_ID = '3127826867426600';
-  if (window.__sscMetaPixelReady) return;
-  window.__sscMetaPixelReady = true;
-
-  /* ── Facebook pixel bootstrap ── */
-  !(function (f, b, e, v, n, t, s) {
-    if (f.fbq) return;
-    n = f.fbq = function () {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-    };
-    if (!f._fbq) f._fbq = n;
-    n.push = n;
-    n.loaded = !0;
-    n.version = '2.0';
-    n.queue = [];
-    t = b.createElement(e);
-    t.async = !0;
-    t.src = v;
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
-  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-
-  fbq('init', PIXEL_ID);
-  fbq('track', 'PageView');
+  if (window.__sscMetaPixelBridgeReady) return;
+  window.__sscMetaPixelBridgeReady = true;
 
   var PRODUCT_VALUE = {
     guidebook: 22,
@@ -118,12 +98,11 @@
       return;
     }
 
-    // Keep a named trail for Ads Manager custom conversions if needed.
     trackCustom(eventName, payload);
   }
 
   window.sscMetaPixel = {
-    id: PIXEL_ID,
+    id: '3127826867426600',
     track: track,
     trackCustom: trackCustom,
     pageView: function () {

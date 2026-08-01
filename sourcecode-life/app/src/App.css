@@ -4693,7 +4693,10 @@ body.scl-realm-open .tab-bar {
 }
 
 .flow-panel-body--mobile {
-  padding: 12px 8px;
+  padding: 20px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Mobile backdrop */
@@ -4921,7 +4924,10 @@ body.scl-realm-open .tab-bar {
 }
 
 .flow-panel-body--mobile {
-  padding: 12px 8px;
+  padding: 20px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Panel number badge */
@@ -9629,11 +9635,18 @@ body.scl-realm-open .tab-bar {
 .tf-wrap {
   display: flex;
   flex-direction: column;
+  align-items: center;
   flex: 1;
   min-height: 0;
   gap: 0;
   position: relative;
   width: 100%;
+}
+
+.tf-wrap > .tf-chart-area,
+.tf-wrap > button {
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ── Premium Header ── */
@@ -9778,6 +9791,7 @@ body.scl-realm-open .tab-bar {
   max-width: 600px;
   height: 100%;
   min-height: 500px;
+  margin-inline: auto;
 }
 
 /* ── Connecting lines ── */
@@ -9889,68 +9903,77 @@ body.scl-realm-open .tab-bar {
   50% { transform: translateY(-3px); }
 }
 
-/* ── Zones styling ── */
+/* ── Current cycles grid (CSS-centered) ── */
 .tf-chart-area--flow {
   position: relative;
   flex-direction: column;
-}
-
-.tf-zones-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 12px;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.tf-flow-wrap {
-  position: relative;
-  z-index: 1;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  height: 100%;
-  min-height: 500px;
-  background: transparent;
-  border: none;
+  min-height: 0;
+  padding: 8px 0 16px;
 }
 
-.tf-zone {
-  position: absolute;
-  left: 0;
-  right: 0;
-  transition: opacity 0.8s ease;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+.tf-cycle-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 4px 16px 8px;
+  box-sizing: border-box;
 }
 
-.tf-zone--1 {
-  background: linear-gradient(180deg, rgba(201, 168, 76, 0.06) 0%, transparent 100%), #14100c;
+.tf-cycle-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
 }
 
-.tf-zone--2 {
-  background: linear-gradient(180deg, rgba(139, 92, 246, 0.06) 0%, transparent 100%), #16100e;
+.tf-cycle-row--1 {
+  background: linear-gradient(180deg, rgba(201, 168, 76, 0.08) 0%, rgba(20, 16, 12, 0.55) 100%);
 }
 
-.tf-zone--3 {
-  background: linear-gradient(180deg, rgba(0, 229, 180, 0.06) 0%, transparent 100%), #181210;
-  border-bottom: none;
+.tf-cycle-row--2 {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(22, 16, 14, 0.55) 100%);
 }
 
-.tf-zone-label {
-  position: absolute;
-  left: 16px;
-  top: 10px;
+.tf-cycle-row--3 {
+  background: linear-gradient(180deg, rgba(0, 229, 180, 0.08) 0%, rgba(24, 18, 16, 0.55) 100%);
+}
+
+.tf-cycle-row-label {
   font-family: 'Cinzel', serif;
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.25em;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.28);
+  text-align: center;
+}
+
+.tf-cycle-row-nodes {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(36px, 12vw, 72px);
+  width: 100%;
 }
 
 .tf-cycle-node-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 .tf-node-caption {
@@ -10792,7 +10815,7 @@ body.scl-realm-open .tab-bar {
 /* ── Daily Hero Rune — panel content ─────────────────────────── */
 .dhr-panel-focus {
   display: flex; align-items: center; gap: 14px;
-  padding: 10px 14px; border-radius: 8px;
+  padding: 14px 16px; border-radius: 10px;
   background: color-mix(in srgb, var(--flow-color, #00e5cc) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--flow-color, #00e5cc) 20%, transparent);
 }
@@ -10812,37 +10835,58 @@ body.scl-realm-open .tab-bar {
   font-size: 9px; letter-spacing: 0.1em;
   color: var(--flow-color, #00e5cc); display: block; margin-top: 3px;
 }
+.dhr-panel-formula {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.55;
+  color: rgba(200, 195, 215, 0.55);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.dhr-panel-formula strong {
+  color: var(--flow-color, #00e5cc);
+  font-weight: 700;
+}
 .dhr-panel-summary {
   font-family: 'Crimson Text', serif;
-  font-size: 14px; color: rgba(200,195,215,0.75); line-height: 1.65;
+  font-size: 15px; color: rgba(200,195,215,0.8); line-height: 1.7;
+  padding: 4px 2px;
 }
 .dhr-panel-section-label {
   font-family: 'Cinzel', serif;
   font-size: 10px; letter-spacing: 0.15em;
   color: var(--flow-color, #00e5cc);
+  margin-top: 4px;
 }
 .dhr-panel-obj-list {
-  list-style: none; padding: 0; margin: 2px 0 0;
-  display: flex; flex-direction: column; gap: 6px;
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
 }
 .dhr-panel-obj-list li {
   font-family: 'Crimson Text', serif;
-  font-size: 13px; color: rgba(200,195,215,0.7);
-  line-height: 1.5; padding-left: 14px; position: relative;
+  font-size: 14px; color: rgba(200,195,215,0.75);
+  line-height: 1.55; padding: 10px 12px 10px 22px; position: relative;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .dhr-panel-obj-list li::before {
-  content: '·'; position: absolute; left: 4px;
+  content: '·'; position: absolute; left: 10px; top: 10px;
   color: var(--flow-color, #00e5cc);
 }
 .dhr-panel-life-obj {
-  font-family: 'Crimson Text', serif; font-size: 13px;
+  font-family: 'Crimson Text', serif; font-size: 14px;
   color: var(--flow-color, #00e5cc);
-  padding: 8px 12px; border-radius: 6px;
+  padding: 12px 14px; border-radius: 10px;
   background: color-mix(in srgb, var(--flow-color, #00e5cc) 6%, transparent);
   border: 1px solid color-mix(in srgb, var(--flow-color, #00e5cc) 18%, transparent);
+  line-height: 1.55;
 }
 .dhr-panel-complete-btn {
-  width: 100%; padding: 12px; border-radius: 8px;
+  width: 100%; padding: 14px; border-radius: 10px;
   border: 1px solid var(--dq-btn-color, var(--flow-color, #00e5cc));
   background: color-mix(in srgb, var(--dq-btn-color, var(--flow-color, #00e5cc)) 12%, transparent);
   color: var(--dq-btn-color, var(--flow-color, #00e5cc));
@@ -10850,6 +10894,7 @@ body.scl-realm-open .tab-bar {
   font-size: 11px; letter-spacing: 0.14em;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-top: 4px;
 }
 .dhr-panel-complete-btn:hover {
   background: color-mix(in srgb, var(--dq-btn-color, var(--flow-color, #00e5cc)) 22%, transparent);
@@ -12318,14 +12363,15 @@ body.scl-realm-open .tab-bar {
   background: linear-gradient(180deg, #101018 0%, #0a0a12 100%);
   border: 2px solid var(--qp-color, var(--teal));
   border-radius: 16px;
-  padding: 24px 20px 32px;
+  padding: 28px 24px 36px;
   max-height: 80vh;
-  width: 90%;
-  max-width: 500px;
+  width: min(92%, 520px);
+  max-width: 520px;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.8), 0 0 30px color-mix(in srgb, var(--qp-color, var(--teal)) 0.15);
   animation: panel-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 16px;
 }
 @keyframes panel-slide-up {
   0% { transform: translateY(50px); opacity: 0; }
@@ -12349,8 +12395,9 @@ body.scl-realm-open .tab-bar {
 .quest-panel-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-right: 36px;
 }
 
 .quest-panel-num {
@@ -12380,10 +12427,14 @@ body.scl-realm-open .tab-bar {
 }
 
 .quest-panel-text {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text);
-  line-height: 1.6;
-  margin-bottom: 16px;
+  line-height: 1.7;
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .quest-panel-resonant {
@@ -12397,27 +12448,42 @@ body.scl-realm-open .tab-bar {
   margin-bottom: 16px;
 }
 
+.quest-panel-journal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .quest-panel-prompt {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-mid);
   letter-spacing: 0.06em;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  line-height: 1.5;
 }
 
 .quest-panel-input {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 14px 16px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.55;
   resize: vertical;
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
+  min-height: 120px;
 }
 .quest-panel-input:focus {
   border-color: var(--qp-color, var(--teal));
@@ -12427,14 +12493,14 @@ body.scl-realm-open .tab-bar {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   color: var(--rose);
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 .quest-panel-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12px;
+  margin-top: 4px;
   gap: 12px;
 }
 
@@ -17449,7 +17515,7 @@ body.scl-realm-open .tab-bar {
 .quest-tile-obj--done { opacity: 0.45; text-decoration: line-through; }
 
 /* ── Objective Detail Panel ── */
-.objective-detail-panel { display: flex; flex-direction: column; gap: 0.75rem; padding: 0.5rem 0; }
+.objective-detail-panel { display: flex; flex-direction: column; gap: 1rem; padding: 0.75rem 0.25rem; }
 .objective-detail-status {
   display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem;
   border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; width: fit-content;
@@ -17457,8 +17523,9 @@ body.scl-realm-open .tab-bar {
 .objective-detail-status--done { color: #2dd4bf; background: rgba(45, 212, 191, 0.1); border: 1px solid rgba(45, 212, 191, 0.2); }
 .objective-detail-status--pending { color: #f0b429; background: rgba(240, 180, 41, 0.1); border: 1px solid rgba(240, 180, 41, 0.2); }
 .objective-detail-text {
-  font-size: 0.85rem; color: #e2e8f0; line-height: 1.5; padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;
+  font-size: 0.95rem; color: #e2e8f0; line-height: 1.65; padding: 1rem 1.1rem;
+  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 10px;
+  font-family: 'Crimson Text', serif;
 }
 .objective-detail-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .objective-detail-btn {

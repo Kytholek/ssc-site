@@ -148,7 +148,7 @@ export function calcPersonalMonth(m, d) {
   return { root: reduce(py + monthNum), monthNum }
 }
 
-/** Returns { root, dayNum } */
+/** Returns { root, dayNum, monthRoot } — Personal Day = reduce(Personal Month + cycle day) */
 export function calcPersonalDay(m, d) {
   const { lastBirthday } = getCycleAnchor(m, d)
   const now = new Date()
@@ -160,8 +160,8 @@ export function calcPersonalDay(m, d) {
   const pmStartMonth = (lastBirthday.getMonth() + monthsElapsed) % 12
   const pmStart      = new Date(pmStartYear, pmStartMonth, lastBirthday.getDate())
   const dayNum       = Math.floor((now - pmStart) / 86400000) + 1
-  const pm           = calcPersonalMonth(m, d).root
-  return { root: reduce(pm + dayNum), dayNum }
+  const monthRoot    = calcPersonalMonth(m, d).root
+  return { root: reduce(monthRoot + dayNum), dayNum, monthRoot }
 }
 
 /** Returns { root, cycleNum, startMonthIdx, endMonthIdx } */

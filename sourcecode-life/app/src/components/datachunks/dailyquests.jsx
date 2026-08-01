@@ -454,7 +454,7 @@ function DayObjectivesPanel({ objectives, completed, colorVar, pd, onOpenObjecti
       {/* Header */}
       <div className="gq-panel-header">
         <span className="gq-panel-title">
-          ◈ DAY {pd.root} OBJECTIVES
+          ◈ PERSONAL DAY {reduceToSimple(pd.root)} OBJECTIVES
         </span>
       </div>
 
@@ -543,6 +543,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
   const doComplete = onComplete || eqComplete
 
   const dayRoot = reduceToSimple(pd.root)
+  const monthRoot = pd.monthRoot
   const isFocusMatch = daily?.dayRootMatch ?? !!(bpRoots?.filter(r => r === dayRoot).length)
   const panelColorHex = DHR_COLOR_HEX[colorVar] || '#00e5cc'
 
@@ -596,7 +597,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
         <DailyHeroQuestBox
           color={panelColorHex}
           dayRoot={dayRoot}
-          subtitle={`DAY ${pd.dayNum}`}
+          subtitle="PERSONAL DAY"
           icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
           state="sealed"
         />
@@ -611,7 +612,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
         <DailyHeroQuestBox
           color={panelColorHex}
           dayRoot={dayRoot}
-          subtitle={`DAY ${pd.dayNum}`}
+          subtitle="PERSONAL DAY"
           icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
           state={igniting ? 'igniting' : 'active'}
           isFocusMatch={isFocusMatch}
@@ -628,7 +629,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
         onClose={() => setPanelOpen(false)}
         color={panelColorHex}
         title={meaning.theme || 'Daily Alignment'}
-        subtitle={`Personal Day ${dayRoot} · Cycle ${pd.dayNum}`}
+        subtitle={`Personal Day ${dayRoot} · Cycle day ${pd.dayNum}`}
         icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
       >
         <div className="dhr-panel-focus">
@@ -639,6 +640,16 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, is
               <span className="dhr-panel-focus-match">⚡ BLUEPRINT MATCH · ×2 XP</span>
             )}
           </div>
+        </div>
+
+        <div className="dhr-panel-formula">
+          Personal Month <strong>{monthRoot}</strong>
+          {' + Cycle day '}
+          <strong>{pd.dayNum}</strong>
+          {' = '}
+          <strong>{monthRoot + pd.dayNum}</strong>
+          {' → Personal Day '}
+          <strong>{pd.root}</strong>
         </div>
 
         {(meaning.summary || daily.body) && (
@@ -851,7 +862,9 @@ export default function DailySection({ playerData, daily, completeDailyQuest, lp
 
   const pd = calcPersonalDay(m, d)
   const cfg = CYCLE_QUEST_COLORS.personalDay
-  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
+  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root]
+    || CYCLE_MEANINGS.personalDay?.[reduceToSimple(pd.root)]
+    || {}
   const colorVar = `var(${cfg.color})`
   const blueprintGlyphs = useMemo(
     () => resolveDailyBlueprint(playerData, xp?.freqLevel ?? 1)?.glyphs || [],
@@ -936,12 +949,12 @@ export default function DailySection({ playerData, daily, completeDailyQuest, lp
           onClose={() => setSelectedObjective(null)}
           color={panelColorHex}
           title={`Objective ${selectedObjective.index + 1}`}
-          subtitle={`Personal Day ${pd.root}`}
+          subtitle={`Personal Day ${reduceToSimple(pd.root)}`}
           icon="✦"
         >
-          <div style={{ padding: '16px', color: 'var(--text-mid)', fontFamily: "'Crimson Text', serif", fontSize: '14px', lineHeight: '1.6' }}>
-            <p>{selectedObjective.text}</p>
-            <p style={{ marginTop: '12px', fontStyle: 'italic', color: 'var(--text-dim)' }}>
+          <div className="objective-detail-panel">
+            <div className="objective-detail-text">{selectedObjective.text}</div>
+            <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--text-dim)', fontFamily: "'Crimson Text', serif", fontSize: '14px', lineHeight: 1.55 }}>
               Complete this objective as part of your daily practice.
             </p>
           </div>

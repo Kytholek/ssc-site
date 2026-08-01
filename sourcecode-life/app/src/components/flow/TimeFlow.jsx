@@ -2,13 +2,10 @@
  * TimeFlow — Current Cycles (unified flow nodes)
  */
 import { useState, useEffect, useMemo } from 'react'
-import ReactFlow, { Background } from 'reactflow'
-import 'reactflow/dist/style.css'
 import { reduceToSimple, getCycleAnchor, calcPersonalYear, calcPinnacles, calcPersonalMonth, calcPersonalDay, calcFourMonthCycle, todayStr } from '../../lib/numerology'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import FlowDetailPanel from './FlowDetailPanel'
 import FlowProgressNode from './FlowProgressNode'
-import { FLOW_NODE_HALF } from './flowNodeConstants'
 import CoachMark from '../ui/CoachMark'
 import MonthCheckinPanel from '../datachunks/MonthCheckinPanel'
 import {
@@ -22,43 +19,40 @@ import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, addMo
 import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
-const ORB_CENTER_OFFSET = 52
 
-function CycleNode({ data }) {
-  const maxProgress = data.progressMax || 3
-  const stagesDone = Math.min(maxProgress, data.progress || 0)
+function CycleNode({ node, selected, onSelect }) {
+  const maxProgress = node.progressMax || 3
+  const stagesDone = Math.min(maxProgress, node.progress || 0)
   const progressPct = maxProgress > 0 ? (stagesDone / maxProgress) * 100 : 0
   const pipStates = Array.from({ length: Math.min(maxProgress, 6) }, (_, i) => ({
     done: i < stagesDone,
     eligible: i === stagesDone,
     innate: false,
   }))
+  const isSelected = selected === node.key
 
   return (
     <div className="tf-cycle-node-wrap">
       <FlowProgressNode
-        color={data.colorHex}
-        icon={data.icon || '◎'}
-        displayNum={data.isMaster ? '' : String(reduceToSimple(data.root))}
-        subtitle={data.shortLabel}
-        isSelected={data.isSelected}
-        isMaster={data.isMaster}
+        color={node.color.hex}
+        icon={node.icon || '◎'}
+        displayNum={node.isMaster ? '' : String(reduceToSimple(node.root))}
+        subtitle={node.label}
+        isSelected={isSelected}
+        isMaster={node.isMaster}
         progressPct={progressPct}
         stagesDone={stagesDone}
         pipStates={pipStates}
         fullyAligned={stagesDone >= maxProgress}
-        showBadge={!data.isMaster}
-        onClick={data.onClick}
-        withHandles
+        showBadge={!node.isMaster}
+        onClick={() => onSelect(node.key)}
       />
-      <div className={`tf-node-caption${data.isSelected ? ' tf-node-caption--active' : ''}`}>
-        {data.shortLabel}
+      <div className={`tf-node-caption${isSelected ? ' tf-node-caption--active' : ''}`}>
+        {node.label}
       </div>
     </div>
   )
 }
-
-const cycleNodeTypes = { cycleNode: CycleNode }
 
 function getQuestData(root) {
   if (MASTERS.has(root) && MASTER_QUESTS[root]) return MASTER_QUESTS[root]
@@ -66,22 +60,20 @@ function getQuestData(root) {
   return NUM_QUESTS[simple] || NUM_QUESTS[9]
 }
 
-// ── Node positions (centered in each zone vertically + horizontally) ───────
-const NODES = [
-  { key: 'theme',         x: 66,  y: 38,  label: 'THEME',        icon: '🎯' },
-  { key: 'pinnacle',      x: 230, y: 38,  label: 'PINNACLE',     icon: '🏔️' },
-  { key: 'personalYear',  x: 66,  y: 228, label: 'YEAR',         icon: '📅' },
-  { key: 'fourMonthCycle',x: 230, y: 228, label: '4-MONTH',      icon: '🔄' },
-  { key: 'personalMonth', x: 66,  y: 428, label: 'MONTH',        icon: '🌙' },
-  { key: 'personalDay',   x: 230, y: 428, label: 'DAY',          icon: '☀️' },
+// ── Zone rows (2 nodes each) — CSS grid centers these ─────────────────────
+const NODE_META = [
+  { key: 'theme',          label: 'THEME',    icon: '🎯' },
+  { key: 'pinnacle',       label: 'PINNACLE', icon: '🏔️' },
+  { key: 'personalYear',   label: 'YEAR',     icon: '📅' },
+  { key: 'fourMonthCycle', label: '4-MONTH',  icon: '🔄' },
+  { key: 'personalMonth',  label: 'MONTH',    icon: '🌙' },
+  { key: 'personalDay',    label: 'DAY',      icon: '☀️' },
 ]
 
-const LINE_PTS = NODES.map(n => `${n.x + ORB_CENTER_OFFSET},${n.y + ORB_CENTER_OFFSET}`).join(' ')
-
-const ZONES = [
-  { y: 0,   h: 180, label: 'LONG TERM',   bg: '#14100c' },
-  { y: 180, h: 200, label: 'MEDIUM TERM', bg: '#16100e' },
-  { y: 380, h: 200, label: 'SHORT TERM',  bg: '#181210' },
+const ZONE_ROWS = [
+  { label: 'LONG TERM',   keys: ['theme', 'pinnacle'] },
+  { label: 'MEDIUM TERM', keys: ['personalYear', 'fourMonthCycle'] },
+  { label: 'SHORT TERM',  keys: ['personalMonth', 'personalDay'] },
 ]
 
 const ORB_COLORS = {
@@ -198,7 +190,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
 
   const nodeData = [
     {
-      ...NODES[0], root: th.root, isMaster: MASTERS.has(th.root),
+      ...NODE_META[0], root: th.root, isMaster: MASTERS.has(th.root),
       subtitle: 'Your Life Curriculum',
       meaning: {}, color: ORB_COLORS.theme,
       title: 'THEME QUEST', typeLabel: 'THEME',
@@ -208,7 +200,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       aligned: blueprintRoots.includes(reduceToSimple(th.root)),
     },
     {
-      ...NODES[1], root: currentPinn.root, isMaster: MASTERS.has(currentPinn.root),
+      ...NODE_META[1], root: currentPinn.root, isMaster: MASTERS.has(currentPinn.root),
       subtitle: `Pinnacle ${pinnIndex} · ${currentPinn.endAge ? `Ages ${currentPinn.startAge}–${currentPinn.endAge}` : `Age ${currentPinn.startAge}+`}`,
       detail: `Major Life Chapter · Pinnacle ${pinnIndex} of 4`,
       meaning: getMeaning('pinnacle', currentPinn.root),
@@ -223,7 +215,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       aligned: blueprintRoots.includes(reduceToSimple(currentPinn.root)),
     },
     {
-      ...NODES[2], root: py.root, isMaster: MASTERS.has(py.root),
+      ...NODE_META[2], root: py.root, isMaster: MASTERS.has(py.root),
       subtitle: `${cycleStartYear}–${cycleEndYear} · Birthday to Birthday`,
       detail: `Year ${cycleStartYear}–${cycleEndYear} · 9-Year Cycle`,
       meaning: getMeaning('personalYear', py.root),
@@ -235,7 +227,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       aligned: blueprintRoots.includes(reduceToSimple(py.root)),
     },
     {
-      ...NODES[3], root: fmc.root, isMaster: MASTERS.has(fmc.root),
+      ...NODE_META[3], root: fmc.root, isMaster: MASTERS.has(fmc.root),
       subtitle: `Cycle ${fmc.cycleNum}`,
       detail: `Seasonal Chapter · Cycle ${fmc.cycleNum} of 3`,
       meaning: getMeaning('fourMonthCycle', fmc.root),
@@ -247,7 +239,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       aligned: blueprintRoots.includes(reduceToSimple(fmc.root)),
     },
     {
-      ...NODES[4], root: pm.root, isMaster: MASTERS.has(pm.root),
+      ...NODE_META[4], root: pm.root, isMaster: MASTERS.has(pm.root),
       subtitle: `${MONTH_NAMES[now.getMonth()] || ''} · Personal Number ${pm.root}`,
       detail: `Monthly Frequency · Cycle ${pm.monthNum} of 12`,
       meaning: getMeaning('personalMonth', pm.root),
@@ -260,7 +252,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       aligned: blueprintRoots.includes(reduceToSimple(pm.root)),
     },
     {
-      ...NODES[5], root: pd.root, isMaster: MASTERS.has(pd.root),
+      ...NODE_META[5], root: pd.root, isMaster: MASTERS.has(pd.root),
       subtitle: `${MONTH_NAMES[now.getMonth()] || ''} ${now.getDate()} · Today`,
       detail: `Daily Tone · Root ${reduceToSimple(pd.root)}`,
       meaning: getMeaning('personalDay', pd.root),
@@ -274,38 +266,10 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
   ]
 
   const selNode = selected ? nodeData.find((n) => n.key === selected) : null
+  const nodeByKey = Object.fromEntries(nodeData.map((n) => [n.key, n]))
 
-  const rfNodes = nodeData.map((node) => ({
-    id: node.key,
-    type: 'cycleNode',
-    position: {
-      x: node.x + ORB_CENTER_OFFSET - FLOW_NODE_HALF,
-      y: node.y + ORB_CENTER_OFFSET - FLOW_NODE_HALF,
-    },
-    draggable: false,
-    data: {
-      root: node.root,
-      icon: node.icon,
-      shortLabel: node.label,
-      colorHex: node.color.hex,
-      isMaster: node.isMaster,
-      progress: node.progress,
-      progressMax: node.progressMax || 3,
-      isSelected: selected === node.key,
-      onClick: () => setSelected((prev) => (prev === node.key ? null : node.key)),
-    },
-  }))
-
-  const rfEdges = nodeData.slice(0, -1).map((node, i) => ({
-    id: `${node.key}-${nodeData[i + 1].key}`,
-    source: node.key,
-    target: nodeData[i + 1].key,
-    type: 'default',
-    style: { stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1.5, strokeDasharray: '4 4' },
-  }))
-
-  const onNodeClick = (_event, node) => {
-    setSelected((prev) => (prev === node.id ? null : node.id))
+  const handleSelect = (key) => {
+    setSelected((prev) => (prev === key ? null : key))
   }
 
   return (
@@ -313,47 +277,28 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       <CoachMark storageKey="scl_coach_time_flow" title="Current Cycles" afterTour>
         Six time horizons: Theme & Pinnacle (long-term), Year & 4-Month (medium), Month & Day (now). Tap a node to see objectives.
       </CoachMark>
-      {/* ── Cycle Flow Chart (unified nodes) ── */}
+      {/* ── Cycle grid (CSS-centered, no ReactFlow viewport offset) ── */}
       <div className={`tf-chart-area tf-chart-area--flow${chartReady ? ' tf-chart-area--ready' : ''}`}>
-        <div className="tf-zones-layer" aria-hidden="true">
-          {ZONES.map((z, i) => (
+        <div className="tf-cycle-grid">
+          {ZONE_ROWS.map((row, i) => (
             <div
-              key={z.label}
-              className={`tf-zone tf-zone--${i + 1}`}
-              style={{
-                top: `${(z.y / 580) * 100}%`,
-                height: `${(z.h / 580) * 100}%`,
-                opacity: chartReady ? 1 : 0,
-                transition: `opacity 0.8s ease ${0.1 + i * 0.15}s`,
-              }}
+              key={row.label}
+              className={`tf-cycle-row tf-cycle-row--${i + 1}`}
+              style={{ opacity: chartReady ? 1 : 0, transition: `opacity 0.8s ease ${0.1 + i * 0.15}s` }}
             >
-              <span className="tf-zone-label">{z.label}</span>
+              <span className="tf-cycle-row-label">{row.label}</span>
+              <div className="tf-cycle-row-nodes">
+                {row.keys.map((key) => (
+                  <CycleNode
+                    key={key}
+                    node={nodeByKey[key]}
+                    selected={selected}
+                    onSelect={handleSelect}
+                  />
+                ))}
+              </div>
             </div>
           ))}
-        </div>
-        <div className="tf-flow-wrap lqt-flow-wrap lqt-flow-wrap--compact">
-          <ReactFlow
-            nodes={rfNodes}
-            edges={rfEdges}
-            nodeTypes={cycleNodeTypes}
-            onNodeClick={onNodeClick}
-            fitView
-            fitViewOptions={{ padding: 0.18 }}
-            nodesDraggable={false}
-            nodesConnectable={false}
-            elementsSelectable
-            zoomOnDoubleClick={false}
-            zoomOnScroll
-            zoomOnPinch
-            panOnDrag
-            panOnScroll={false}
-            preventScrolling={false}
-            minZoom={0.45}
-            maxZoom={1.6}
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background color="#ffffff08" gap={20} size={1} />
-          </ReactFlow>
         </div>
       </div>
 

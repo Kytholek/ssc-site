@@ -107,6 +107,13 @@
 
   <!-- Google Customer Reviews -->
   <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+
+  <!-- Meta Pixel (Purchase fires via sscTrackEvent on this page) -->
+  <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+  <script src="/js/meta-pixel.js"></script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
+  /></noscript>
 </head>
 <body>
 
@@ -216,12 +223,13 @@
     }
 
     setupGoogleOptIn(email, sessionId, product);
-    if ((product === 'guidebook' || product === 'time-cycle' || product === 'bundle') && typeof window.sscTrackEvent === 'function') {
-      var thankYouEvent = product === 'time-cycle'
-        ? 'timecycle_purchase_thank_you'
-        : product === 'bundle'
-          ? 'bundle_purchase_thank_you'
-          : 'guidebook_purchase_thank_you';
+    if (typeof window.sscTrackEvent === 'function') {
+      var thankYouEvent =
+        product === 'time-cycle' ? 'timecycle_purchase_thank_you'
+        : product === 'bundle' ? 'bundle_purchase_thank_you'
+        : product === 'consultation' ? 'consultation_purchase_thank_you'
+        : product === 'membership' ? 'membership_purchase_thank_you'
+        : 'guidebook_purchase_thank_you';
       window.sscTrackEvent(thankYouEvent, {
         product: product,
         has_session_id: !!sessionId,

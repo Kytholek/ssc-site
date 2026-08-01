@@ -377,6 +377,11 @@ function showPage(name, pushState = true) {
   // Inject page-specific structured data
   _injectPageSchema(name);
 
+  // Meta Pixel — SPA virtual page views (initial load already tracked in meta-pixel.js)
+  if (pushState && window.sscMetaPixel && typeof window.sscMetaPixel.pageView === 'function') {
+    window.sscMetaPixel.pageView();
+  }
+
   if (name === 'codex' && pushState) {
     setTimeout(function() {
       var params = new URLSearchParams(window.location.search);

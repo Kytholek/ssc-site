@@ -553,7 +553,6 @@ function restorePendingGuidebookDetails() {
     'calc-day': pending.day,
     'calc-year': pending.year,
     'calc-fullname': pending.name,
-    'unlock-email': pending.email,
     'calc-lead-email': pending.email,
   };
 
@@ -561,6 +560,9 @@ function restorePendingGuidebookDetails() {
     var el = document.getElementById(id);
     if (el && values[id]) el.value = values[id];
   });
+  if (typeof window.syncCalcBirthdateFromParts === 'function') {
+    window.syncCalcBirthdateFromParts();
+  }
 }
 
 function showPaymentCancelledNotice() {
@@ -2060,7 +2062,7 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
   }
 
   function _bindCalcInputs() {
-    var ids = ['calc-month', 'calc-day', 'calc-year', 'calc-fullname'];
+    var ids = ['calc-birthdate', 'calc-month', 'calc-day', 'calc-year', 'calc-fullname', 'calc-lead-email'];
     ids.forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
@@ -2068,11 +2070,15 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
         el.addEventListener('keydown', _onCalcKeydown);
       }
     });
-    var unlockEmail = document.getElementById('unlock-email');
-    if (unlockEmail) {
-      unlockEmail.removeEventListener('keydown', _onUnlockEmailKeydown);
-      unlockEmail.addEventListener('keydown', _onUnlockEmailKeydown);
+    if (typeof window.syncCalcBirthdateFromParts === 'function') {
+      window.syncCalcBirthdateFromParts();
     }
+    var birthdate = document.getElementById('calc-birthdate');
+    if (birthdate && typeof window.syncCalcBirthdateParts === 'function') {
+      birthdate.removeEventListener('change', window.syncCalcBirthdateParts);
+      birthdate.addEventListener('change', window.syncCalcBirthdateParts);
+    }
+    // Unlock email field removed from calculator page CTA; lead email is required upstream.
   }
 
   function _bindModalInputs() {

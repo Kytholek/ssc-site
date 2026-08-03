@@ -90,13 +90,19 @@ var SSC_TRANSLATIONS = {
 
 
   // ── Calculator ─────────────────────────────────────
-  'calc.btn' : { en: '⬡ Decode My Map ⬡', es: '⬡ Descifrar Mi Mapa ⬡' },
+  'calc.btn' : { en: 'Decode Your Life Quests', es: 'Descifra Tus Life Quests' },
   'calc.eyebrow' : { en: 'Simulation Source Code', es: 'Simulation Source Code' },
-  'calc.label.birthdate' : { en: '· Birth Date ·', es: '· Fecha de Nacimiento ·' },
+  'calc.form.note' : { en: 'Inscribe your true birth name and date to unlock your Life Quests', es: 'Inscribe tu verdadero nombre de nacimiento y fecha para desbloquear tus Life Quests' },
+  'calc.how.step1' : { en: '<strong>Quest Origin</strong> — birth date unlocks your Path, Theme, and Achievement quests', es: '<strong>Origen de la Quest</strong> — la fecha de nacimiento desbloquea tus quests de Path, Theme y Achievement' },
+  'calc.how.step2' : { en: '<strong>True Name</strong> — unlocks Soul, Outer, and Expression quests', es: '<strong>Nombre Verdadero</strong> — desbloquea las quests de Soul, Outer y Expression' },
+  'calc.how.step3' : { en: '<strong>Decode</strong> — together they forge your Life Calling', es: '<strong>Descifrar</strong> — juntos forjan tu Life Calling' },
+  'calc.how.title' : { en: 'How it works', es: 'Cómo funciona' },
+  'calc.label.birthdate' : { en: 'Quest Origin', es: 'Origen de la Quest' },
   'calc.label.day' : { en: 'Day', es: 'Día' },
-  'calc.label.fullname' : { en: '· Full Birth Name ·', es: '· Nombre Completo de Nacimiento ·' },
+  'calc.label.email' : { en: 'Email', es: 'Email' },
+  'calc.label.fullname' : { en: '· True Name ·', es: '· Nombre Verdadero ·' },
   'calc.label.month' : { en: 'Month', es: 'Mes' },
-  'calc.label.namehint' : { en: 'Full Name (as on birth certificate)', es: 'Nombre completo (como en el acta de nacimiento)' },
+  'calc.label.namehint' : { en: 'True Name (as written at birth)', es: 'Nombre verdadero (como escrito al nacer)' },
   'calc.label.year' : { en: 'Year', es: 'Año' },
   'calc.month.1' : { en: 'January', es: 'Enero' },
   'calc.month.10' : { en: 'October', es: 'Octubre' },
@@ -113,8 +119,9 @@ var SSC_TRANSLATIONS = {
   'calc.month.placeholder' : { en: 'Month', es: 'Mes' },
   'calc.placeholder.name' : { en: 'e.g. Jane Marie Smith', es: 'ej. María Guadalupe López' },
   'calc.results.placeholder' : { en: 'Your reading will appear here', es: 'Tu lectura aparecerá aquí' },
-  'calc.subtitle' : { en: 'Enter your birth details to reveal your seven encoded frequencies.', es: 'Ingresa tus datos de nacimiento para revelar tus siete frecuencias codificadas.' },
-  'calc.title' : { en: 'Frequency Decoder', es: 'Decodificador de Frecuencias' },
+  'calc.sheet.title' : { en: 'Life Decoder', es: 'Life Decoder' },
+  'calc.subtitle' : { en: 'Enter your birth name and date to reveal the quests imbued within the simulation.', es: 'Ingresa tu nombre y fecha de nacimiento para revelar las quests imbuidas en la simulación.' },
+  'calc.title' : { en: 'Decode Your Character and Life Quests', es: 'Descifra Tu Personaje y Life Quests' },
 
 
   // ── Footer ─────────────────────────────────────────

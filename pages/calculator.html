@@ -1,9 +1,9 @@
 <!-- ════ CALCULATOR PAGE ════ -->
 <div class="page" id="page-calculator">
   <div class="calc-page-hero a0">
-    <div class="calc-page-eyebrow" data-i18n="calc.eyebrow">Source Decoder</div>
-    <h1 class="calc-page-title" data-i18n="calc.title">Free Numerology Calculator</h1>
-    <p class="calc-page-sub" data-i18n="calc.subtitle">Use this free numerology calculator to find your Life Path number and six more frequencies — Expression, Soul Urge, Life Calling, Outer Persona, Achievement, and Theme — from your birth date and full name.</p>
+    <div class="calc-page-eyebrow" data-i18n="calc.eyebrow">Simulation Source Code</div>
+    <h1 class="calc-page-title" data-i18n="calc.title">Decode Your Character and Life Quests</h1>
+    <p class="calc-page-sub" data-i18n="calc.subtitle">Enter your birth name and date to reveal the quests imbued within the simulation.</p>
     <p class="calc-social-proof">
       Rated 5.0 on Facebook · <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer">See reviews</a>
     </p>
@@ -11,60 +11,42 @@
   <div class="calc-container">
     <div class="form-card a1">
       <div class="calc-form-head">
-        <p class="calc-form-note">Use your full birth name and birth date for the cleanest frequency map.</p>
+        <p class="calc-form-step" data-i18n="calc.sheet.title">Life Decoder</p>
+        <p class="calc-form-note" data-i18n="calc.form.note">Inscribe your true birth name and date to unlock your Life Quests</p>
       </div>
-      <div class="form-section-label" data-i18n="calc.label.birthdate">· Birth Date ·</div>
-      <div class="date-row">
-        <div class="field">
-          <label for="calc-month" data-i18n="calc.label.month">Month</label>
-          <select id="calc-month">
-            <option value="" disabled selected data-i18n="calc.month.placeholder">Month</option>
-            <option value="1"  data-i18n="calc.month.1">January</option>
-            <option value="2"  data-i18n="calc.month.2">February</option>
-            <option value="3"  data-i18n="calc.month.3">March</option>
-            <option value="4"  data-i18n="calc.month.4">April</option>
-            <option value="5"  data-i18n="calc.month.5">May</option>
-            <option value="6"  data-i18n="calc.month.6">June</option>
-            <option value="7"  data-i18n="calc.month.7">July</option>
-            <option value="8"  data-i18n="calc.month.8">August</option>
-            <option value="9"  data-i18n="calc.month.9">September</option>
-            <option value="10" data-i18n="calc.month.10">October</option>
-            <option value="11" data-i18n="calc.month.11">November</option>
-            <option value="12" data-i18n="calc.month.12">December</option>
-          </select>
-          <div class="calc-field-message" id="calc-month-message"></div>
-        </div>
-        <div class="field">
-          <label for="calc-day" data-i18n="calc.label.day">Day</label>
-          <input type="number" id="calc-day" placeholder="DD" min="1" max="31">
-          <div class="calc-field-message" id="calc-day-message"></div>
-        </div>
-        <div class="field">
-          <label for="calc-year" data-i18n="calc.label.year">Year</label>
-          <input type="number" id="calc-year" placeholder="YYYY" min="1900" max="2099">
-          <div class="calc-field-message" id="calc-year-message"></div>
-        </div>
-      </div>
-      <div class="form-section-label calc-section-spaced" data-i18n="calc.label.fullname">· Full Birth Name ·</div>
+
       <div class="field">
-        <label for="calc-fullname" data-i18n="calc.label.namehint">Full Name (as on birth certificate)</label>
+        <label for="calc-fullname" data-i18n="calc.label.namehint">True Name (as written at birth)</label>
         <input type="text" id="calc-fullname" data-i18n-placeholder="calc.placeholder.name" placeholder="e.g. Jane Marie Smith" autocomplete="off">
         <div class="calc-field-message" id="calc-fullname-message"></div>
       </div>
-      <div class="field calc-email-field">
-        <label for="calc-lead-email">Email me a free copy (optional)</label>
-        <input type="email" id="calc-lead-email" placeholder="your@email.com" autocomplete="email">
-        <div class="calc-field-message calc-lead-message" id="calc-lead-message" role="status" aria-live="polite"></div>
+
+      <div class="calc-meta-row">
+        <div class="field">
+          <label for="calc-birthdate" data-i18n="calc.label.birthdate">Quest Origin</label>
+          <input type="date" id="calc-birthdate" min="1900-01-01" max="2099-12-31" autocomplete="bday" required>
+          <div class="calc-field-message" id="calc-birthdate-message"></div>
+          <!-- Kept in sync for existing decode / restore logic -->
+          <input type="hidden" id="calc-month" value="">
+          <input type="hidden" id="calc-day" value="">
+          <input type="hidden" id="calc-year" value="">
+        </div>
+        <div class="field calc-email-field">
+          <label for="calc-lead-email" data-i18n="calc.label.email">Email</label>
+          <input type="email" id="calc-lead-email" placeholder="your@email.com" autocomplete="email" required>
+          <div class="calc-field-message calc-lead-message" id="calc-lead-message" role="status" aria-live="polite"></div>
+        </div>
       </div>
+
+      <button type="button" class="calc-btn a2" data-i18n="calc.btn">Decode Your Life Quests</button>
     </div>
-    <button type="button" class="calc-btn a2" data-i18n="calc.btn">⬡&nbsp;Decode My Map&nbsp;⬡</button>
 
     <section class="calc-how-it-works a2" aria-labelledby="calc-how-title">
-      <h2 class="calc-how-title" id="calc-how-title">How it works</h2>
+      <h2 class="calc-how-title" id="calc-how-title" data-i18n="calc.how.title">How it works</h2>
       <ol class="calc-how-steps">
-        <li><strong>Birth date</strong> — calculates Life Path, Theme, and Achievement</li>
-        <li><strong>Full birth name</strong> — calculates Soul Urge, Outer Persona, and Expression</li>
-        <li><strong>Decode</strong> — Life Calling fuses Path and Expression into your purpose directive</li>
+        <li data-i18n="calc.how.step1"><strong>Quest Origin</strong> — birth date unlocks your Path, Theme, and Achievement quests</li>
+        <li data-i18n="calc.how.step2"><strong>True Name</strong> — unlocks Soul, Outer, and Expression quests</li>
+        <li data-i18n="calc.how.step3"><strong>Decode</strong> — together they forge your Life Calling</li>
       </ol>
     </section>
 
@@ -73,76 +55,7 @@
       <div class="results-placeholder-text" data-i18n="calc.results.placeholder">Your reading will appear here</div>
     </div>
 
-    <!-- ════ UNLOCK FULL BLUEPRINT CTA ════
-         Hidden by default. Shown by calculator.js after results render.
-    ════ -->
-    <div class="unlock-cta a4" id="unlock-cta" style="display:none;" aria-hidden="true">
-
-      <div class="unlock-divider">
-        <span class="unlock-divider-line"></span>
-        <span class="unlock-divider-sigil">✦</span>
-        <span class="unlock-divider-line"></span>
-      </div>
-
-      <div class="unlock-card">
-        <div class="unlock-glow" aria-hidden="true"></div>
-
-        <h2 class="unlock-title">Unlock Your Full Blueprint</h2>
-
-        <div class="unlock-bridge" aria-live="polite">
-          <div class="unlock-bridge-eyebrow">Your free result revealed the coordinates</div>
-          <p>
-            Your <strong>Life Path <span id="unlock-life-path">-</span></strong>,
-            <strong>Expression <span id="unlock-expression">-</span></strong>, and
-            <strong>Life Calling <span id="unlock-life-calling">-</span></strong>
-            are the opening map. The Guidebook expands how those forces interact across all seven frequencies.
-          </p>
-        </div>
-
-        <ul class="unlock-features" aria-label="What's included">
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Life Calling directive written in clear language</li>
-          <li><span class="unlock-check" aria-hidden="true">◈</span> Branded PDF delivered to your inbox within minutes</li>
-        </ul>
-
-        <p class="unlock-sample-link">
-          <a href="/sample-guidebook.html" id="guidebook-sample-link" target="_blank" rel="noopener">See a sample Guidebook Report &#8594;</a>
-        </p>
-
-        <div class="unlock-email-wrap">
-          <label class="unlock-email-label" for="unlock-email">Where shall we send your guidebook?</label>
-          <input
-            type="email"
-            id="unlock-email"
-            class="unlock-email-input"
-            placeholder="your@email.com"
-            autocomplete="email"
-            required
-          />
-          <div class="unlock-email-hint" id="unlock-email-error" role="alert" aria-live="polite"></div>
-        </div>
-
-        <div class="unlock-price-row">
-          <div class="unlock-price">
-            <span class="unlock-price-amount">$22</span>
-            <span class="unlock-price-label">one-time · instant delivery</span>
-          </div>
-        </div>
-
-        <button
-          class="unlock-btn"
-          id="unlock-pay-btn"
-          onclick="handleUnlockPayment()"
-        >
-          ⬡ Get My Full $22 Guidebook ⬡
-        </button>
-
-        <p class="unlock-reassurance">
-          Secure payment via Stripe · No subscription · PDF delivered by email
-        </p>
-
-      </div><!-- /unlock-card -->
-    </div><!-- /unlock-cta -->
+    <!-- Guidebook CTA is rendered inside results (after core summary) by calculator.js -->
 
     <div class="calc-faq-wrap" id="calc-faq">
       <div class="calc-faq-label">&#10022;&nbsp;&nbsp;Common Questions&nbsp;&nbsp;&#10022;</div>

@@ -352,7 +352,7 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
 
   var compound    = opts.compound;
   var hasCompound = compound && compound !== n && compound > 9;
-  var borderStyle = isLast ? '' : 'border-right:1px solid rgba(255,255,255,0.06)';
+  var borderStyle = isLast ? '' : 'border-bottom:1px solid rgba(255,255,255,0.06)';
   var codexHtml   = showCodex
     ? buildCodexCardHtml(n, accentDim, accentLight)
     : '';
@@ -408,7 +408,7 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
     + '<div style="font-family:\'Cinzel\',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:' + accentLight + '">' + titleSuffix + '</div>'
     + '<div style="font-family:\'EB Garamond\',serif;font-size:15px;color:rgba(255,255,255,0.62);margin-top:6px;font-style:italic;letter-spacing:.01em">' + subtitle + '</div>'
     + '</div>'
-    + '<div class="ssc-tg" style="display:grid;grid-template-columns:repeat(3,1fr)">'
+    + '<div class="ssc-tg" style="display:grid;grid-template-columns:1fr">'
     + cardHtml
     + '</div></div>';
 }
@@ -569,7 +569,7 @@ function _setFieldMessage(id, message, isError) {
 }
 
 function _clearCalculatorFieldMessages() {
-  ['calc-month', 'calc-day', 'calc-year', 'calc-fullname'].forEach(function(id) {
+  ['calc-birthdate', 'calc-month', 'calc-day', 'calc-year', 'calc-fullname'].forEach(function(id) {
     _setFieldMessage(id, '', false);
   });
   _setCalculatorLeadMessage('', false);
@@ -579,20 +579,71 @@ function _isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function _pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
+/** Sync hidden month/day/year from #calc-birthdate (YYYY-MM-DD). */
+function syncCalcBirthdateParts() {
+  var dateEl = document.getElementById('calc-birthdate');
+  var monthEl = document.getElementById('calc-month');
+  var dayEl = document.getElementById('calc-day');
+  var yearEl = document.getElementById('calc-year');
+  if (!dateEl || !monthEl || !dayEl || !yearEl) return false;
+  var val = (dateEl.value || '').trim();
+  if (!val) {
+    monthEl.value = '';
+    dayEl.value = '';
+    yearEl.value = '';
+    return false;
+  }
+  var parts = val.split('-');
+  if (parts.length !== 3) return false;
+  var year = parseInt(parts[0], 10);
+  var month = parseInt(parts[1], 10);
+  var day = parseInt(parts[2], 10);
+  if (!year || !month || !day) return false;
+  yearEl.value = String(year);
+  monthEl.value = String(month);
+  dayEl.value = String(day);
+  return true;
+}
+
+/** Sync #calc-birthdate from hidden month/day/year (e.g. after checkout restore). */
+function syncCalcBirthdateFromParts() {
+  var dateEl = document.getElementById('calc-birthdate');
+  var monthEl = document.getElementById('calc-month');
+  var dayEl = document.getElementById('calc-day');
+  var yearEl = document.getElementById('calc-year');
+  if (!dateEl || !monthEl || !dayEl || !yearEl) return;
+  var month = parseInt(monthEl.value, 10);
+  var day = parseInt(dayEl.value, 10);
+  var year = parseInt(yearEl.value, 10);
+  if (!month || !day || !year) return;
+  dateEl.value = year + '-' + _pad2(month) + '-' + _pad2(day);
+}
+
+function _bindCalcBirthdateSync() {
+  var dateEl = document.getElementById('calc-birthdate');
+  if (!dateEl || dateEl.dataset.sscBound === '1') return;
+  dateEl.dataset.sscBound = '1';
+  dateEl.addEventListener('change', syncCalcBirthdateParts);
+  dateEl.addEventListener('input', syncCalcBirthdateParts);
+}
+
 function _setTextById(id, value) {
   var el = document.getElementById(id);
   if (el) el.textContent = value;
 }
 
-function _prefillUnlockEmailFromLead() {
+function _getGuidebookEmail() {
   var leadEmailEl = document.getElementById('calc-lead-email');
-  var unlockEmailEl = document.getElementById('unlock-email');
   var email = (leadEmailEl ? leadEmailEl.value : '').trim();
-  if (!unlockEmailEl || !email || !_isValidEmail(email)) return;
-  if (!unlockEmailEl.value.trim() || unlockEmailEl.dataset.prefilled === '1') {
-    unlockEmailEl.value = email;
-    unlockEmailEl.dataset.prefilled = '1';
+  if (email && _isValidEmail(email)) return email;
+  if (_lastCalculatorLead && _lastCalculatorLead.email && _isValidEmail(_lastCalculatorLead.email)) {
+    return _lastCalculatorLead.email.trim();
   }
+  return '';
 }
 
 function _scrollResultIntoViewIfNeeded(resultsTarget) {
@@ -641,7 +692,8 @@ function submitCalculatorLead() {
   .then(function() {
     _setCalculatorLeadMessage('Your blueprint summary is saved.', false);
     window.sscTrackEvent('calculator_lead_submit_success', { source: 'calculator' });
-    if (emailInput) emailInput.value = '';
+    // Keep email value so a hidden lead field can still satisfy required
+    // validation on "Decode Another Life Quest".
   })
   .catch(function(err) {
     _setCalculatorLeadMessage('Could not save right now. Please try again.', true);
@@ -653,41 +705,50 @@ function submitCalculatorLead() {
 }
 
 function calculateReading() {
+  _bindCalcBirthdateSync();
+  syncCalcBirthdateParts();
+
+  const dateEl  = document.getElementById('calc-birthdate');
   const monthEl = document.getElementById('calc-month');
   const dayEl   = document.getElementById('calc-day');
   const yearEl  = document.getElementById('calc-year');
   const nameEl  = document.getElementById('calc-fullname');
   const emailEl = document.getElementById('calc-lead-email');
 
-  if (!monthEl || !dayEl || !yearEl || !nameEl) {
+  if ((!dateEl && (!monthEl || !dayEl || !yearEl)) || !nameEl) {
     console.warn('Calculator form is not available yet.');
     return;
   }
 
-  const month = parseInt(monthEl.value);
-  const day   = parseInt(dayEl.value);
-  const year  = parseInt(yearEl.value);
+  const month = parseInt(monthEl && monthEl.value, 10);
+  const day   = parseInt(dayEl && dayEl.value, 10);
+  const year  = parseInt(yearEl && yearEl.value, 10);
   const fullName = nameEl.value.trim();
 
   // ── Inline validation ─────────────────────────────────────
   var hasError = false;
   _clearCalculatorFieldMessages();
-  [monthEl, dayEl, yearEl, nameEl, emailEl].forEach(function(el) {
+  [dateEl, monthEl, dayEl, yearEl, nameEl, emailEl].forEach(function(el) {
     if (el) el.classList.remove('ssc-input-error');
   });
-  if (!month) {
-    monthEl.classList.add('ssc-input-error');
-    _setFieldMessage('calc-month', 'Choose your birth month.', true);
-    hasError = true;
-  }
-  if (!day) {
-    dayEl.classList.add('ssc-input-error');
-    _setFieldMessage('calc-day', 'Enter your birth day.', true);
-    hasError = true;
-  }
-  if (!year) {
-    yearEl.classList.add('ssc-input-error');
-    _setFieldMessage('calc-year', 'Enter your birth year.', true);
+  if (!month || !day || !year) {
+    if (dateEl) {
+      dateEl.classList.add('ssc-input-error');
+      _setFieldMessage('calc-birthdate', 'Choose your birth date.', true);
+    } else {
+      if (monthEl && !month) {
+        monthEl.classList.add('ssc-input-error');
+        _setFieldMessage('calc-month', 'Choose your birth month.', true);
+      }
+      if (dayEl && !day) {
+        dayEl.classList.add('ssc-input-error');
+        _setFieldMessage('calc-day', 'Enter your birth day.', true);
+      }
+      if (yearEl && !year) {
+        yearEl.classList.add('ssc-input-error');
+        _setFieldMessage('calc-year', 'Enter your birth year.', true);
+      }
+    }
     hasError = true;
   }
   if (!fullName) {
@@ -695,7 +756,11 @@ function calculateReading() {
     _setFieldMessage('calc-fullname', 'Enter your full birth name.', true);
     hasError = true;
   }
-  if (emailEl && emailEl.value.trim() && !_isValidEmail(emailEl.value.trim())) {
+  if (!emailEl || !emailEl.value.trim()) {
+    if (emailEl) emailEl.classList.add('ssc-input-error');
+    _setCalculatorLeadMessage('Enter your email to decode your Life Quests.', true);
+    hasError = true;
+  } else if (!_isValidEmail(emailEl.value.trim())) {
     emailEl.classList.add('ssc-input-error');
     _setCalculatorLeadMessage('Please enter a valid email address.', true);
     hasError = true;
@@ -716,7 +781,7 @@ function calculateReading() {
   if (btn) {
     btn.disabled = true;
     btn.setAttribute('aria-busy', 'true');
-    btn.textContent = '· Decoding Your Map ·';
+    btn.textContent = '· Decoding Your Life Quests ·';
     btn.classList.add('ssc-btn-loading');
   }
 
@@ -744,6 +809,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const theme   = { root: reduceNumber(thComp), compound: thComp };
   const readingText = buildCalculatorReadingText(fullName, month, day, year, lp, exp, soul, outer, achieve, theme, calling);
 
+  var leadEmailAtDecode = _getGuidebookEmail();
   _lastCalculatorLead = {
     name: fullName,
     full_name: fullName,
@@ -752,6 +818,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
     year: year,
     birthDate: month + '/' + day + '/' + year,
     birth_date: month + '/' + day + '/' + year,
+    email: leadEmailAtDecode,
     lifePath: lp.root,
     life_path: lp.root,
     expression: exp.root,
@@ -788,14 +855,19 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const readingFor = _t('calc.results.reading_for') || 'Reading for';
   const firstName  = fullName.split(' ')[0];
 
-  const hookCopy = buildResultHook(firstName, lp.root, exp.root, calling.root);
-
-  const coreSummary = buildCoreSummary(lp, exp, calling);
+  const summaryCta = buildSummaryCta(firstName, lp.root, exp.root, calling.root);
+  var leadEmailForNote = _getGuidebookEmail();
 
   resultsTarget.classList.remove('results-area--empty', 'results-placeholder');
   resultsTarget.removeAttribute('hidden');
   var howEl = document.querySelector('.calc-how-it-works');
   if (howEl) howEl.hidden = true;
+  // Legacy static unlock CTA (if present) stays hidden — CTA lives in results.
+  var legacyCta = document.getElementById('unlock-cta');
+  if (legacyCta) {
+    legacyCta.style.display = 'none';
+    legacyCta.setAttribute('aria-hidden', 'true');
+  }
   resultsTarget.innerHTML = `
     <style>
       .ssc-rw { }
@@ -813,20 +885,29 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-delay-4 { animation-delay: .32s; }
       .ssc-delay-5 { animation-delay: .40s; }
       @keyframes sscResultReveal { to { opacity: 1; transform: translateY(0); } }
-      .ssc-core-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:0 auto 34px; max-width:880px; }
-      .ssc-core-card { background:linear-gradient(135deg, rgba(13,11,24,.92), rgba(8,20,20,.7)); border:1px solid rgba(126,200,200,.22); border-radius:12px; padding:18px 14px; text-align:center; position:relative; overflow:hidden; }
-      .ssc-core-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(126,200,200,.5), transparent); }
-      .ssc-core-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
-      .ssc-core-num { font-family:'Cinzel Decorative',serif; font-size:34px; color:var(--gold-light); line-height:1; margin-bottom:8px; }
-      .ssc-core-meta { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-dim); font-style:italic; }
+      @keyframes sscFadeIn { to { opacity: 1; } }
+      .ssc-summary-cta { margin:36px auto 0; max-width:640px; }
+      .ssc-summary-cta .unlock-btn { width:100%; }
+      .ssc-cta-divider {
+        display:flex; align-items:center; gap:14px;
+        margin: 8px 0 20px;
+      }
+      .ssc-cta-divider::before, .ssc-cta-divider::after {
+        content:''; flex:1; height:1px;
+        background:linear-gradient(90deg, transparent, rgba(126,200,200,.35), rgba(201,168,76,.25), transparent);
+      }
+      .ssc-cta-divider-sigil {
+        font-family:'Cinzel',serif; font-size:11px; letter-spacing:.2em;
+        color:rgba(201,168,76,.7);
+      }
       .ssc-fc--purpose-anchor { position:relative; background:linear-gradient(180deg, rgba(201,168,76,.055), rgba(13,11,24,.18)); box-shadow:inset 0 0 0 1px rgba(201,168,76,.13); }
       .ssc-fc--purpose-anchor::before { content:''; position:absolute; top:0; left:18px; right:18px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,.55), transparent); }
       .ssc-fc--purpose-anchor .ssc-fn { color:var(--gold-light) !important; text-shadow:0 0 24px rgba(201,168,76,.22); }
       .ssc-fc--purpose-anchor .ssc-role { color:rgba(232,201,107,.68) !important; }
       @media (min-width: 680px) {
-        .ssc-rw  { max-width: 1100px; margin: 0 auto; }
-        .ssc-fc  { padding: 28px 22px !important; }
-        .ssc-fn  { font-size: 48px !important; margin-bottom: 14px !important; }
+        .ssc-rw  { max-width: 760px; margin: 0 auto; }
+        .ssc-fc  { padding: 28px 24px !important; }
+        .ssc-fn  { font-size: 44px !important; margin-bottom: 14px !important; }
         .ssc-fp  { font-size: 17px !important; line-height: 1.82 !important; }
         .ssc-role{ font-size: 10px !important; margin-bottom: 7px !important; }
         .ssc-lbl { font-size: 12px !important; margin-bottom: 8px !important; }
@@ -834,12 +915,12 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         .ssc-cdx { font-size: 10px !important; margin-bottom: 14px !important; }
         .ssc-th  { padding: 18px 26px !important; }
         .ssc-tr  { border-radius: 14px !important; margin-bottom: 32px !important; }
+        .ssc-tg  { grid-template-columns: 1fr !important; }
+        .ssc-fc  { border-right: none !important; }
+        .ssc-fc:last-child { border-bottom: none !important; }
       }
       @media (max-width: 679px) {
         .ssc-mobile-head { margin-bottom: 30px !important; padding-bottom: 24px !important; }
-        .ssc-core-summary { grid-template-columns:1fr !important; gap:10px !important; margin-bottom:28px !important; }
-        .ssc-core-card { padding:16px 14px !important; }
-        .ssc-core-num { font-size:32px !important; }
         .ssc-mobile-chart { margin-bottom: 32px !important; }
         .ssc-tg  { grid-template-columns: 1fr !important; }
         .ssc-fc  { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 26px 20px !important; }
@@ -862,27 +943,23 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         <div style="font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:12px;opacity:.85">Your Complete Frequency Blueprint</div>
         <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
       </div>
-      ${coreSummary}
       <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:44px">
         ${buildFreqChart(numbers)}
       </div>
       <div class="ssc-reveal ssc-delay-2">${lessonsBlock}</div>
       <div class="ssc-reveal ssc-delay-3">${expressionBlock}</div>
       <div class="ssc-reveal ssc-delay-4">${purposeBlock}</div>
-      <div class="ssc-reveal ssc-delay-5">${hookCopy}</div>
+      <div class="ssc-reveal ssc-delay-5 ssc-summary-cta" id="unlock-cta-inline">${summaryCta}</div>
     </div>
   `;
 
-  // ── Show the Unlock CTA ──────────────────────────────────────
-  var cta = document.getElementById('unlock-cta');
-  if (cta) {
-    cta.style.display = 'block';
-    cta.removeAttribute('aria-hidden');
-  }
   _setTextById('unlock-life-path', lp.root);
   _setTextById('unlock-expression', exp.root);
   _setTextById('unlock-life-calling', calling.root);
-  _prefillUnlockEmailFromLead();
+  var deliveryNote = document.getElementById('unlock-delivery-email');
+  if (deliveryNote && leadEmailForNote) {
+    deliveryNote.textContent = leadEmailForNote;
+  }
   var leadField = document.querySelector('.calc-email-field');
   if (leadField) leadField.hidden = true;
   window.sscTrackEvent('calculator_decode_success', {
@@ -908,7 +985,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   if (btn) {
     btn.disabled = false;
     btn.removeAttribute('aria-busy');
-    btn.textContent = '⬡  Decode Another Reading ⬡';
+    btn.textContent = 'Decode Another Life Quest';
     btn.classList.remove('ssc-btn-loading');
   }
 
@@ -918,33 +995,13 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
 
 
 function buildCoreSummary(lp, exp, calling) {
-  const items = [
-    ['Life Path', lp.root, lp.compound, 'External curriculum'],
-    ['Expression', exp.root, exp.compound, 'Authentic signal'],
-    ['Life Calling', calling.root, calling.compound, 'Purpose directive'],
-  ];
-
-  return `
-    <div class="ssc-core-summary ssc-reveal" aria-label="Core numerology summary">
-      ${items.map(function(item) {
-        return `
-          <div class="ssc-core-card">
-            <div class="ssc-core-label">${item[0]}</div>
-            <div class="ssc-core-num">${item[1]}</div>
-            <div class="ssc-core-meta">${item[3]} · ${item[2]}/${item[1]}</div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+  // Kept for compatibility; core strip removed from results UI.
+  return '';
 }
 
-// ── Dynamic result hook — sells the guidebook ────────────────────────────
-function buildResultHook(firstName, lp, exp, calling) {
-
-  // Friction phrases — what the LP/Expression tension creates
+// ── Meaning + Guidebook CTA (after trinity reading) ────────────
+function buildSummaryCta(firstName, lp, exp, calling) {
   const frictionMap = {
-    // LP: message about what the simulation keeps presenting
     1: 'keep finding yourself at new beginnings — situations that demand you go first, even when you feel unready',
     2: 'keep encountering dynamics that test your ability to hold your own while staying connected to others',
     3: 'keep being pulled toward creative expression but hitting blocks around follow-through and self-doubt',
@@ -959,8 +1016,6 @@ function buildResultHook(firstName, lp, exp, calling) {
     33: 'keep being called to serve, teach, and hold space — the simulation keeps placing people who need your clarity in your path',
     44: 'keep being tasked with building things that last — structures, systems, legacies that go beyond the personal',
   };
-
-  // Expression phrases — what they're encoded to express
   const expressionMap = {
     1: 'encoded to initiate — to cut through, begin, and demonstrate independence',
     2: 'encoded to connect — to bridge, harmonise, and bring people into coherence',
@@ -981,69 +1036,68 @@ function buildResultHook(firstName, lp, exp, calling) {
   const expression = expressionMap[exp] || 'encoded to express your unique frequency in the world';
 
   return `
-    <div class="ssc-hook-wrap" style="
-      margin-top: 36px;
-      opacity: 0;
-      animation: sscFadeIn 0.8s ease 1.6s forwards;
-    ">
-    <div style="
-      background: linear-gradient(135deg, rgba(13,11,24,0.92), rgba(8,20,20,0.72));
-      border: 1px solid rgba(126,200,200,0.16);
+    <div class="unlock-card ssc-summary-cta-card" style="
+      background: linear-gradient(135deg, rgba(13,11,24,0.94), rgba(8,20,20,0.78));
+      border: 1px solid rgba(126,200,200,0.2);
       border-radius: 12px;
-      padding: 26px 24px 24px;
+      padding: 26px 22px 22px;
       position: relative;
       overflow: hidden;
       box-shadow: 0 18px 56px rgba(0,0,0,0.22), inset 0 0 26px rgba(255,255,255,0.012);
     ">
-      <div style="
-        position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(126,200,200,0.38), rgba(201,168,76,0.2), transparent);
-      "></div>
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,200,200,.4),rgba(201,168,76,.25),transparent)"></div>
 
-      <div style="
-        font-family: 'Cinzel', serif;
-        font-size: 8px;
-        letter-spacing: .4em;
-        text-transform: uppercase;
-        color: rgba(126,200,200,0.72);
-        margin-bottom: 16px;
-        padding: 9px 12px;
-        border: 1px solid rgba(126,200,200,0.12);
-        border-radius: 999px;
-        background: rgba(126,200,200,0.035);
-        display: inline-block;
-      ">What This Means For You</div>
+      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:rgba(126,200,200,.75);margin-bottom:14px">What This Means For You</div>
 
-      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
-        ${firstName}, your <strong style="color:rgba(232,201,107,0.92)">${lp} Life Path</strong> means you will
-        ${friction}. This is not bad luck — it is the curriculum your simulation is running.
+      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 12px">
+        ${firstName}, your <strong style="color:rgba(232,201,107,.92)">Life Path <span id="unlock-life-path">${lp}</span></strong> means you will
+        ${friction}.
+      </p>
+      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 12px">
+        Your <strong style="color:rgba(232,201,107,.92)">Expression <span id="unlock-expression">${exp}</span></strong> means you are
+        ${expression}.
+      </p>
+      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 4px">
+        Your <strong style="color:rgba(232,201,107,.92)">Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge.
+        The Guidebook expands the compound stories, shadows, and integration across all seven frequencies.
       </p>
 
-      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
-        At the same time, your <strong style="color:rgba(232,201,107,0.92)">${exp} Expression</strong> means you are
-        ${expression}. The tension between what life presents and what you are built to express
-        is the engine of your growth.
+      <div class="ssc-cta-divider" aria-hidden="true">
+        <span class="ssc-cta-divider-sigil">✦</span>
+      </div>
+
+      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(201,168,76,.72);margin-bottom:14px">Unlock Your Full Blueprint</div>
+
+      <ul class="unlock-features" aria-label="What's included" style="list-style:none;padding:0;margin:0 0 16px">
+        <li style="display:flex;gap:10px;margin-bottom:8px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
+        <li style="display:flex;gap:10px;margin-bottom:8px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Life Calling directive written in clear language</li>
+        <li style="display:flex;gap:10px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Branded PDF delivered to your inbox within minutes</li>
+      </ul>
+
+      <p class="unlock-sample-link" style="margin:0 0 16px">
+        <a href="/sample-guidebook.html" id="guidebook-sample-link" target="_blank" rel="noopener">See a sample Guidebook Report &#8594;</a>
       </p>
 
-      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim);">
-        Your <strong style="color:rgba(232,201,107,0.92)">${calling} Life Calling</strong> is where these two circuits
-        converge into a single directive. Understanding it — the compound story, the shadow,
-        the integration — is what the Complete Blueprint covers in full.
-      </p>
+      <div class="unlock-price-row" style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px">
+        <span class="unlock-price-amount" style="font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold-light)">$22</span>
+        <span class="unlock-price-label" style="font-size:13px;color:var(--text-muted)">one-time · instant delivery</span>
+      </div>
 
-      <div style="
-        margin-top: 20px;
-        padding-top: 18px;
-        border-top: 1px solid rgba(126,200,200,0.1);
-        font-family: 'Cinzel', serif;
-        font-size: 9px;
-        letter-spacing: .25em;
-        text-transform: uppercase;
-        color: rgba(192,192,216,0.62);
-      ">Your Complete Blueprint reveals the full story of each number above.</div>
-    </div>
+      <button type="button" class="unlock-btn" id="unlock-pay-btn" onclick="handleUnlockPayment()">
+        ⬡ Get My Full $22 Guidebook ⬡
+      </button>
+
+      <p class="unlock-reassurance" style="margin:12px 0 0;font-size:13px;color:var(--text-muted);text-align:center;line-height:1.5">
+        Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email" style="color:var(--text-dim)">your email</strong>
+      </p>
+      <div id="unlock-email-error" role="alert" aria-live="polite" style="min-height:18px;margin-top:8px;text-align:center;font-size:13px"></div>
     </div>
   `;
+}
+
+// Back-compat alias if anything still calls the old name
+function buildResultHook(firstName, lp, exp, calling) {
+  return buildSummaryCta(firstName, lp, exp, calling);
 }
 
 // ─── Frequency Chart (Star of David / Hexagram) ───────────────
@@ -1250,23 +1304,19 @@ function buildFreqChart(numbers) {
 }
 
 function handleUnlockPayment() {
-  var emailInput = document.getElementById('unlock-email');
-  var errorEl    = document.getElementById('unlock-email-error');
-  var btn        = document.getElementById('unlock-pay-btn');
-  var email      = (emailInput ? emailInput.value : '').trim();
+  var errorEl = document.getElementById('unlock-email-error');
+  var btn     = document.getElementById('unlock-pay-btn');
+  var email   = _getGuidebookEmail();
 
-  console.log('=== handleUnlockPayment called ===');
-  console.log('Email:', email);
-  console.log('Button element:', btn);
-  console.log('Button data attributes:', btn ? btn.dataset : 'N/A');
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    console.log('Invalid email, returning');
+  if (!email) {
     if (errorEl) {
-      errorEl.textContent = 'Please enter a valid email address.';
+      errorEl.textContent = 'Enter your email in the Life Decoder above, then decode again.';
       errorEl.style.color = 'var(--rose-light)';
     }
-    if (emailInput) emailInput.focus();
+    var leadEmailEl = document.getElementById('calc-lead-email');
+    var leadField = document.querySelector('.calc-email-field');
+    if (leadField) leadField.hidden = false;
+    if (leadEmailEl) leadEmailEl.focus();
     return;
   }
   if (errorEl) errorEl.textContent = '';
@@ -1285,8 +1335,10 @@ function handleUnlockPayment() {
   try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(payload)); } catch(e) {}
   window.sscTrackEvent('guidebook_checkout_start', { source: 'calculator', product: 'guidebook' });
 
-  btn.disabled    = true;
-  btn.textContent = '· Connecting to Stripe ·';
+  if (btn) {
+    btn.disabled    = true;
+    btn.textContent = '· Connecting to Stripe ·';
+  }
   window.location.href = '/checkout/?product=guidebook&email=' + encodeURIComponent(email);
 }
 
@@ -1300,6 +1352,13 @@ window.calculateReading = calculateReading;
 window.submitCalculatorLead = submitCalculatorLead;
 window.buildFreqChart   = buildFreqChart;
 window.COMPOUND_DESC    = COMPOUND_DESC;
+window.syncCalcBirthdateParts = syncCalcBirthdateParts;
+window.syncCalcBirthdateFromParts = syncCalcBirthdateFromParts;
+
+document.addEventListener('DOMContentLoaded', function() {
+  _bindCalcBirthdateSync();
+  syncCalcBirthdateFromParts();
+});
 
 window.handleUnlockPayment = handleUnlockPayment;
 

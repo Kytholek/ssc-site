@@ -425,16 +425,97 @@ function _injectPageSchema(name) {
   } else if (name === 'services') {
     _setJsonLd({
       '@context': 'https://schema.org',
-      '@type'   : 'Service',
+      '@type'   : ['Service', 'Product'],
       'name'    : 'Numerology Readings — Simulation Source Code',
       'url'     : 'https://simulationsourcecode.com/services/',
       'description': 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
       'provider': { '@type': 'Organization', 'name': 'Simulation Source Code' },
+      'brand'   : { '@type': 'Brand', 'name': 'Simulation Source Code' },
       'offers'  : [
-        { '@type': 'Offer', 'name': 'Guidebook Report', 'price': '22', 'priceCurrency': 'USD' },
-        { '@type': 'Offer', 'name': 'Time Cycle', 'price': '17', 'priceCurrency': 'USD' },
-        { '@type': 'Offer', 'name': 'Personal Consultation', 'price': '88', 'priceCurrency': 'USD' },
-        { '@type': 'Offer', 'name': 'TellTale Tarot Reading', 'price': '20', 'priceCurrency': 'USD' }
+        {
+          '@type': 'Offer', 'name': 'Guidebook Report', 'price': '22', 'priceCurrency': 'USD',
+          'availability': 'https://schema.org/OnlineOnly',
+          'itemCondition': 'https://schema.org/NewCondition',
+          'url': 'https://simulationsourcecode.com/services/',
+          'shippingDetails': {
+            '@type': 'OfferShippingDetails',
+            'shippingRate': { '@type': 'MonetaryAmount', 'value': '0', 'currency': 'USD' },
+            'shippingDestination': { '@type': 'DefinedRegion', 'addressCountry': 'US' },
+            'deliveryTime': {
+              '@type': 'ShippingDeliveryTime',
+              'handlingTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' },
+              'transitTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' }
+            }
+          },
+          'hasMerchantReturnPolicy': {
+            '@type': 'MerchantReturnPolicy',
+            'applicableCountry': 'US',
+            'returnPolicyCategory': 'https://schema.org/MerchantReturnNotPermitted'
+          }
+        },
+        {
+          '@type': 'Offer', 'name': 'Time Cycle', 'price': '17', 'priceCurrency': 'USD',
+          'availability': 'https://schema.org/OnlineOnly',
+          'itemCondition': 'https://schema.org/NewCondition',
+          'url': 'https://simulationsourcecode.com/services/',
+          'shippingDetails': {
+            '@type': 'OfferShippingDetails',
+            'shippingRate': { '@type': 'MonetaryAmount', 'value': '0', 'currency': 'USD' },
+            'shippingDestination': { '@type': 'DefinedRegion', 'addressCountry': 'US' },
+            'deliveryTime': {
+              '@type': 'ShippingDeliveryTime',
+              'handlingTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' },
+              'transitTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' }
+            }
+          },
+          'hasMerchantReturnPolicy': {
+            '@type': 'MerchantReturnPolicy',
+            'applicableCountry': 'US',
+            'returnPolicyCategory': 'https://schema.org/MerchantReturnNotPermitted'
+          }
+        },
+        {
+          '@type': 'Offer', 'name': 'Personal Consultation', 'price': '88', 'priceCurrency': 'USD',
+          'availability': 'https://schema.org/OnlineOnly',
+          'itemCondition': 'https://schema.org/NewCondition',
+          'url': 'https://simulationsourcecode.com/services/',
+          'shippingDetails': {
+            '@type': 'OfferShippingDetails',
+            'shippingRate': { '@type': 'MonetaryAmount', 'value': '0', 'currency': 'USD' },
+            'shippingDestination': { '@type': 'DefinedRegion', 'addressCountry': 'US' },
+            'deliveryTime': {
+              '@type': 'ShippingDeliveryTime',
+              'handlingTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' },
+              'transitTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' }
+            }
+          },
+          'hasMerchantReturnPolicy': {
+            '@type': 'MerchantReturnPolicy',
+            'applicableCountry': 'US',
+            'returnPolicyCategory': 'https://schema.org/MerchantReturnNotPermitted'
+          }
+        },
+        {
+          '@type': 'Offer', 'name': 'TellTale Tarot Reading', 'price': '20', 'priceCurrency': 'USD',
+          'availability': 'https://schema.org/OnlineOnly',
+          'itemCondition': 'https://schema.org/NewCondition',
+          'url': 'https://simulationsourcecode.com/services/',
+          'shippingDetails': {
+            '@type': 'OfferShippingDetails',
+            'shippingRate': { '@type': 'MonetaryAmount', 'value': '0', 'currency': 'USD' },
+            'shippingDestination': { '@type': 'DefinedRegion', 'addressCountry': 'US' },
+            'deliveryTime': {
+              '@type': 'ShippingDeliveryTime',
+              'handlingTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' },
+              'transitTime': { '@type': 'QuantitativeValue', 'minValue': 0, 'maxValue': 0, 'unitCode': 'DAY' }
+            }
+          },
+          'hasMerchantReturnPolicy': {
+            '@type': 'MerchantReturnPolicy',
+            'applicableCountry': 'US',
+            'returnPolicyCategory': 'https://schema.org/MerchantReturnNotPermitted'
+          }
+        }
       ]
     });
   } else if (name === 'about') {

@@ -79,12 +79,7 @@ function servicesJsonLd() {
       worstRating: '1',
     },
     review: reviews,
-    offers: [
-      { '@type': 'Offer', name: 'Guidebook Report', price: '22', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Time Cycle', price: '17', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Personal Consultation', price: '88', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'TellTale Tarot Reading', price: '20', priceCurrency: 'USD' },
-    ],
+    offers: SEO.getServiceProductOffers(),
   }, null, 2);
 }
 

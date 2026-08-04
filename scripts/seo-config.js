@@ -1,9 +1,77 @@
 'use strict';
 
 /** Shared SEO constants for build scripts */
+const SITE_ORIGIN = 'https://simulationsourcecode.com';
+
+/** Digital goods: instant email delivery, no physical shipping, sales final (see services FAQ). */
+const DIGITAL_SHIPPING_DETAILS = {
+  '@type': 'OfferShippingDetails',
+  shippingRate: {
+    '@type': 'MonetaryAmount',
+    value: '0',
+    currency: 'USD',
+  },
+  shippingDestination: {
+    '@type': 'DefinedRegion',
+    addressCountry: 'US',
+  },
+  deliveryTime: {
+    '@type': 'ShippingDeliveryTime',
+    handlingTime: {
+      '@type': 'QuantitativeValue',
+      minValue: 0,
+      maxValue: 0,
+      unitCode: 'DAY',
+    },
+    transitTime: {
+      '@type': 'QuantitativeValue',
+      minValue: 0,
+      maxValue: 0,
+      unitCode: 'DAY',
+    },
+  },
+};
+
+const DIGITAL_RETURN_POLICY = {
+  '@type': 'MerchantReturnPolicy',
+  applicableCountry: 'US',
+  returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+};
+
+const SERVICE_OFFERS_BASE = [
+  { name: 'Guidebook Report', price: '22' },
+  { name: 'Time Cycle', price: '17' },
+  { name: 'Personal Consultation', price: '88' },
+  { name: 'TellTale Tarot Reading', price: '20' },
+];
+
+function withMerchantOfferFields(offer) {
+  return Object.assign(
+    {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/OnlineOnly',
+      itemCondition: 'https://schema.org/NewCondition',
+      url: SITE_ORIGIN + '/services/',
+      shippingDetails: DIGITAL_SHIPPING_DETAILS,
+      hasMerchantReturnPolicy: DIGITAL_RETURN_POLICY,
+    },
+    offer
+  );
+}
+
+function getServiceProductOffers() {
+  return SERVICE_OFFERS_BASE.map(function (o) {
+    return withMerchantOfferFields({
+      name: o.name,
+      price: o.price,
+    });
+  });
+}
+
 module.exports = {
-  SITE_ORIGIN: 'https://simulationsourcecode.com',
-  OG_IMAGE: 'https://simulationsourcecode.com/Images/ssc-og.png',
+  SITE_ORIGIN: SITE_ORIGIN,
+  OG_IMAGE: SITE_ORIGIN + '/Images/ssc-og.png',
   FACEBOOK_REVIEWS_URL: 'https://www.facebook.com/kytholek/reviews',
   FACEBOOK_RATING_VALUE: '5',
   FACEBOOK_RATING_COUNT: '5',
@@ -28,6 +96,10 @@ module.exports = {
       text: 'Many thanks for doing my numerology \u2014 it was really very accurate and helped me strengthen myself as a person and improve aspects for the better.',
     },
   ],
+  DIGITAL_SHIPPING_DETAILS: DIGITAL_SHIPPING_DETAILS,
+  DIGITAL_RETURN_POLICY: DIGITAL_RETURN_POLICY,
+  withMerchantOfferFields: withMerchantOfferFields,
+  getServiceProductOffers: getServiceProductOffers,
   CORE_ROUTES: [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/calculator/', priority: '0.9', changefreq: 'monthly' },

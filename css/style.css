@@ -3821,6 +3821,227 @@ footer {
   border-color: var(--gold);
 }
 
+/* ═══════════════════════════════════════════════
+   SUMMARY CTA — purchase climax after trinities
+═══════════════════════════════════════════════ */
+.ssc-summary-cta-card {
+  /* Beat global .unlock-card surface !important reset further down the sheet */
+  background:
+    linear-gradient(165deg, rgba(8,20,20,.72) 0%, rgba(13,11,24,.96) 42%, rgba(8,18,18,.9) 100%) !important;
+  border: 1px solid rgba(74,148,148,.32) !important;
+  border-radius: 14px;
+  padding: 34px 28px 32px;
+  box-shadow:
+    0 22px 64px rgba(0,0,0,.32),
+    0 0 36px rgba(74,148,148,.08),
+    inset 0 0 50px rgba(74,148,148,.04);
+  text-align: center;
+}
+.ssc-summary-cta-card::before {
+  opacity: .75;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(126,200,200,.4) 28%,
+    rgba(201,168,76,.45) 50%,
+    rgba(126,200,200,.35) 72%,
+    transparent 100%
+  );
+}
+.ssc-summary-cta-card::after {
+  box-shadow:
+    inset 0 0 80px rgba(74,148,148,.05),
+    inset 0 1px 0 rgba(126,200,200,.1);
+}
+
+.ssc-summary-cta-glow {
+  width: 420px;
+  height: 280px;
+  z-index: 0;
+}
+.ssc-summary-cta-glow--gold {
+  top: -80px;
+  background: radial-gradient(ellipse, rgba(201,168,76,.14) 0%, transparent 68%);
+  animation-duration: 4.5s;
+}
+.ssc-summary-cta-glow--teal {
+  top: auto;
+  bottom: -100px;
+  width: 400px;
+  height: 240px;
+  background: radial-gradient(ellipse, rgba(74,148,148,.28) 0%, transparent 70%);
+  animation-duration: 6s;
+  animation-delay: -2s;
+}
+
+.ssc-summary-cta-eyebrow,
+.ssc-summary-cta-sell-eyebrow,
+.ssc-summary-cta-meaning,
+.ssc-summary-cta-features,
+.ssc-summary-cta-sample,
+.ssc-summary-cta-price,
+.ssc-summary-cta-card .unlock-btn,
+.ssc-summary-cta-reassurance,
+.ssc-summary-cta-error {
+  position: relative;
+  z-index: 1;
+}
+
+.ssc-summary-cta-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 18px;
+  text-shadow: 0 0 20px rgba(74,148,148,.25);
+}
+
+.ssc-summary-cta-meaning {
+  max-width: 640px;
+  margin: 0 auto 4px;
+  padding: 18px 22px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(74,148,148,.18);
+  background: linear-gradient(180deg, rgba(74,148,148,.07), rgba(8,20,20,.28));
+  box-shadow: inset 0 0 32px rgba(0,0,0,.12);
+}
+.ssc-summary-cta-meaning p {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.82;
+  color: var(--text-dim);
+}
+.ssc-summary-cta-meaning p:last-child {
+  margin-bottom: 0;
+}
+.ssc-summary-cta-meaning strong {
+  color: var(--gold-light);
+  font-weight: 500;
+  text-shadow: none;
+}
+
+.ssc-summary-cta-card .ssc-cta-divider {
+  margin: 22px 0 18px;
+}
+.ssc-summary-cta-card .ssc-cta-divider::before,
+.ssc-summary-cta-card .ssc-cta-divider::after {
+  background: linear-gradient(90deg, transparent, rgba(126,200,200,.4), rgba(201,168,76,.28), transparent);
+}
+.ssc-summary-cta-card .ssc-cta-divider-sigil {
+  color: rgba(201,168,76,.75);
+  text-shadow: 0 0 12px rgba(74,148,148,.25);
+}
+
+.ssc-summary-cta-sell-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgba(126,200,200,.85);
+  margin-bottom: 16px;
+}
+
+.ssc-summary-cta-card .ssc-summary-cta-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: none;
+  width: 100%;
+  margin: 0 auto 20px;
+  padding: 0;
+  text-align: center;
+}
+.ssc-summary-cta-card .ssc-summary-cta-features li {
+  display: block;
+  margin: 0;
+  max-width: 520px;
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  text-align: center;
+}
+.ssc-summary-cta-card .ssc-summary-cta-features .unlock-check {
+  display: inline;
+  color: var(--teal-light);
+  font-size: 12px;
+  margin: 0 8px 0 0;
+  text-shadow: 0 0 10px rgba(74,148,148,.3);
+}
+
+.ssc-summary-cta-sample {
+  margin: 0 0 22px;
+}
+
+.ssc-summary-cta-price {
+  margin-bottom: 20px;
+}
+.ssc-summary-cta-card .unlock-price-amount {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(34px, 6vw, 44px);
+  color: var(--gold-light);
+  letter-spacing: .04em;
+  text-shadow: 0 0 22px rgba(201,168,76,.22);
+}
+.ssc-summary-cta-card .unlock-price-label {
+  font-size: 10px;
+  letter-spacing: .28em;
+  color: var(--text-muted);
+}
+
+.ssc-summary-cta-card .unlock-btn {
+  max-width: 100%;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(201,168,76,.16) 0%, rgba(74,148,148,.08) 100%);
+  border-color: rgba(201,168,76,.42);
+  box-shadow: 0 0 20px rgba(74,148,148,.1);
+}
+.ssc-summary-cta-card .unlock-btn:hover {
+  box-shadow: 0 0 36px rgba(201,168,76,.22), 0 0 28px rgba(74,148,148,.12), inset 0 0 20px rgba(201,168,76,.06);
+}
+
+.ssc-summary-cta-reassurance {
+  margin: 4px 0 0;
+  font-family: 'EB Garamond', serif;
+  font-size: 13px;
+  letter-spacing: .02em;
+  text-transform: none;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.ssc-summary-cta-reassurance strong {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.ssc-summary-cta-error {
+  min-height: 18px;
+  margin-top: 8px;
+  text-align: center;
+  font-size: 13px;
+}
+
+@media (max-width: 679px) {
+  .ssc-summary-cta-card {
+    padding: 28px 18px 26px;
+    border-radius: 12px;
+  }
+  .ssc-summary-cta-meaning {
+    padding: 14px 14px 12px;
+  }
+  .ssc-summary-cta-meaning p {
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  .ssc-summary-cta-eyebrow,
+  .ssc-summary-cta-sell-eyebrow {
+    letter-spacing: .28em;
+  }
+}
+
 /* ── Results placeholder — distinct from form card ── */
 .results-placeholder {
   background: var(--deep);
@@ -5624,7 +5845,7 @@ nav.nav-hero .nav-cta {
 
 .form-card,
 .results-placeholder,
-.unlock-card,
+.unlock-card:not(.ssc-summary-cta-card),
 .svc-card,
 .blog-card,
 .blog-idx-card,
@@ -5635,6 +5856,18 @@ nav.nav-hero .nav-cta {
 .modal-card {
   background: var(--surface-card) !important;
   border-color: var(--border-mid) !important;
+}
+
+/* Purchase climax CTA — keep teal/gold frame above surface-card resets */
+.unlock-card.ssc-summary-cta-card {
+  background:
+    linear-gradient(165deg, rgba(8,20,20,.72) 0%, rgba(13,11,24,.96) 42%, rgba(8,18,18,.9) 100%) !important;
+  border: 1px solid rgba(74,148,148,.32) !important;
+  box-shadow:
+    0 0 0 1px rgba(126,200,200,.08),
+    0 22px 64px rgba(0,0,0,.32),
+    0 0 36px rgba(74,148,148,.08),
+    inset 0 0 50px rgba(74,148,148,.04);
 }
 
 .svc-card--featured,

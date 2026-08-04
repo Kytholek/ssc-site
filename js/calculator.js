@@ -886,7 +886,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-delay-5 { animation-delay: .40s; }
       @keyframes sscResultReveal { to { opacity: 1; transform: translateY(0); } }
       @keyframes sscFadeIn { to { opacity: 1; } }
-      .ssc-summary-cta { margin:36px auto 0; max-width:640px; }
+      .ssc-summary-cta { margin:36px auto 0; max-width:none; width:100%; }
       .ssc-summary-cta .unlock-btn { width:100%; }
       .ssc-cta-divider {
         display:flex; align-items:center; gap:14px;
@@ -1036,61 +1036,58 @@ function buildSummaryCta(firstName, lp, exp, calling) {
   const expression = expressionMap[exp] || 'encoded to express your unique frequency in the world';
 
   return `
-    <div class="unlock-card ssc-summary-cta-card" style="
-      background: linear-gradient(135deg, rgba(13,11,24,0.94), rgba(8,20,20,0.78));
-      border: 1px solid rgba(126,200,200,0.2);
-      border-radius: 12px;
-      padding: 26px 22px 22px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 18px 56px rgba(0,0,0,0.22), inset 0 0 26px rgba(255,255,255,0.012);
-    ">
-      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,200,200,.4),rgba(201,168,76,.25),transparent)"></div>
+    <div class="unlock-card ssc-summary-cta-card">
+      <div class="unlock-glow ssc-summary-cta-glow ssc-summary-cta-glow--gold" aria-hidden="true"></div>
+      <div class="unlock-glow ssc-summary-cta-glow ssc-summary-cta-glow--teal" aria-hidden="true"></div>
 
-      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:rgba(126,200,200,.75);margin-bottom:14px">What This Means For You</div>
+      <div class="ssc-summary-cta-eyebrow">What This Means For You</div>
 
-      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 12px">
-        ${firstName}, your <strong style="color:rgba(232,201,107,.92)">Life Path <span id="unlock-life-path">${lp}</span></strong> means you will
-        ${friction}.
-      </p>
-      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 12px">
-        Your <strong style="color:rgba(232,201,107,.92)">Expression <span id="unlock-expression">${exp}</span></strong> means you are
-        ${expression}.
-      </p>
-      <p style="font-size:16px;line-height:1.8;color:var(--text-dim);margin:0 0 4px">
-        Your <strong style="color:rgba(232,201,107,.92)">Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge.
-        The Guidebook expands the compound stories, shadows, and integration across all seven frequencies.
-      </p>
+      <div class="ssc-summary-cta-meaning">
+        <p>
+          ${firstName}, your <strong>Life Path <span id="unlock-life-path">${lp}</span></strong> means you will
+          ${friction}.
+        </p>
+        <p>
+          Your <strong>Expression <span id="unlock-expression">${exp}</span></strong> means you are
+          ${expression}.
+        </p>
+        <p>
+          Your <strong>Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge.
+          The Guidebook expands the compound stories, shadows, and integration across all seven frequencies.
+        </p>
+      </div>
 
       <div class="ssc-cta-divider" aria-hidden="true">
         <span class="ssc-cta-divider-sigil">✦</span>
       </div>
 
-      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(201,168,76,.72);margin-bottom:14px">Unlock Your Full Blueprint</div>
+      <div class="ssc-summary-cta-sell-eyebrow">Unlock Your Full Blueprint</div>
 
-      <ul class="unlock-features" aria-label="What's included" style="list-style:none;padding:0;margin:0 0 16px">
-        <li style="display:flex;gap:10px;margin-bottom:8px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
-        <li style="display:flex;gap:10px;margin-bottom:8px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Life Calling directive written in clear language</li>
-        <li style="display:flex;gap:10px;font-size:15px;color:var(--text-dim)"><span aria-hidden="true" style="color:var(--gold)">◈</span> Branded PDF delivered to your inbox within minutes</li>
+      <ul class="unlock-features ssc-summary-cta-features" aria-label="What's included">
+        <li><span class="unlock-check" aria-hidden="true">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
+        <li><span class="unlock-check" aria-hidden="true">◈</span> Life Calling directive written in clear language</li>
+        <li><span class="unlock-check" aria-hidden="true">◈</span> Branded PDF delivered to your inbox within minutes</li>
       </ul>
 
-      <p class="unlock-sample-link" style="margin:0 0 16px">
+      <p class="unlock-sample-link ssc-summary-cta-sample">
         <a href="/sample-guidebook.html" id="guidebook-sample-link" target="_blank" rel="noopener">See a sample Guidebook Report &#8594;</a>
       </p>
 
-      <div class="unlock-price-row" style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px">
-        <span class="unlock-price-amount" style="font-family:'Cinzel Decorative',serif;font-size:28px;color:var(--gold-light)">$22</span>
-        <span class="unlock-price-label" style="font-size:13px;color:var(--text-muted)">one-time · instant delivery</span>
+      <div class="unlock-price-row ssc-summary-cta-price">
+        <div class="unlock-price">
+          <span class="unlock-price-amount">$22</span>
+          <span class="unlock-price-label">one-time · instant delivery</span>
+        </div>
       </div>
 
       <button type="button" class="unlock-btn" id="unlock-pay-btn" onclick="handleUnlockPayment()">
         ⬡ Get My Full $22 Guidebook ⬡
       </button>
 
-      <p class="unlock-reassurance" style="margin:12px 0 0;font-size:13px;color:var(--text-muted);text-align:center;line-height:1.5">
-        Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email" style="color:var(--text-dim)">your email</strong>
+      <p class="unlock-reassurance ssc-summary-cta-reassurance">
+        Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email">your email</strong>
       </p>
-      <div id="unlock-email-error" role="alert" aria-live="polite" style="min-height:18px;margin-top:8px;text-align:center;font-size:13px"></div>
+      <div id="unlock-email-error" class="ssc-summary-cta-error" role="alert" aria-live="polite"></div>
     </div>
   `;
 }

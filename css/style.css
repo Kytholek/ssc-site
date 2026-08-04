@@ -4130,23 +4130,28 @@ footer {
 }
 
 .ssc-summary-cta-quote {
-  margin: 0 0 14px;
+  margin: 0 auto 12px;
   padding: 0;
-  border: 0;
-  max-width: 36em;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 34em;
   text-align: center;
 }
-.ssc-summary-cta-quote p {
-  margin: 0 0 8px;
+.ssc-summary-cta-quote blockquote {
+  margin: 0 0 6px;
+  padding: 10px 14px;
+  border: 1px solid rgba(74,148,148,.18);
+  border-radius: 8px;
+  background: rgba(8,18,18,.35);
+}
+.ssc-summary-cta-quote blockquote p {
+  margin: 0;
   font-family: 'EB Garamond', serif;
-  font-size: 15px;
+  font-size: 14px;
   font-style: italic;
-  line-height: 1.55;
+  line-height: 1.5;
   color: var(--text-dim);
 }
-.ssc-summary-cta-quote footer {
+.ssc-summary-cta-quote-attr {
+  margin: 0;
   font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: .16em;

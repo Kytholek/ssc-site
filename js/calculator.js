@@ -1091,10 +1091,12 @@ function buildSummaryCta(firstName, lp, exp, calling) {
         <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer">See reviews</a>
       </p>
 
-      <blockquote class="ssc-summary-cta-quote">
-        <p>“I loved the numerology report I had done. It really helped me understand myself a bit better and opened my mind to things I had been ignoring and shutting out.”</p>
-        <footer>— Paige S. · Facebook Review</footer>
-      </blockquote>
+      <figure class="ssc-summary-cta-quote">
+        <blockquote>
+          <p>“I loved the numerology report I had done. It really helped me understand myself a bit better and opened my mind to things I had been ignoring and shutting out.”</p>
+        </blockquote>
+        <figcaption class="ssc-summary-cta-quote-attr">— Paige S. · Facebook Review</figcaption>
+      </figure>
 
       <p class="unlock-reassurance ssc-summary-cta-reassurance">
         Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email">your email</strong>

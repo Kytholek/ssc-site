@@ -156,7 +156,9 @@ body::before {
    PAGE SYSTEM
 ═══════════════════════════════════════ */
 .page { display: none; position: relative; z-index: 1; color: var(--text); }
-.page.active { display: block; animation: fadeUp .4s ease both; }
+/* Opacity-only: transform from fadeUp breaks IntersectionObserver + position:fixed descendants */
+@keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.page.active { display: block; animation: pageFadeIn .4s ease both; }
 
 /* ═══════════════════════════════════════
    NAVIGATION
@@ -806,11 +808,22 @@ html[data-theme='light'] #page-calculator .field input[type="date"] {
 .calc-faq-label {
   font-family: 'Cinzel', serif;
   font-size: 10px;
+  font-weight: 400;
   letter-spacing: .3em;
   text-transform: uppercase;
   color: var(--gold);
   text-align: center;
-  margin-bottom: 28px;
+  margin: 0 0 28px;
+}
+.calc-seo-blurb {
+  margin: 20px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 52ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 .calc-faq-item {
   border-bottom: 1px solid rgba(201,168,76,0.15);
@@ -834,10 +847,12 @@ html[data-theme='light'] #page-calculator .field input[type="date"] {
   line-height: 1.75;
   color: var(--text-dim);
 }
-.calc-faq-more {
+.calc-faq-more,
+.faq-more {
   margin-top: 10px;
 }
-.calc-faq-more a {
+.calc-faq-more a,
+.faq-more a {
   font-family: 'Cinzel', serif;
   font-size: 10px;
   letter-spacing: .16em;
@@ -848,9 +863,14 @@ html[data-theme='light'] #page-calculator .field input[type="date"] {
   padding-bottom: 1px;
   transition: color .2s ease, border-color .2s ease;
 }
-.calc-faq-more a:hover {
+.calc-faq-more a:hover,
+.faq-more a:hover {
   color: var(--gold);
   border-color: var(--gold);
+}
+.hp-faq-item .faq-more {
+  padding: 0 0 18px;
+  margin-top: 0;
 }
 
 .calc-learn-more {
@@ -3875,6 +3895,39 @@ footer {
   scroll-margin-top: 88px;
 }
 
+.ssc-compound-lock {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(180deg, rgba(5,4,10,.3) 0%, rgba(5,4,10,.6) 50%, rgba(5,4,10,.3) 100%);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.ssc-compound-lock:hover {
+  background: linear-gradient(180deg, rgba(5,4,10,.35) 0%, rgba(74,148,148,.28) 50%, rgba(5,4,10,.35) 100%);
+}
+.ssc-compound-lock-icon {
+  font-size: 18px;
+  opacity: .85;
+  line-height: 1;
+}
+.ssc-compound-lock-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  opacity: .75;
+}
+.ssc-compound-lock:hover .ssc-compound-lock-hint {
+  opacity: 1;
+}
+
 .ssc-summary-cta-card {
   /* Beat global .unlock-card surface !important reset further down the sheet */
   background:
@@ -3933,6 +3986,7 @@ footer {
 .ssc-summary-cta-price,
 .ssc-summary-cta-card .unlock-btn,
 .ssc-summary-cta-trust,
+.ssc-summary-cta-quote,
 .ssc-summary-cta-reassurance,
 .ssc-summary-cta-error {
   position: relative;
@@ -4056,13 +4110,48 @@ footer {
 }
 
 .ssc-summary-cta-trust {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--teal-light);
   opacity: .9;
+}
+.ssc-summary-cta-trust a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(74,148,148,.4);
+}
+.ssc-summary-cta-trust a:hover {
+  color: var(--gold);
+  text-decoration-color: rgba(201,168,76,.5);
+}
+
+.ssc-summary-cta-quote {
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  max-width: 36em;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.ssc-summary-cta-quote p {
+  margin: 0 0 8px;
+  font-family: 'EB Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+.ssc-summary-cta-quote footer {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .ssc-summary-cta-reassurance {

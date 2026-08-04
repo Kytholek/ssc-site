@@ -41,6 +41,7 @@ module.exports = {
     { path: '/consultation/', priority: '0.8', changefreq: 'monthly' },
     { path: '/4-phase-alchemy/', priority: '0.8', changefreq: 'monthly' },
     { path: '/sourcecode-life/', priority: '0.8', changefreq: 'monthly' },
+    { path: '/sample-guidebook.html', priority: '0.7', changefreq: 'monthly' },
   ],
   PILLAR_POSTS: [
     { slug: 'how-to-calculate-life-path-number', title: 'How to Calculate Your Life Path Number' },

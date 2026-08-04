@@ -652,9 +652,9 @@
   50% { transform: translateX(10px); opacity: 0.78; }
 }
 
-/* â”€â”€ Scroll reveal â”€â”€ */
+/* Scroll reveal — only hide after JS arms (.hp-reveal-armed); content stays visible if JS fails */
 @media (min-width: 601px) {
-  .hp-reveal {
+  .hp-reveal.hp-reveal-armed:not(.is-visible) {
     opacity: 0;
     transform: translateY(48px);
     transition: opacity .75s ease, transform .75s ease;
@@ -662,6 +662,7 @@
   .hp-reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
+    transition: opacity .75s ease, transform .75s ease;
   }
 }
 
@@ -1380,6 +1381,7 @@
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
         <p class="hp-faq-a" data-i18n="home.revamp.faq.a1">Your Life Path is calculated from your full date of birth. It represents the core theme and curriculum of your life — the lessons the simulation has designed for you to learn and embody.</p>
+        <p class="faq-more"><a href="/blog/life-path-number-explained/">Read more: Life Path number explained &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
@@ -1387,6 +1389,7 @@
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
         <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">Numerology studies the symbolic meaning of numbers and their relationship to personality and life patterns. Simulation Source Code renews that tradition — bridging metaphysics, simulation theory, and consciousness into seven frequencies calculated from your birth date and full birth name.</p>
+        <p class="faq-more"><a href="/blog/pillar-numerology-source-code/">Read more: Numerology as Source Code &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
@@ -1394,6 +1397,7 @@
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
         <p class="hp-faq-a" data-i18n="home.revamp.faq.a3">Life Calling fuses your Life Path and Expression numbers — the specific directive when your external curriculum and internal frequency combine.</p>
+        <p class="faq-more"><a href="/blog/trinity-of-purpose-numerology/">Read more: Trinity of Purpose &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
@@ -1401,6 +1405,7 @@
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
         <p class="hp-faq-a" data-i18n="home.revamp.faq.a4">Master numbers 11, 22, 33, and 44 are not reduced to a single digit. They carry amplified potential — 11 from 2, 22 from 4, 33 from 6, and 44 from 8.</p>
+        <p class="faq-more"><a href="/blog/master-numbers-11-22-33-numerology/">Read more: Master numbers 11, 22, 33 &#8594;</a></p>
       </details>
     </div>
   </div>

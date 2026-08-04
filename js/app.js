@@ -396,20 +396,31 @@ function _injectPageSchema(name) {
   _clearJsonLd();
   if (name === 'calculator') {
     _setJsonLd({
-      '@context'   : 'https://schema.org',
-      '@type'      : 'WebApplication',
-      'name'       : 'SSC Numerology Calculator',
-      'url'        : 'https://simulationsourcecode.com/calculator/',
-      'description': 'Free numerology calculator. Enter your birth date and full name to calculate your seven core frequencies: Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.',
-      'applicationCategory': 'UtilitiesApplication',
-      'operatingSystem'    : 'Any',
-      'offers': {
-        '@type'       : 'Offer',
-        'price'       : '0',
-        'priceCurrency': 'USD',
-        'description' : 'Free numerology frequency calculator'
-      },
-      'author': { '@type': 'Organization', 'name': 'Simulation Source Code' }
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebApplication',
+          'name': 'SSC Numerology Calculator',
+          'url': 'https://simulationsourcecode.com/calculator/',
+          'description': 'Free numerology calculator. Enter your birth date and full name to calculate your seven core frequencies: Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.',
+          'applicationCategory': 'UtilitiesApplication',
+          'operatingSystem': 'Any',
+          'offers': {
+            '@type': 'Offer',
+            'price': '0',
+            'priceCurrency': 'USD',
+            'description': 'Free numerology frequency calculator'
+          },
+          'author': { '@type': 'Organization', 'name': 'Simulation Source Code' }
+        },
+        {
+          '@type': 'BreadcrumbList',
+          'itemListElement': [
+            { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://simulationsourcecode.com/' },
+            { '@type': 'ListItem', 'position': 2, 'name': 'Numerology Calculator', 'item': 'https://simulationsourcecode.com/calculator/' }
+          ]
+        }
+      ]
     });
   } else if (name === 'services') {
     _setJsonLd({
@@ -618,22 +629,59 @@ function initHomePage() {
   var page = document.getElementById('page-home');
   if (!page) return;
 
-  if (_homeRevealInited) {
-    page.querySelectorAll('.hp-reveal').forEach(function (el) {
-      el.classList.add('is-visible');
-    });
+  function revealHomeEl(el) {
+    if (!el || el.classList.contains('is-visible')) return false;
+    el.classList.add('is-visible');
+    el.classList.remove('hp-reveal-armed');
+    return true;
   }
-  var revealEls = _homeRevealInited ? [] : page.querySelectorAll('.hp-reveal');
-  var revealObs = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) {
-        e.target.classList.add('is-visible');
+
+  function homeElInView(el) {
+    var r = el.getBoundingClientRect();
+    return r.top < window.innerHeight - 48 && r.bottom > 48;
+  }
+
+  if (_homeRevealInited) {
+    page.querySelectorAll('.hp-reveal').forEach(revealHomeEl);
+  }
+  var revealEls = _homeRevealInited ? [] : Array.prototype.slice.call(page.querySelectorAll('.hp-reveal'));
+  if (revealEls.length) {
+    var pending = revealEls.slice();
+    var revealObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        revealHomeEl(e.target);
         revealObs.unobserve(e.target);
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -48px 0px' });
+
+    function flushHomeReveals() {
+      pending = pending.filter(function (el) {
+        if (el.classList.contains('is-visible')) return false;
+        if (homeElInView(el)) {
+          revealHomeEl(el);
+          try { revealObs.unobserve(el); } catch (err) { /* ignore */ }
+          return false;
+        }
+        return true;
+      });
+      if (!pending.length) {
+        window.removeEventListener('scroll', flushHomeReveals);
+        window.removeEventListener('resize', flushHomeReveals);
       }
+    }
+
+    pending.forEach(function (el) {
+      el.classList.add('hp-reveal-armed');
+      revealObs.observe(el);
     });
-  }, { threshold: 0, rootMargin: '0px 0px -60px 0px' });
-  revealEls.forEach(function (el) { revealObs.observe(el); });
-  if (revealEls.length) _homeRevealInited = true;
+    window.addEventListener('scroll', flushHomeReveals, { passive: true });
+    window.addEventListener('resize', flushHomeReveals);
+    flushHomeReveals();
+    requestAnimationFrame(flushHomeReveals);
+    setTimeout(flushHomeReveals, 100);
+    _homeRevealInited = true;
+  }
 
   function revealChips(block) {
     block.querySelectorAll('.hp-freq-chip').forEach(function (chip, i) {

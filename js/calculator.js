@@ -366,9 +366,10 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
       + '<div style="font-family:\'Cinzel\',serif;font-size:9px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:' + accentLight + ';margin-bottom:8px;text-shadow:0 0 12px rgba(201,168,76,0.2)">◈&nbsp;&nbsp;Compound Frequency · ' + compound + '&nbsp;&nbsp;◈</div>'
       + '<div style="position:relative;overflow:hidden">'
       + '<p style="font-family:\'EB Garamond\',serif;font-size:12px;color:rgba(255,255,255,0.38);margin:0;line-height:1.65;font-style:italic;filter:blur(4px);user-select:none;pointer-events:none">' + COMPOUND_DESC[compound] + '</p>'
-      + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(5,4,10,0.3) 0%,rgba(5,4,10,0.6) 50%,rgba(5,4,10,0.3) 100%)">'
-      + '<div style="font-size:18px;opacity:.8">🔒</div>'
-      + '</div>'
+      + '<a href="#unlock-cta-inline" class="ssc-compound-lock" aria-label="Unlock compound frequency in the full Guidebook" onclick="return scrollToUnlockCta(event)">'
+      + '<span class="ssc-compound-lock-icon" aria-hidden="true">🔒</span>'
+      + '<span class="ssc-compound-lock-hint">Unlock in Guidebook</span>'
+      + '</a>'
       + '</div>'
       + '</div>'
     : '';
@@ -947,7 +948,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         ${buildFreqChart(numbers)}
       </div>
       <div class="ssc-mid-cta ssc-reveal ssc-delay-1">
-        <a href="#unlock-cta-inline" class="ssc-mid-cta-jump">Your full Blueprint is ready · $22 <span aria-hidden="true">↓</span></a>
+        <a href="#unlock-cta-inline" class="ssc-mid-cta-jump" onclick="return scrollToUnlockCta(event)">Your full Blueprint is ready · $22 <span aria-hidden="true">↓</span></a>
       </div>
       <div class="ssc-reveal ssc-delay-2">${lessonsBlock}</div>
       <div class="ssc-reveal ssc-delay-3">${expressionBlock}</div>
@@ -1085,7 +1086,15 @@ function buildSummaryCta(firstName, lp, exp, calling) {
         ⬡ Get My Full $22 Guidebook ⬡
       </button>
 
-      <p class="ssc-summary-cta-trust">Rated 5.0 on Facebook · Delivered within minutes</p>
+      <p class="ssc-summary-cta-trust">
+        Rated 5.0 on Facebook · Delivered within minutes ·
+        <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer">See reviews</a>
+      </p>
+
+      <blockquote class="ssc-summary-cta-quote">
+        <p>“I loved the numerology report I had done. It really helped me understand myself a bit better and opened my mind to things I had been ignoring and shutting out.”</p>
+        <footer>— Paige S. · Facebook Review</footer>
+      </blockquote>
 
       <p class="unlock-reassurance ssc-summary-cta-reassurance">
         Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email">your email</strong>
@@ -1303,6 +1312,23 @@ function buildFreqChart(numbers) {
     </svg></div>`;
 }
 
+function scrollToUnlockCta(e) {
+  if (e) {
+    e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+  }
+  var el = document.getElementById('unlock-cta-inline');
+  if (!el) return false;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var btn = document.getElementById('unlock-pay-btn');
+  if (btn) {
+    setTimeout(function() {
+      try { btn.focus({ preventScroll: true }); } catch (_) { btn.focus(); }
+    }, 450);
+  }
+  return false;
+}
+
 function handleUnlockPayment() {
   var errorEl = document.getElementById('unlock-email-error');
   var btn     = document.getElementById('unlock-pay-btn');
@@ -1358,6 +1384,7 @@ function handleUnlockPayment() {
 }
 
 window.handleUnlockPayment = handleUnlockPayment;
+window.scrollToUnlockCta = scrollToUnlockCta;
 
 /* ═══════════════════════════════════════════════════════════════
    EXPOSE TO WINDOW
@@ -1376,6 +1403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 window.handleUnlockPayment = handleUnlockPayment;
+window.scrollToUnlockCta = scrollToUnlockCta;
 
 document.addEventListener('click', function(e) {
   if (e.target && e.target.id === 'guidebook-sample-link') {

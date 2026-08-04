@@ -1560,7 +1560,7 @@ async function handleCreateCheckout(request, env, origin) {
       'metadata[theme]':                                String(theme        || ''),
       'metadata[product]':                              product.id,
       'success_url':                                    `https://simulationsourcecode.com/thank-you/?session_id={CHECKOUT_SESSION_ID}&product=${product.successProduct}`,
-      'cancel_url':                                     'https://simulationsourcecode.com/services/?payment=cancelled',
+      'cancel_url':                                     'https://simulationsourcecode.com/calculator/?payment=cancelled',
     });
 
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {

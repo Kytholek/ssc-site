@@ -1921,7 +1921,6 @@ function handleUnlockPaymentModal() {
   if (errorEl) errorEl.textContent = '';
 
   var product = MODAL_PRODUCT || 'guidebook';
-  var copy = MODAL_PRODUCT_COPY[product] || MODAL_PRODUCT_COPY.guidebook;
   var userPayload = {
     email:    email,
     name:     nameVal,
@@ -1933,15 +1932,22 @@ function handleUnlockPaymentModal() {
 
   // Route through /checkout/ so Meta Pixel can measure InitiateCheckout on our domain
   // before Stripe (hosted Stripe Checkout cannot embed our pixel).
+  // InitiateCheckout fires once on /checkout/ — do not duplicate here.
   try {
     sessionStorage.setItem('ssc_pending_order', JSON.stringify(userPayload));
   } catch(e) {}
-  trackSscEvent(copy.eventName || 'guidebook_checkout_start', { source: 'services_modal', product: product });
 
   btn.disabled    = true;
   btn.textContent = '· Connecting to Stripe ·';
-  window.location.href = '/checkout/?product=' + encodeURIComponent(product)
-    + '&email=' + encodeURIComponent(email);
+  var qs = new URLSearchParams({
+    product: product,
+    email: email,
+    name: nameVal,
+    month: String(monthVal || ''),
+    day: String(dayVal || ''),
+    year: String(yearVal || '')
+  });
+  window.location.href = '/checkout/?' + qs.toString();
 }
 
 // Email capture form handler

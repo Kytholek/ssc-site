@@ -943,8 +943,11 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         <div style="font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:12px;opacity:.85">Your Complete Frequency Blueprint</div>
         <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
       </div>
-      <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:44px">
+      <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:20px">
         ${buildFreqChart(numbers)}
+      </div>
+      <div class="ssc-mid-cta ssc-reveal ssc-delay-1">
+        <a href="#unlock-cta-inline" class="ssc-mid-cta-jump">Your full Blueprint is ready · $22 <span aria-hidden="true">↓</span></a>
       </div>
       <div class="ssc-reveal ssc-delay-2">${lessonsBlock}</div>
       <div class="ssc-reveal ssc-delay-3">${expressionBlock}</div>
@@ -1050,10 +1053,8 @@ function buildSummaryCta(firstName, lp, exp, calling) {
         <p>
           Your <strong>Expression <span id="unlock-expression">${exp}</span></strong> means you are
           ${expression}.
-        </p>
-        <p>
-          Your <strong>Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge.
-          The Guidebook expands the compound stories, shadows, and integration across all seven frequencies.
+          Your <strong>Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge —
+          the Guidebook expands compounds, shadows, and integration across all seven frequencies.
         </p>
       </div>
 
@@ -1083,6 +1084,8 @@ function buildSummaryCta(firstName, lp, exp, calling) {
       <button type="button" class="unlock-btn" id="unlock-pay-btn" onclick="handleUnlockPayment()">
         ⬡ Get My Full $22 Guidebook ⬡
       </button>
+
+      <p class="ssc-summary-cta-trust">Rated 5.0 on Facebook · Delivered within minutes</p>
 
       <p class="unlock-reassurance ssc-summary-cta-reassurance">
         Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email">your email</strong>
@@ -1318,25 +1321,40 @@ function handleUnlockPayment() {
   }
   if (errorEl) errorEl.textContent = '';
 
+  var lead = _lastCalculatorLead || {};
   var payload = {
     email: email,
-    name:  (document.getElementById('calc-fullname') || {}).value || '',
-    month: (document.getElementById('calc-month')    || {}).value || '',
-    day:   (document.getElementById('calc-day')      || {}).value || '',
-    year:  (document.getElementById('calc-year')     || {}).value || '',
+    name:  (document.getElementById('calc-fullname') || {}).value || lead.name || '',
+    month: (document.getElementById('calc-month')    || {}).value || lead.month || '',
+    day:   (document.getElementById('calc-day')      || {}).value || lead.day || '',
+    year:  (document.getElementById('calc-year')     || {}).value || lead.year || '',
+    life_path: lead.life_path || lead.lifePath || '',
+    expression: lead.expression || '',
+    life_calling: lead.life_calling || lead.lifeCalling || '',
+    product: 'guidebook'
   };
 
   // Route through /checkout/ so Meta Pixel can measure guidebook checkout on our domain
   // before the Stripe redirect (Stripe's hosted page cannot host our pixel).
-  payload.product = 'guidebook';
+  // InitiateCheckout fires once on /checkout/ — do not duplicate here.
   try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(payload)); } catch(e) {}
-  window.sscTrackEvent('guidebook_checkout_start', { source: 'calculator', product: 'guidebook' });
 
   if (btn) {
     btn.disabled    = true;
     btn.textContent = '· Connecting to Stripe ·';
   }
-  window.location.href = '/checkout/?product=guidebook&email=' + encodeURIComponent(email);
+  var qs = new URLSearchParams({
+    product: 'guidebook',
+    email: payload.email,
+    name: payload.name,
+    month: String(payload.month || ''),
+    day: String(payload.day || ''),
+    year: String(payload.year || ''),
+    life_path: String(payload.life_path || ''),
+    expression: String(payload.expression || ''),
+    life_calling: String(payload.life_calling || '')
+  });
+  window.location.href = '/checkout/?' + qs.toString();
 }
 
 window.handleUnlockPayment = handleUnlockPayment;

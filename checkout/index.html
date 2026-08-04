@@ -155,13 +155,13 @@
     day: params.get('day') || (pending && pending.day) || '',
     year: params.get('year') || (pending && pending.year) || '',
     product: product,
-    life_path: (pending && pending.life_path) || '',
-    expression: (pending && pending.expression) || '',
-    life_calling: (pending && pending.life_calling) || '',
-    soul: (pending && pending.soul) || '',
-    outer: (pending && pending.outer) || '',
-    achievement: (pending && pending.achievement) || '',
-    theme: (pending && pending.theme) || ''
+    life_path: params.get('life_path') || (pending && pending.life_path) || '',
+    expression: params.get('expression') || (pending && pending.expression) || '',
+    life_calling: params.get('life_calling') || (pending && pending.life_calling) || '',
+    soul: params.get('soul') || (pending && pending.soul) || '',
+    outer: params.get('outer') || (pending && pending.outer) || '',
+    achievement: params.get('achievement') || (pending && pending.achievement) || '',
+    theme: params.get('theme') || (pending && pending.theme) || ''
   };
 
   document.getElementById('coProduct').textContent = LABELS[product] || LABELS.guidebook;

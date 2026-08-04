@@ -139,6 +139,7 @@ const PAGE_META = {
   calculator: {
     title      : 'Free Numerology Calculator · Life Path & Seven Frequencies · SSC',
     description: 'Free numerology calculator for your Life Path number and six more frequencies — Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme from birth date and name.',
+    ogImage    : 'https://simulationsourcecode.com/Images/calculator-og.png',
   },
   books: {
     title      : 'Recommended Numerology Books · Simulation Source Code',
@@ -368,7 +369,7 @@ function showPage(name, pushState = true) {
 
   const meta = PAGE_META[name] || { title: name + SITE.titleSuffix, description: SITE.description };
   const url  = name === 'home' ? '/' : '/' + name + '/';
-  setMeta(meta.title, meta.description, SITE.ogImage, SITE.baseUrl + url, 'website');
+  setMeta(meta.title, meta.description, meta.ogImage || SITE.ogImage, SITE.baseUrl + url, 'website');
 
   if (pushState && name !== 'codex') {
     history.pushState({ page: name, post: null }, meta.title, url);

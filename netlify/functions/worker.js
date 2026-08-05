@@ -353,6 +353,10 @@ export default {
       return handleGetCheckoutSession(request, env, origin);
     }
 
+    if (request.method === 'POST' && url.pathname === '/api/meta-capi') {
+      return handleMetaCapi(request, env, origin);
+    }
+
     if (request.method === 'POST' && url.pathname === '/api/scl/checkout') {
       return handleSclCheckout(request, env, origin);
     }
@@ -1928,6 +1932,8 @@ async function handleGetCheckoutSession(request, env, origin) {
       session_id: session.id,
       email:      session.customer_email || session.customer_details?.email || session.metadata?.email || '',
       product:    session.metadata?.product || 'guidebook',
+      amount_total: session.amount_total || 0,
+      currency:     String(session.currency || 'usd').toUpperCase(),
     }), {
       status: 200,
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
@@ -1949,6 +1955,7 @@ async function handleGetCheckoutSession(request, env, origin) {
 function handleSiteConfig(request, env, origin) {
   const placeId = env.GOOGLE_PLACE_ID || '';
   return new Response(JSON.stringify({
+    ga4MeasurementId: env.GA4_MEASUREMENT_ID || '',
     googlePlaceId:   placeId,
     googleReviewUrl: getGoogleReviewUrl(env),
     googleMapsUrl:   env.GOOGLE_MAPS_URL || (placeId
@@ -1962,6 +1969,112 @@ function handleSiteConfig(request, env, origin) {
       'Cache-Control': 'public, max-age=3600',
     },
   });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  META CONVERSIONS API — POST /api/meta-capi
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function sha256Hex(value) {
+  const encoder = new TextEncoder();
+  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(value));
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  String(cookieHeader || '').split(';').forEach(part => {
+    const index = part.indexOf('=');
+    if (index === -1) return;
+    cookies[part.slice(0, index).trim()] = part.slice(index + 1).trim();
+  });
+  return cookies;
+}
+
+async function handleMetaCapi(request, env, origin) {
+  const headers = { ...corsHeaders(origin), 'Content-Type': 'application/json' };
+  const accessToken = env.META_CAPI_ACCESS_TOKEN || env.META_ACCESS_TOKEN || '';
+  const pixelId = env.META_PIXEL_ID || '3127826867426600';
+
+  if (!accessToken) {
+    return new Response(JSON.stringify({ skipped: true, reason: 'META_CAPI_ACCESS_TOKEN not configured' }), {
+      status: 200,
+      headers,
+    });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400, headers });
+  }
+
+  const eventName = String(body.event_name || 'Purchase');
+  const eventId = String(body.event_id || '').trim();
+  if (!eventId) {
+    return new Response(JSON.stringify({ error: 'event_id required' }), { status: 400, headers });
+  }
+
+  const cookies = parseCookies(request.headers.get('cookie'));
+  const userData = {
+    client_ip_address: request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || '',
+    client_user_agent: request.headers.get('user-agent') || '',
+    fbp: cookies._fbp || '',
+    fbc: cookies._fbc || '',
+  };
+
+  const email = String(body.email || '').trim().toLowerCase();
+  if (isValidEmail(email)) {
+    userData.em = await sha256Hex(email);
+  }
+
+  Object.keys(userData).forEach(key => {
+    if (!userData[key]) delete userData[key];
+  });
+
+  const customData = {
+    currency: String(body.currency || 'USD').toUpperCase(),
+    value: Number(body.value || 0),
+    content_name: String(body.product || 'guidebook'),
+    content_type: 'product',
+    contents: [{
+      id: String(body.product || 'guidebook'),
+      quantity: 1,
+      item_price: Number(body.value || 0),
+    }],
+  };
+
+  const payload = {
+    data: [{
+      event_name: eventName,
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: eventId,
+      action_source: 'website',
+      event_source_url: String(body.event_source_url || request.url),
+      user_data: userData,
+      custom_data: customData,
+    }],
+  };
+
+  try {
+    const metaRes = await fetch(`https://graph.facebook.com/v20.0/${encodeURIComponent(pixelId)}/events?access_token=${encodeURIComponent(accessToken)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await metaRes.json().catch(() => ({}));
+    return new Response(JSON.stringify(data), {
+      status: metaRes.ok ? 200 : 502,
+      headers,
+    });
+  } catch (err) {
+    console.error('meta-capi error:', err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers });
+  }
 }
 
 

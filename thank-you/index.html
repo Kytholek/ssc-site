@@ -127,6 +127,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
 <script src="/js/meta-pixel.js"></script>
+<script src="/js/analytics.js"></script>
 
 </head>
 <body>
@@ -204,14 +205,18 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     var sessionId = params.get('session_id') || '';
     var email     = params.get('email')      || '';
     var product   = params.get('product')    || 'guidebook';
+    var amountTotal = 0;
+    var currency = 'USD';
 
     if (sessionId && !email) {
       try {
         var sessionRes = await fetch('/api/checkout-session?session_id=' + encodeURIComponent(sessionId));
         if (sessionRes.ok) {
           var sessionData = await sessionRes.json();
-          email   = sessionData.email   || email;
-          product = sessionData.product || product;
+          email       = sessionData.email   || email;
+          product     = sessionData.product || product;
+          amountTotal = sessionData.amount_total || amountTotal;
+          currency    = sessionData.currency || currency;
         }
       } catch (err) {
         console.warn('Could not load checkout session:', err);
@@ -246,6 +251,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
         : 'guidebook_purchase_thank_you';
       window.sscTrackEvent(thankYouEvent, {
         product: product,
+        session_id: sessionId,
+        email: email,
+        value: amountTotal ? amountTotal / 100 : undefined,
+        currency: currency,
         has_session_id: !!sessionId,
         has_email: !!email
       });

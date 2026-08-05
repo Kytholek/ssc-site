@@ -15,12 +15,34 @@
     timecycle: 17,
     bundle: 29,
     consultation: 88,
+    membership: 0,
   };
 
-  function track(eventName, params) {
+  function safeString(value) {
+    return String(value == null ? '' : value).trim();
+  }
+
+  function normalizeProduct(product) {
+    product = safeString(product || 'guidebook').toLowerCase();
+    return product === 'timecycle' ? 'time-cycle' : product;
+  }
+
+  function eventIdFor(eventName, payload) {
+    payload = payload || {};
+    if (payload.event_id) return safeString(payload.event_id);
+    if (payload.session_id) return 'stripe_' + safeString(payload.session_id);
+    if (payload.transaction_id) return 'order_' + safeString(payload.transaction_id);
+    return eventName + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function track(eventName, params, eventId) {
     if (typeof window.fbq !== 'function') return;
     try {
-      window.fbq('track', eventName, params || {});
+      if (eventId) {
+        window.fbq('track', eventName, params || {}, { eventID: eventId });
+      } else {
+        window.fbq('track', eventName, params || {});
+      }
     } catch (e) {}
   }
 
@@ -32,6 +54,7 @@
   }
 
   function moneyParams(product, extra) {
+    product = normalizeProduct(product);
     var out = Object.assign({ content_name: product || 'guidebook' }, extra || {});
     var value = PRODUCT_VALUE[product];
     if (value != null) {
@@ -43,10 +66,34 @@
     return out;
   }
 
+  function sendCapiPurchase(params, payload, eventId) {
+    if (!eventId || !window.fetch) return;
+    payload = payload || {};
+    try {
+      fetch('/api/meta-capi', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_name: 'Purchase',
+          event_id: eventId,
+          event_source_url: window.location.href,
+          product: payload.product || params.content_name || 'guidebook',
+          value: params.value,
+          currency: params.currency || 'USD',
+          email: payload.email || '',
+          session_id: payload.session_id || '',
+        }),
+        keepalive: true,
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   function bridgeEvent(eventName, payload) {
     if (!eventName) return;
     payload = payload || {};
-    var product = payload.product || 'guidebook';
+    var product = normalizeProduct(payload.product);
+    var eventId = eventIdFor(eventName, payload);
 
     if (
       eventName === 'calculator_decode_success' ||
@@ -68,7 +115,7 @@
       if (eventName === 'timecycle_checkout_start') product = payload.product || 'time-cycle';
       if (eventName === 'bundle_checkout_start') product = payload.product || 'bundle';
       if (eventName === 'guidebook_checkout_start') product = payload.product || 'guidebook';
-      track('InitiateCheckout', moneyParams(product, { content_category: 'checkout' }));
+      track('InitiateCheckout', moneyParams(product, { content_category: 'checkout' }), eventId);
       return;
     }
 
@@ -84,7 +131,12 @@
       else if (eventName === 'consultation_purchase_thank_you') product = payload.product || 'consultation';
       else if (eventName === 'membership_purchase_thank_you') product = payload.product || 'membership';
       else product = payload.product || 'guidebook';
-      track('Purchase', moneyParams(product, { content_category: 'purchase' }));
+      var params = moneyParams(product, {
+        content_category: 'purchase',
+        order_id: payload.session_id || payload.transaction_id || eventId,
+      });
+      track('Purchase', params, eventId);
+      sendCapiPurchase(params, payload, eventId);
       return;
     }
 

@@ -27,7 +27,8 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
-<script src="/js/meta-pixel.js"></script>`
+<script src="/js/meta-pixel.js"></script>
+<script src="/js/analytics.js"></script>`
 
 const OLD_PATTERNS = [
   /(?:\s*<!-- Meta Pixel(?: Code)? -->\s*)?(?:\s*<link rel="preconnect" href="https:\/\/connect\.facebook\.net" crossorigin>\s*)?\s*<script src="\/js\/meta-pixel\.js"><\/script>\s*<noscript><img height="1" width="1" style="display:none"\s*src="https:\/\/www\.facebook\.com\/tr\?id=3127826867426600&ev=PageView&noscript=1"\s*\/><\/noscript>(?:\s*<!-- End Meta Pixel Code -->)?/g,
@@ -64,6 +65,12 @@ function processFile(file) {
     // Ensure bridge script is present
     if (!html.includes('/js/meta-pixel.js')) {
       html = html.replace('<!-- End Meta Pixel Code -->', '<!-- End Meta Pixel Code -->\n<script src="/js/meta-pixel.js"></script>')
+      fs.writeFileSync(file, html)
+      updated++
+      return
+    }
+    if (!html.includes('/js/analytics.js')) {
+      html = html.replace('<script src="/js/meta-pixel.js"></script>', '<script src="/js/meta-pixel.js"></script>\n<script src="/js/analytics.js"></script>')
       fs.writeFileSync(file, html)
       updated++
       return

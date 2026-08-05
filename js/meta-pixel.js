@@ -103,7 +103,7 @@
         content_name: 'numerology_calculator',
         content_category: 'calculator',
         status: eventName,
-      });
+      }, eventId);
       return;
     }
 
@@ -135,6 +135,8 @@
         content_category: 'purchase',
         order_id: payload.session_id || payload.transaction_id || eventId,
       });
+      params.value = 0.00;
+      params.currency = 'USD';
       track('Purchase', params, eventId);
       sendCapiPurchase(params, payload, eventId);
       return;

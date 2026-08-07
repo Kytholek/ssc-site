@@ -374,7 +374,7 @@ export function buildTimeCycleEmailHtml(name, email, cycles, env = {}) {
  * Full Time Cycle pipeline after queue dequeue.
  * @param {object} userData
  * @param {object} env
- * @param {{ convertToPDF: Function, arrayBufferToBase64: Function, formatResendFrom: Function, formatResendReplyTo: Function, getGoogleReviewUrl?: Function }} deps
+ * @param {{ convertToPDF: Function, arrayBufferToBase64: Function, sendTransactionalEmail: Function, getGoogleReviewUrl?: Function }} deps
  */
 export async function processTimeCycleReading(userData, env, deps) {
   const name = userData.fullName || userData.name || 'Seeker';
@@ -409,32 +409,18 @@ export async function processTimeCycleReading(userData, env, deps) {
     GOOGLE_REVIEW_URL: deps.getGoogleReviewUrl ? deps.getGoogleReviewUrl(env) : undefined,
   };
 
-  console.log('[time-cycle 4/4] Sending email via Resend…');
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-    },
-    body: JSON.stringify({
-      from: deps.formatResendFrom(env.FROM_EMAIL),
-      to: [userData.email],
-      reply_to: deps.formatResendReplyTo(env.REPLY_TO_EMAIL, env.FROM_EMAIL),
-      subject: `\u2746 Your Time Cycle \u2014 ${name.split(' ')[0]}`,
-      html: buildTimeCycleEmailHtml(name, userData.email, cycles, reviewEnv),
-      attachments: [{
-        filename: `SSC-Time-Cycle-${name.replace(/\s+/g, '-')}.pdf`,
-        content: pdfBase64,
-        content_type: 'application/pdf',
-      }],
-    }),
+  console.log('[time-cycle 4/4] Sending email via Brevo…');
+  const result = await deps.sendTransactionalEmail({
+    to: userData.email,
+    subject: `\u2746 Your Time Cycle \u2014 ${name.split(' ')[0]}`,
+    html: buildTimeCycleEmailHtml(name, userData.email, cycles, reviewEnv),
+    attachments: [{
+      filename: `SSC-Time-Cycle-${name.replace(/\s+/g, '-')}.pdf`,
+      content: pdfBase64,
+    }],
+    env,
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Resend error ${response.status}: ${err}`);
-  }
-
   console.log(`[time-cycle 4/4] Email sent to ${userData.email}`);
-  return await response.json();
+  return result;
 }

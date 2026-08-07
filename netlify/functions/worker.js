@@ -2118,6 +2118,8 @@ async function handleSubmitEmail(request, env, origin) {
 
   // Sheet + Brevo contact + autoresponder in parallel (webapp: sheet only)
   const jobs = [logEmailToSheet(sheetPayload)];
+  let emailSent = false;
+  let emailError = null;
 
   if (source !== 'webapp') {
     jobs.push(upsertBrevoContact({
@@ -2145,7 +2147,9 @@ async function handleSubmitEmail(request, env, origin) {
             env,
           });
         }
+        emailSent = true;
       } catch (err) {
+        emailError = err?.message || String(err);
         console.error('submit-email error:', err);
       }
     })());
@@ -2153,7 +2157,11 @@ async function handleSubmitEmail(request, env, origin) {
 
   await Promise.allSettled(jobs);
 
-  return new Response(JSON.stringify({ ok: true }), {
+  return new Response(JSON.stringify({
+    ok: true,
+    emailSent: source === 'webapp' ? false : emailSent,
+    ...(emailError ? { emailError } : {}),
+  }), {
     status: 200,
     headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
   });

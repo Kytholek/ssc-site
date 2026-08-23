@@ -626,6 +626,41 @@ body { padding-top: 64px; }
 
 .calc-container { max-width: 760px; margin: 0 auto; padding: 20px 24px 80px; }
 
+/* After decode: widen for readable L→R trinity columns; keep form focused */
+.calc-container.has-wide-results {
+  max-width: 1100px;
+}
+.calc-container.has-wide-results .form-card,
+.calc-container.has-wide-results .calc-how-it-works {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#results-area:not([hidden]),
+#unlock-cta {
+  width: 100%;
+  max-width: 1100px;
+  box-sizing: border-box;
+}
+
+/* Trinity columns: L→R on desktop, stack on phone/narrow tablet */
+.ssc-tg {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 767px) {
+  .ssc-tg {
+    grid-template-columns: 1fr !important;
+  }
+  .ssc-fc {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .ssc-fc:last-child {
+    border-bottom: none !important;
+  }
+}
+
 .form-card {
   background: var(--deep); border: 1px solid var(--border-dim);
   border-radius: 10px; padding: 32px 28px; margin-bottom: 24px;
@@ -3836,6 +3871,27 @@ footer {
   text-transform: uppercase;
   color: var(--text-muted);
   position: relative;
+}
+
+.unlock-social-proof {
+  margin: 12px 0 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  opacity: .9;
+  position: relative;
+}
+.unlock-social-proof a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(74,148,148,.4);
+}
+.unlock-social-proof a:hover {
+  color: var(--gold);
+  text-decoration-color: rgba(201,168,76,.5);
 }
 
 /* ── Sample preview link ── */

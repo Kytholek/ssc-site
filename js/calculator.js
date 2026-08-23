@@ -327,6 +327,122 @@ function buildCodexCardHtml(n, accentDim, accentLight) {
 
 // Builds one frequency card within a trinity block
 // rootKey: 'lp','ex','soul','outer','ach','theme', or null for Life Calling
+var CODEX_GRID_XY = {
+  '1': { x: 96, y: 96, r: 16 },
+  '2': { x: 204, y: 96, r: 16 },
+  '3': { x: 150, y: 42, r: 16 },
+  '4': { x: 42, y: 150, r: 16 },
+  '5': { x: 258, y: 150, r: 16 },
+  '6': { x: 150, y: 258, r: 16 },
+  '7': { x: 96, y: 204, r: 16 },
+  '8': { x: 204, y: 204, r: 16 },
+  '9': { x: 150, y: 150, r: 22 }
+};
+
+function buildCodexFootprintMap(lp, exp, calling) {
+  var highlights = [
+    { key: 'lp', root: getCodexRoot(lp.root), label: _t('calc.codex.legend_lp') || 'Life Path', color: '#7ec8c8' },
+    { key: 'exp', root: getCodexRoot(exp.root), label: _t('calc.codex.legend_exp') || 'Expression', color: '#c898f0' },
+    { key: 'calling', root: getCodexRoot(calling.root), label: _t('calc.codex.legend_calling') || 'Life Calling', color: '#e8c96b' }
+  ];
+
+  var byNode = {};
+  highlights.forEach(function (h) {
+    var k = String(h.root);
+    if (!byNode[k]) byNode[k] = [];
+    byNode[k].push(h);
+  });
+
+  var lpMeta = getCodexNodeMeta(lp.root);
+  var expMeta = getCodexNodeMeta(exp.root);
+  var callMeta = getCodexNodeMeta(calling.root);
+
+  var narrativeTpl = _t('calc.codex.narrative') ||
+    'Your Life Path sits at Node {lpn} · {lpp}. Your Expression at Node {expn} · {expp}. They converge in Life Calling · Node {calln}.';
+  var narrative = narrativeTpl
+    .replace('{lpn}', lpMeta.root).replace('{lpp}', lpMeta.placement)
+    .replace('{expn}', expMeta.root).replace('{expp}', expMeta.placement)
+    .replace('{calln}', callMeta.root);
+
+  var ariaTpl = _t('calc.codex.map_aria') || 'Codex map: {details}';
+  var ariaDetails = highlights.map(function (h) { return h.label + ' node ' + h.root; }).join(', ');
+  var ariaLabel = ariaTpl.replace('{details}', ariaDetails);
+
+  var title = _t('calc.codex.footprint_title') || 'Your Codex Footprint';
+  var subtitle = _t('calc.codex.footprint_subtitle') || 'Where your Purpose triangle sits in the universal field';
+
+  var lines = [
+    [150, 42, 96, 96], [150, 42, 204, 96], [96, 96, 150, 150], [204, 96, 150, 150],
+    [96, 204, 150, 150], [204, 204, 150, 150], [150, 258, 96, 204], [150, 258, 204, 204],
+    [42, 150, 150, 150], [258, 150, 150, 150]
+  ];
+  var lineHtml = lines.map(function (l) {
+    return '<line class="ssc-cdx-map-line" x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '"/>';
+  }).join('');
+
+  function ringHtml(cx, cy, baseR, colors) {
+    if (colors.length === 1) {
+      return '<circle class="ssc-cdx-map-ring ssc-cdx-map-pulse" cx="' + cx + '" cy="' + cy + '" r="' + (baseR + 5) + '" fill="none" stroke="' + colors[0].color + '" stroke-width="2.5" opacity="0.9"/>';
+    }
+    var seg = Math.PI * (baseR + 5) * 2 / colors.length;
+    var dash = seg.toFixed(1);
+    return colors.map(function (c, i) {
+      var r = baseR + 5 + i * 4;
+      var offset = (seg * i).toFixed(1);
+      return '<circle class="ssc-cdx-map-ring" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + c.color + '" stroke-width="2.5" stroke-dasharray="' + dash + ' ' + dash + '" stroke-dashoffset="' + offset + '" opacity="0.92"/>';
+    }).join('');
+  }
+
+  var nodeOrder = ['3', '4', '5', '6', '1', '2', '7', '8', '9'];
+  var nodesHtml = nodeOrder.map(function (num) {
+    var pos = CODEX_GRID_XY[num];
+    var active = byNode[num];
+    var openLabel = (_t('calc.codex.open_node') || 'Open Node {n} in Codex').replace('{n}', num);
+    var meta = (window.CODEX_NODES && window.CODEX_NODES[num]) || {};
+    var titleAttr = meta.name ? num + ' — ' + meta.name : 'Node ' + num;
+    var fill = active ? 'rgba(8,12,18,0.92)' : 'rgba(5,4,10,0.75)';
+    var stroke = active ? (active.length === 1 ? active[0].color : 'rgba(201,168,76,0.5)') : 'rgba(201,168,76,0.18)';
+    var textFill = active ? (active.length === 1 ? active[0].color : '#e8c96b') : 'rgba(201,168,76,0.35)';
+    var ring = active ? ringHtml(pos.x, pos.y, pos.r, active) : '';
+    var pulseClass = active && active.length === 1 ? ' ssc-cdx-map-node--active' : (active ? ' ssc-cdx-map-node--fusion' : '');
+    var onclick = "if(typeof navigateCodexNode==='function'){event.preventDefault();navigateCodexNode(" + num + ",event);}";
+    return '<a class="ssc-cdx-map-node' + pulseClass + '" href="/codex/?node=' + num + '" aria-label="' + openLabel + '" onclick="' + onclick + '">'
+      + ring
+      + '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + pos.r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + (active ? 2 : 1) + '"/>'
+      + '<text x="' + pos.x + '" y="' + pos.y + '" fill="' + textFill + '">' + num + '</text>'
+      + '<title>' + titleAttr + (active ? ' · ' + active.map(function (a) { return a.label; }).join(', ') : '') + '</title>'
+      + '</a>';
+  }).join('');
+
+  var legendHtml = highlights.map(function (h) {
+    return '<span class="ssc-cdx-legend-item"><span class="ssc-cdx-legend-dot" style="background:' + h.color + '"></span>' + h.label + '</span>';
+  }).join('');
+
+  return '<section class="ssc-cdx-footprint ssc-mobile-chart" aria-labelledby="ssc-cdx-footprint-title">'
+    + '<div class="ssc-cdx-footprint-head">'
+    + '<div class="ssc-cdx-footprint-eyebrow" data-i18n="calc.codex.footprint_eyebrow">Codex Placement</div>'
+    + '<h3 id="ssc-cdx-footprint-title" class="ssc-cdx-footprint-title" data-i18n="calc.codex.footprint_title">' + title + '</h3>'
+    + '<p class="ssc-cdx-footprint-sub" data-i18n="calc.codex.footprint_subtitle">' + subtitle + '</p>'
+    + '</div>'
+    + '<div class="ssc-cdx-map-wrap">'
+    + '<svg class="ssc-cdx-map-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + ariaLabel + '">'
+    + '<desc>' + ariaLabel + '</desc>'
+    + lineHtml
+    + nodesHtml
+    + '</svg>'
+    + '</div>'
+    + '<div class="ssc-cdx-legend" aria-hidden="false">' + legendHtml + '</div>'
+    + '<p class="ssc-cdx-narrative">' + narrative + '</p>'
+    + '</section>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TRINITY RESULT CARD HELPERS
+═══════════════════════════════════════════════════════════════ */
+
+// Builds one frequency card within a trinity block
+// rootKey: 'lp','ex','soul','outer','ach','theme', or null for Life Calling
+
 function buildFreqCard(n, rootKey, freqIndex, opts) {
   opts = opts || {};
   var label       = getFreqLabel(freqIndex);
@@ -352,7 +468,7 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
 
   var compound    = opts.compound;
   var hasCompound = compound && compound !== n && compound > 9;
-  var borderStyle = isLast ? '' : 'border-bottom:1px solid rgba(255,255,255,0.06)';
+  var borderStyle = isLast ? '' : 'border-right:1px solid rgba(255,255,255,0.06)';
   var codexHtml   = showCodex
     ? buildCodexCardHtml(n, accentDim, accentLight)
     : '';
@@ -361,18 +477,23 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
     : '';
   var displayNum  = hasCompound ? compound + '/' + n : n;
   var extraClass  = opts.extraClass ? ' ' + opts.extraClass : '';
-  var compoundHtml = (hasCompound && COMPOUND_DESC[compound])
-    ? '<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);position:relative">'
+  var compoundHtml = '';
+  if (hasCompound && COMPOUND_DESC[compound]) {
+    var compoundFull = COMPOUND_DESC[compound];
+    var compoundWords = String(compoundFull).split(/\s+/);
+    var compoundTease = compoundWords.slice(0, 10).join(' ') + (compoundWords.length > 10 ? '…' : '');
+    compoundHtml = '<div class="ssc-compound-lock-wrap" style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);position:relative">'
       + '<div style="font-family:\'Cinzel\',serif;font-size:9px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:' + accentLight + ';margin-bottom:8px;text-shadow:0 0 12px rgba(201,168,76,0.2)">◈&nbsp;&nbsp;Compound Frequency · ' + compound + '&nbsp;&nbsp;◈</div>'
+      + '<p style="font-family:\'EB Garamond\',serif;font-size:12px;color:rgba(232,201,107,0.72);margin:0 0 8px;line-height:1.65;font-style:italic">' + compoundTease + '</p>'
       + '<div style="position:relative;overflow:hidden">'
-      + '<p style="font-family:\'EB Garamond\',serif;font-size:12px;color:rgba(255,255,255,0.38);margin:0;line-height:1.65;font-style:italic;filter:blur(4px);user-select:none;pointer-events:none">' + COMPOUND_DESC[compound] + '</p>'
-      + '<a href="#unlock-cta-inline" class="ssc-compound-lock" aria-label="Unlock compound frequency in the full Guidebook" onclick="return scrollToUnlockCta(event)">'
+      + '<p style="font-family:\'EB Garamond\',serif;font-size:12px;color:rgba(255,255,255,0.38);margin:0;line-height:1.65;font-style:italic;filter:blur(4px);user-select:none;pointer-events:none">' + compoundFull + '</p>'
+      + '<a href="#unlock-cta" class="ssc-compound-lock" aria-label="Unlock compound frequency in the full Guidebook" onclick="return scrollToUnlockCta(event)">'
       + '<span class="ssc-compound-lock-icon" aria-hidden="true">🔒</span>'
-      + '<span class="ssc-compound-lock-hint">Unlock in Guidebook</span>'
+      + '<span class="ssc-compound-lock-hint">Unlock in Guidebook ↓</span>'
       + '</a>'
       + '</div>'
-      + '</div>'
-    : '';
+      + '</div>';
+  }
 
   return '<div class="ssc-fc' + extraClass + '" style="' + borderStyle + ';min-width:0;box-sizing:border-box">'
     + codexHtml
@@ -387,6 +508,7 @@ function buildFreqCard(n, rootKey, freqIndex, opts) {
 
 // Builds a full trinity section: styled header + 3-column card grid
 // cards: array of [n, rootKey, freqIndex] triples
+
 function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards, opts) {
   opts = opts || {};
   var accentLight = opts.accentLight || '#e8c96b';
@@ -409,7 +531,7 @@ function buildTrinitySection(titleSuffix, subtitle, borderColor, bgColor, cards,
     + '<div style="font-family:\'Cinzel\',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:' + accentLight + '">' + titleSuffix + '</div>'
     + '<div style="font-family:\'EB Garamond\',serif;font-size:15px;color:rgba(255,255,255,0.62);margin-top:6px;font-style:italic;letter-spacing:.01em">' + subtitle + '</div>'
     + '</div>'
-    + '<div class="ssc-tg" style="display:grid;grid-template-columns:1fr">'
+    + '<div class="ssc-tg">'
     + cardHtml
     + '</div></div>';
 }
@@ -638,6 +760,10 @@ function _setTextById(id, value) {
 }
 
 function _getGuidebookEmail() {
+  var unlockEmailEl = document.getElementById('unlock-email');
+  var unlockEmail = (unlockEmailEl ? unlockEmailEl.value : '').trim();
+  if (unlockEmail && _isValidEmail(unlockEmail)) return unlockEmail;
+
   var leadEmailEl = document.getElementById('calc-lead-email');
   var email = (leadEmailEl ? leadEmailEl.value : '').trim();
   if (email && _isValidEmail(email)) return email;
@@ -859,20 +985,22 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const summaryCta = buildSummaryCta(firstName, lp.root, exp.root, calling.root);
   var leadEmailForNote = _getGuidebookEmail();
 
+  const coreSummary = buildCoreSummary(lp, exp, calling);
+  const codexFootprint = buildCodexFootprintMap(lp, exp, calling);
+
   resultsTarget.classList.remove('results-area--empty', 'results-placeholder');
   resultsTarget.removeAttribute('hidden');
   var howEl = document.querySelector('.calc-how-it-works');
   if (howEl) howEl.hidden = true;
-  // Legacy static unlock CTA (if present) stays hidden — CTA lives in results.
-  var legacyCta = document.getElementById('unlock-cta');
-  if (legacyCta) {
-    legacyCta.style.display = 'none';
-    legacyCta.setAttribute('aria-hidden', 'true');
-  }
+
+  var calcShell = document.querySelector('.calc-container');
+  if (calcShell) calcShell.classList.add('has-wide-results');
+
   resultsTarget.innerHTML = `
     <style>
-      .ssc-rw { }
-      .ssc-fc  { padding: 22px 18px; }
+      .ssc-rw { max-width: 1100px; margin: 0 auto; }
+      .ssc-tg  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .ssc-fc  { padding: 22px 18px; min-width: 0; }
       .ssc-fn  { font-size: 34px; }
       .ssc-fp  { font-size: 16px; }
       .ssc-role{ font-size: 10px; }
@@ -886,29 +1014,21 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-delay-4 { animation-delay: .32s; }
       .ssc-delay-5 { animation-delay: .40s; }
       @keyframes sscResultReveal { to { opacity: 1; transform: translateY(0); } }
-      @keyframes sscFadeIn { to { opacity: 1; } }
-      .ssc-summary-cta { margin:36px auto 0; max-width:none; width:100%; }
-      .ssc-summary-cta .unlock-btn { width:100%; }
-      .ssc-cta-divider {
-        display:flex; align-items:center; gap:14px;
-        margin: 8px 0 20px;
-      }
-      .ssc-cta-divider::before, .ssc-cta-divider::after {
-        content:''; flex:1; height:1px;
-        background:linear-gradient(90deg, transparent, rgba(126,200,200,.35), rgba(201,168,76,.25), transparent);
-      }
-      .ssc-cta-divider-sigil {
-        font-family:'Cinzel',serif; font-size:11px; letter-spacing:.2em;
-        color:rgba(201,168,76,.7);
-      }
+      .ssc-core-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:0 auto 34px; max-width:880px; }
+      .ssc-core-card { background:linear-gradient(135deg, rgba(13,11,24,.92), rgba(8,20,20,.7)); border:1px solid rgba(126,200,200,.22); border-radius:12px; padding:18px 14px; text-align:center; position:relative; overflow:hidden; }
+      .ssc-core-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(126,200,200,.5), transparent); }
+      .ssc-core-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+      .ssc-core-num { font-family:'Cinzel Decorative',serif; font-size:34px; color:var(--gold-light); line-height:1; margin-bottom:8px; }
+      .ssc-core-meta { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-dim); font-style:italic; }
       .ssc-fc--purpose-anchor { position:relative; background:linear-gradient(180deg, rgba(201,168,76,.055), rgba(13,11,24,.18)); box-shadow:inset 0 0 0 1px rgba(201,168,76,.13); }
       .ssc-fc--purpose-anchor::before { content:''; position:absolute; top:0; left:18px; right:18px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,.55), transparent); }
       .ssc-fc--purpose-anchor .ssc-fn { color:var(--gold-light) !important; text-shadow:0 0 24px rgba(201,168,76,.22); }
       .ssc-fc--purpose-anchor .ssc-role { color:rgba(232,201,107,.68) !important; }
-      @media (min-width: 680px) {
-        .ssc-rw  { max-width: 760px; margin: 0 auto; }
-        .ssc-fc  { padding: 28px 24px !important; }
-        .ssc-fn  { font-size: 44px !important; margin-bottom: 14px !important; }
+      @media (min-width: 768px) {
+        .ssc-rw  { max-width: 1100px; margin: 0 auto; }
+        .ssc-tg  { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        .ssc-fc  { padding: 28px 22px !important; }
+        .ssc-fn  { font-size: 48px !important; margin-bottom: 14px !important; }
         .ssc-fp  { font-size: 17px !important; line-height: 1.82 !important; }
         .ssc-role{ font-size: 10px !important; margin-bottom: 7px !important; }
         .ssc-lbl { font-size: 12px !important; margin-bottom: 8px !important; }
@@ -916,12 +1036,12 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         .ssc-cdx { font-size: 10px !important; margin-bottom: 14px !important; }
         .ssc-th  { padding: 18px 26px !important; }
         .ssc-tr  { border-radius: 14px !important; margin-bottom: 32px !important; }
-        .ssc-tg  { grid-template-columns: 1fr !important; }
-        .ssc-fc  { border-right: none !important; }
-        .ssc-fc:last-child { border-bottom: none !important; }
       }
-      @media (max-width: 679px) {
+      @media (max-width: 767px) {
         .ssc-mobile-head { margin-bottom: 30px !important; padding-bottom: 24px !important; }
+        .ssc-core-summary { grid-template-columns:1fr !important; gap:10px !important; margin-bottom:28px !important; }
+        .ssc-core-card { padding:16px 14px !important; }
+        .ssc-core-num { font-size:32px !important; }
         .ssc-mobile-chart { margin-bottom: 32px !important; }
         .ssc-tg  { grid-template-columns: 1fr !important; }
         .ssc-fc  { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 26px 20px !important; }
@@ -941,41 +1061,51 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       <div class="ssc-mobile-head" style="text-align:center;margin-bottom:40px;padding-bottom:32px;position:relative">
         <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px">${readingFor}</div>
         <div style="font-family:'Cinzel Decorative',serif;font-size:26px;color:var(--gold);letter-spacing:.04em;line-height:1.2">${fullName}</div>
-        <div style="font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:12px;opacity:.85">Your Complete Frequency Blueprint</div>
+        <div style="font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:12px;opacity:.85">Your Frequency Snapshot</div>
         <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
       </div>
+      ${coreSummary}
       <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:20px">
         ${buildFreqChart(numbers)}
       </div>
-      <div class="ssc-mid-cta ssc-reveal ssc-delay-1">
-        <a href="#unlock-cta-inline" class="ssc-mid-cta-jump" onclick="return scrollToUnlockCta(event)">Your full Blueprint is ready · $22 <span aria-hidden="true">↓</span></a>
-      </div>
-      <div class="ssc-reveal ssc-delay-2">${lessonsBlock}</div>
-      <div class="ssc-reveal ssc-delay-3">${expressionBlock}</div>
-      <div class="ssc-reveal ssc-delay-4">${purposeBlock}</div>
-      <div class="ssc-reveal ssc-delay-5 ssc-summary-cta" id="unlock-cta-inline">${summaryCta}</div>
+      <div class="ssc-reveal ssc-delay-2">${codexFootprint}</div>
+      <div class="ssc-reveal ssc-delay-3">${lessonsBlock}</div>
+      <div class="ssc-reveal ssc-delay-4">${expressionBlock}</div>
+      <div class="ssc-reveal ssc-delay-5">${purposeBlock}</div>
+      <div class="ssc-reveal ssc-delay-5 ssc-summary-cta" id="unlock-cta">${summaryCta}</div>
     </div>
   `;
 
-  _setTextById('unlock-life-path', lp.root);
-  _setTextById('unlock-expression', exp.root);
-  _setTextById('unlock-life-calling', calling.root);
-  var deliveryNote = document.getElementById('unlock-delivery-email');
-  if (deliveryNote && leadEmailForNote) {
-    deliveryNote.textContent = leadEmailForNote;
+  // Single purchase CTA only (inline summary). Keep legacy #unlock-cta-legacy hidden.
+
+  sscTrackEvent('calculator_decode_success', {
+    life_path: lp.root,
+    expression: exp.root,
+    life_calling: calling.root
+  });
+  sscTrackEvent('guidebook_upsell_view', {
+    life_path: lp.root,
+    expression: exp.root,
+    life_calling: calling.root
+  });
+
+  (function () {
+    var lead = document.getElementById('calc-lead-email');
+    var unlockEmail = document.getElementById('unlock-email');
+    var email = (lead && lead.value.trim()) || leadEmailForNote || '';
+    if (unlockEmail && email) {
+      unlockEmail.value = email;
+    }
+    var deliveryNote = document.getElementById('unlock-delivery-email');
+    if (deliveryNote && email) {
+      deliveryNote.textContent = email;
+    }
+  })();
+  if (typeof _setTextById === 'function') {
+    _setTextById('unlock-life-path', lp.root);
+    _setTextById('unlock-expression', exp.root);
+    _setTextById('unlock-life-calling', calling.root);
   }
-  var leadField = document.querySelector('.calc-email-field');
-  if (leadField) leadField.hidden = true;
-  window.sscTrackEvent('calculator_decode_success', {
-    life_path: lp.root,
-    expression: exp.root,
-    life_calling: calling.root
-  });
-  window.sscTrackEvent('guidebook_upsell_view', {
-    life_path: lp.root,
-    expression: exp.root,
-    life_calling: calling.root
-  });
 
   _setCalculatorLeadMessage('', false);
   var leadEmailEl = document.getElementById('calc-lead-email');
@@ -999,11 +1129,29 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
 
 
 function buildCoreSummary(lp, exp, calling) {
-  // Kept for compatibility; core strip removed from results UI.
-  return '';
+  const items = [
+    ['Life Path', lp.root, lp.compound, 'External curriculum'],
+    ['Expression', exp.root, exp.compound, 'Authentic signal'],
+    ['Life Calling', calling.root, calling.compound, 'Purpose directive'],
+  ];
+
+  return `
+    <div class="ssc-core-summary ssc-reveal" aria-label="Core numerology summary">
+      ${items.map(function(item) {
+        return `
+          <div class="ssc-core-card">
+            <div class="ssc-core-label">${item[0]}</div>
+            <div class="ssc-core-num">${item[1]}</div>
+            <div class="ssc-core-meta">${item[3]} · ${item[2]}/${item[1]}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 
-// ── Meaning + Guidebook CTA (after trinity reading) ────────────
+// ── Dynamic result hook — sells the guidebook ────────────────────────────
+
 function buildSummaryCta(firstName, lp, exp, calling) {
   const frictionMap = {
     1: 'keep finding yourself at new beginnings — situations that demand you go first, even when you feel unready',
@@ -1082,6 +1230,19 @@ function buildSummaryCta(firstName, lp, exp, calling) {
         </div>
       </div>
 
+      <div class="unlock-email-wrap ssc-summary-cta-email">
+        <label class="unlock-email-label" for="unlock-email">Where shall we send your guidebook?</label>
+        <input
+          type="email"
+          id="unlock-email"
+          class="unlock-email-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+          required
+        />
+        <div class="unlock-email-hint" id="unlock-email-error" role="alert" aria-live="polite"></div>
+      </div>
+
       <button type="button" class="unlock-btn" id="unlock-pay-btn" onclick="handleUnlockPayment()">
         ⬡ Get My Full $22 Guidebook ⬡
       </button>
@@ -1101,17 +1262,119 @@ function buildSummaryCta(firstName, lp, exp, calling) {
       <p class="unlock-reassurance ssc-summary-cta-reassurance">
         Secure payment via Stripe · PDF delivers to <strong id="unlock-delivery-email">your email</strong>
       </p>
-      <div id="unlock-email-error" class="ssc-summary-cta-error" role="alert" aria-live="polite"></div>
     </div>
   `;
 }
 
 // Back-compat alias if anything still calls the old name
 function buildResultHook(firstName, lp, exp, calling) {
-  return buildSummaryCta(firstName, lp, exp, calling);
+
+  // Friction phrases — what the LP/Expression tension creates
+  const frictionMap = {
+    // LP: message about what the simulation keeps presenting
+    1: 'keep finding yourself at new beginnings — situations that demand you go first, even when you feel unready',
+    2: 'keep encountering dynamics that test your ability to hold your own while staying connected to others',
+    3: 'keep being pulled toward creative expression but hitting blocks around follow-through and self-doubt',
+    4: 'keep running into situations that demand structure, discipline, and long-term commitment',
+    5: 'keep attracting experiences that push you out of comfort zones — the simulation keeps moving the ground beneath you',
+    6: 'keep finding yourself responsible for others — carrying, nurturing, holding things together',
+    7: 'keep being driven inward — situations that strip away surface certainty and demand real self-knowledge',
+    8: 'keep encountering power dynamics — situations where authority, control, and self-mastery are the central lesson',
+    9: 'keep being drawn toward completion, release, and contribution — the simulation keeps asking you to let go and give back',
+    11: 'keep being placed in the role of bridge — between people, between ideas, between what is and what could be',
+    22: 'keep being handed visions larger than what feels practical — the simulation keeps testing whether you can build them',
+    33: 'keep being called to serve, teach, and hold space — the simulation keeps placing people who need your clarity in your path',
+    44: 'keep being tasked with building things that last — structures, systems, legacies that go beyond the personal',
+  };
+
+  // Expression phrases — what they're encoded to express
+  const expressionMap = {
+    1: 'encoded to initiate — to cut through, begin, and demonstrate independence',
+    2: 'encoded to connect — to bridge, harmonise, and bring people into coherence',
+    3: 'encoded to express — through communication, creativity, and authentic voice',
+    4: 'encoded to build — to create order, structure, and lasting foundations',
+    5: 'encoded to experience — to be present, adapt, and embody freedom',
+    6: 'encoded to nurture — to care, integrate, and hold the wellbeing of the whole',
+    7: 'encoded to seek — to go deep, question, and carry real inner wisdom',
+    8: 'encoded to master — to accumulate real authority and demonstrate it through results',
+    9: 'encoded to complete — to serve, release, and hold a universal perspective',
+    11: 'encoded to illuminate — to channel insight and bridge seen and unseen',
+    22: 'encoded to build at scale — to manifest vision in structures that serve many',
+    33: 'encoded to teach through compassion — to express healing through presence',
+    44: 'encoded to organise power — to create systems of enduring strength',
+  };
+
+  const friction   = frictionMap[lp]  || 'keep encountering situations that reflect your core frequencies back to you';
+  const expression = expressionMap[exp] || 'encoded to express your unique frequency in the world';
+
+  return `
+    <div class="ssc-hook-wrap" style="
+      margin-top: 36px;
+      opacity: 0;
+      animation: sscFadeIn 0.8s ease 1.6s forwards;
+    ">
+    <div style="
+      background: linear-gradient(135deg, rgba(13,11,24,0.92), rgba(8,20,20,0.72));
+      border: 1px solid rgba(126,200,200,0.16);
+      border-radius: 12px;
+      padding: 26px 24px 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 56px rgba(0,0,0,0.22), inset 0 0 26px rgba(255,255,255,0.012);
+    ">
+      <div style="
+        position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(126,200,200,0.38), rgba(201,168,76,0.2), transparent);
+      "></div>
+
+      <div style="
+        font-family: 'Cinzel', serif;
+        font-size: 8px;
+        letter-spacing: .4em;
+        text-transform: uppercase;
+        color: rgba(126,200,200,0.72);
+        margin-bottom: 16px;
+        padding: 9px 12px;
+        border: 1px solid rgba(126,200,200,0.12);
+        border-radius: 999px;
+        background: rgba(126,200,200,0.035);
+        display: inline-block;
+      ">What This Means For You</div>
+
+      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
+        ${firstName}, your <strong style="color:rgba(232,201,107,0.92)">${lp} Life Path</strong> means you will
+        ${friction}. This is not bad luck — it is the curriculum your simulation is running.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim); margin-bottom: 14px;">
+        At the same time, your <strong style="color:rgba(232,201,107,0.92)">${exp} Expression</strong> means you are
+        ${expression}. The tension between what life presents and what you are built to express
+        is the engine of your growth.
+      </p>
+
+      <p style="font-size: 16px; line-height: 1.85; color: var(--text-dim);">
+        Your <strong style="color:rgba(232,201,107,0.92)">${calling} Life Calling</strong> is where these two circuits
+        converge into a single directive. Understanding it — the compound story, the shadow,
+        the integration — is what the Complete Blueprint covers in full.
+      </p>
+
+      <div style="
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(126,200,200,0.1);
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        letter-spacing: .25em;
+        text-transform: uppercase;
+        color: rgba(192,192,216,0.62);
+      ">Your Complete Blueprint reveals the full story of each number above.</div>
+    </div>
+    </div>
+  `;
 }
 
 // ─── Frequency Chart (Star of David / Hexagram) ───────────────
+
 function buildFreqChart(numbers) {
   // numbers: [lifePath, expression, calling, soul, outer, achieve, theme]
   // Positions:
@@ -1319,10 +1582,11 @@ function scrollToUnlockCta(e) {
     e.preventDefault();
     if (e.stopPropagation) e.stopPropagation();
   }
-  var el = document.getElementById('unlock-cta-inline');
+  var el = document.getElementById('unlock-cta');
   if (!el) return false;
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  var btn = document.getElementById('unlock-pay-btn');
+  var btn = document.getElementById('unlock-pay-btn')
+    || document.getElementById('summary-unlock-pay-btn');
   if (btn) {
     setTimeout(function() {
       try { btn.focus({ preventScroll: true }); } catch (_) { btn.focus(); }
@@ -1332,22 +1596,25 @@ function scrollToUnlockCta(e) {
 }
 
 function handleUnlockPayment() {
-  var errorEl = document.getElementById('unlock-email-error');
-  var btn     = document.getElementById('unlock-pay-btn');
-  var email   = _getGuidebookEmail();
+  var errorEls = [
+    document.getElementById('unlock-email-error'),
+    document.getElementById('summary-unlock-email-error')
+  ].filter(Boolean);
+  var email = _getGuidebookEmail();
 
   if (!email) {
-    if (errorEl) {
+    errorEls.forEach(function (errorEl) {
       errorEl.textContent = 'Enter your email in the Life Decoder above, then decode again.';
       errorEl.style.color = 'var(--rose-light)';
-    }
+    });
     var leadEmailEl = document.getElementById('calc-lead-email');
     var leadField = document.querySelector('.calc-email-field');
     if (leadField) leadField.hidden = false;
     if (leadEmailEl) leadEmailEl.focus();
+    scrollToUnlockCta();
     return;
   }
-  if (errorEl) errorEl.textContent = '';
+  errorEls.forEach(function (errorEl) { errorEl.textContent = ''; });
 
   var lead = _lastCalculatorLead || {};
   var payload = {
@@ -1366,11 +1633,19 @@ function handleUnlockPayment() {
   // before the Stripe redirect (Stripe's hosted page cannot host our pixel).
   // InitiateCheckout fires once on /checkout/ — do not duplicate here.
   try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(payload)); } catch(e) {}
-
-  if (btn) {
-    btn.disabled    = true;
-    btn.textContent = '· Connecting to Stripe ·';
+  if (typeof sscTrackEvent === 'function') {
+    sscTrackEvent('guidebook_checkout_start', { source: 'calculator', product: 'guidebook' });
   }
+
+  var buttons = [
+    document.getElementById('unlock-pay-btn'),
+    document.getElementById('summary-unlock-pay-btn')
+  ];
+  buttons.forEach(function (b) {
+    if (!b) return;
+    b.disabled = true;
+    b.textContent = '· Connecting to Stripe ·';
+  });
   var qs = new URLSearchParams({
     product: 'guidebook',
     email: payload.email,

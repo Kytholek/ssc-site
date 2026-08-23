@@ -154,6 +154,7 @@ ${opts.jsonLd}
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css?v=20260731-es-freq">
+  <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
 ${extraStyles}
   <style>
     body { padding-top: 64px; }

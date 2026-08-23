@@ -1,6 +1,6 @@
 /**
  * SSC — Cloudflare Worker
- * Flow: POST /api/session → queue → Anthropic → PDFShift → Brevo
+ * Flow: POST /api/session → queue → Anthropic → PDFShift → Resend
  *       (paid: Stripe checkout → webhook → queue)
  *       (free:  POST /api/session → queue directly)
  *       GET /api/checkout-session, /api/google-reviews, /api/site-config
@@ -98,307 +98,24 @@ function corsHeaders(requestOrigin) {
   };
 }
 
-const DEFAULT_FROM_EMAIL = 'readings@simulationsourcecode.com';
-const DEFAULT_FROM_NAME = 'Simulation Source Code';
-
-/** Parse `email@domain.com` or `Name <email@domain.com>` into Brevo sender shape. */
-function parseSenderAddress(fromEnv, displayName = DEFAULT_FROM_NAME) {
-  const raw = String(fromEnv || DEFAULT_FROM_EMAIL).trim().replace(/^["']|["']$/g, '');
-  const named = raw.match(/^([^<]+)\s*<([^>@]+@[^>]+)>$/);
-  if (named) {
-    return { name: named[1].trim() || displayName, email: named[2].trim() };
-  }
+/** Resend requires `email@domain.com` or `Name <email@domain.com>` — not double-wrapped. */
+function formatResendFrom(fromEnv, displayName = 'Simulation Source Code') {
+  const fallback = 'readings@simulationsourcecode.com';
+  const raw = String(fromEnv || fallback).trim().replace(/^["']|["']$/g, '');
+  if (/^[^<]+\s+<[^>@]+@[^>]+>$/.test(raw)) return raw;
   const emailOnly = raw.match(/^<?([^<>\s]+@[^<>\s]+)>?$/);
-  if (emailOnly) return { name: displayName, email: emailOnly[1] };
-  return { name: displayName, email: DEFAULT_FROM_EMAIL };
+  if (emailOnly) return `${displayName} <${emailOnly[1]}>`;
+  return `${displayName} <${fallback}>`;
 }
 
-function parseReplyToEmail(replyEnv, fromEnv) {
-  return parseSenderAddress(replyEnv || fromEnv, DEFAULT_FROM_NAME).email;
-}
-
-/**
- * Send transactional email via Brevo SMTP API.
- * Pass either `html` (inline) or `templateId` + `params` (Brevo template).
- * @param {{ to: string, subject?: string, html?: string, templateId?: number, params?: object, attachments?: Array<{ filename: string, content: string }>, env: object }} opts
- */
-async function sendTransactionalEmail({ to, subject, html, templateId, params, attachments, env }) {
-  if (!env.BREVO_API_KEY) {
-    throw new Error('BREVO_API_KEY is not configured');
-  }
-
-  const sender = parseSenderAddress(env.FROM_EMAIL);
-  const payload = {
-    sender,
-    to: [{ email: to }],
-    replyTo: { email: parseReplyToEmail(env.REPLY_TO_EMAIL, env.FROM_EMAIL) },
-  };
-
-  if (templateId) {
-    payload.templateId = Number(templateId);
-    if (params && typeof params === 'object') payload.params = params;
-    if (subject) payload.subject = subject;
-  } else {
-    if (!html) throw new Error('html or templateId required');
-    payload.subject = subject || 'Simulation Source Code';
-    payload.htmlContent = html;
-  }
-
-  if (attachments && attachments.length) {
-    payload.attachment = attachments.map((file) => ({
-      name: file.filename,
-      content: file.content,
-    }));
-  }
-
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      accept: 'application/json',
-      'api-key': env.BREVO_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Brevo error ${response.status}: ${err}`);
-  }
-
-  return await response.json();
-}
-
-/** Brevo transactional template for free calculator results. */
-const BREVO_CALCULATOR_TEMPLATE_NAME = 'calculator_response';
-/** Brevo list for free calculator / signup email leads. */
-const BREVO_EMAIL_FLOW_LIST_ID = 8;
-
-let _cachedCalculatorTemplate = null;
-
-function normalizeTemplateKey(value) {
-  return String(value || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
-}
-
-/**
- * Inject params into Brevo template HTML.
- * Handles {{ params.x }}, {{params.x|safe}}, and {% autoescape off %}…{% endautoescape %}.
- */
-function renderBrevoTemplateHtml(html, params) {
-  let out = String(html || '');
-  const entries = Object.entries(params || {});
-
-  for (const [key, raw] of entries) {
-    const value = raw == null ? '' : String(raw);
-    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const autoescapeRe = new RegExp(
-      `\\{%\\s*autoescape\\s+off\\s*%\\}\\s*\\{\\{\\s*params\\.${escapedKey}\\s*(?:\\|[^}]*)?\\}\\}\\s*\\{%\\s*endautoescape\\s*%\\}`,
-      'gi'
-    );
-    const paramRe = new RegExp(`\\{\\{\\s*params\\.${escapedKey}\\s*(?:\\|[^}]*)?\\}\\}`, 'gi');
-    out = out.replace(autoescapeRe, () => value);
-    out = out.replace(paramRe, () => value);
-  }
-
-  // Drop leftover Brevo control tags so broken placeholders don't leak
-  out = out.replace(/\{%\s*autoescape\s+off\s*%\}/gi, '');
-  out = out.replace(/\{%\s*endautoescape\s*%\}/gi, '');
-  return out;
-}
-
-async function listBrevoSmtpTemplates(env, { activeOnly = true } = {}) {
-  const templates = [];
-  let offset = 0;
-  const limit = 50;
-  const statusQuery = activeOnly ? 'templateStatus=true&' : '';
-
-  for (;;) {
-    const url = `https://api.brevo.com/v3/smtp/templates?${statusQuery}limit=${limit}&offset=${offset}`;
-    const response = await fetch(url, {
-      headers: {
-        accept: 'application/json',
-        'api-key': env.BREVO_API_KEY,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Brevo templates error ${response.status}: ${await response.text()}`);
-    }
-    const data = await response.json();
-    const batch = Array.isArray(data.templates) ? data.templates : [];
-    templates.push(...batch);
-    if (batch.length < limit) break;
-    offset += limit;
-    if (offset > 500) break;
-  }
-
-  return templates;
-}
-
-function findCalculatorTemplateMeta(templates) {
-  const wanted = normalizeTemplateKey(BREVO_CALCULATOR_TEMPLATE_NAME);
-  return templates.find((t) => normalizeTemplateKey(t.name) === wanted)
-    || templates.find((t) => normalizeTemplateKey(t.name).includes(wanted))
-    || null;
-}
-
-/**
- * Load calculator Brevo template (id + html + subject). Cached per isolate.
- * Prefers BREVO_CALCULATOR_TEMPLATE_ID when set.
- */
-async function getCalculatorBrevoTemplate(env) {
-  if (_cachedCalculatorTemplate) return _cachedCalculatorTemplate;
-
-  const configuredId = Number(env.BREVO_CALCULATOR_TEMPLATE_ID || 0);
-  let templateId = configuredId > 0 ? configuredId : 0;
-
-  if (!templateId) {
-    let match = findCalculatorTemplateMeta(await listBrevoSmtpTemplates(env, { activeOnly: true }));
-    if (!match) {
-      // Draft / inactive templates still work once we load by ID
-      match = findCalculatorTemplateMeta(await listBrevoSmtpTemplates(env, { activeOnly: false }));
-    }
-    if (!match?.id) {
-      throw new Error(`Brevo template "${BREVO_CALCULATOR_TEMPLATE_NAME}" not found`);
-    }
-    templateId = Number(match.id);
-  }
-
-  const detailRes = await fetch(`https://api.brevo.com/v3/smtp/templates/${templateId}`, {
-    headers: {
-      accept: 'application/json',
-      'api-key': env.BREVO_API_KEY,
-    },
-  });
-  if (!detailRes.ok) {
-    throw new Error(`Brevo template ${templateId} error ${detailRes.status}: ${await detailRes.text()}`);
-  }
-
-  const detail = await detailRes.json();
-  _cachedCalculatorTemplate = {
-    id: templateId,
-    name: detail.name || BREVO_CALCULATOR_TEMPLATE_NAME,
-    subject: detail.subject || 'Your Free Numerology Blueprint — Simulation Source Code',
-    htmlContent: detail.htmlContent || '',
-  };
-  console.log('brevo-template loaded', _cachedCalculatorTemplate.name, _cachedCalculatorTemplate.id);
-  return _cachedCalculatorTemplate;
-}
-
-function buildCalculatorFallbackEmailHtml(data) {
-  const readingHtml = plainTextToEmailHtml(data?.readingText)
-    || `<p><strong>Reading for:</strong> ${escapeHtml(data?.name)}<br>
-        <strong>Birth Date:</strong> ${escapeHtml(data?.birthDate)}<br>
-        <strong>Life Path:</strong> ${escapeHtml(data?.lifePath)}<br>
-        <strong>Expression:</strong> ${escapeHtml(data?.expression)}<br>
-        <strong>Life Calling:</strong> ${escapeHtml(data?.lifeCalling)}</p>`;
-
-  return `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
-    ${readingHtml}
-    ${buildCalculatorEmailCtaHtml()}
-    <p>— Kytholek</p>`;
-}
-
-function buildCalculatorTemplateParams(data) {
-  const readingHtml = plainTextToEmailHtml(data?.readingText)
-    || `<p><strong>Reading for:</strong> ${escapeHtml(data?.name)}<br>
-        <strong>Birth Date:</strong> ${escapeHtml(data?.birthDate)}<br>
-        <strong>Life Path:</strong> ${escapeHtml(data?.lifePath)}<br>
-        <strong>Expression:</strong> ${escapeHtml(data?.expression)}<br>
-        <strong>Life Calling:</strong> ${escapeHtml(data?.lifeCalling)}</p>`;
-
-  const readingText = String(data?.readingText || '').trim();
-
-  return {
-    calculator_response: readingHtml,
-    CALCULATOR_RESPONSE: readingHtml,
-    calculator_response_text: readingText,
-    FIRSTNAME: data?.firstName || '',
-    firstname: data?.firstName || '',
-    NAME: data?.name || '',
-    name: data?.name || '',
-    BIRTHDATE: data?.birthDate || '',
-    birthdate: data?.birthDate || '',
-    LIFE_PATH: String(data?.lifePath ?? ''),
-    life_path: String(data?.lifePath ?? ''),
-    EXPRESSION: String(data?.expression ?? ''),
-    expression: String(data?.expression ?? ''),
-    LIFE_CALLING: String(data?.lifeCalling ?? ''),
-    life_calling: String(data?.lifeCalling ?? ''),
-  };
-}
-
-/**
- * Send calculator results via Brevo template `calculator_response`.
- * Renders HTML params locally so reading markup is not escaped, then sends.
- * Falls back to a polished inline email if the template cannot be loaded.
- */
-async function sendCalculatorResultEmail(email, calculatorEmailData, env) {
-  const params = buildCalculatorTemplateParams(calculatorEmailData);
-
-  try {
-    const template = await getCalculatorBrevoTemplate(env);
-    if (!template.htmlContent) {
-      throw new Error('Brevo template has empty htmlContent');
-    }
-
-    const html = renderBrevoTemplateHtml(template.htmlContent, params);
-    const result = await sendTransactionalEmail({
-      to: email,
-      subject: renderBrevoTemplateHtml(template.subject, params),
-      html,
-      env,
-    });
-    console.log('calculator-email sent via template', template.id, email);
-    return result;
-  } catch (templateErr) {
-    console.error('calculator template send failed, using fallback:', templateErr);
-    return sendTransactionalEmail({
-      to: email,
-      subject: 'Your Free Numerology Blueprint — Simulation Source Code',
-      html: buildCalculatorFallbackEmailHtml(calculatorEmailData),
-      env,
-    });
-  }
-}
-
-/**
- * Create or update a Brevo contact and add them to the email-flow list.
- * Failures are logged only — never block email delivery.
- */
-async function upsertBrevoContact({ email, attributes = {}, listIds = [BREVO_EMAIL_FLOW_LIST_ID], env }) {
-  if (!env.BREVO_API_KEY || !email) return;
-
-  const cleaned = {};
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value === undefined || value === null || value === '') continue;
-    cleaned[key] = String(value);
-  }
-
-  try {
-    const response = await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: {
-        accept: 'application/json',
-        'api-key': env.BREVO_API_KEY,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: String(email).trim().toLowerCase(),
-        updateEnabled: true,
-        listIds,
-        attributes: cleaned,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('brevo-contact error', response.status, err);
-      return;
-    }
-    console.log('brevo-contact ok', email, 'lists', listIds.join(','));
-  } catch (err) {
-    console.error('brevo-contact error:', err);
-  }
+function formatResendReplyTo(replyEnv, fromEnv) {
+  const raw = String(replyEnv || fromEnv || 'readings@simulationsourcecode.com')
+    .trim()
+    .replace(/^["']|["']$/g, '');
+  const wrapped = raw.match(/<([^>]+)>/);
+  if (wrapped) return wrapped[1].trim();
+  if (/^[^\s<>]+@[^\s<>]+\.[^\s<>]+$/.test(raw)) return raw;
+  return 'readings@simulationsourcecode.com';
 }
 
 function buildUserDataFromBody({ email, name, month, day, year, full_name }) {
@@ -471,11 +188,10 @@ function plainTextToEmailHtml(value) {
 function buildCalculatorEmailCtaHtml() {
   return `
     <div style="margin-top:28px;padding:22px 20px;border:1px solid rgba(201,168,76,0.35);border-radius:10px;background:#141125;text-align:center;color:#e8dfc8;">
-      <p style="margin:0 0 10px;color:#fff3cf;"><strong>Want the expanded version?</strong></p>
-      <p style="margin:0 0 18px;color:#e8dfc8;">The $22 Guidebook Report expands all seven frequencies, shadow patterns, compound meanings, and your Life Calling directive into a full written report.</p>
+      <p style="margin:0 0 10px;color:#fff3cf;"><strong>Want the full map?</strong></p>
+      <p style="margin:0 0 18px;color:#e8dfc8;">Go deeper with Guidebook Reports, Time Cycles, and live readings — all on the Services page.</p>
       <p style="margin:0;text-align:center;">
-        <a href="https://simulationsourcecode.com/calculator/" style="display:inline-block;margin:0 6px 8px;padding:10px 14px;border:1px solid rgba(201,168,76,0.55);border-radius:6px;color:#fff3cf;font-weight:bold;text-decoration:none;">Return to your free calculator</a>
-        <a href="https://simulationsourcecode.com/sample-guidebook.html" style="display:inline-block;margin:0 6px 8px;padding:10px 14px;border:1px solid rgba(201,168,76,0.35);border-radius:6px;color:#fff3cf;text-decoration:none;">View a sample guidebook</a>
+        <a href="https://simulationsourcecode.com/services/" style="display:inline-block;margin:0 6px 8px;padding:12px 18px;border:1px solid rgba(201,168,76,0.55);border-radius:6px;color:#fff3cf;font-weight:bold;text-decoration:none;">Explore Services</a>
       </p>
     </div>
   `;
@@ -663,6 +379,7 @@ export default {
     if (request.method === 'GET' && url.pathname === '/api/site-config') {
       return handleSiteConfig(request, env, origin);
     }
+
 
     if (request.method === 'POST' && url.pathname === '/submit-email') {
       return handleSubmitEmail(request, env, origin);
@@ -953,7 +670,8 @@ async function processReading(userData, env) {
     await processTimeCycleReading(userData, env, {
       convertToPDF,
       arrayBufferToBase64,
-      sendTransactionalEmail,
+      formatResendFrom,
+      formatResendReplyTo,
       getGoogleReviewUrl,
     });
     return;
@@ -980,7 +698,7 @@ async function processReading(userData, env) {
   const pdfBuffer = await convertToPDF(pdfHtml, env);
   console.log('[3/4] PDF generated, size:', pdfBuffer.byteLength);
 
-  console.log('[4/4] Sending email via Brevo…');
+  console.log('[4/4] Sending email via Resend…');
   await sendEmail(userData, name, frequencies, pdfBuffer, env);
   console.log(`[4/4] Email sent to ${userData.email}`);
 }
@@ -1180,22 +898,38 @@ async function convertToPDF(html, env) {
 
 
 // ════════════════════════════════════════════════════════════
-//  STEP 3 — BREVO: EMAIL PDF TO CUSTOMER
+//  STEP 3 — RESEND: EMAIL PDF TO CUSTOMER
 // ════════════════════════════════════════════════════════════
 
 async function sendEmail(userData, name, frequencies, pdfBuffer, env) {
   const pdfBase64 = arrayBufferToBase64(pdfBuffer);
 
-  return sendTransactionalEmail({
-    to: userData.email,
-    subject: `\u2746 Your Holographic Blueprint \u2014 ${name.split(' ')[0]}`,
-    html: buildNotificationEmail(name, userData.email, frequencies, env),
-    attachments: [{
-      filename: `SSC-Blueprint-${name.replace(/\s+/g, '-')}.pdf`,
-      content: pdfBase64,
-    }],
-    env,
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+    },
+    body: JSON.stringify({
+      from:     formatResendFrom(env.FROM_EMAIL),
+      to:       [userData.email],
+      reply_to: formatResendReplyTo(env.REPLY_TO_EMAIL, env.FROM_EMAIL),
+      subject:  `\u2746 Your Holographic Blueprint \u2014 ${name.split(' ')[0]}`,
+      html:     buildNotificationEmail(name, userData.email, frequencies, env),
+      attachments: [{
+        filename:     `SSC-Blueprint-${name.replace(/\s+/g, '-')}.pdf`,
+        content:      pdfBase64,
+        content_type: 'application/pdf',
+      }]
+    })
   });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Resend error ${response.status}: ${err}`);
+  }
+
+  return await response.json();
 }
 
 
@@ -2116,52 +1850,42 @@ async function handleSubmitEmail(request, env, origin) {
     };
   }
 
-  // Sheet + Brevo contact + autoresponder in parallel (webapp: sheet only)
-  const jobs = [logEmailToSheet(sheetPayload)];
-  let emailSent = false;
-  let emailError = null;
+  // Log email to Google Sheet (calculator / webapp / signup)
+  await logEmailToSheet(sheetPayload);
 
+  // Webapp waitlist: sheet only — no autoresponder
   if (source !== 'webapp') {
-    jobs.push(upsertBrevoContact({
-      email,
-      env,
-      attributes: {
-        ORIGIN: source,
-        FIRSTNAME: sheetPayload.firstName || sheetPayload.first_name || '',
-        BIRTHDATE: sheetPayload.birthDate || sheetPayload.birth_date || '',
-        LIFE_PATH: sheetPayload.lifePath || sheetPayload.life_path || '',
-        EXPRESSION: sheetPayload.expression || '',
-        LIFE_CALLING: sheetPayload.lifeCalling || sheetPayload.life_calling || sheetPayload.destiny || '',
-      },
-    }));
+    try {
+      const subject = source === 'calculator'
+        ? 'Your Free Numerology Blueprint — Simulation Source Code'
+        : 'Your Free Life Path Intro — Simulation Source Code';
+      const calculatorReadingHtml = plainTextToEmailHtml(calculatorEmailData?.readingText);
+      const html = source === 'calculator'
+        ? `<p>Thanks for decoding your blueprint. Here is your free calculator reading:</p>
+           ${calculatorReadingHtml || `<p><strong>Reading for:</strong> ${escapeHtml(calculatorEmailData?.name)}<br><strong>Birth Date:</strong> ${escapeHtml(calculatorEmailData?.birthDate)}<br><strong>Life Path:</strong> ${escapeHtml(calculatorEmailData?.lifePath)}<br><strong>Expression:</strong> ${escapeHtml(calculatorEmailData?.expression)}<br><strong>Life Calling:</strong> ${escapeHtml(calculatorEmailData?.lifeCalling)}</p>`}
+           ${buildCalculatorEmailCtaHtml()}
+           <p>— Kytholek</p>`
+        : `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`;
 
-    jobs.push((async () => {
-      try {
-        if (source === 'calculator') {
-          await sendCalculatorResultEmail(email, calculatorEmailData, env);
-        } else {
-          await sendTransactionalEmail({
-            to: email,
-            subject: 'Your Free Life Path Intro — Simulation Source Code',
-            html: `<p>Thanks for connecting. Your free Life Path intro is on its way.</p><p>— Kytholek</p>`,
-            env,
-          });
-        }
-        emailSent = true;
-      } catch (err) {
-        emailError = err?.message || String(err);
-        console.error('submit-email error:', err);
-      }
-    })());
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type':  'application/json',
+        },
+        body: JSON.stringify({
+          from:    formatResendFrom(env.FROM_EMAIL),
+          to:      [email],
+          subject,
+          html,
+        }),
+      });
+    } catch (err) {
+      console.error('submit-email error:', err);
+    }
   }
 
-  await Promise.allSettled(jobs);
-
-  return new Response(JSON.stringify({
-    ok: true,
-    emailSent: source === 'webapp' ? false : emailSent,
-    ...(emailError ? { emailError } : {}),
-  }), {
+  return new Response(JSON.stringify({ ok: true }), {
     status: 200,
     headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
   });

@@ -41,7 +41,7 @@ const DIGITAL_RETURN_POLICY = {
 const SERVICE_OFFERS_BASE = [
   { name: 'Guidebook Report', price: '22' },
   { name: 'Time Cycle', price: '17' },
-  { name: 'Personal Consultation', price: '88' },
+  { name: 'Personal Consultation', price: '55' },
   { name: 'TellTale Tarot Reading', price: '20' },
 ];
 

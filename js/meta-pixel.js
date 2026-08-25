@@ -14,7 +14,7 @@
     'time-cycle': 17,
     timecycle: 17,
     bundle: 29,
-    consultation: 88,
+    consultation: 55,
     membership: 0,
   };
 

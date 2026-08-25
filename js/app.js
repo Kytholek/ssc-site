@@ -476,7 +476,7 @@ function _injectPageSchema(name) {
           }
         },
         {
-          '@type': 'Offer', 'name': 'Personal Consultation', 'price': '88', 'priceCurrency': 'USD',
+          '@type': 'Offer', 'name': 'Personal Consultation', 'price': '55', 'priceCurrency': 'USD',
           'availability': 'https://schema.org/OnlineOnly',
           'itemCondition': 'https://schema.org/NewCondition',
           'url': 'https://simulationsourcecode.com/services/',

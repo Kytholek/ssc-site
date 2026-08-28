@@ -152,6 +152,7 @@ const PAGE_META = {
   services: {
     title      : 'Numerology Reading & Guidebook Report · Services · SSC',
     description: 'Order a numerology guidebook report or live numerology reading — PDF blueprint, consultation, TellTale Tarot, and original books by Kytholek.',
+    ogImage    : 'https://simulationsourcecode.com/Images/services-og.png',
   },
   codex: {
     title      : 'The Codex — Nine Frequencies · Simulation Source Code',
@@ -430,6 +431,7 @@ function _injectPageSchema(name) {
       'name'    : 'Numerology Readings — Simulation Source Code',
       'url'     : 'https://simulationsourcecode.com/services/',
       'description': 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
+      'image'   : 'https://simulationsourcecode.com/Images/services-og.png',
       'provider': { '@type': 'Organization', 'name': 'Simulation Source Code' },
       'brand'   : { '@type': 'Brand', 'name': 'Simulation Source Code' },
       'offers'  : [

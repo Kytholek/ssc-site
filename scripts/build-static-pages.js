@@ -61,6 +61,7 @@ function servicesJsonLd() {
     name: 'Numerology Readings — Simulation Source Code',
     url: SEO.SITE_ORIGIN + '/services/',
     description: 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
+    image: SEO.SERVICES_OG_IMAGE,
     provider: {
       '@type': 'Organization',
       name: 'Simulation Source Code',
@@ -116,6 +117,10 @@ function staticShell(opts) {
     return `  <script defer src="${s}"></script>`;
   }).join('\n');
 
+  const ogImage = opts.ogImage || SEO.OG_IMAGE;
+  const ogImageWidth = opts.ogImageWidth || SEO.OG_IMAGE_WIDTH;
+  const ogImageHeight = opts.ogImageHeight || SEO.OG_IMAGE_HEIGHT;
+
   const inlineStyle = opts.inlineStyle || '';
 
   const dataModule = opts.dataModule || '/js/codex-data.js';
@@ -142,11 +147,13 @@ function staticShell(opts) {
   <meta property="og:title" content="${opts.ogTitle || opts.title}">
   <meta property="og:description" content="${opts.ogDescription || opts.description}">
   <meta property="og:url" content="${opts.canonical}">
-  <meta property="og:image" content="${SEO.OG_IMAGE}">
+  <meta property="og:image" content="${ogImage}">
+  <meta property="og:image:width" content="${ogImageWidth}">
+  <meta property="og:image:height" content="${ogImageHeight}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${opts.ogTitle || opts.title}">
   <meta name="twitter:description" content="${opts.ogDescription || opts.description}">
-  <meta name="twitter:image" content="${SEO.OG_IMAGE}">
+  <meta name="twitter:image" content="${ogImage}">
   <script type="application/ld+json">
 ${opts.jsonLd}
   </script>
@@ -221,6 +228,7 @@ function buildServices() {
     title: 'Numerology Services · Guidebooks, Readings & Books · SSC',
     description: 'Shop guidebooks, live readings, TellTale Tarot, and original books by Kytholek — PDF reports, consultation, community, and more.',
     canonical: SEO.SITE_ORIGIN + '/services/',
+    ogImage: SEO.SERVICES_OG_IMAGE,
     jsonLd: servicesJsonLd(),
     body: body,
     extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/modal.css'],

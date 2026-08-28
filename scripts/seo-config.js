@@ -72,6 +72,9 @@ function getServiceProductOffers() {
 module.exports = {
   SITE_ORIGIN: SITE_ORIGIN,
   OG_IMAGE: SITE_ORIGIN + '/Images/ssc-og.png',
+  SERVICES_OG_IMAGE: SITE_ORIGIN + '/Images/services-og.png',
+  OG_IMAGE_WIDTH: '1200',
+  OG_IMAGE_HEIGHT: '630',
   FACEBOOK_REVIEWS_URL: 'https://www.facebook.com/kytholek/reviews',
   FACEBOOK_RATING_VALUE: '5',
   FACEBOOK_RATING_COUNT: '5',

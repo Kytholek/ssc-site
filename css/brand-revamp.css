@@ -2373,16 +2373,16 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
 
 /* ?? Responsive ?? */
 @media (max-width: 1024px) {
-  .svc-grid--three {
+  .svc-grid.svc-grid--three {
     grid-template-columns: 1fr;
     max-width: 460px;
     margin: 0 auto;
     align-items: stretch;
   }
-  .svc-grid--three #bundle { order: -3; }
-  .svc-grid--three #guidebook { order: -2; }
-  .svc-grid--three #season { order: -1; }
-  .svc-grid--two {
+  .svc-grid.svc-grid--three #bundle { order: -3; }
+  .svc-grid.svc-grid--three #guidebook { order: -2; }
+  .svc-grid.svc-grid--three #season { order: -1; }
+  .svc-grid.svc-grid--two {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .svc-books-grid .svc-grid.svc-grid--two {
@@ -2390,7 +2390,7 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
     max-width: 460px;
     grid-template-columns: 1fr;
   }
-  .svc-grid--equal-three {
+  .svc-grid.svc-grid--equal-three {
     grid-template-columns: 1fr;
     max-width: 460px;
     margin: 0 auto;
@@ -2398,7 +2398,7 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
 }
 @media (max-width: 720px) {
   .svc-grid-wrap { gap: 48px; }
-  .svc-grid--two {
+  .svc-grid.svc-grid--two {
     grid-template-columns: 1fr;
     max-width: 460px;
     margin: 0 auto;

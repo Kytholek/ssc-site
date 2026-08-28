@@ -238,7 +238,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.scl.prototype' : { en: '> Try the Prototype', es: '> Prueba el Prototipo' },
   'home.revamp.scl.title' : { en: 'Play your numerology blueprint in the game of life', es: 'Juega tu blueprint de numerología en el juego de la vida' },
   'home.revamp.services.all' : { en: 'View All Services →', es: 'Ver Todos los Servicios →' },
-  'home.revamp.services.consult' : { en: 'Live Reading', es: 'Lectura en Vivo' },
+  'home.revamp.services.consult' : { en: 'Personal Consultation', es: 'Consulta Personal' },
   'home.revamp.services.consult.desc' : { en: 'A one-on-one session decoding your complete blueprint in real time.', es: 'Una sesión uno a uno decodificando tu blueprint completo en tiempo real.' },
   'home.revamp.services.eyebrow' : { en: '// GO DEEPER', es: '// VE MÁS PROFUNDO' },
   'home.revamp.services.guidebook' : { en: 'Guidebook Report', es: 'Informe Guía' },

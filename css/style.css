@@ -243,6 +243,14 @@ body { padding-top: 64px; }
   display: flex;
   align-items: center;
 }
+.nav-dropdown::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 16px;
+}
 .nav-dropdown-toggle {
   font: inherit;
   font-family: 'Cormorant SC', serif;
@@ -292,8 +300,16 @@ body { padding-top: 64px; }
   transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
   z-index: 250;
 }
+.nav-submenu::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 14px;
+}
 .nav-dropdown:hover .nav-submenu,
-.nav-dropdown:focus-within .nav-submenu {
+.nav-dropdown:focus-within:has(:focus-visible) .nav-submenu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);

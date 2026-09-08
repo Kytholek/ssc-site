@@ -541,6 +541,38 @@ function toggleMenu() {
   document.getElementById('mobile-menu').classList.toggle('open');
 }
 
+function _initNavDropdown() {
+  var dd = document.querySelector('.nav-dropdown');
+  if (!dd || dd.dataset.dropdownReady === '1') return;
+  dd.dataset.dropdownReady = '1';
+  var toggle = dd.querySelector('.nav-dropdown-toggle');
+
+  function setOpen(open) {
+    if (!toggle) return;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function close() {
+    setOpen(false);
+    if (toggle && document.activeElement && dd.contains(document.activeElement)) {
+      toggle.blur();
+    }
+  }
+
+  dd.addEventListener('mouseenter', function() { setOpen(true); });
+  dd.addEventListener('mouseleave', close);
+  dd.addEventListener('focusin', function() { setOpen(true); });
+  dd.addEventListener('focusout', function(e) {
+    if (!dd.contains(e.relatedTarget)) close();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && dd.contains(document.activeElement)) close();
+  });
+}
+
+
+// ────────────────────────────────────────────────────────────
+//  POPSTATE
+
 
 // ────────────────────────────────────────────────────────────
 //  POPSTATE
@@ -696,6 +728,7 @@ async function initApp() {
   _updateLangToggle(getLang());
   _initRpCarousel();
   _initNavHero();
+  _initNavDropdown();
   initHomePage();
   initCodexPage();
   ensureChatWidget();

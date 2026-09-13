@@ -52,22 +52,42 @@ function haversineMi(lat1, lng1, lat2, lng2) {
 
 // ── Map theme ─────────────────────────────────────────────────────────────────
 const CARTO_KEY = 'cb1_3jdj_1_55d91f33e6530529aecedc44'
-const MAP_TILE = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=' + CARTO_KEY
 const TILE_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+const LIGHT_THEMES = ['unicorn']
+const MAP_TILES = {
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png?key=' + CARTO_KEY,
+  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=' + CARTO_KEY,
+}
 
-function CartoVoyagerTiles() {
+function readMapTone() {
+  const theme = document.documentElement.getAttribute('data-theme') || 'fantasy'
+  return LIGHT_THEMES.includes(theme) ? 'light' : 'dark'
+}
+
+function CartoBasemapTiles() {
   const map = useMap()
+  const [tone, setTone] = useState(readMapTone)
+
   useEffect(() => {
-    const layer = L.tileLayer(MAP_TILE, {
+    const sync = () => setTone(readMapTone())
+    const obs = new MutationObserver(sync)
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const layer = L.tileLayer(MAP_TILES[tone], {
       subdomains: 'abcd',
       maxZoom: 20,
       attribution: TILE_ATTRIB,
     })
     layer.addTo(map)
+    const wrap = map.getContainer()
+    if (wrap) wrap.style.background = tone === 'light' ? '#d4e0ea' : '#04121e'
     return () => {
       map.removeLayer(layer)
     }
-  }, [map])
+  }, [map, tone])
   return null
 }
 
@@ -421,7 +441,7 @@ export default function WorldMapView({ playerData }) {
 
       <div className="rm-map-wrap">
         <MapContainer center={userCoords || [20, 0]} zoom={userCoords ? 13 : 3} className="rm-leaflet" zoomControl>
-          <CartoVoyagerTiles />
+          <CartoBasemapTiles />
           <InvalidateSizeOnMount />
           <MapClickHandler onMapClick={handleMapClick} />
           {flyTo && <FlyToLocation coords={flyTo} />}

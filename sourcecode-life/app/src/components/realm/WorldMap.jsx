@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css'
 import { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import { acceptQuest as qeAcceptQuest, getCreatorTier, getAcceptedQuests } from '../../lib/questEngine'
 import { createWorldQuest, fetchAllWorldQuests, fetchCreatorReputation } from '../auth/firestoreprofile'
@@ -51,8 +51,25 @@ function haversineMi(lat1, lng1, lat2, lng2) {
 }
 
 // ── Map theme ─────────────────────────────────────────────────────────────────
-const DARK_TILE  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-const TILE_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+const CARTO_KEY = 'cb1_3jdj_1_55d91f33e6530529aecedc44'
+const MAP_TILE = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=' + CARTO_KEY
+const TILE_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+
+function CartoVoyagerTiles() {
+  const map = useMap()
+  useEffect(() => {
+    const layer = L.tileLayer(MAP_TILE, {
+      subdomains: 'abcd',
+      maxZoom: 20,
+      attribution: TILE_ATTRIB,
+    })
+    layer.addTo(map)
+    return () => {
+      map.removeLayer(layer)
+    }
+  }, [map])
+  return null
+}
 
 function makeCircleIcon(color, glow, size = 16) {
   return L.divIcon({
@@ -404,7 +421,7 @@ export default function WorldMapView({ playerData }) {
 
       <div className="rm-map-wrap">
         <MapContainer center={userCoords || [20, 0]} zoom={userCoords ? 13 : 3} className="rm-leaflet" zoomControl>
-          <TileLayer url={DARK_TILE} attribution={TILE_ATTRIB} maxZoom={19} />
+          <CartoVoyagerTiles />
           <InvalidateSizeOnMount />
           <MapClickHandler onMapClick={handleMapClick} />
           {flyTo && <FlyToLocation coords={flyTo} />}

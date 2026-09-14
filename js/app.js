@@ -392,6 +392,12 @@ function showPage(name, pushState = true) {
       setCodexView(view, true);
     }, 0);
   }
+
+  if (name === 'home') {
+    setTimeout(function () { initHomePage(); }, 0);
+  } else {
+    disableHomeSnap();
+  }
 }
 
 function _injectPageSchema(name) {
@@ -744,7 +750,12 @@ var _homeChipsInited = false;
 
 function initHomePage() {
   var page = document.getElementById('page-home');
-  if (!page) return;
+  if (!page) {
+    setTimeout(function () {
+      if (document.getElementById('page-home')) initHomePage();
+    }, 60);
+    return;
+  }
 
   function revealHomeEl(el) {
     if (!el || el.classList.contains('is-visible')) return false;
@@ -849,6 +860,7 @@ function initHomePage() {
   }
   initSclCarousel();
   enableHomeSnap();
+  requestAnimationFrame(function () { enableHomeSnap(); });
 }
 
 function initHomeFaqAccordion() {
@@ -880,10 +892,14 @@ function initHomeStickyCta() {
       sticky.classList.toggle('is-visible', !!faq);
       return;
     }
-    if (window.scrollY > 420) sticky.classList.add('is-visible');
+    var page = document.getElementById('page-home');
+    var y = page ? page.scrollTop : window.scrollY;
+    if (y > 420) sticky.classList.add('is-visible');
     else sticky.classList.remove('is-visible');
   }
   window.addEventListener('scroll', updateSticky, { passive: true });
+  var homePage = document.getElementById('page-home');
+  if (homePage) homePage.addEventListener('scroll', updateSticky, { passive: true });
   updateSticky();
   window._homeStickyUpdate = updateSticky;
 }
@@ -933,14 +949,18 @@ function enableHomeSnap() {
   }
   syncDots();
 
+  function scrollY() {
+    return page.scrollTop || 0;
+  }
+
   function sectionTop(el) {
     return el.offsetTop;
   }
 
   function currentFromScroll() {
-    var y = window.scrollY + window.innerHeight * 0.28;
+    var y = scrollY() + page.clientHeight * 0.28;
     var last = sections[sections.length - 1];
-    if (window.scrollY >= sectionTop(last) + last.offsetHeight - 40) return sections.length - 1;
+    if (scrollY() >= sectionTop(last) + last.offsetHeight - 40) return sections.length - 1;
     var found = 0;
     for (var i = 0; i < sections.length; i++) {
       if (y >= sectionTop(sections[i]) - 8) found = i;
@@ -964,6 +984,8 @@ function enableHomeSnap() {
       bar.style.width = '100%';
       bar.style.height = (((i + 1) / sections.length) * 100) + '%';
     }
+    var siteNav = document.querySelector('nav:not(.breadcrumb):not(.hp-snap-nav)');
+    if (siteNav) siteNav.classList.toggle('nav-hero', i === 0);
     if (typeof window._homeStickyUpdate === 'function') window._homeStickyUpdate();
   }
 
@@ -976,11 +998,18 @@ function enableHomeSnap() {
     setProgress(i);
     target.classList.add('is-visible');
     target.classList.remove('hp-reveal-armed');
-    window.scrollTo({ top: sectionTop(target), behavior: reduce ? 'auto' : 'smooth' });
+    var coarse = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(max-width: 860px)').matches;
+    var top = sectionTop(target);
+    page.scrollTo({
+      top: top,
+      behavior: (reduce || coarse) ? 'auto' : 'smooth'
+    });
     clearTimeout(settleTimer);
+    var dist = Math.abs(scrollY() - top);
+    var wait = reduce || coarse ? 80 : Math.min(900, 280 + dist * 0.2);
     settleTimer = setTimeout(function () {
       locked = false;
-    }, reduce ? 80 : 620);
+    }, wait);
   }
 
   function canScrollInner(el, dir) {
@@ -1010,7 +1039,7 @@ function enableHomeSnap() {
     if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
     if (canScrollInner(e.target, e.deltaY)) return;
     var last = sections[sections.length - 1];
-    var pastLast = window.scrollY > sectionTop(last) + 24 && e.deltaY > 0;
+    var pastLast = scrollY() > sectionTop(last) + 24 && e.deltaY > 0;
     if (pastLast) return;
     e.preventDefault();
     if (locked) return;
@@ -1031,26 +1060,27 @@ function enableHomeSnap() {
   }
 
   function onTouchMove(e) {
+    if (!page.classList.contains('active')) return;
     if (!e.touches || !e.touches[0]) return;
     var dy = touchY - e.touches[0].clientY;
     var dx = touchX - e.touches[0].clientX;
-    if (Math.abs(dy) < 12) return;
     if (onCarouselSwipe(e.target, dx, dy)) return;
     if (canScrollInner(e.target, dy)) return;
-    var last = sections[sections.length - 1];
-    if (dy > 0 && window.scrollY > sectionTop(last) + 24) return;
+    if (Math.abs(dx) > Math.abs(dy) + 6) return;
     e.preventDefault();
   }
 
   function onTouchEnd(e) {
+    if (!page.classList.contains('active')) return;
     if (!e.changedTouches || !e.changedTouches[0]) return;
     var dy = touchY - e.changedTouches[0].clientY;
     var dx = touchX - e.changedTouches[0].clientX;
-    if (Math.abs(dy) < 42) return;
+    if (Math.abs(dy) < 48) return;
+    if (Math.abs(dx) > Math.abs(dy)) return;
     if (onCarouselSwipe(e.target, dx, dy)) return;
     if (canScrollInner(e.target, dy)) return;
     var last = sections[sections.length - 1];
-    if (dy > 0 && window.scrollY > sectionTop(last) + 24) return;
+    if (dy > 0 && scrollY() > sectionTop(last) + 24) return;
     advance(dy > 0 ? 1 : -1);
   }
 
@@ -1080,7 +1110,7 @@ function enableHomeSnap() {
       if (locked) return;
       var nearest = currentFromScroll();
       var top = sectionTop(sections[nearest]);
-      if (Math.abs(window.scrollY - top) > 28) goTo(nearest);
+      if (Math.abs(scrollY() - top) > 28) goTo(nearest);
       else setProgress(nearest);
     }, 140);
   }
@@ -1093,25 +1123,26 @@ function enableHomeSnap() {
   }
 
   window.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: false });
-  window.addEventListener('touchend', onTouchEnd, { passive: true });
+  page.addEventListener('touchstart', onTouchStart, { passive: true });
+  page.addEventListener('touchmove', onTouchMove, { passive: false });
+  page.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('keydown', onKey);
-  window.addEventListener('scroll', onScroll, { passive: true });
+  page.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', refresh);
 
   document.documentElement.classList.add('hp-snapping');
+  window.scrollTo(0, 0);
   setProgress(currentFromScroll());
 
   _homeSnap = {
     refresh: refresh,
     destroy: function () {
       window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      page.removeEventListener('touchstart', onTouchStart);
+      page.removeEventListener('touchmove', onTouchMove);
+      page.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('scroll', onScroll);
+      page.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', refresh);
       document.documentElement.classList.remove('hp-snapping');
       sections.forEach(function (sec) { sec.classList.remove('is-current'); });
@@ -1696,8 +1727,11 @@ function _initNavHero() {
   if (!nav) return;
 
   function _updateNavHero() {
-    const onHome   = document.getElementById('page-home')?.classList.contains('active');
-    const atTop    = window.scrollY < 60;
+    const homePage = document.getElementById('page-home');
+    const onHome   = homePage?.classList.contains('active');
+    const atTop    = ((onHome && document.documentElement.classList.contains('hp-snapping'))
+      ? (homePage.scrollTop || 0)
+      : window.scrollY) < 60;
     if (onHome && atTop) {
       nav.classList.add('nav-hero');
     } else {

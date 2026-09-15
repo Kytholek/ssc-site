@@ -775,10 +775,7 @@ function _getGuidebookEmail() {
 
 function _scrollResultIntoViewIfNeeded(resultsTarget) {
   if (!resultsTarget || typeof resultsTarget.getBoundingClientRect !== 'function') return;
-  var rect = resultsTarget.getBoundingClientRect();
-  if (rect.top > window.innerHeight * 0.72 || rect.bottom < 0) {
-    resultsTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  resultsTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function submitCalculatorLead() {
@@ -884,9 +881,7 @@ function calculateReading() {
     hasError = true;
   }
   if (!emailEl || !emailEl.value.trim()) {
-    if (emailEl) emailEl.classList.add('ssc-input-error');
-    _setCalculatorLeadMessage('Enter your email to decode your Life Quests.', true);
-    hasError = true;
+    // Email is optional for the free decode.
   } else if (!_isValidEmail(emailEl.value.trim())) {
     emailEl.classList.add('ssc-input-error');
     _setCalculatorLeadMessage('Please enter a valid email address.', true);
@@ -1119,7 +1114,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   if (btn) {
     btn.disabled = false;
     btn.removeAttribute('aria-busy');
-    btn.textContent = 'Decode Another Life Quest';
+    btn.textContent = 'Decode Another Blueprint';
     btn.classList.remove('ssc-btn-loading');
   }
 

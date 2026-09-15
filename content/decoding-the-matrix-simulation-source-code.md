@@ -1,12 +1,13 @@
 ---
 title: Decoding the Matrix: The Complete Architecture of Simulation Source Code
 slug: decoding-the-matrix-simulation-source-code
+draft: true
 date: 2026-01-01
 category: philosophy
 glyph: ✦
 eyebrow: The System
-excerpt: The full picture ? holographic reality, the Codex, the nine frequencies, and the seven-number personal blueprint.
-description: Learn about decoding-the-matrix-simulation-source-code in Simulation Source Code.
+excerpt: The full picture — holographic reality, the Codex, the nine frequencies, and the seven-number personal blueprint.
+description: The complete architecture of Simulation Source Code — holographic reality, the Codex, nine frequencies, and the seven-number personal blueprint.
 keywords: decoding matrix simulation, simulation source code, matrix numerology, SSC numerology
 breadcrumb-name: Decoding the Matrix — Simulation Source Code
 cta: Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
@@ -24,7 +25,7 @@ The numbers encoded in your birth date and name are not symbolic but actual para
 This is the central premise of Simulation Source Code. Not only as a philosophical perspective to be debated, but as practical framework to be practiced and lived. A lens that, once you look through it, makes the recurring patterns of your life suddenly legible.
 
       
-This post is a summerization of the architecture for thesystem. The philosophical foundation. The Codex. The nine symbols for frequencies, and the seven-number blueprint that maps the specific simulation you are running. By the end, you will have a basic understanding of the entire system — and a reason to go deeper.
+This post is a summarization of the architecture for the system. The philosophical foundation. The Codex. The nine symbols for frequencies, and the seven-number blueprint that maps the specific simulation you are running. By the end, you will have a basic understanding of the entire system — and a reason to go deeper.
 
       
 ### Part I — The Philosophical Foundation

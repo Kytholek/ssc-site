@@ -35,7 +35,7 @@ var adminSystem = (function () {
     { id:'post-transformation-path',     path:'path-of-transformation-1-4-7-2-5-8-3-6-9',         title:'The Path of Transformation: 1→4→7→2→5→8→3→6→9',           category:'the-system' },
     { id:'post-five-lenses',             path:'five-lenses-of-self-ego-mind-soul-spirit-void',     title:'The Five Lenses of Self',                                  category:'the-system' },
     { id:'post-decoding-matrix',         path:'decoding-matrix',                                    title:'Decoding the Matrix: The Complete Architecture',            category:'the-system' },
-    { id:'post-decoding-matrix-2',       path:'decoding-the-matrix-simulation-source-code',        title:'Decoding the Matrix: Simulation Source Code',               category:'the-system' },
+    { id:'post-decoding-matrix-2',       path:'decoding-matrix',                                   title:'Decoding the Matrix: Simulation Source Code',               category:'the-system' },
     { id:'post-pillar',                  path:'pillar-numerology-source-code',                      title:'The Pillar: Numerology as Source Code',                     category:'the-system' },
     { id:'post-infinity',                path:'infinity-loop-cycles-recursion-numerology',          title:'The Infinity Loop: Cycles, Recursion & Numerology',         category:'the-system' },
     { id:'post-angel-numbers',           path:'angel-numbers-being-read-wrong',                     title:'Angel Numbers Are Being Read Wrong',                        category:'the-system' },

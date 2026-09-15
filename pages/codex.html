@@ -516,15 +516,19 @@
   #page-codex .cdx-revealed { padding: 50px 12px 100px; }
   #page-codex .codex-hit-node { width: 16%; height: 16%; }
   #page-codex .codex-hit-node[data-nature="aetheric"] { width: 18%; height: 18%; }
-  #node-card { flex-wrap:wrap; align-items:flex-start; gap:12px; padding:16px 20px 18px; }
+  #node-card { flex-wrap:wrap; align-items:flex-start; gap:8px 12px; padding:14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  #nc-number,
+  #page-codex .nc-number { font-size:28px; min-width:40px; }
   #nc-divider,
   #page-codex .nc-divider { display:none; }
   #nc-info,
-  #page-codex .nc-info { flex:1 1 180px; }
+  #page-codex .nc-info { flex:1 1 calc(100% - 52px); min-width:0; }
   #nc-body,
-  #page-codex .nc-body { display:block; margin-top:6px; }
+  #page-codex .nc-body { display:block; flex:1 1 100%; margin-top:4px; max-width:none; }
   #nc-actions,
-  #page-codex .nc-actions { flex-direction:row; }
+  #page-codex .nc-actions { flex:1 1 100%; flex-direction:column; }
+  #node-card .nc-btn,
+  #page-codex .nc-btn { width:100%; font-size:11px; min-height:40px; }
   #modal-666,
   #modal-369,
   #modal-alternator,
@@ -1144,6 +1148,23 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 #page-codex .cdx-view-matrix:has(.cdx-matrix-building) .cdx-matrix-extra { pointer-events:none; }
 /* Journey panel stays dark in light theme */
 html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border-color:rgba(201,168,76,.35); color:rgba(245,200,66,.85); }
+html[data-theme='light'] #page-codex .cdxfield-node-ring { fill: #f3eee4; }
+html[data-theme='light'] #node-card,
+html[data-theme='light'] #page-codex .node-card {
+  background: rgba(247,243,234,0.97);
+  border-top-color: rgba(201,168,76,0.28);
+}
+html[data-theme='light'] #page-codex .cdx-spiral-learn-panel {
+  background:
+    linear-gradient(90deg, transparent, rgba(201,168,76,.4), transparent) 0 0 / 100% 1px no-repeat,
+    #f7f3ea;
+  border-color: rgba(80,60,20,.16);
+}
+html[data-theme='light'] #page-codex .cdx-read,
+html[data-theme='light'] #nc-body,
+html[data-theme='light'] #page-codex .nc-body {
+  color: #3a3428 !important;
+}
 @media(prefers-reduced-motion: reduce) {
   #page-codex .cdx-journey-panel,
   #page-codex .cdx-tap-hint.show { animation: none !important; }

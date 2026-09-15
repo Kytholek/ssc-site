@@ -96,22 +96,22 @@
     <div class="about-section a4">
       <div class="about-section-title" style="text-align:center" data-i18n="about.connect.title">&#xB7; Connect &#xB7;</div>
       <div class="social-row">
-        <a href="https://www.instagram.com/kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
-          <i class="fab fa-instagram"></i>
+        <a href="https://www.instagram.com/kytholek" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram">
+          <i class="fab fa-instagram" aria-hidden="true"></i>
         </a>
-        <a href="https://www.youtube.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
-          <i class="fab fa-youtube"></i>
+        <a href="https://www.youtube.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="YouTube">
+          <i class="fab fa-youtube" aria-hidden="true"></i>
         </a>
-        <a href="https://substack.com/@kyelthomas" target="_blank" rel="noopener noreferrer" class="social-btn">
-          <img src="/Images/substack logo.png" alt="Substack" class="social-logo">
+        <a href="https://substack.com/@kyelthomas" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Substack">
+          <img src="/Images/substack%20logo.png" alt="" class="social-logo">
         </a>
-        <a href="https://www.tiktok.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn">
-          <i class="fab fa-tiktok"></i>
+        <a href="https://www.tiktok.com/@kytholek" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="TikTok">
+          <i class="fab fa-tiktok" aria-hidden="true"></i>
         </a>
       </div>
       <div class="about-cta-row">
-        <button class="btn-primary" onclick="if(typeof showPage==='function'){showPage('calculator');}else{window.location.href='/#calculator';}" data-i18n="about.cta.calculator">&#11042;&nbsp;Decode Your Blueprint</button>
-        <button class="btn-secondary" onclick="if(typeof showPage==='function'){showPage('services');}else{window.location.href='/services/';}" data-i18n="about.cta.services">View Services</button>
+        <a class="btn-primary" href="/calculator/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}" data-i18n="about.cta.calculator">&#11042;&nbsp;Decode Your Blueprint</a>
+        <a class="btn-secondary" href="/services/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}" data-i18n="about.cta.services">View Services</a>
       </div>
     </div>
 

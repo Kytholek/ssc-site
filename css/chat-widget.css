@@ -40,6 +40,12 @@
   stroke-width: 1.6;
 }
 
+@media (max-width: 700px) {
+  body:has(.hp-sticky-calc-cta.is-visible) .ssc-chat-root {
+    bottom: 84px;
+  }
+}
+
 .ssc-chat-panel {
   display: none;
   width: min(360px, calc(100vw - 28px));

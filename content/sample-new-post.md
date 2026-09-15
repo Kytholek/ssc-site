@@ -11,7 +11,7 @@ keywords: numerology blueprint, full numerology reading, life path expression so
 breadcrumb-name: Reading Your Blueprint
 cta: Ready to run your full blueprint? The calculator generates all seven numbers — Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self — in under 60 seconds.
 related:
-  - /blog/decoding-the-matrix-simulation-source-code/|Numerology as Source Code — The Architecture|Read Article
+  - /blog/decoding-matrix/|Numerology as Source Code — The Architecture|Read Article
   - /codex|The Codex Matrix — Map All 9 Frequencies|Explore
   - /blog/life-path-1-numerology/|Life Path 1 — The Initiator|Read Deep Dive
 ---

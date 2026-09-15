@@ -103,9 +103,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260908-nav-dropdown">
+  <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
   <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
-  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260731-es-freq">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260915-audit">
   <link rel="stylesheet" href="/css/quest-theme.css?v=20260915-codex-read">
   <style>
     body { padding-top: 64px; }
@@ -136,7 +136,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
 <nav id="main-nav"></nav>
 
-<main>
+<main id="main-content">
 <!-- CODEX_BODY_START -->
 <div class="page active" id="page-codex">
 <style>
@@ -656,15 +656,19 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   #page-codex .cdx-revealed { padding: 50px 12px 100px; }
   #page-codex .codex-hit-node { width: 16%; height: 16%; }
   #page-codex .codex-hit-node[data-nature="aetheric"] { width: 18%; height: 18%; }
-  #node-card { flex-wrap:wrap; align-items:flex-start; gap:12px; padding:16px 20px 18px; }
+  #node-card { flex-wrap:wrap; align-items:flex-start; gap:8px 12px; padding:14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  #nc-number,
+  #page-codex .nc-number { font-size:28px; min-width:40px; }
   #nc-divider,
   #page-codex .nc-divider { display:none; }
   #nc-info,
-  #page-codex .nc-info { flex:1 1 180px; }
+  #page-codex .nc-info { flex:1 1 calc(100% - 52px); min-width:0; }
   #nc-body,
-  #page-codex .nc-body { display:block; margin-top:6px; }
+  #page-codex .nc-body { display:block; flex:1 1 100%; margin-top:4px; max-width:none; }
   #nc-actions,
-  #page-codex .nc-actions { flex-direction:row; }
+  #page-codex .nc-actions { flex:1 1 100%; flex-direction:column; }
+  #node-card .nc-btn,
+  #page-codex .nc-btn { width:100%; font-size:11px; min-height:40px; }
   #modal-666,
   #modal-369,
   #modal-alternator,
@@ -1284,6 +1288,23 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 #page-codex .cdx-view-matrix:has(.cdx-matrix-building) .cdx-matrix-extra { pointer-events:none; }
 /* Journey panel stays dark in light theme */
 html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border-color:rgba(201,168,76,.35); color:rgba(245,200,66,.85); }
+html[data-theme='light'] #page-codex .cdxfield-node-ring { fill: #f3eee4; }
+html[data-theme='light'] #node-card,
+html[data-theme='light'] #page-codex .node-card {
+  background: rgba(247,243,234,0.97);
+  border-top-color: rgba(201,168,76,0.28);
+}
+html[data-theme='light'] #page-codex .cdx-spiral-learn-panel {
+  background:
+    linear-gradient(90deg, transparent, rgba(201,168,76,.4), transparent) 0 0 / 100% 1px no-repeat,
+    #f7f3ea;
+  border-color: rgba(80,60,20,.16);
+}
+html[data-theme='light'] #page-codex .cdx-read,
+html[data-theme='light'] #nc-body,
+html[data-theme='light'] #page-codex .nc-body {
+  color: #3a3428 !important;
+}
 @media(prefers-reduced-motion: reduce) {
   #page-codex .cdx-journey-panel,
   #page-codex .cdx-tap-hint.show { animation: none !important; }
@@ -1799,14 +1820,14 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js?v=20260828-services-copy"></script>
+<script src="/js/translations.js?v=20260915-audit"></script>
 <script type="module" src="/js/codex-data.js?v=20260915-vessel"></script>
-<script defer src="/js/calculator.js?v=20260723-result-polish"></script>
+<script defer src="/js/calculator.js?v=20260915-audit"></script>
   <script defer src="/js/codex-spiral.js"></script>
   <script defer src="/js/codex-spiral-learn.js"></script>
   <script defer src="/js/codex-matrix.js"></script>
   <script defer src="/js/codex-learn.js"></script>
-<script defer src="/js/app.js?v=20260915-codex-play"></script>
+<script defer src="/js/app.js?v=20260915-audit"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

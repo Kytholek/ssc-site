@@ -114,7 +114,6 @@ module.exports = {
     { path: '/about/', priority: '0.7', changefreq: 'monthly' },
     { path: '/privacy/', priority: '0.5', changefreq: 'monthly' },
     { path: '/consultation/', priority: '0.8', changefreq: 'monthly' },
-    { path: '/4-phase-alchemy/', priority: '0.8', changefreq: 'monthly' },
     { path: '/sourcecode-life/', priority: '0.8', changefreq: 'monthly' },
     { path: '/sample-guidebook.html', priority: '0.7', changefreq: 'monthly' },
   ],

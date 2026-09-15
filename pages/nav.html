@@ -1,6 +1,7 @@
 <!-- ════ NAVIGATION ════ -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <nav>
-  <div class="nav-logo" onclick="if(document.getElementById('page-home')){showPage('home');}else{window.location.href='/';}" aria-label="Simulation Source Code — Home" title="Simulation Source Code">
+  <a class="nav-logo" href="/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('home');}" aria-label="Simulation Source Code — Home" title="Simulation Source Code">
     <div class="nav-logo-sigil" aria-hidden="true">
       <!-- Home-page Codex mark (static) -->
       <svg class="ssc-logo-codex" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -27,7 +28,7 @@
         </g>
       </svg>
     </div>
-  </div>
+  </a>
   <div class="nav-links">
     <a class="nav-link" id="nav-calculator" href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}" data-i18n="nav.calculator">Calculator</a>
     <a class="nav-link" id="nav-services" href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}" data-i18n="nav.services">Services</a>
@@ -37,9 +38,9 @@
       <div class="nav-submenu" aria-label="Other submenu">
         <a class="nav-submenu-link" id="nav-blog" href="/blog/" data-i18n="nav.blog">Blog</a>
         <a class="nav-submenu-link" id="nav-books" href="/books" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}" data-i18n="nav.books">Books</a>
-        <a class="nav-submenu-link" id="nav-codex" href="/codex/" onclick="navigateCodex('matrix', event)">Consciousness Matrix</a>
-        <a class="nav-submenu-link" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event)">Evolution of Energy</a>
-        <a class="nav-submenu-link" href="/blueprint/">Triune Trinity Blueprint</a>
+        <a class="nav-submenu-link" id="nav-codex" href="/codex/" onclick="navigateCodex('matrix', event)" data-i18n="nav.codex">Consciousness Matrix</a>
+        <a class="nav-submenu-link" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event)" data-i18n="nav.spiral">Evolution of Energy</a>
+        <a class="nav-submenu-link" href="/blueprint/" data-i18n="nav.blueprint">Triune Trinity Blueprint</a>
       </div>
     </div>
   </div>
@@ -48,7 +49,7 @@
     <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch to Spanish" title="Ver en Español">ES</button>
     <a href="https://portal.simulationsourcecode.com" class="nav-cta" data-i18n="nav.cta">&#11041;&nbsp;Launch App</a>
   </div>
-  <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -59,9 +60,9 @@
   <div class="nav-mobile-section" data-i18n="nav.other">Other</div>
   <a class="nav-link nav-mobile-sub" href="/blog/" onclick="toggleMenu();" data-i18n="nav.blog">Blog</a>
   <a class="nav-link nav-mobile-sub" href="/books" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('books');}toggleMenu();" data-i18n="nav.books">Books</a>
-  <a class="nav-link nav-mobile-sub" href="/codex/" onclick="navigateCodex('matrix', event);toggleMenu();">Consciousness Matrix</a>
-  <a class="nav-link nav-mobile-sub" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event);toggleMenu();">Evolution of Energy</a>
-  <a class="nav-link nav-mobile-sub" href="/blueprint/" onclick="toggleMenu();">Triune Trinity Blueprint</a>
+  <a class="nav-link nav-mobile-sub" href="/codex/" onclick="navigateCodex('matrix', event);toggleMenu();" data-i18n="nav.codex">Consciousness Matrix</a>
+  <a class="nav-link nav-mobile-sub" href="/codex/?view=spiral" onclick="navigateCodex('spiral', event);toggleMenu();" data-i18n="nav.spiral">Evolution of Energy</a>
+  <a class="nav-link nav-mobile-sub" href="/blueprint/" onclick="toggleMenu();" data-i18n="nav.blueprint">Triune Trinity Blueprint</a>
   <button class="theme-toggle theme-toggle-mobile" onclick="toggleTheme()" id="theme-toggle-mobile" aria-label="Switch theme">Dark</button>
   <a href="https://portal.simulationsourcecode.com" class="nav-cta" data-i18n="nav.cta">&#11041;&nbsp;Launch App</a>
   <button class="lang-toggle lang-toggle-mobile" onclick="toggleLang()" id="lang-toggle-mobile" aria-label="Switch language">ES</button>

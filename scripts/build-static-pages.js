@@ -125,11 +125,11 @@ function staticShell(opts) {
 
   const dataModule = opts.dataModule || '/js/codex-data.js?v=20260915-vessel';
   const coreScripts = [
-    '<script src="/js/translations.js?v=20260828-services-copy"></script>',
+    '<script src="/js/translations.js?v=20260915-audit"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
-    coreScripts.push('<script defer src="/js/calculator.js?v=20260723-result-polish"></script>');
+    coreScripts.push('<script defer src="/js/calculator.js?v=20260915-audit"></script>');
   }
 
   return `<!DOCTYPE html>
@@ -160,7 +160,7 @@ ${opts.jsonLd}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260908-nav-dropdown">
+  <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
   <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
 ${extraStyles}
   <style>
@@ -192,7 +192,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
 <nav id="main-nav"></nav>
 
-<main>
+<main id="main-content">
 <!-- ${opts.marker}_START -->
 <div class="page active" id="page-${opts.pageId}">
 ${opts.body}
@@ -204,7 +204,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260915-codex-play"></script>
+<script defer src="/js/app.js?v=20260915-audit"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -231,7 +231,7 @@ function buildServices() {
     ogImage: SEO.SERVICES_OG_IMAGE,
     jsonLd: servicesJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260828-svc-mobile', '/css/modal.css'],
+    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css'],
     bootScript: "if (typeof initServicesPage === 'function') initServicesPage();\n    if (typeof applyLanguage === 'function') applyLanguage(getLang());",
   });
 
@@ -253,7 +253,7 @@ function buildCodex() {
     canonical: SEO.SITE_ORIGIN + '/codex/',
     jsonLd: codexJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/quest-theme.css?v=20260915-codex-read'],
+    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/quest-theme.css?v=20260915-codex-read'],
     extraScripts: [
       '/js/codex-spiral.js',
       '/js/codex-spiral-learn.js',
@@ -298,7 +298,7 @@ function buildBlueprint() {
     canonical: SEO.SITE_ORIGIN + '/blueprint/',
     jsonLd: blueprintJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/blueprint.css?v=20260723-softcta'],
+    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/blueprint.css?v=20260723-softcta'],
     dataModule: '/js/blueprint-data.js',
     includeCalculator: false,
     extraScripts: [
@@ -314,11 +314,49 @@ function buildBlueprint() {
   console.log('Wrote blueprint/index.html');
 }
 
+function calculatorJsonLd() {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'SSC Numerology Calculator',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    url: SEO.SITE_ORIGIN + '/calculator/',
+    description: 'Free numerology calculator for your Life Path number and six more frequencies. Enter your birth date and full name to calculate Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.',
+    image: SEO.SITE_ORIGIN + '/Images/calculator-og.png',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    author: { '@type': 'Organization', name: 'Simulation Source Code', url: SEO.SITE_ORIGIN },
+  }, null, 2);
+}
+
+function buildCalculator() {
+  const fragment = fs.readFileSync(path.join(ROOT, 'pages', 'calculator.html'), 'utf8');
+  const body     = extractPageInner(fragment, 'calculator');
+  const html     = staticShell({
+    pageId: 'calculator',
+    marker: 'CALCULATOR_BODY',
+    title: 'Free Numerology Calculator · Life Path & Seven Frequencies · SSC',
+    description: 'Free numerology calculator for your Life Path number and six more frequencies — Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme from birth date and name.',
+    canonical: SEO.SITE_ORIGIN + '/calculator/',
+    ogImage: SEO.SITE_ORIGIN + '/Images/calculator-og.png',
+    jsonLd: calculatorJsonLd(),
+    body: body,
+    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css'],
+    bootScript: "if (typeof applyLanguage === 'function') applyLanguage(getLang());",
+  });
+
+  const outDir = path.join(ROOT, 'calculator');
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+  console.log('Wrote calculator/index.html');
+}
+
 function main() {
   const target = process.argv[2] || 'all';
   if (target === 'services' || target === 'all') buildServices();
   if (target === 'codex' || target === 'all') buildCodex();
   if (target === 'blueprint' || target === 'all') buildBlueprint();
+  if (target === 'calculator' || target === 'all') buildCalculator();
 }
 
 main();

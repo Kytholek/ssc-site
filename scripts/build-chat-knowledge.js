@@ -165,6 +165,32 @@ function buildBlogChunks() {
   for (const file of files) {
     const raw = fs.readFileSync(path.join(CONTENT_DIR, file), 'utf8');
     const { meta, body } = parseFrontmatter(raw);
+    if (String(meta.draft || '').toLowerCase() === 'true') {
+      const draftSlug = meta.slug || file.replace(/\.md$/, '');
+      if (draftSlug === 'decoding-matrix') {
+        const htmlPath = path.join(ROOT, 'blog', 'decoding-matrix', 'index.html');
+        if (fs.existsSync(htmlPath)) {
+          const html = fs.readFileSync(htmlPath, 'utf8');
+          const m = html.match(/<div class="post-body">([\s\S]*?)<\/div>\s*<\/div>\s*<!-- FOOTER/);
+          const text = String(m ? m[1] : '')
+            .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          chunkText(text).forEach(function (part, i) {
+            chunks.push({
+              id: 'blog-decoding-matrix-' + i,
+              title: 'Decoding the Matrix: The Complete Architecture',
+              slug: 'decoding-matrix',
+              url: 'https://simulationsourcecode.com/blog/decoding-matrix/',
+              core: false,
+              text: part,
+            });
+          });
+        }
+      }
+      continue;
+    }
     const slug = meta.slug || file.replace(/\.md$/, '');
     const title = meta.title || slug;
     const url = `https://simulationsourcecode.com/blog/${slug}/`;

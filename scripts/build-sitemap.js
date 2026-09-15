@@ -80,9 +80,11 @@ function loadPostDates() {
   return map;
 }
 
+const SKIP_BLOG_SLUGS = new Set(['decoding-the-matrix-simulation-source-code']);
+
 function blogUrls(postDates) {
   return fs.readdirSync(BLOG_DIR, { withFileTypes: true })
-    .filter(function (d) { return d.isDirectory(); })
+    .filter(function (d) { return d.isDirectory() && !SKIP_BLOG_SLUGS.has(d.name); })
     .map(function (d) {
       const slug = d.name;
       const html = path.join(BLOG_DIR, slug, 'index.html');

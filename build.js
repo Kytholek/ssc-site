@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * build.js ? Zero-dependency Markdown-to-HTML blog post generator
+ * build.js — Zero-dependency Markdown-to-HTML blog post generator
  * Usage: node build.js
  * Reads:  content/*.md
  * Writes: blog/{slug}/index.html  (only if .md is newer than existing HTML)
@@ -125,7 +125,7 @@ function buildRelatedPostsHtml(related) {
     const [href, title, linkText] = entry.split('|');
     return `    <a href="${href}" class="related-post-card">
       <div class="related-post-title">${title}</div>
-      <span class="related-post-link">${linkText || 'Read Deep Dive'} ?</span>
+      <span class="related-post-link">${linkText || 'Read Deep Dive'} →</span>
     </a>`;
   }).join('\n');
 
@@ -146,7 +146,7 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   const date        = meta.date        || '2026-01-01';
   const glyph    = meta.glyph   || '✦';
   const eyebrow     = meta.eyebrow     || '';
-  const ctaText     = meta.cta         || 'The complete blueprint ? including your Expression, Soul Urge, Life Calling, and the compound story behind each number ? is what the Full Blueprint Reading reveals.';
+  const ctaText     = meta.cta         || 'The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.';
   const breadcrumbName = meta['breadcrumb-name'] || title;
   const canonicalUrl   = `${SITE_ORIGIN}/blog/${slug}/`;
   const fontUrl = 'https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap';
@@ -209,9 +209,9 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preload" as="style" href="${fontUrl}" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="${fontUrl}" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/brand-revamp.css">
-  <link rel="stylesheet" href="/css/blog-post.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260915-audit">
+  <link rel="stylesheet" href="/css/blog-post.css?v=20260915-audit">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- BreadcrumbList Schema -->
@@ -290,10 +290,13 @@ ${relatedHtml}
 
 <!-- FOOTER -->
 <footer id="main-footer"></footer>
-<script src="/js/app.js"></script>
+<script src="/js/translations.js?v=20260915-audit"></script>
+<script src="/js/app.js?v=20260915-audit"></script>
 <script>
-  if (typeof loadNav === 'function') loadNav();
-  if (typeof loadFooter === 'function') loadFooter();
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof loadNav === 'function') loadNav();
+    if (typeof loadFooter === 'function') loadFooter();
+  });
 </script>
 
 </body>
@@ -327,7 +330,7 @@ function buildCardHtml(meta) {
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">${catLabel}</span><span class="blog-idx-date">${date}</span></div>
           <div class="blog-idx-card-title">${title}</div>
           <p class="blog-idx-card-excerpt">${excerpt}</p>
-          <span class="blog-idx-read">Read Article ?</span>
+          <span class="blog-idx-read">Read Article →</span>
         </div>
       </a>`;
 }
@@ -358,8 +361,11 @@ function updateBlogIndex(posts) {
     return;
   }
 
-  // Sort by date descending
-  const sorted = [...posts].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  // Sort by date descending; skip slugs already curated elsewhere on the index
+  const rest = html.slice(0, startIdx) + html.slice(endIdx);
+  const sorted = [...posts]
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .filter(function (p) { return rest.indexOf('/blog/' + p.slug + '/') === -1; });
   const cards  = sorted.map(buildCardHtml).join('\n');
 
   const before = html.slice(0, startIdx + START_MARKER.length);
@@ -385,7 +391,7 @@ function main() {
   }
 
   const mdFiles = fs.readdirSync(CONTENT_DIR)
-    .filter(f => f.endsWith('.md') && f !== 'README.md');
+    .filter(f => f.endsWith('.md') && f !== 'README.md' && f !== 'sample-new-post.md');
 
   if (!mdFiles.length) {
     console.log('[build] No .md files found in content/. Nothing to do.');

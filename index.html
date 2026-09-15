@@ -55,7 +55,7 @@
       "https://www.instagram.com/kytholek",
       "https://www.youtube.com/@kytholek",
       "https://www.tiktok.com/@kytholek",
-      "https://substack.com/@kyelthomas"
+      "https://substack.com/@kyelthomas",
       "https://www.skool.com/simulation-hackers-3132"
     ]
   }
@@ -237,13 +237,13 @@
 
   <!-- Critical styles -->
   <link rel="icon" type="image/svg+xml" href="/Images/infinity codex_logo_outline.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260908-nav-dropdown">
+  <link rel="stylesheet" href="css/style.css?v=20260915-audit">
   <link rel="stylesheet" href="css/calculator-codex.css?v=20260822-results-restore">
-  <link rel="stylesheet" href="css/brand-revamp.css?v=20260828-svc-mobile">
-  <link rel="stylesheet" href="css/home.css?v=20260913-msnap">
+  <link rel="stylesheet" href="css/brand-revamp.css?v=20260915-audit">
+  <link rel="stylesheet" href="css/home.css?v=20260915-audit">
   <!-- Quest Theme — RPG aesthetic override -->
   <link rel="stylesheet" href="css/quest-theme.css?v=20260915-codex-read">
-  <link rel="stylesheet" href="css/chat-widget.css?v=20260731-parchment2" id="ssc-chat-widget-css">
+  <link rel="stylesheet" href="css/chat-widget.css?v=20260915-audit" id="ssc-chat-widget-css">
 
   <!-- Non-critical styles — loaded async -->
   <link rel="preload" as="style" href="css/modal.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -283,6 +283,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <div id="include-nav"></div>
 
   <!-- ════ PAGES ════ -->
+  <div id="main-content">
   <div id="include-home"></div>
   <div id="include-ssc"></div>
   <div id="include-calculator"></div>
@@ -292,6 +293,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <div id="include-codex"></div>
   <div id="include-guidebook"></div>
   <div id="include-privacy"></div>
+  </div>
 
   <!-- ════ FOOTER ════ -->
   <div id="include-footer"></div>
@@ -304,10 +306,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
   <!-- ════ SCRIPTS ════ -->
   <!-- Core scripts needed before app init — loaded normally so initApp is ready -->
-  <script src="js/translations.js?v=20260913-faqs"></script>
+  <script src="js/translations.js?v=20260915-audit"></script>
   <script type="module" src="js/codex-data.js?v=20260915-vessel"></script>
-  <script defer src="js/calculator.js?v=20260822-one-cta"></script>
-  <script defer src="js/app.js?v=20260915-codex-play"></script>
+  <script defer src="js/calculator.js?v=20260915-audit"></script>
+  <script defer src="js/app.js?v=20260915-audit"></script>
   <script defer src="js/chat-widget.js?v=20260726-chat" data-ssc-chat-widget="1"></script>
   <!-- Non-critical scripts — deferred, don't block rendering -->
   <script src="js/simulation.js" defer></script>
@@ -315,29 +317,28 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <script src="js/codex-spiral-learn.js" defer></script>
   <script src="js/codex-matrix.js" defer></script>
   <script src="js/codex-learn.js" defer></script>
-  <script src="js/admin.js" defer></script>
 
   <!-- ════ PAGE LOADER ════ -->
   <script>
     (function () {
       // Critical pages — fetched immediately, app boots when these are done
       var CRITICAL = [
-        { id: 'include-nav',        src: 'pages/nav.html?v=20260731-logo-only' },
-        { id: 'include-home',       src: 'pages/home.html?v=20260913-msnap'  },
-        { id: 'include-calculator', src: 'pages/calculator.html' },
-        { id: 'include-footer',     src: 'pages/footer.html?v=20260731-logo-only' },
-        { id: 'include-services',   src: 'pages/services.html'   },
+        { id: 'include-nav',        src: 'pages/nav.html?v=20260915-audit' },
+        { id: 'include-home',       src: 'pages/home.html?v=20260915-audit'  },
+        { id: 'include-calculator', src: 'pages/calculator.html?v=20260915-audit' },
+        { id: 'include-footer',     src: 'pages/footer.html?v=20260915-audit' },
+        { id: 'include-services',   src: 'pages/services.html?v=20260915-audit'   },
       ];
 
-      var CODEX_PAGE = { id: 'include-codex', src: 'pages/codex.html' };
+      var CODEX_PAGE = { id: 'include-codex', src: 'pages/codex.html?v=20260915-audit' };
       var codexLoadPromise = null;
 
       // Secondary pages — fetched in background, don't block app init
       var SECONDARY = [
         { id: 'include-ssc',        src: 'pages/ssc.html'        },
-        { id: 'include-books',      src: 'pages/books.html'      },
-        { id: 'include-about',      src: 'pages/about.html?v=20260731-es-freq2'      },
-        { id: 'include-privacy',    src: 'pages/privacy.html'    },
+        { id: 'include-books',      src: 'pages/books.html?v=20260915-audit'      },
+        { id: 'include-about',      src: 'pages/about.html?v=20260915-audit'      },
+        { id: 'include-privacy',    src: 'pages/privacy.html?v=20260915-audit'    },
         { id: 'include-guidebook',  src: 'pages/guidebook-pdf-preview.html' },
         { id: 'include-admin',      src: 'pages/admin.html'      },
       ];

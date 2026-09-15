@@ -112,8 +112,8 @@ ${MARKER_END}
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js?v=20260731-es-freq"></script>
-<script src="/js/app.js?v=20260908-nav-dropdown"></script>
+<script src="/js/translations.js?v=20260915-audit"></script>
+<script src="/js/app.js?v=20260915-audit"></script>
 <script>
   (async function () {
     if (typeof loadNav === 'function') await loadNav();

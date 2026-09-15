@@ -120,7 +120,7 @@
 }
 .hp-codex-map-label {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold-dim);
@@ -309,7 +309,7 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
 }
 .hp-service-tier {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--teal-light);
@@ -333,7 +333,7 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
 }
 .hp-service-link {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-dim);
@@ -415,7 +415,7 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
 }
 .hp-use-offer-tier {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--teal-light);
@@ -814,7 +814,7 @@ html[data-theme='light'] .hp-section-flow-pivot {
     gap: 8px;
   }
   .hp-codex-map-label {
-    font-size: 7px;
+    font-size: 11px;
     letter-spacing: 0.1em;
   }
   .hp-ssc-links {
@@ -935,6 +935,14 @@ html.hp-snapping #page-home::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
+}
+html.hp-snapping #page-home > #include-footer {
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+  flex-shrink: 0;
+  padding: 48px 24px 32px;
 }
 html.hp-snapping #hp-scl-carousel,
 html.hp-snapping .hp-scl-device {
@@ -1127,7 +1135,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   top: 50%;
   transform: translateY(-50%);
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold-dim);

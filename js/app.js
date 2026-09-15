@@ -42,7 +42,7 @@ const LEGACY_POST_SLUGS = {
   'post-transformation-path': 'path-of-transformation-1-4-7-2-5-8-3-6-9',
   'post-five-lenses': 'five-lenses-of-self-ego-mind-soul-spirit-void',
   'post-decoding-matrix': 'decoding-matrix',
-  'post-decoding-matrix-2': 'decoding-the-matrix-simulation-source-code',
+  'post-decoding-matrix-2': 'decoding-matrix',
   'post-pillar': 'pillar-numerology-source-code',
   'post-pillar-numerology-source-code': 'pillar-numerology-source-code',
   'post-infinity': 'infinity-loop-cycles-recursion-numerology',
@@ -544,7 +544,11 @@ function _injectPageSchema(name) {
 //  MOBILE MENU
 // ────────────────────────────────────────────────────────────
 function toggleMenu() {
-  document.getElementById('mobile-menu').classList.toggle('open');
+  var menu = document.getElementById('mobile-menu');
+  var btn = document.getElementById('hamburger');
+  if (!menu) return;
+  var open = menu.classList.toggle('open');
+  if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
 function _initNavDropdown() {
@@ -921,6 +925,13 @@ function enableHomeSnap() {
   var sections = Array.prototype.slice.call(page.querySelectorAll('.hp-snap'));
   if (sections.length < 2) return;
 
+  var footerHost = document.getElementById('include-footer');
+  var footerHomePrev = null;
+  if (footerHost && footerHost.parentNode !== page) {
+    footerHomePrev = { parent: footerHost.parentNode, next: footerHost.nextSibling };
+    page.appendChild(footerHost);
+  }
+
   var nav = document.getElementById('hp-snap-nav');
   var bar = document.getElementById('hp-progress-bar');
   var index = 0;
@@ -1040,7 +1051,8 @@ function enableHomeSnap() {
     if (canScrollInner(e.target, e.deltaY)) return;
     var last = sections[sections.length - 1];
     var pastLast = scrollY() > sectionTop(last) + 24 && e.deltaY > 0;
-    if (pastLast) return;
+    var onLastDown = index >= sections.length - 1 && e.deltaY > 0;
+    if (pastLast || onLastDown) return;
     e.preventDefault();
     if (locked) return;
     acc += e.deltaY;
@@ -1067,6 +1079,7 @@ function enableHomeSnap() {
     if (onCarouselSwipe(e.target, dx, dy)) return;
     if (canScrollInner(e.target, dy)) return;
     if (Math.abs(dx) > Math.abs(dy) + 6) return;
+    if (index >= sections.length - 1 && dy > 0) return;
     e.preventDefault();
   }
 
@@ -1080,7 +1093,7 @@ function enableHomeSnap() {
     if (onCarouselSwipe(e.target, dx, dy)) return;
     if (canScrollInner(e.target, dy)) return;
     var last = sections[sections.length - 1];
-    if (dy > 0 && scrollY() > sectionTop(last) + 24) return;
+    if (dy > 0 && (index >= sections.length - 1 || scrollY() > sectionTop(last) + 24)) return;
     advance(dy > 0 ? 1 : -1);
   }
 
@@ -1089,6 +1102,7 @@ function enableHomeSnap() {
     var tag = (e.target && e.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable)) return;
     if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+      if (index >= sections.length - 1) return;
       e.preventDefault();
       advance(1);
     } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
@@ -1144,6 +1158,13 @@ function enableHomeSnap() {
       window.removeEventListener('keydown', onKey);
       page.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', refresh);
+      if (footerHomePrev && footerHost) {
+        if (footerHomePrev.next && footerHomePrev.next.parentNode === footerHomePrev.parent) {
+          footerHomePrev.parent.insertBefore(footerHost, footerHomePrev.next);
+        } else {
+          footerHomePrev.parent.appendChild(footerHost);
+        }
+      }
       document.documentElement.classList.remove('hp-snapping');
       sections.forEach(function (sec) { sec.classList.remove('is-current'); });
       if (bar) bar.style.height = '0';
@@ -2258,7 +2279,18 @@ function loadGoogleReviews() {
   fetch('/api/google-reviews')
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      if (!data.configured || data.error || !data.reviews || !data.reviews.length) return;
+      if (!data || !data.reviews || !data.reviews.length) {
+        wrap.hidden = false;
+        grid.innerHTML =
+          '<p class="svc-testimonial-text">Public reviews live on Facebook while Google reviews load from the listing API.</p>';
+        ratingEl.innerHTML =
+          '<span class="svc-rating-text">' +
+            '<a href="https://www.facebook.com/kytholek/reviews" class="svc-rating-link" target="_blank" rel="noopener noreferrer">Facebook reviews</a>' +
+            ' &nbsp;&#183;&nbsp; ' +
+            '<a href="https://www.google.com/search?q=Simulation+Source+Code+Kytholek+reviews" class="svc-rating-link" target="_blank" rel="noopener noreferrer">Find us on Google</a>' +
+          '</span>';
+        return;
+      }
 
       wrap.hidden = false;
       grid.innerHTML = data.reviews.map(function(review) {
@@ -2284,6 +2316,15 @@ function loadGoogleReviews() {
     })
     .catch(function(err) {
       console.warn('Google reviews unavailable:', err);
+      wrap.hidden = false;
+      grid.innerHTML =
+        '<p class="svc-testimonial-text">Public reviews live on Facebook while Google reviews load from the listing API.</p>';
+      ratingEl.innerHTML =
+        '<span class="svc-rating-text">' +
+          '<a href="https://www.facebook.com/kytholek/reviews" class="svc-rating-link" target="_blank" rel="noopener noreferrer">Facebook reviews</a>' +
+          ' &nbsp;&#183;&nbsp; ' +
+          '<a href="https://www.google.com/search?q=Simulation+Source+Code+Kytholek+reviews" class="svc-rating-link" target="_blank" rel="noopener noreferrer">Find us on Google</a>' +
+        '</span>';
     });
 }
 
@@ -2314,9 +2355,14 @@ function validateModalGuidebookFields() {
 
   var hasError = false;
   [monthEl, dayEl, yearEl, nameEl].forEach(function(el) { el.classList.remove('ssc-input-error'); });
-  if (!parseInt(monthEl.value)) { monthEl.classList.add('ssc-input-error'); hasError = true; }
-  if (!parseInt(dayEl.value))   { dayEl.classList.add('ssc-input-error'); hasError = true; }
-  if (!parseInt(yearEl.value))  { yearEl.classList.add('ssc-input-error'); hasError = true; }
+  var month = parseInt(monthEl.value, 10);
+  var day = parseInt(dayEl.value, 10);
+  var year = parseInt(yearEl.value, 10);
+  var daysInMonth = [0, 31, (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (!month || month < 1 || month > 12) { monthEl.classList.add('ssc-input-error'); hasError = true; }
+  if (!year || year < 1900 || year > 2099) { yearEl.classList.add('ssc-input-error'); hasError = true; }
+  var maxDay = daysInMonth[month] || 31;
+  if (!day || day < 1 || day > maxDay) { dayEl.classList.add('ssc-input-error'); hasError = true; }
   if (!nameEl.value.trim())     { nameEl.classList.add('ssc-input-error'); hasError = true; }
   if (hasError) {
     var firstErr = document.querySelector('#calculator-modal-overlay .ssc-input-error');
@@ -2331,12 +2377,7 @@ function handleUnlockPaymentModal() {
   var btn        = document.getElementById('modal-unlock-pay-btn');
   var email      = (emailInput ? emailInput.value : '').trim();
 
-  console.log('=== handleUnlockPaymentModal called ===');
-  console.log('Email:', email);
-  console.log('Button element:', btn);
-
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    console.log('Invalid email, returning');
     if (errorEl) {
       errorEl.textContent = 'Please enter a valid email address.';
       errorEl.style.color = 'var(--rose-light)';
@@ -2568,4 +2609,22 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
       setTimeout(_bindModalInputs, 100);
     };
   }
+})();
+
+(function loadAdminOnDemand() {
+  function inject() {
+    if (window.adminSystem || document.querySelector('script[data-ssc-admin]')) return;
+    var s = document.createElement('script');
+    s.src = '/js/admin.js';
+    s.setAttribute('data-ssc-admin', '1');
+    document.body.appendChild(s);
+  }
+  function maybe() {
+    if (location.hash === '#admin') inject();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) inject();
+  });
+  window.addEventListener('hashchange', maybe);
+  maybe();
 })();

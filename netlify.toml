@@ -16,16 +16,6 @@ to = "/services/"
 status = 301
 
 [[redirects]]
-from = "/services/"
-to = "/index.html"
-status = 200
-
-[[redirects]]
 from = "/codex"
 to = "/codex/"
 status = 301
-
-[[redirects]]
-from = "/codex/"
-to = "/index.html"
-status = 200

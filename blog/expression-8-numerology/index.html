@@ -170,8 +170,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 <script src="/js/translations.js?v=20260915-audit"></script>
 <script src="/js/app.js?v=20260915-audit"></script>
 <script>
-  if (typeof loadNav === 'function') loadNav();
-  if (typeof loadFooter === 'function') loadFooter();
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof loadNav === 'function') loadNav();
+    if (typeof loadFooter === 'function') loadFooter();
+  });
 </script>
 
 </body>

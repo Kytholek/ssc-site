@@ -125,7 +125,7 @@ function staticShell(opts) {
 
   const dataModule = opts.dataModule || '/js/codex-data.js?v=20260915-vessel';
   const coreScripts = [
-    '<script src="/js/translations.js?v=20260915-audit"></script>',
+    '<script src="/js/translations.js?v=20260915-footer6"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
@@ -160,7 +160,7 @@ ${opts.jsonLd}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
+  <link rel="stylesheet" href="/css/style.css?v=20260915-footer6">
   <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
 ${extraStyles}
   <style>
@@ -204,7 +204,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260915-audit"></script>
+<script defer src="/js/app.js?v=20260915-footer6"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

@@ -122,8 +122,8 @@ var SSC_TRANSLATIONS = {
 
   // ── Footer ─────────────────────────────────────────
   'footer.copy' : { en: '© 2026 Simulation Source Code · All Rights Reserved', es: '© 2026 Simulation Source Code · Todos los Derechos Reservados' },
-  'footer.dl.appstore' : { en: 'App Store', es: 'App Store' },
-  'footer.dl.googleplay' : { en: 'Google Play', es: 'Google Play' },
+  'footer.dl.appstore' : { en: 'App Store <span class="footer-soon-badge">Soon</span>', es: 'App Store <span class="footer-soon-badge">Pronto</span>' },
+  'footer.dl.googleplay' : { en: 'Google Play <span class="footer-soon-badge">Beta</span>', es: 'Google Play <span class="footer-soon-badge">Beta</span>' },
   'footer.dl.title' : { en: 'Download', es: 'Descargar' },
   'footer.legal.privacy' : { en: 'Privacy Policy', es: 'Política de Privacidad' },
   'footer.legal.title' : { en: 'Legal', es: 'Legal' },
@@ -135,7 +135,7 @@ var SSC_TRANSLATIONS = {
   'footer.nav.codex' : { en: 'Codex', es: 'Códice' },
   'footer.nav.home' : { en: 'Home', es: 'Inicio' },
   'footer.nav.title' : { en: 'Navigate', es: 'Navegar' },
-  'footer.tagline' : { en: 'Seven frequencies encoded in your birth and name — the complete architecture of your simulation.', es: 'Siete frecuencias codificadas en tu nacimiento y tu nombre — la arquitectura completa de tu simulación.' },
+  'footer.tagline' : { en: '<span>Decode Experience</span><span>Discover Your Path</span><span>Embody Your Purpose</span>', es: '<span>Decodifica la Experiencia</span><span>Descubre Tu Camino</span><span>Encarná Tu Propósito</span>' },
   'footer.tagline2' : { en: '✦  Life Decoding System', es: '✦  Sistema de Decodificación de Vida' },
 
 

@@ -1342,10 +1342,10 @@ footer {
   color: var(--gold); margin-bottom: 14px;
   font-variant: small-caps;
 }
-.footer-tagline { font-size: 14px; color: var(--text-dim); font-style: italic; line-height: 1.6; max-width: 240px; }
+.footer-tagline { font-size: 14px; color: var(--text-dim); font-style: italic; line-height: 1.7; max-width: 18rem; }
 
 .footer-col-title {
-  font-family: 'Cormorant SC', serif; font-size: 8px; letter-spacing: .4em;
+  font-family: 'Cormorant SC', serif; font-size: 11px; letter-spacing: .28em;
   text-transform: uppercase; color: var(--gold-dim); margin-bottom: 16px;
 }
 .footer-links { display: flex; flex-direction: column; gap: 10px; }
@@ -1365,8 +1365,9 @@ footer {
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
 }
 .footer-copy {
-  font-family: 'Cormorant SC', serif; font-size: max(9px, 0.62rem); letter-spacing: .2em;
+  font-family: 'Cormorant SC', serif; font-size: 11px; letter-spacing: .16em;
   text-transform: uppercase; color: var(--text-muted);
+  white-space: nowrap;
 }
 
 /* Social links */
@@ -2960,8 +2961,8 @@ footer {
   font-size: 13.5px;
   color: var(--text-muted);
   font-style: italic;
-  line-height: 1.65;
-  max-width: 240px;
+  line-height: 1.7;
+  max-width: 18rem;
 }
 
 /* ----------------------------------------------------------

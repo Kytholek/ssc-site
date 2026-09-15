@@ -937,12 +937,50 @@ html.hp-snapping #page-home::-webkit-scrollbar {
   height: 0;
 }
 html.hp-snapping #page-home > #include-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
   height: auto;
   max-height: none;
-  min-height: 0;
+  min-height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
   overflow: visible;
   flex-shrink: 0;
-  padding: 48px 24px 32px;
+  padding: 0;
+  box-sizing: border-box;
+}
+html.hp-snapping #page-home > #include-footer footer {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 80px);
+}
+html.hp-snapping #page-home > #include-footer .footer-sigil {
+  filter: none;
+}
+html.hp-snapping #page-home > #include-footer .footer-tagline,
+#include-footer .footer-tagline,
+footer .footer-tagline {
+  font-family: 'Cormorant Garamond', Cormorant, Georgia, serif !important;
+  font-size: 15px !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0.02em !important;
+  max-width: none !important;
+  text-transform: none !important;
+  text-shadow: none !important;
+  color: var(--text-dim) !important;
+}
+html.hp-snapping #page-home > #include-footer .footer-tagline span,
+#include-footer .footer-tagline span,
+footer .footer-tagline span {
+  display: block;
+  white-space: nowrap;
+  font: inherit !important;
 }
 html.hp-snapping #hp-scl-carousel,
 html.hp-snapping .hp-scl-device {

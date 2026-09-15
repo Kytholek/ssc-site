@@ -237,12 +237,12 @@
 
   <!-- Critical styles -->
   <link rel="icon" type="image/svg+xml" href="/Images/infinity codex_logo_outline.svg">
-  <link rel="stylesheet" href="css/style.css?v=20260915-audit">
+  <link rel="stylesheet" href="css/style.css?v=20260915-footer6">
   <link rel="stylesheet" href="css/calculator-codex.css?v=20260822-results-restore">
-  <link rel="stylesheet" href="css/brand-revamp.css?v=20260915-audit">
-  <link rel="stylesheet" href="css/home.css?v=20260915-audit">
+  <link rel="stylesheet" href="css/brand-revamp.css?v=20260915-footer6">
+  <link rel="stylesheet" href="css/home.css?v=20260915-footer6">
   <!-- Quest Theme — RPG aesthetic override -->
-  <link rel="stylesheet" href="css/quest-theme.css?v=20260915-codex-read">
+  <link rel="stylesheet" href="css/quest-theme.css?v=20260915-footer6">
   <link rel="stylesheet" href="css/chat-widget.css?v=20260915-audit" id="ssc-chat-widget-css">
 
   <!-- Non-critical styles — loaded async -->
@@ -306,10 +306,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
   <!-- ════ SCRIPTS ════ -->
   <!-- Core scripts needed before app init — loaded normally so initApp is ready -->
-  <script src="js/translations.js?v=20260915-audit"></script>
+  <script src="js/translations.js?v=20260915-footer6"></script>
   <script type="module" src="js/codex-data.js?v=20260915-vessel"></script>
   <script defer src="js/calculator.js?v=20260915-audit"></script>
-  <script defer src="js/app.js?v=20260915-audit"></script>
+  <script defer src="js/app.js?v=20260915-footer6"></script>
   <script defer src="js/chat-widget.js?v=20260726-chat" data-ssc-chat-widget="1"></script>
   <!-- Non-critical scripts — deferred, don't block rendering -->
   <script src="js/simulation.js" defer></script>
@@ -326,7 +326,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
         { id: 'include-nav',        src: 'pages/nav.html?v=20260915-audit' },
         { id: 'include-home',       src: 'pages/home.html?v=20260915-audit'  },
         { id: 'include-calculator', src: 'pages/calculator.html?v=20260915-audit' },
-        { id: 'include-footer',     src: 'pages/footer.html?v=20260915-audit' },
+        { id: 'include-footer',     src: 'pages/footer.html?v=20260915-footer6' },
         { id: 'include-services',   src: 'pages/services.html?v=20260915-audit'   },
       ];
 
@@ -346,13 +346,17 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       function loadPage(page) {
         var noStore = page.src.indexOf('nav.html') !== -1
           || page.src.indexOf('calculator.html') !== -1
-          || page.src.indexOf('home.html') !== -1;
+          || page.src.indexOf('home.html') !== -1
+          || page.src.indexOf('footer.html') !== -1;
         var fetchOpts = noStore ? { cache: 'no-store' } : {};
         return fetch(page.src, fetchOpts)
           .then(function (r) { return r.ok ? r.text() : ''; })
           .then(function (html) {
             var el = document.getElementById(page.id);
             if (el && html) el.innerHTML = html;
+            if (page.id === 'include-footer' && window._homeSnap && typeof window._homeSnap.refresh === 'function') {
+              window._homeSnap.refresh();
+            }
             if (page.id === 'include-services' && typeof initServicesPage === 'function') {
               initServicesPage();
             }

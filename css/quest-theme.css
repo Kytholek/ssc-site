@@ -483,13 +483,13 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 
 
 /* ── Misc quest-page overrides ────────────────────────── */
-.page:not(#page-services):not(#page-calculator) [class*="sigil"],
+.page:not(#page-services):not(#page-calculator) [class*="sigil"]:not(.footer-sigil),
 .page:not(#page-services):not(#page-calculator) [class*="glyph"] {
   filter: hue-rotate(140deg) brightness(1.1) !important;
 }
 
 .page:not(#page-services):not(#page-calculator) [class*="badge"],
-.page:not(#page-services):not(#page-calculator) [class*="tag"],
+.page:not(#page-services):not(#page-calculator) [class*="tag"]:not(.footer-tagline),
 .page:not(#page-services):not(#page-calculator) [class*="chip"] {
   font-family: 'Press Start 2P', monospace !important;
   font-size: 6px !important;
@@ -654,7 +654,7 @@ nav.nav-hero .nav-cta {
 }
 
 .page:not(#page-services):not(#page-calculator):not(#page-codex) [class*="-body"],
-.page:not(#page-services):not(#page-calculator):not(#page-codex) p:not(.hp-hero-micro),
+.page:not(#page-services):not(#page-calculator):not(#page-codex) p:not(.hp-hero-micro):not(.footer-tagline),
 .page:not(#page-services):not(#page-calculator):not(#page-codex) li {
   color: var(--text-dim) !important;
   font-size: max(16px, 1rem) !important;

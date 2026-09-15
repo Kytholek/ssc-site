@@ -653,17 +653,17 @@ nav.nav-hero .nav-cta {
   font-size: 16px !important;
 }
 
-.page:not(#page-services):not(#page-calculator) [class*="-body"],
-.page:not(#page-services):not(#page-calculator) p:not(.hp-hero-micro),
-.page:not(#page-services):not(#page-calculator) li {
+.page:not(#page-services):not(#page-calculator):not(#page-codex) [class*="-body"],
+.page:not(#page-services):not(#page-calculator):not(#page-codex) p:not(.hp-hero-micro),
+.page:not(#page-services):not(#page-calculator):not(#page-codex) li {
   color: var(--text-dim) !important;
   font-size: max(16px, 1rem) !important;
   line-height: 1.72 !important;
 }
 
-.page:not(#page-services):not(#page-calculator) [class*="eyebrow"],
-.page:not(#page-services):not(#page-calculator) [class*="-meta"],
-.page:not(#page-services):not(#page-calculator) [class*="-label"] {
+.page:not(#page-services):not(#page-calculator):not(#page-codex) [class*="eyebrow"],
+.page:not(#page-services):not(#page-calculator):not(#page-codex) [class*="-meta"],
+.page:not(#page-services):not(#page-calculator):not(#page-codex) [class*="-label"] {
   color: var(--text-muted) !important;
   font-size: max(11px, 0.72rem) !important;
   letter-spacing: 0.14em !important;

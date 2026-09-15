@@ -14,6 +14,8 @@
   <meta property="og:description" content="The nine-frequency consciousness matrix. The complete architecture of the Simulation Source Code framework — each number a stage in the evolution of energy from void to wisdom.">
   <meta property="og:url" content="https://simulationsourcecode.com/codex/">
   <meta property="og:image" content="https://simulationsourcecode.com/Images/ssc-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="The Codex — Nine Frequencies · Simulation Source Code">
   <meta name="twitter:description" content="The nine-frequency consciousness matrix. The complete architecture of the Simulation Source Code framework — each number a stage in the evolution of energy from void to wisdom.">
@@ -102,8 +104,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css?v=20260908-nav-dropdown">
+  <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
   <link rel="stylesheet" href="/css/brand-revamp.css?v=20260731-es-freq">
-  <link rel="stylesheet" href="/css/quest-theme.css?v=20260731-es-freq">
+  <link rel="stylesheet" href="/css/quest-theme.css?v=20260915-codex-read">
   <style>
     body { padding-top: 64px; }
     .page { display: block !important; opacity: 1 !important; }
@@ -182,7 +185,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 #page-codex .codex-title { font-family:'Cormorant SC',serif !important; font-weight:300; font-size:clamp(24px,3.8vw,38px); color:#F5C842 !important; line-height:1.2; margin-bottom:14px; letter-spacing:.14em; text-transform:none; text-shadow:0 0 48px rgba(245,200,66,.22) !important; }
 #page-codex .codex-instruction { font-family:'Cinzel',serif !important; font-size:8px !important; letter-spacing:.3em !important; text-transform:uppercase; color:rgba(192,192,216,.45) !important; margin-bottom:24px; text-align:center; text-shadow:none !important; }
 
-#page-codex .matrix-hud { position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:460px; }
+#page-codex .matrix-hud { position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:520px; }
 
 #page-codex .codex-spirit-wrap {
   position: relative;
@@ -553,6 +556,23 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .teal-modal .pattern-modal-num { color:#7ec8c8; text-shadow:0 0 30px rgba(55,138,221,.4); }
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body { font-size:15px; line-height:1.8; color:#9b9080; margin-bottom:20px; text-align:left; }
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body strong { color:#e8dfc8; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body > p { margin:0 0 14px; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body > p:last-child { margin-bottom:0; }
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-formula {
+  list-style:none;
+  margin:0 0 16px;
+  padding:10px 14px;
+  text-align:left;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:13px;
+  line-height:1.7;
+  letter-spacing:0;
+  color:rgba(214,206,190,.82);
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(192,192,216,.1);
+  border-radius:8px;
+}
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-formula li { margin:0; }
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-link { display:inline-block; font-family:'Cinzel',serif; font-size:9px; letter-spacing:.25em; text-transform:uppercase; padding:10px 22px; border-radius:4px; text-decoration:none; transition:all .2s; }
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .gold-modal .pattern-modal-link { color:#F5C842; border:1px solid rgba(245,200,66,.3); background:rgba(245,200,66,.04); }
 :is(#page-codex,#modal-666,#modal-369,#modal-alternator) .gold-modal .pattern-modal-link:hover { background:rgba(245,200,66,.12); border-color:#F5C842; }
@@ -585,8 +605,40 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 #page-codex .nc-position { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(192,192,216,0.55); margin-bottom:4px; }
 #nc-essence,
 #page-codex .nc-essence  { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:#7ec8c8; margin-bottom:6px; }
+/* Shared reading type — justified Garamond for body copy */
+:is(#page-codex,#node-card,#modal-666,#modal-369,#modal-alternator) .cdx-read,
 #nc-body,
-#page-codex .nc-body { font-size:13px; line-height:1.6; color:#9b9080; max-width:480px; }
+#page-codex .nc-body,
+#page-codex .cdx-journey-body,
+#page-codex .cdx-matrix-cta-text,
+#page-codex .cdx-spiral-learn-body,
+#page-codex .cdx-spiral-learn-lesson,
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body > p {
+  font-family:'EB Garamond',Georgia,serif !important;
+  font-size:15px !important;
+  line-height:1.75 !important;
+  color:rgba(214,206,190,.88) !important;
+  text-align:justify !important;
+  hyphens:auto;
+  -webkit-hyphens:auto;
+  text-wrap:pretty;
+  overflow-wrap:break-word;
+  letter-spacing:0;
+  text-transform:none;
+  max-width:none;
+}
+#nc-body,
+#page-codex .nc-body { max-width:560px; }
+:is(#page-codex,#node-card,#modal-666,#modal-369,#modal-alternator) .cdx-read strong,
+#nc-body strong,
+#page-codex .nc-body strong,
+#page-codex .cdx-journey-body strong,
+#page-codex .cdx-matrix-cta-text strong,
+#page-codex .cdx-spiral-learn-body strong,
+:is(#page-codex,#modal-666,#modal-369,#modal-alternator) .pattern-modal-body > p strong {
+  color:#e8dfc8;
+  font-weight:600;
+}
 #nc-actions,
 #page-codex .nc-actions { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
 #node-card .nc-btn,
@@ -604,11 +656,13 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   #page-codex .cdx-revealed { padding: 50px 12px 100px; }
   #page-codex .codex-hit-node { width: 16%; height: 16%; }
   #page-codex .codex-hit-node[data-nature="aetheric"] { width: 18%; height: 18%; }
-  #node-card { flex-wrap:wrap; gap:12px; padding:14px 20px; }
+  #node-card { flex-wrap:wrap; align-items:flex-start; gap:12px; padding:16px 20px 18px; }
   #nc-divider,
   #page-codex .nc-divider { display:none; }
+  #nc-info,
+  #page-codex .nc-info { flex:1 1 180px; }
   #nc-body,
-  #page-codex .nc-body { display:none; }
+  #page-codex .nc-body { display:block; margin-top:6px; }
   #nc-actions,
   #page-codex .nc-actions { flex-direction:row; }
   #modal-666,
@@ -697,8 +751,8 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 #page-codex .cdx-matrix-cta-primary .cdx-matrix-cta-eyebrow { color:rgba(245,200,66,.72); }
 #page-codex .cdx-matrix-cta-primary .cdx-matrix-cta-lead { color:rgba(245,200,66,.86); }
 #page-codex .cdx-matrix-cta-eyebrow { color:rgba(245,200,66,.55); }
-#page-codex .cdx-matrix-cta-lead { color:rgba(245,200,66,.7); margin-bottom:10px; }
-#page-codex .cdx-matrix-cta-text { margin-bottom:16px; }
+#page-codex .cdx-matrix-cta-lead { color:rgba(245,200,66,.7); margin:0 auto 10px; max-width:none; }
+#page-codex .cdx-matrix-cta-text { margin:0 0 16px; }
 #page-codex .cdx-matrix-cta-btn { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.3em; text-transform:uppercase; padding:12px 22px; border-radius:5px; background:rgba(55,138,221,.15); border:1px solid rgba(126,200,200,.35); color:rgba(126,200,200,.85); text-decoration:none; display:inline-block; transition:background .2s,border-color .2s,color .2s; }
 #page-codex .cdx-matrix-cta-btn:hover { background:rgba(55,138,221,.25); border-color:rgba(126,200,200,.55); color:rgba(126,200,200,1); }
 #page-codex .cdx-matrix-cta-primary .cdx-matrix-cta-btn { background:rgba(245,200,66,.08); border-color:rgba(245,200,66,.42); color:rgba(245,200,66,.92); }
@@ -902,8 +956,14 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   min-width: 0;
 }
 #page-codex .cdx-spiral-intro {
-  text-align: center;
-  margin: 0 auto 16px;
+  font-family: 'Cinzel', serif !important;
+  font-size: 10px !important;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  text-align: center !important;
+  color: rgba(192,192,216,.62) !important;
+  line-height: 1.7 !important;
+  margin: 0 auto 18px;
   max-width: 640px;
 }
 #page-codex .cdx-spiral-controls {
@@ -913,13 +973,20 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   margin: 14px 0 0;
 }
 #page-codex .cdx-spiral-learn-panel {
-  background: rgba(9,8,20,.94);
+  position: relative;
+  background:
+    linear-gradient(90deg, transparent, rgba(245,200,66,.32), transparent) 0 0 / 100% 1px no-repeat,
+    rgba(9,8,20,.94);
   border: 1px solid rgba(192,192,224,.18);
   border-radius: 10px;
-  padding: 20px 18px 16px;
+  padding: 22px 20px 18px;
   min-height: 0;
+  max-height: min(72vh, 640px);
+  overflow-y: auto;
   text-align: left;
   animation: cdxViewIn .35s ease both;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245,200,66,.28) transparent;
 }
 #page-codex .cdx-spiral-learn-num {
   font-family: 'Cinzel Decorative', serif;
@@ -953,23 +1020,49 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   margin-bottom: 12px;
 }
 #page-codex .cdx-spiral-learn-body {
-  font-size: 13px;
-  line-height: 1.65;
-  color: rgba(155,144,128,.95);
-  margin: 12px 0 10px;
+  margin: 0 0 12px;
+}
+#page-codex .cdx-spiral-learn-copy {
+  margin: 12px 0 4px;
+}
+#page-codex .cdx-spiral-learn-copy .cdx-spiral-learn-body:last-child {
+  margin-bottom: 10px;
 }
 #page-codex .cdx-spiral-learn-lesson {
-  font-size: 12px;
-  line-height: 1.55;
-  color: rgba(192,192,216,.45);
-  margin: 0 0 10px;
+  font-style: italic;
+  color: rgba(192,192,216,.72);
+  margin: 0 0 12px;
 }
 #page-codex .cdx-spiral-learn-spoke {
   font-family: 'Cinzel', serif;
   font-size: 8px;
   letter-spacing: .12em;
-  color: rgba(245,200,66,.45);
+  text-transform: uppercase;
+  color: rgba(245,200,66,.62);
   margin: 0 0 12px;
+}
+#page-codex .cdx-spiral-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+#page-codex .cdx-spiral-chip {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(245,200,66,.28);
+  color: rgba(245,200,66,.88);
+  background: rgba(245,200,66,.06);
+}
+#page-codex .cdx-spiral-chip-more {
+  border-color: rgba(192,192,216,.22);
+  color: rgba(192,192,216,.7);
+  background: rgba(192,192,216,.05);
 }
 #page-codex .cdx-spiral-learn-actions {
   display: flex;
@@ -1049,6 +1142,28 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 }
 #page-codex .cdx-spiral-node:focus-visible { outline: 2px solid rgba(245,200,66,.55); outline-offset: 2px; }
 #page-codex .cdx-spiral-node.is-selected circle { stroke-width: 2.8; filter: url(#cdx-spiral-arc-glow); }
+#page-codex[data-cdx-active-view="spiral"] .codex-instruction { display: none; }
+@media (min-width: 960px) {
+  #page-codex .cdx-spiral-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: min(1120px, 100%);
+    gap: 28px;
+  }
+  #page-codex .cdx-spiral-col-visual {
+    flex: 1 1 58%;
+    min-width: 0;
+  }
+  #page-codex .cdx-spiral-col-panel {
+    flex: 1 1 42%;
+    max-width: 460px;
+    position: sticky;
+    top: 88px;
+  }
+  #page-codex .cdx-spiral-learn-panel {
+    max-height: min(72vh, 680px);
+  }
+}
 @media (max-width: 820px) {
   #page-codex[data-cdx-active-view="spiral"] .cdx-view-stage { max-width: 100%; }
   #page-codex .cdx-spiral-visual-wrap { padding: 8px; }
@@ -1072,22 +1187,45 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 /* ── Codex meta text (intro, journey chapters, blueprint CTA) ── */
 #page-codex .cdx-meta-eyebrow { font-family:'Cinzel',serif; font-size:8px; letter-spacing:.45em; text-transform:uppercase; margin-bottom:10px; }
 #page-codex .cdx-meta-lead { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.18em; line-height:1.85; margin:0 auto 10px; max-width:340px; }
-#page-codex .cdx-meta-text { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.14em; line-height:1.85; color:rgba(192,192,216,.45); margin:0 auto 14px; max-width:340px; }
+#page-codex .cdx-meta-text { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.14em; line-height:1.85; color:rgba(192,192,216,.62); margin:0 auto 14px; max-width:340px; }
 #page-codex .cdx-meta-text strong { color:rgba(232,223,200,.75); font-weight:400; }
 #page-codex .cdx-meta-text a { color:rgba(126,200,200,.75); text-decoration:none; }
 #page-codex .cdx-meta-text a:hover { color:rgba(126,200,200,1); }
 
 /* ── Journey mode ── */
-#page-codex .cdx-journey-intro { width:100%; max-width:460px; margin:0 auto 4px; text-align:center; }
+#page-codex .cdx-journey-intro { width:100%; max-width:520px; margin:0 auto 4px; text-align:center; }
 #page-codex .cdx-journey-intro-eyebrow { color:rgba(192,132,252,.5); }
 #page-codex .cdx-journey-intro-text { margin-bottom:14px; }
 #page-codex .cdx-journey-launch { display:inline-flex; align-items:center; gap:8px; font-family:'Cinzel',serif; font-size:9px; letter-spacing:.3em; text-transform:uppercase; padding:12px 26px; margin-bottom:18px; border-radius:5px; border:1px solid rgba(192,192,224,.3); background:rgba(124,58,237,.08); color:rgba(214,214,234,.85); cursor:pointer; transition:all .25s; }
 #page-codex .cdx-journey-launch:hover { border-color:rgba(192,132,252,.6); background:rgba(124,58,237,.16); color:#e9d5ff; box-shadow:0 0 18px rgba(124,58,237,.2); }
 #page-codex.cdx-journey-active .cdx-matrix-extra { display:none !important; }
-#page-codex .cdx-journey-panel { margin-top:22px; width:100%; max-width:460px; background:rgba(9,8,20,.94); border:1px solid rgba(192,192,224,.18); border-radius:10px; padding:20px 18px 18px; text-align:center; animation:cdxViewIn .4s ease both; }
-#page-codex .cdx-journey-eyebrow { color:rgba(192,132,252,.5); }
-#page-codex .cdx-journey-title { color:rgba(214,214,234,.65); }
-#page-codex .cdx-journey-body { text-align:center; margin-bottom:14px; }
+#page-codex .cdx-journey-panel {
+  position:relative;
+  margin-top:22px;
+  width:100%;
+  max-width:520px;
+  background:
+    linear-gradient(90deg, transparent, rgba(245,200,66,.32), transparent) 0 0 / 100% 1px no-repeat,
+    rgba(9,8,20,.94);
+  border:1px solid rgba(192,192,224,.18);
+  border-radius:10px;
+  padding:22px 22px 20px 24px;
+  text-align:left;
+  animation:cdxViewIn .4s ease both;
+}
+#page-codex .cdx-journey-panel::after {
+  content:'';
+  position:absolute;
+  top:14px;
+  bottom:14px;
+  left:0;
+  width:2px;
+  background:linear-gradient(180deg, rgba(192,132,252,.55), rgba(245,200,66,.35));
+  border-radius:0 2px 2px 0;
+}
+#page-codex .cdx-journey-eyebrow { color:rgba(192,132,252,.5); text-align:left; }
+#page-codex .cdx-journey-title { color:rgba(214,214,234,.78); text-align:left; margin-left:0; margin-right:0; max-width:none; }
+#page-codex .cdx-journey-body { margin-bottom:16px; }
 #page-codex .cdx-journey-dots { display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
 #page-codex .cdx-journey-dot { width:9px; height:9px; padding:0; border-radius:50%; border:1px solid rgba(192,192,224,.4); background:transparent; cursor:pointer; transition:all .2s; }
 #page-codex .cdx-journey-dot.is-current { background:#c084fc; border-color:#c084fc; box-shadow:0 0 8px rgba(192,132,252,.5); }
@@ -1456,7 +1594,7 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
       <div class="cdx-journey-panel" id="cdx-journey-panel" hidden>
         <div class="cdx-journey-eyebrow cdx-meta-eyebrow" id="cdx-journey-eyebrow"></div>
         <p class="cdx-journey-title cdx-meta-lead" id="cdx-journey-title"></p>
-        <p class="cdx-journey-body cdx-meta-text" id="cdx-journey-body"></p>
+        <p class="cdx-journey-body cdx-read" id="cdx-journey-body"></p>
         <div class="cdx-journey-dots" id="cdx-journey-dots"></div>
         <div class="cdx-journey-nav">
           <button type="button" class="cdx-spiral-btn" id="cdx-journey-back">&#8249; Back</button>
@@ -1513,14 +1651,14 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
         <div class="cdx-matrix-cta cdx-matrix-cta-primary cdx-matrix-extra">
           <div class="cdx-matrix-cta-eyebrow cdx-meta-eyebrow">Recommended Path</div>
           <p class="cdx-matrix-cta-lead cdx-meta-lead">Explore the Blueprint star chart</p>
-          <p class="cdx-matrix-cta-text cdx-meta-text">Seven frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive journey and links to each article.</p>
+          <p class="cdx-matrix-cta-text">Seven frequencies grouped into three trinities — Lessons, Expression, and Purpose — with an interactive journey and links to each article.</p>
           <a href="/blueprint/" class="cdx-matrix-cta-btn">&#11042;&nbsp;Triune Trinity Blueprint&nbsp;&#11042;</a>
         </div>
 
         <div class="cdx-matrix-cta cdx-matrix-extra">
           <div class="cdx-matrix-cta-eyebrow cdx-meta-eyebrow">Your Blueprint</div>
           <p class="cdx-matrix-cta-lead cdx-meta-lead">See where you sit in the Codex</p>
-          <p class="cdx-matrix-cta-text cdx-meta-text">Every node you explored maps to a frequency in your personal blueprint. Calculate yours to see which positions you occupy.</p>
+          <p class="cdx-matrix-cta-text">Every node you explored maps to a frequency in your personal blueprint. Calculate yours to see which positions you occupy.</p>
           <a href="/#calculator" class="cdx-matrix-cta-btn" onclick="if(typeof showPage==='function'){event.preventDefault();showPage('calculator');}">&#11042;&nbsp;Calculate My Blueprint&nbsp;&#11042;</a>
         </div>
       </div>
@@ -1529,7 +1667,7 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     </div><!-- /.cdx-view-matrix -->
 
     <div class="cdx-view cdx-view-spiral" id="cdx-view-spiral">
-      <p class="cdx-spiral-intro cdx-meta-text">Click any number to explore how compounds reduce to matrix nodes &nbsp;·&nbsp; Play traces 0→99 with decade milestones</p>
+      <p class="cdx-spiral-intro">Click any number to explore how compounds reduce to matrix nodes &nbsp;·&nbsp; Play traces 0→99 with decade milestones</p>
       <div class="cdx-spiral-layout">
         <div class="cdx-spiral-col-visual">
           <div class="cdx-spiral-root">
@@ -1588,7 +1726,7 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     <div class="nc-name"     id="nc-name"></div>
     <div class="nc-position" id="nc-position"></div>
     <div class="nc-essence"  id="nc-essence"></div>
-    <div class="nc-body"     id="nc-body"></div>
+    <div class="nc-body cdx-read"     id="nc-body"></div>
   </div>
   <div class="nc-actions" id="nc-actions"></div>
   <div class="nc-nav" aria-label="Step through the flow">
@@ -1603,14 +1741,18 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     <div class="pattern-modal-eyebrow">The Structural Law</div>
     <div class="pattern-modal-num">6 · 6 · 6</div>
     <div class="pattern-modal-body">
-      Every row of the Codex reduces to <strong>6</strong>:<br>
-      &nbsp;&nbsp;Mind row: 1 + 2 + 3 = <strong>6</strong><br>
-      &nbsp;&nbsp;Body row: 4 + 5 + 6 = 15 → <strong>6</strong><br>
-      &nbsp;&nbsp;Spirit row: 7 + 8 + 9 = 24 → <strong>6</strong><br><br>
-      Both diagonals reduce to <strong>6</strong>:<br>
-      &nbsp;&nbsp;1 + 5 + 9 = 15 → <strong>6</strong><br>
-      &nbsp;&nbsp;3 + 5 + 7 = 15 → <strong>6</strong><br><br>
-      The outer ring of the matrix — every edge, every corner path — frames the entire system in 6. This is not a symbol of evil. It is the structural law of integration: <strong>6 is the number that holds everything together.</strong>
+      <p>Every row of the Codex reduces to <strong>6</strong>:</p>
+      <ul class="pattern-modal-formula">
+        <li>Mind row: 1 + 2 + 3 = <strong>6</strong></li>
+        <li>Body row: 4 + 5 + 6 = 15 → <strong>6</strong></li>
+        <li>Spirit row: 7 + 8 + 9 = 24 → <strong>6</strong></li>
+      </ul>
+      <p>Both diagonals reduce to <strong>6</strong>:</p>
+      <ul class="pattern-modal-formula">
+        <li>1 + 5 + 9 = 15 → <strong>6</strong></li>
+        <li>3 + 5 + 7 = 15 → <strong>6</strong></li>
+      </ul>
+      <p>The outer ring of the matrix — every edge, every corner path — frames the entire system in 6. This is not a symbol of evil. It is the structural law of integration: <strong>6 is the number that holds everything together.</strong></p>
     </div>
     <a class="pattern-modal-link" href="/blog/666-numerology-meaning/">Read: 666 Is Not What You Think &#8594;</a>
   </div>
@@ -1622,11 +1764,13 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     <div class="pattern-modal-eyebrow">Tesla's Key</div>
     <div class="pattern-modal-num">3 · 6 · 9</div>
     <div class="pattern-modal-body">
-      Each column of the Codex reduces to 3, 6, or 9:<br>
-      &nbsp;&nbsp;Mind column: 1 + 4 + 7 = 12 → <strong>3</strong><br>
-      &nbsp;&nbsp;Body column: 2 + 5 + 8 = 15 → <strong>6</strong><br>
-      &nbsp;&nbsp;Spirit column: 3 + 6 + 9 = 18 → <strong>9</strong><br><br>
-      Tesla said if you knew the magnificence of 3, 6 and 9 you would have a key to the universe. The Codex shows exactly why — <strong>every column reduces to 3, 6, or 9.</strong> They are the Aetheric axis running through the entire system.
+      <p>Each column of the Codex reduces to 3, 6, or 9:</p>
+      <ul class="pattern-modal-formula">
+        <li>Mind column: 1 + 4 + 7 = 12 → <strong>3</strong></li>
+        <li>Body column: 2 + 5 + 8 = 15 → <strong>6</strong></li>
+        <li>Spirit column: 3 + 6 + 9 = 18 → <strong>9</strong></li>
+      </ul>
+      <p>Tesla said if you knew the magnificence of 3, 6 and 9 you would have a key to the universe. The Codex shows exactly why — <strong>every column reduces to 3, 6, or 9.</strong> They are the Aetheric axis running through the entire system.</p>
     </div>
     <a class="pattern-modal-link" href="/blog/3-6-9-pattern-tesla-numerology/">Read: Why Tesla Was Right &#8594;</a>
   </div>
@@ -1638,10 +1782,12 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     <div class="pattern-modal-eyebrow">The Alternating Charge</div>
     <div class="pattern-modal-num">3 &#8596; 6</div>
     <div class="pattern-modal-body">
-      Double 3 and keep reducing the digits:<br>
-      &nbsp;&nbsp;3 &#8594; 6 &#8594; 12 (1+2 = <strong>3</strong>) &#8594; 24 (2+4 = <strong>6</strong>) &#8594; 48 (<strong>3</strong>) &#8594; 96 (<strong>6</strong>) &#8230;<br><br>
-      3 and 6 trade places forever &#8212; an <strong>alternating electromagnetic charge</strong>, the two strokes of the vortex alternator. <strong>3 is Mind</strong>: the realm of thought, where forms first arise. <strong>6 is the World</strong>: the reflection of those thoughts made visible. Thought becomes world; world dissolves back into thought.<br><br>
-      And <strong>9 is the axis</strong> the whole oscillation swings around &#8212; the still singularity all of it flows through and out from.
+      <p>Double 3 and keep reducing the digits:</p>
+      <ul class="pattern-modal-formula">
+        <li>3 &#8594; 6 &#8594; 12 (1+2 = <strong>3</strong>) &#8594; 24 (2+4 = <strong>6</strong>) &#8594; 48 (<strong>3</strong>) &#8594; 96 (<strong>6</strong>) &#8230;</li>
+      </ul>
+      <p>3 and 6 trade places forever &#8212; an <strong>alternating electromagnetic charge</strong>, the two strokes of the vortex alternator. <strong>3 is Mind</strong>: the realm of thought, where forms first arise. <strong>6 is the World</strong>: the reflection of those thoughts made visible. Thought becomes world; world dissolves back into thought.</p>
+      <p>And <strong>9 is the axis</strong> the whole oscillation swings around &#8212; the still singularity all of it flows through and out from.</p>
     </div>
     <button type="button" class="pattern-modal-link" onclick="window.closeModal&&closeModal('modal-alternator');if(typeof setCodexView==='function'){setCodexView('journey',true);}else if(window._startCodexJourney){window._startCodexJourney();}">Begin the Journey &#8594;</button>
   </div>
@@ -1652,7 +1798,7 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js?v=20260731-es-freq"></script>
+<script src="/js/translations.js?v=20260828-services-copy"></script>
 <script type="module" src="/js/codex-data.js"></script>
 <script defer src="/js/calculator.js?v=20260723-result-polish"></script>
   <script defer src="/js/codex-spiral.js"></script>

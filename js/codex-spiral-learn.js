@@ -126,6 +126,41 @@
     return out;
   }
 
+  function copyParagraphs(text) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    var sentences = t.match(/[^.!?]+[.!?](?:['"”’)]+)?(?=\s|$)|[^.!?]+$/g);
+    if (!sentences || !sentences.length) sentences = [t];
+    var chunks = [];
+    var i;
+    if (sentences.length < 3) {
+      chunks.push(sentences.join(' ').replace(/\s+/g, ' ').trim());
+    } else {
+      for (i = 0; i < sentences.length; i += 2) {
+        chunks.push(sentences.slice(i, i + 2).join(' ').replace(/\s+/g, ' ').trim());
+      }
+    }
+    return '<div class="cdx-spiral-learn-copy">' + chunks.map(function (p) {
+      return '<p class="cdx-spiral-learn-body">' + p + '</p>';
+    }).join('') + '</div>';
+  }
+
+  function spokeChipsHtml(n) {
+    if (!(n > 0 && spokeOf(n) >= 0)) return '';
+    var nums = sameSpokeNums(n);
+    var root = rootOf(n);
+    var shown = nums.slice(0, 8);
+    var more = nums.length - shown.length;
+    var chips = shown.map(function (x) {
+      return '<span class="cdx-spiral-chip">' + x + '</span>';
+    }).join('');
+    if (more > 0) {
+      chips += '<span class="cdx-spiral-chip cdx-spiral-chip-more">+' + more + '</span>';
+    }
+    return '<div class="cdx-spiral-learn-spoke">Same root ray — all reduce to matrix node ' + root +
+      '<div class="cdx-spiral-chips">' + chips + '</div></div>';
+  }
+
   function renderPanel(n) {
     if (!panel) return;
     selectedNum = n;
@@ -145,9 +180,9 @@
       '<div class="cdx-spiral-learn-root">Reduces to <strong>' + root + '</strong> · ' + (meta.name || 'Matrix node') + '</div>' +
       (placement ? '<div class="cdx-spiral-learn-placement">' + placement + ' · ' + (meta.essence || '') + '</div>' : '') +
       matrixMini(root) +
-      '<p class="cdx-spiral-learn-body">' + nodeCopy(n) + '</p>' +
+      copyParagraphs(nodeCopy(n)) +
       '<p class="cdx-spiral-learn-lesson"><em>' + ringMeta.lesson + '</em></p>' +
-      (n > 0 && spokeOf(n) >= 0 ? '<p class="cdx-spiral-learn-spoke">Same root ray as ' + sameSpokeNums(n).join(', ') + ' — all reduce to matrix node ' + root + '.</p>' : '') +
+      spokeChipsHtml(n) +
       '<div class="cdx-spiral-learn-actions">' +
         (root !== undefined ? '<button type="button" class="cdx-spiral-btn" id="cdx-spiral-matrix-bridge">See in Matrix</button>' : '') +
         (links ? '<span class="cdx-spiral-learn-links">' + links + '</span>' : '') +

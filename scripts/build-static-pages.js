@@ -253,7 +253,7 @@ function buildCodex() {
     canonical: SEO.SITE_ORIGIN + '/codex/',
     jsonLd: codexJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/quest-theme.css?v=20260731-es-freq'],
+    extraStyles: ['/css/brand-revamp.css?v=20260731-es-freq', '/css/quest-theme.css?v=20260915-codex-read'],
     extraScripts: [
       '/js/codex-spiral.js',
       '/js/codex-spiral-learn.js',

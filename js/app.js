@@ -1416,11 +1416,6 @@ function setCodexView(view, pushState) {
     _ensureCodexSpiral(page);
     requestAnimationFrame(function() {
       _ensureCodexSpiral(page);
-      requestAnimationFrame(function() {
-        if (typeof triggerCodexSpiralAutoPlay === 'function') {
-          triggerCodexSpiralAutoPlay(page);
-        }
-      });
     });
   }
 

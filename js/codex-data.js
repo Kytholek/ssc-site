@@ -11,7 +11,7 @@ import {
   getSpiralTurn,
   getSpiralSpoke,
   SPIRAL_MAX,
-} from './codex-data.mjs';
+} from './codex-data.mjs?v=20260915-vessel';
 
 window.CODEX_PLACEMENT = CODEX_PLACEMENT;
 window.CODEX_NODES = CODEX_NODES;

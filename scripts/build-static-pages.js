@@ -123,7 +123,7 @@ function staticShell(opts) {
 
   const inlineStyle = opts.inlineStyle || '';
 
-  const dataModule = opts.dataModule || '/js/codex-data.js';
+  const dataModule = opts.dataModule || '/js/codex-data.js?v=20260915-vessel';
   const coreScripts = [
     '<script src="/js/translations.js?v=20260828-services-copy"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
@@ -204,7 +204,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260908-nav-dropdown"></script>
+<script defer src="/js/app.js?v=20260915-codex-play"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

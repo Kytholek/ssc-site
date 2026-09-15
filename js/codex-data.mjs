@@ -41,7 +41,7 @@ export const CODEX_NODES = {
     body: 'The consciousness that manifests. Discipline, order, patient building of foundations that outlast their maker.',
   },
   '5': {
-    name: 'Vessal for Experience',
+    name: 'Vessel for Experience',
     position: 'Body Axis · Right Meridian',
     essence: 'Electric · Freedom Through Presence',
     body: 'The explorer on the body meridian. Every path of transformation passes through 5.',

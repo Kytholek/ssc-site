@@ -69,7 +69,7 @@
       {
         "@type": "ListItem",
         "position": 6,
-        "name": "5 — Vessal for Experience",
+        "name": "5 — Vessel for Experience",
         "description": "The explorer on the body meridian. Every path of transformation passes through 5."
       },
       {
@@ -752,7 +752,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 #page-codex .cdx-matrix-cta-primary .cdx-matrix-cta-lead { color:rgba(245,200,66,.86); }
 #page-codex .cdx-matrix-cta-eyebrow { color:rgba(245,200,66,.55); }
 #page-codex .cdx-matrix-cta-lead { color:rgba(245,200,66,.7); margin:0 auto 10px; max-width:none; }
-#page-codex .cdx-matrix-cta-text { margin:0 0 16px; }
+#page-codex .cdx-matrix-cta-text { margin:0 0 16px; text-align:left !important; }
 #page-codex .cdx-matrix-cta-btn { font-family:'Cinzel',serif; font-size:9px; letter-spacing:.3em; text-transform:uppercase; padding:12px 22px; border-radius:5px; background:rgba(55,138,221,.15); border:1px solid rgba(126,200,200,.35); color:rgba(126,200,200,.85); text-decoration:none; display:inline-block; transition:background .2s,border-color .2s,color .2s; }
 #page-codex .cdx-matrix-cta-btn:hover { background:rgba(55,138,221,.25); border-color:rgba(126,200,200,.55); color:rgba(126,200,200,1); }
 #page-codex .cdx-matrix-cta-primary .cdx-matrix-cta-btn { background:rgba(245,200,66,.08); border-color:rgba(245,200,66,.42); color:rgba(245,200,66,.92); }
@@ -964,7 +964,8 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   color: rgba(192,192,216,.62) !important;
   line-height: 1.7 !important;
   margin: 0 auto 18px;
-  max-width: 640px;
+  max-width: 520px;
+  text-wrap: balance;
 }
 #page-codex .cdx-spiral-controls {
   display: flex;
@@ -1667,7 +1668,7 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
     </div><!-- /.cdx-view-matrix -->
 
     <div class="cdx-view cdx-view-spiral" id="cdx-view-spiral">
-      <p class="cdx-spiral-intro">Click any number to explore how compounds reduce to matrix nodes &nbsp;·&nbsp; Play traces 0→99 with decade milestones</p>
+      <p class="cdx-spiral-intro">Click a number to explore its octave &nbsp;·&nbsp; Play traces 0→99</p>
       <div class="cdx-spiral-layout">
         <div class="cdx-spiral-col-visual">
           <div class="cdx-spiral-root">
@@ -1799,13 +1800,13 @@ html[data-theme='light'] #page-codex .cdx-journey-panel .cdx-spiral-btn { border
 <footer class="footer" id="footer"></footer>
 
 <script src="/js/translations.js?v=20260828-services-copy"></script>
-<script type="module" src="/js/codex-data.js"></script>
+<script type="module" src="/js/codex-data.js?v=20260915-vessel"></script>
 <script defer src="/js/calculator.js?v=20260723-result-polish"></script>
   <script defer src="/js/codex-spiral.js"></script>
   <script defer src="/js/codex-spiral-learn.js"></script>
   <script defer src="/js/codex-matrix.js"></script>
   <script defer src="/js/codex-learn.js"></script>
-<script defer src="/js/app.js?v=20260908-nav-dropdown"></script>
+<script defer src="/js/app.js?v=20260915-codex-play"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

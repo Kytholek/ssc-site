@@ -2157,14 +2157,13 @@ html[data-theme='light'] #page-home .hp-scl-section {
   background: var(--surface-card-muted) !important;
 }
 
-html[data-theme='light'] #page-home .hp-articles {
+html[data-theme='light'] #page-home .hp-articles-section {
   padding-top: 56px !important;
 }
 
-html[data-theme='light'] #page-home .hp-articles-title {
+html[data-theme='light'] #page-home .hp-articles-heading {
   margin-top: 0 !important;
-  margin-bottom: 20px !important;
-  padding: 0 4px 14px !important;
+  margin-bottom: 0 !important;
 }
 
 html[data-theme='light'] #page-home .hp-article-card,
@@ -2176,8 +2175,8 @@ html[data-theme='light'] #page-home .hp-freq-chip {
 }
 
 html[data-theme='light'] #page-home .hp-article-card {
-  padding: 16px 16px 18px !important;
-  margin-bottom: 14px !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
   border-bottom: none !important;
 }
 
@@ -2185,7 +2184,7 @@ html[data-theme='light'] #page-home .hp-article-body {
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
-  padding: 0 !important;
+  padding: 14px 16px 16px !important;
 }
 
 html[data-theme='light'] #page-home .hp-article-thumb {

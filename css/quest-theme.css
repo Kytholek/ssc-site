@@ -348,15 +348,12 @@ nav a:hover, [class*="nav-links"] a:hover { color: var(--teal) !important; }
 
 /* ── Home page specifics ──────────────────────────────── */
 
-/* Articles sidebar */
-#page-home .hp-articles-title {
+/* Articles */
+#page-home .hp-articles-heading {
   font-family: 'Cormorant SC', serif !important;
   font-weight: 300 !important;
-  font-size: 11px !important;
-  letter-spacing: .35em !important;
-  color: var(--gold-dim) !important;
+  color: var(--gold) !important;
   text-shadow: none !important;
-  border-bottom-color: var(--border) !important;
 }
 #page-home .hp-article-tag {
   font-family: 'Press Start 2P', monospace !important;
@@ -752,15 +749,15 @@ html[data-theme='light'] #page-home .hp-ssc-card {
 }
 
 html[data-theme='light'] #page-home .hp-article-card {
-  padding: 16px 16px 18px !important;
-  margin-bottom: 14px !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
   border-radius: 12px !important;
   border-bottom: none !important;
 }
 
-html[data-theme='light'] #page-home .hp-articles-title {
-  padding: 0 4px 14px !important;
-  margin-bottom: 20px !important;
+html[data-theme='light'] #page-home .hp-articles-heading {
+  padding: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 html[data-theme='light'] #page-home .hp-codex-node text {

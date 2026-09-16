@@ -204,7 +204,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260915-footer6"></script>
+<script defer src="/js/app.js?v=20260915-twitch"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

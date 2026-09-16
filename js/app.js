@@ -969,10 +969,6 @@ function enableHomeSnap() {
     return window.matchMedia('(max-width: 860px)').matches ? 46 : 90;
   }
 
-  function isCoarse() {
-    return window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(max-width: 860px)').matches;
-  }
-
   function syncDots() {
     if (!nav) return;
     var count = sections.length + (footerHost ? 1 : 0);
@@ -1056,18 +1052,15 @@ function enableHomeSnap() {
     setProgress(i, false);
     target.classList.add('is-visible');
     target.classList.remove('hp-reveal-armed');
-    var coarse = isCoarse();
     var top = sectionTop(target);
     page.scrollTo({
       top: top,
-      behavior: (reduce || coarse) ? 'auto' : 'smooth'
+      behavior: 'auto'
     });
     clearTimeout(settleTimer);
-    var dist = Math.abs(scrollY() - top);
-    var wait = reduce || coarse ? 80 : Math.min(900, 280 + dist * 0.2);
     settleTimer = setTimeout(function () {
       locked = false;
-    }, wait);
+    }, reduce ? 80 : 220);
   }
 
   function canScrollInner(el, dir) {

@@ -212,40 +212,62 @@
   font-size: 11px;
 }
 
-/* â”€â”€ Articles Sidebar â”€â”€ */
-.hp-articles {
-  flex: 2 1 0;
-  min-width: 240px;
-  /* Match .hp-ssc content inset so "Pillar Reads" isn't flush to the section edge */
-  padding-top: 56px;
+/* â”€â”€ Pillar Reads section â”€â”€ */
+.hp-articles-section {
+  position: relative;
+  padding: 72px 80px 40px;
 }
-.hp-articles-title {
-  font-family: 'Cormorant SC', serif;
-  font-weight: 300;
-  font-size: 11px;
-  letter-spacing: .35em;
+.hp-articles-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+.hp-articles-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.hp-articles-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.45em;
   text-transform: uppercase;
   color: var(--gold-dim);
-  margin-bottom: 24px;
-  padding: 0 2px 14px;
-  border-bottom: 1px solid rgba(201,168,76,0.1);
+  margin-bottom: 10px;
+}
+.hp-articles-heading {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(26px, 3.5vw, 40px);
+  color: var(--gold);
+  margin: 0;
+  line-height: 1.2;
+}
+.hp-articles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 .hp-article-card {
   display: flex;
   flex-direction: column;
-  padding: 0 0 32px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 0;
+  border: 1px solid rgba(201,168,76,0.14);
+  border-radius: 8px;
+  background: rgba(201,168,76,0.03);
+  overflow: hidden;
   text-decoration: none;
-  transition: all .2s;
+  transition: border-color .2s, background .2s;
+}
+.hp-article-card:hover {
+  border-color: rgba(201,168,76,0.32);
+  background: rgba(201,168,76,0.06);
 }
 .hp-article-card:hover .hp-article-title { color: var(--gold); }
 .hp-article-thumb {
   width: 100%;
-  height: 140px;
-  border-radius: 6px;
+  height: 120px;
   overflow: hidden;
-  border: 1px solid rgba(201,168,76,0.1);
-  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
 }
 .hp-article-thumb img {
   width: 100%;
@@ -255,27 +277,23 @@
   transition: transform .4s;
 }
 .hp-article-card:hover .hp-article-thumb img { transform: scale(1.04); }
-.hp-article-body { width: 100%; }
+.hp-article-body { width: 100%; padding: 14px 16px 16px; }
 .hp-article-tag {
   font-family: 'Cinzel', serif;
   font-size: 7px;
   letter-spacing: .3em;
   text-transform: uppercase;
   color: var(--teal-light);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   display: block;
 }
 .hp-article-title {
   font-family: 'Cormorant SC', serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 300;
   color: var(--text);
   line-height: 1.35;
   transition: color .2s;
-}
-.hp-articles .hp-article-card:last-of-type {
-  border-bottom: none;
-  padding-bottom: 12px;
 }
 
 /* â”€â”€ SCL Section â”€â”€ */
@@ -895,7 +913,7 @@ a.hp-trinity-item:hover {
 }
 
 /* View All Articles — sits under pillar reads */
-.hp-articles .hp-view-all-link {
+.hp-articles-section .hp-view-all-link {
   display: inline-block;
   margin-top: 20px;
   font-family: 'Cinzel', serif;
@@ -908,7 +926,7 @@ a.hp-trinity-item:hover {
   padding-bottom: 3px;
   transition: color .2s, border-color .2s;
 }
-.hp-articles .hp-view-all-link:hover {
+.hp-articles-section .hp-view-all-link:hover {
   color: var(--gold);
   border-color: var(--gold);
 }
@@ -1020,7 +1038,8 @@ a.hp-trinity-item:hover {
   .hp-scl-actions .hp-scl-install-details { max-width: none; }
   .hp-scl-section { padding: 120px 40px; }
   .hp-ssc { padding: 40px 32px; }
-  .hp-articles { padding-top: 40px; }
+  .hp-articles-section { padding: 56px 40px 32px; }
+  .hp-article-thumb { height: 100px; }
 }
 @media (max-width: 700px) {
   .hp-freq-row { grid-template-columns: 1fr; }
@@ -1053,7 +1072,11 @@ a.hp-trinity-item:hover {
   .hp-scl-section { padding: 100px 24px; }
   .hp-frequencies { grid-template-columns: 1fr 1fr; }
   .hp-ssc { padding: 28px 20px; overflow: visible; }
-  .hp-articles { padding-top: 28px; }
+  .hp-articles-section { padding: 48px 24px 28px; }
+  .hp-articles-grid { gap: 10px; }
+  .hp-article-thumb { height: 84px; }
+  .hp-article-body { padding: 10px 12px 12px; }
+  .hp-article-title { font-size: 14px; }
   .hp-freq-chip { padding: 12px 12px; }
   .hp-freq-calling-wrap { padding: 14px 16px; }
   .hp-freq-calling-inner { gap: 12px; }
@@ -1063,7 +1086,7 @@ a.hp-trinity-item:hover {
 }
 @media (max-width: 400px) {
   .hp-ssc { padding: 24px 16px; }
-  .hp-articles { padding-top: 24px; }
+  .hp-articles-section { padding: 40px 16px 24px; }
 }
 
 html.hp-snapping .hp-hero-codex-arrow {
@@ -1235,6 +1258,54 @@ html.hp-snapping .hp-hero-codex-arrow {
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="hp-articles-section hp-reveal hp-snap" aria-labelledby="hp-articles-heading" data-snap-label="Reads">
+  <div class="hp-articles-inner">
+    <div class="hp-articles-header">
+      <div class="hp-articles-eyebrow" data-i18n="home.revamp.articles.eyebrow">// THE WRITTEN SYSTEM</div>
+      <h2 class="hp-articles-heading" id="hp-articles-heading" data-i18n="home.revamp.articles.title">Pillar Reads</h2>
+    </div>
+    <div class="hp-articles-grid">
+      <a href="/blog/pillar-numerology-source-code/" class="hp-article-card">
+        <div class="hp-article-thumb">
+          <img src="/blog/pillar-numerology-source-code/sigil-and-name.png" alt="SSC Complete Guide" loading="lazy" decoding="async" width="480" height="270" onerror="this.onerror=null;this.src='/Images/ssc-og.png'">
+        </div>
+        <div class="hp-article-body">
+          <span class="hp-article-tag" data-i18n="home.revamp.articles.tag.system">The System</span>
+          <div class="hp-article-title" data-i18n="home.revamp.articles.1">Numerology as Source Code — Life Path &amp; Full Blueprint Guide</div>
+        </div>
+      </a>
+      <a href="/blog/trinity-of-lessons-numerology/" class="hp-article-card">
+        <div class="hp-article-thumb">
+          <img src="/blog/trinity-of-lessons-numerology/trinity-of-lessons.png" alt="Trinity of Lessons" loading="lazy" decoding="async" width="480" height="270" onerror="this.onerror=null;this.src='/Images/ssc-og.png'">
+        </div>
+        <div class="hp-article-body">
+          <span class="hp-article-tag" data-i18n="home.revamp.articles.tag.trinity">Trinity Series</span>
+          <div class="hp-article-title" data-i18n="home.revamp.articles.2">The Trinity of Lessons: Life Path, Achievement &amp; Theme</div>
+        </div>
+      </a>
+      <a href="/blog/trinity-of-expression-numerology/" class="hp-article-card">
+        <div class="hp-article-thumb">
+          <img src="/blog/trinity-of-expression-numerology/trinity-of-expression.png" alt="Trinity of Expression" loading="lazy" decoding="async" width="480" height="270" onerror="this.onerror=null;this.src='/Images/ssc-og.png'">
+        </div>
+        <div class="hp-article-body">
+          <span class="hp-article-tag" data-i18n="home.revamp.articles.tag.trinity">Trinity Series</span>
+          <div class="hp-article-title" data-i18n="home.revamp.articles.3">The Trinity of Expression: Soul, Outer &amp; Expression Numbers</div>
+        </div>
+      </a>
+      <a href="/blog/trinity-of-purpose-numerology/" class="hp-article-card">
+        <div class="hp-article-thumb">
+          <img src="/blog/trinity-of-purpose-numerology/trinity-of-purpose.png" alt="Trinity of Purpose" loading="lazy" decoding="async" width="480" height="270" onerror="this.onerror=null;this.src='/Images/ssc-og.png'">
+        </div>
+        <div class="hp-article-body">
+          <span class="hp-article-tag" data-i18n="home.revamp.articles.tag.trinity">Trinity Series</span>
+          <div class="hp-article-title" data-i18n="home.revamp.articles.4">The Trinity of Purpose: Life Path, Expression &amp; Life Calling</div>
+        </div>
+      </a>
+    </div>
+    <a href="/blog/" class="hp-view-all-link js-track-cta" data-cta="articles_view_all" data-i18n="home.revamp.articles.all">View All Articles &#8594;</a>
   </div>
 </section>
 

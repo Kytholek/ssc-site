@@ -189,6 +189,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.articles.3' : { en: 'The Trinity of Expression: Soul, Outer & Expression Numbers', es: 'La Trinidad de Expresión: Alma, Exterior y Números de Expresión' },
   'home.revamp.articles.4' : { en: 'The Trinity of Purpose: Life Path, Expression & Life Calling', es: 'La Trinidad de Propósito: Camino de Vida, Expresión y Llamado de Vida' },
   'home.revamp.articles.all' : { en: 'View All Articles →', es: 'Ver Todos los Artículos →' },
+  'home.revamp.articles.eyebrow' : { en: '// THE WRITTEN SYSTEM', es: '// EL SISTEMA ESCRITO' },
   'home.revamp.articles.tag.system' : { en: 'The System', es: 'El Sistema' },
   'home.revamp.articles.tag.trinity' : { en: 'Trinity Series', es: 'Serie Trinidad' },
   'home.revamp.articles.title' : { en: 'Pillar Reads', es: 'Lecturas Pilar' },

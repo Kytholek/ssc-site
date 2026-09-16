@@ -113,7 +113,7 @@ ${MARKER_END}
 <footer class="footer" id="footer"></footer>
 
 <script src="/js/translations.js?v=20260915-footer6"></script>
-<script src="/js/app.js?v=20260915-footer6"></script>
+<script src="/js/app.js?v=20260915-twitch"></script>
 <script>
   (async function () {
     if (typeof loadNav === 'function') await loadNav();

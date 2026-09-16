@@ -710,6 +710,7 @@ html[data-theme='light'] .hp-section-flow-pivot {
   #page-home .hp-hero-eyebrow,
   #page-home .hp-ssc-eyebrow,
   #page-home .hp-codex-teaser-eyebrow,
+  #page-home .hp-articles-eyebrow,
   #page-home .hp-services-eyebrow,
   #page-home .hp-faq-eyebrow {
     font-size: 10px;
@@ -1018,6 +1019,7 @@ html.hp-snapping .hp-section-flow {
 }
 html.hp-snapping .hp-codex-teaser,
 html.hp-snapping .hp-use-section,
+html.hp-snapping .hp-articles-section,
 html.hp-snapping .hp-scl-section,
 html.hp-snapping .hp-faq-section {
   padding-left: 80px;
@@ -1042,6 +1044,7 @@ html.hp-snapping .hp-ssc {
 html.hp-snapping .hp-use-inner,
 html.hp-snapping .hp-faq-inner,
 html.hp-snapping .hp-codex-teaser-inner,
+html.hp-snapping .hp-articles-inner,
 html.hp-snapping .hp-scl-wrap {
   width: 100%;
   max-height: 100%;
@@ -1079,10 +1082,24 @@ html.hp-snapping .hp-faq-list {
   overflow: auto;
   max-height: calc(100dvh - 220px);
 }
+html.hp-snapping .hp-articles-header {
+  margin-bottom: 16px;
+}
+html.hp-snapping .hp-articles-heading {
+  font-size: clamp(24px, 3vw, 36px);
+}
+html.hp-snapping .hp-articles-grid {
+  gap: 12px;
+  min-height: 0;
+}
+html.hp-snapping .hp-article-thumb {
+  height: 88px;
+}
 html.hp-snapping .hp-snap.is-current .hp-hero-content,
 html.hp-snapping .hp-snap.is-current .hp-ssc,
 html.hp-snapping .hp-snap.is-current .hp-codex-teaser-inner,
 html.hp-snapping .hp-snap.is-current .hp-use-inner,
+html.hp-snapping .hp-snap.is-current .hp-articles-inner,
 html.hp-snapping .hp-snap.is-current .hp-scl-wrap,
 html.hp-snapping .hp-snap.is-current .hp-faq-inner {
   animation: hpSnapIn 0.62s ease both;
@@ -1203,6 +1220,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   html.hp-snapping .hp-hero,
   html.hp-snapping .hp-codex-teaser,
   html.hp-snapping .hp-use-section,
+  html.hp-snapping .hp-articles-section,
   html.hp-snapping .hp-scl-section,
   html.hp-snapping .hp-faq-section {
     padding-left: 20px;
@@ -1291,6 +1309,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   }
   html.hp-snapping .hp-use-inner,
   html.hp-snapping .hp-codex-teaser-inner,
+  html.hp-snapping .hp-articles-inner,
   html.hp-snapping .hp-faq-inner,
   html.hp-snapping .hp-scl-wrap,
   html.hp-snapping .hp-ssc {
@@ -1330,6 +1349,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
     width: min(148px, 46vw);
   }
   html.hp-snapping .hp-use-section,
+  html.hp-snapping .hp-articles-section,
   html.hp-snapping .hp-scl-section {
     padding-left: 16px;
     padding-right: 16px;
@@ -1372,6 +1392,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   html.hp-snapping .hp-snap.is-current .hp-ssc,
   html.hp-snapping .hp-snap.is-current .hp-codex-teaser-inner,
   html.hp-snapping .hp-snap.is-current .hp-use-inner,
+  html.hp-snapping .hp-snap.is-current .hp-articles-inner,
   html.hp-snapping .hp-snap.is-current .hp-scl-wrap,
   html.hp-snapping .hp-snap.is-current .hp-faq-inner {
     animation: none;

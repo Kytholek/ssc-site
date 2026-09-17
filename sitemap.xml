@@ -37,7 +37,7 @@
 
   <url>
     <loc>https://simulationsourcecode.com/blog/</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-09-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -58,7 +58,7 @@
 
   <url>
     <loc>https://simulationsourcecode.com/privacy/</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -72,14 +72,14 @@
 
   <url>
     <loc>https://simulationsourcecode.com/sourcecode-life/</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://simulationsourcecode.com/sample-guidebook.html</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -87,6 +87,13 @@
   <url>
     <loc>https://simulationsourcecode.com/blog/3-6-9-pattern-tesla-numerology/</loc>
     <lastmod>2026-09-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <url>
+    <loc>https://simulationsourcecode.com/blog/396-electromagnetic-self-spiritual-spine/</loc>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>

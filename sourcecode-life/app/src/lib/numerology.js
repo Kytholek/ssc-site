@@ -108,9 +108,18 @@ export function countNums0to9(arr) {
   return counts
 }
 
+/** Date at a fractional age (years since birth), for historical cycle lookups. */
+export function dateAtAge(m, d, y, age) {
+  const whole = Math.max(0, Math.floor(Number(age) || 0))
+  const frac = Math.max(0, (Number(age) || 0) - whole)
+  const start = new Date(y + whole, m - 1, d)
+  const end = new Date(y + whole + 1, m - 1, d)
+  return new Date(start.getTime() + frac * (end.getTime() - start.getTime()))
+}
+
 /** Returns { cycleStartYear, lastBirthday, daysSinceBd } */
-export function getCycleAnchor(m, d) {
-  const now        = new Date()
+export function getCycleAnchor(m, d, asOf = new Date()) {
+  const now        = asOf instanceof Date ? asOf : new Date()
   const thisYear   = now.getFullYear()
   const bdThisYear = new Date(thisYear, m - 1, d)
   const cycleStartYear = now >= bdThisYear ? thisYear : thisYear - 1
@@ -120,8 +129,8 @@ export function getCycleAnchor(m, d) {
 }
 
 /** Returns { root, cycleStartYear } */
-export function calcPersonalYear(m, d) {
-  const { cycleStartYear } = getCycleAnchor(m, d)
+export function calcPersonalYear(m, d, asOf = new Date()) {
+  const { cycleStartYear } = getCycleAnchor(m, d, asOf)
   return { root: reduce(m + d + cycleStartYear), cycleStartYear }
 }
 
@@ -136,22 +145,22 @@ export function calcPinnacles(m, d, y, lp) {
 }
 
 /** Returns { root, monthNum } */
-export function calcPersonalMonth(m, d) {
-  const { lastBirthday } = getCycleAnchor(m, d)
-  const now = new Date()
+export function calcPersonalMonth(m, d, asOf = new Date()) {
+  const now = asOf instanceof Date ? asOf : new Date()
+  const { lastBirthday } = getCycleAnchor(m, d, now)
   let monthsElapsed = (now.getFullYear() - lastBirthday.getFullYear()) * 12
                     + (now.getMonth()    - lastBirthday.getMonth())
   if (now.getDate() < lastBirthday.getDate()) monthsElapsed--
   monthsElapsed = Math.max(0, monthsElapsed)
   const monthNum = (monthsElapsed % 12) + 1
-  const py = calcPersonalYear(m, d).root
+  const py = calcPersonalYear(m, d, now).root
   return { root: reduce(py + monthNum), monthNum }
 }
 
 /** Returns { root, dayNum, monthRoot } — Personal Day = reduce(Personal Month + cycle day) */
-export function calcPersonalDay(m, d) {
-  const { lastBirthday } = getCycleAnchor(m, d)
-  const now = new Date()
+export function calcPersonalDay(m, d, asOf = new Date()) {
+  const now = asOf instanceof Date ? asOf : new Date()
+  const { lastBirthday } = getCycleAnchor(m, d, now)
   let monthsElapsed = (now.getFullYear() - lastBirthday.getFullYear()) * 12
                     + (now.getMonth()    - lastBirthday.getMonth())
   if (now.getDate() < lastBirthday.getDate()) monthsElapsed--
@@ -160,16 +169,17 @@ export function calcPersonalDay(m, d) {
   const pmStartMonth = (lastBirthday.getMonth() + monthsElapsed) % 12
   const pmStart      = new Date(pmStartYear, pmStartMonth, lastBirthday.getDate())
   const dayNum       = Math.floor((now - pmStart) / 86400000) + 1
-  const monthRoot    = calcPersonalMonth(m, d).root
+  const monthRoot    = calcPersonalMonth(m, d, now).root
   return { root: reduce(monthRoot + dayNum), dayNum, monthRoot }
 }
 
 /** Returns { root, cycleNum, startMonthIdx, endMonthIdx } */
-export function calcFourMonthCycle(m, d) {
-  const { monthNum } = calcPersonalMonth(m, d)
-  const { lastBirthday } = getCycleAnchor(m, d)
+export function calcFourMonthCycle(m, d, asOf = new Date()) {
+  const now = asOf instanceof Date ? asOf : new Date()
+  const { monthNum } = calcPersonalMonth(m, d, now)
+  const { lastBirthday } = getCycleAnchor(m, d, now)
   const cycleNum      = Math.ceil(monthNum / 4)
-  const py            = calcPersonalYear(m, d).root
+  const py            = calcPersonalYear(m, d, now).root
   const root          = reduce(py + cycleNum - 1)
   const startMonthIdx = (lastBirthday.getMonth() + (cycleNum - 1) * 4) % 12
   const endMonthIdx   = (lastBirthday.getMonth() + cycleNum * 4 - 1) % 12

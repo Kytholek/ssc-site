@@ -161,6 +161,28 @@
       '<div class="cdx-spiral-chips">' + chips + '</div></div>';
   }
 
+  function articleLinksHtml(extraLinks) {
+    var articles = [
+      { href: '/blog/evolution-of-energy-0-through-9/', label: 'Evolution of Energy' },
+      { href: '/blog/codex-architecture-consciousness-matrix/', label: 'Codex Architecture' }
+    ];
+    (extraLinks || []).forEach(function (l) {
+      if (!l || !l.href) return;
+      var exists = articles.some(function (a) { return a.href === l.href; });
+      if (!exists) articles.push({ href: l.href, label: l.label || l.href });
+    });
+    var cards = articles.map(function (a) {
+      return '<a class="cdx-spiral-learn-article" href="' + a.href + '">' +
+        '<span class="cdx-spiral-learn-article-title">' + a.label + '</span>' +
+        '<span class="cdx-spiral-learn-article-cue">Read article &#8594;</span>' +
+        '</a>';
+    }).join('');
+    return '<div class="cdx-spiral-learn-articles">' +
+      '<div class="cdx-spiral-learn-articles-label">Read the articles</div>' +
+      cards +
+      '</div>';
+  }
+
   function renderPanel(n) {
     if (!panel) return;
     selectedNum = n;
@@ -170,9 +192,6 @@
     var meta = (window.CODEX_NODES || {})[String(root)] || {};
     var ringMeta = RING_META[ring] || {};
     var placement = typeof window.getCodexPlacement === 'function' ? window.getCodexPlacement(root) : '';
-    var links = (meta.links || []).map(function (l) {
-      return '<a href="' + l.href + '">' + l.label + '</a>';
-    }).join(' · ');
 
     panel.innerHTML =
       '<div class="cdx-spiral-learn-num" style="color:' + (NATURE_COLOR[natureOf(root)] || '#F5C842') + '">' + n + '</div>' +
@@ -183,16 +202,7 @@
       copyParagraphs(nodeCopy(n)) +
       '<p class="cdx-spiral-learn-lesson"><em>' + ringMeta.lesson + '</em></p>' +
       spokeChipsHtml(n) +
-      '<div class="cdx-spiral-learn-actions">' +
-        (root !== undefined ? '<button type="button" class="cdx-spiral-btn" id="cdx-spiral-matrix-bridge">See in Matrix</button>' : '') +
-        (links ? '<span class="cdx-spiral-learn-links">' + links + '</span>' : '') +
-      '</div>' +
-      '<p class="cdx-spiral-learn-more"><a href="/blog/evolution-of-energy-0-through-9/">Evolution of Energy</a> · <a href="/blog/codex-architecture-consciousness-matrix/">Codex Architecture</a></p>';
-
-    var bridge = document.getElementById('cdx-spiral-matrix-bridge');
-    if (bridge) {
-      bridge.addEventListener('click', function () { bridgeToMatrix(root); });
-    }
+      articleLinksHtml(meta.links);
 
     highlightSpoke(n);
     if (nodeEls) {
@@ -221,11 +231,13 @@
     }
   }
 
-  function bridgeToMatrix(rootNum) {
-    if (typeof window.setCodexView === 'function') window.setCodexView('matrix', false);
-    setTimeout(function () {
-      if (typeof window.pinCodexNode === 'function') window.pinCodexNode(String(rootNum));
-    }, 120);
+  function scrollToPanel() {
+    if (!panel) return;
+    var target = panel.closest('.cdx-spiral-col-panel') || panel;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(function () {
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
   }
 
   function bindNodeInteractions() {
@@ -236,11 +248,15 @@
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', 'Spiral number ' + num);
       el.style.cursor = 'pointer';
-      el.addEventListener('click', function () { renderPanel(num); });
+      el.addEventListener('click', function () {
+        renderPanel(num);
+        scrollToPanel();
+      });
       el.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           renderPanel(num);
+          scrollToPanel();
         }
       });
     });

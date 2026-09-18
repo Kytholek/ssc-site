@@ -1,6 +1,7 @@
 /**
  * Numerical Spiral (0–99) — Codex view
- * Sequence 0→99 winds outward; each number sits on its root ray at a spiral layer.
+ * Resting state: 0–9 on a consecutive circle (0 at top, then 1…9 clockwise).
+ * Grow Sequence: 0→99 winds outward; each number sits on its root ray at a spiral layer.
  */
 function initCodexSpiral(container) {
   if (!container || container.dataset.initialized === '1') return;
@@ -41,6 +42,12 @@ function initCodexSpiral(container) {
   var SPOKE_DEG = 360 / SPOKE_COUNT;
   var ringR = [18, 15, 14, 13, 12, 11, 10, 10, 9, 9, 8, 8];
   var ringFS = [13, 11, 10, 10, 9, 9, 8, 8, 7, 7, 7, 6];
+  var PLAY_LABEL = '\u25B6 Grow Sequence';
+  var STOP_LABEL = '\u25A0 Stop';
+  var CIRCLE_R = 105;
+  var CIRCLE_DEG = 36;
+  var CIRCLE_NODE_R = [21, 19];
+  var CIRCLE_FS = [12, 11];
 
   function spiralRoot(n) {
     if (typeof window.getCodexRoot === 'function') return window.getCodexRoot(n);
@@ -52,6 +59,16 @@ function initCodexSpiral(container) {
   }
 
   function slotAngle(slot) { return (-90 + slot * SPOKE_DEG) * Math.PI / 180; }
+
+  function circlePos(n) {
+    var a = (-90 + n * CIRCLE_DEG) * Math.PI / 180;
+    return {
+      x: Math.cos(a) * CIRCLE_R,
+      y: Math.sin(a) * CIRCLE_R,
+      a: a,
+      rad: CIRCLE_R
+    };
+  }
 
   function spiralTurn(n) {
     if (typeof window.getSpiralTurn === 'function') return window.getSpiralTurn(n);
@@ -207,6 +224,7 @@ function initCodexSpiral(container) {
     var g = document.createElementNS(NS, 'g');
     g.setAttribute('class', 'cdx-spiral-node');
     g.setAttribute('data-num', String(p.n));
+    if (p.n === 0) g.classList.add('cdx-spiral-node--void');
     var c = document.createElementNS(NS, 'circle');
     c.setAttribute('cx', wx);
     c.setAttribute('cy', wy);
@@ -221,17 +239,92 @@ function initCodexSpiral(container) {
     t.classList.add('cdx-spiral-node-' + rc + 't');
     t.textContent = p.label;
     g.appendChild(c);
+    if (p.n === 0) {
+      var haloC = document.createElementNS(NS, 'circle');
+      haloC.setAttribute('class', 'cdx-spiral-void-halo');
+      haloC.setAttribute('cx', wx);
+      haloC.setAttribute('cy', wy);
+      haloC.setAttribute('r', (ringR[ring] || 7) + 10);
+      haloC.setAttribute('pointer-events', 'none');
+      g.appendChild(haloC);
+    }
     g.appendChild(t);
     nodeG.appendChild(g);
     nodeEls.push(g);
   });
+
+  var cycleRing = document.createElementNS(NS, 'circle');
+  cycleRing.setAttribute('cx', CX);
+  cycleRing.setAttribute('cy', CY);
+  cycleRing.setAttribute('r', CIRCLE_R);
+  cycleRing.setAttribute('class', 'cdx-spiral-cycle-ring');
+  ringG.appendChild(cycleRing);
 
   var totalLen = 0;
   try { totalLen = ap.getTotalLength(); } catch (e) { totalLen = 9000; }
 
   ap.style.strokeDasharray = totalLen;
   ap.style.strokeDashoffset = '0';
-  nodeEls.forEach(function(el) { el.style.opacity = '1'; });
+
+  function setNodeGeom(g, wx, wy, radius, fontSize) {
+    var c = g.querySelector('circle:not(.cdx-spiral-void-halo)');
+    var halo = g.querySelector('.cdx-spiral-void-halo');
+    var t = g.querySelector('text');
+    if (c) {
+      c.setAttribute('cx', wx);
+      c.setAttribute('cy', wy);
+      c.setAttribute('r', radius);
+    }
+    if (halo) {
+      halo.setAttribute('cx', wx);
+      halo.setAttribute('cy', wy);
+      halo.setAttribute('r', radius + 10);
+    }
+    if (t) {
+      t.setAttribute('x', wx);
+      t.setAttribute('y', wy);
+      t.setAttribute('font-size', fontSize);
+    }
+  }
+
+  function enterSpiralMode() {
+    container.classList.remove('is-circle-mode');
+    nodeEls.forEach(function(el, i) {
+      var p = pts[i];
+      var ring = p.ring || 0;
+      setNodeGeom(el, CX + p.x, CY + p.y, ringR[ring] || 7, ringFS[ring] || 6);
+      el.style.pointerEvents = '';
+    });
+    ap.setAttribute('d', buildEnergyPath(pts));
+    try { totalLen = ap.getTotalLength(); } catch (e) { /* keep prior length */ }
+    ap.style.strokeDasharray = totalLen;
+  }
+
+  function enterCircleMode() {
+    container.classList.add('is-circle-mode');
+    nodeEls.forEach(function(el, i) {
+      if (i <= 9) {
+        var p = circlePos(i);
+        var isZero = i === 0;
+        setNodeGeom(
+          el,
+          CX + p.x,
+          CY + p.y,
+          isZero ? CIRCLE_NODE_R[0] : CIRCLE_NODE_R[1],
+          isZero ? CIRCLE_FS[0] : CIRCLE_FS[1]
+        );
+        el.style.opacity = '1';
+        el.style.transition = 'none';
+        el.style.pointerEvents = 'auto';
+      } else {
+        el.style.opacity = '0';
+        el.style.transition = 'none';
+        el.style.pointerEvents = 'none';
+      }
+    });
+    if (bangG) bangG.innerHTML = '';
+    if (flashEl) flashEl.classList.remove('is-active');
+  }
 
   var raf = null;
   var particleRaf = null;
@@ -334,7 +427,7 @@ function initCodexSpiral(container) {
       paused = true;
       running = false;
       pauseProgress = raw;
-      btnPlay.textContent = '\u25B6 Play';
+      btnPlay.textContent = PLAY_LABEL;
       var milestone = pts[visibleIdx].n;
       if (typeof container._showSpiralRingMilestone === 'function') {
         container._showSpiralRingMilestone(milestone);
@@ -345,7 +438,7 @@ function initCodexSpiral(container) {
       resumeCallback = function () {
         paused = false;
         running = true;
-        btnPlay.textContent = '\u25A0 Stop';
+        btnPlay.textContent = STOP_LABEL;
         t0 = performance.now() - (pauseProgress || 0) * dur;
         pauseProgress = null;
         raf = requestAnimationFrame(tick);
@@ -358,7 +451,7 @@ function initCodexSpiral(container) {
     } else {
       applyFrame(fromIdx, toIdx, 1);
       running = false;
-      btnPlay.textContent = '\u25B6 Play';
+      btnPlay.textContent = PLAY_LABEL;
       if (playOpts.onComplete) playOpts.onComplete();
     }
   }
@@ -454,13 +547,14 @@ function initCodexSpiral(container) {
     paused = false;
     resumeCallback = null;
     pauseProgress = null;
-    btnPlay.textContent = '\u25B6 Play';
+    btnPlay.textContent = PLAY_LABEL;
   }
 
   function startPlaybackRange(fromIdx, toIdx, opts) {
     opts = opts || {};
     if (running && !opts.force) return;
     stopPlayback();
+    enterSpiralMode();
 
     playOpts.fromIdx = fromIdx;
     playOpts.toIdx = toIdx;
@@ -486,7 +580,7 @@ function initCodexSpiral(container) {
     t0 = null;
     running = true;
     paused = false;
-    btnPlay.textContent = '\u25A0 Stop';
+    btnPlay.textContent = STOP_LABEL;
 
     if (fromIdx === 0 && playOpts.bigBang) {
       playBigBang();
@@ -507,7 +601,8 @@ function initCodexSpiral(container) {
   container._stopSpiral = stopPlayback;
   container._playRange = startPlaybackRange;
   container._showAll = showAll;
-  container._resetSpiral = resetVisual;
+  container._resetSpiral = enterCircleMode;
+  container._enterCircleMode = enterCircleMode;
   container._resumePlayback = function () {
     if (resumeCallback) resumeCallback();
   };
@@ -522,11 +617,12 @@ function initCodexSpiral(container) {
 
   btnReset.addEventListener('click', function() {
     stopPlayback();
-    resetVisual();
+    enterCircleMode();
     if (typeof container._showSpiralNode === 'function') container._showSpiralNode(0);
   });
 
   container.dataset.initialized = '1';
+  enterCircleMode();
 
   if (typeof initCodexSpiralLearn === 'function') {
     initCodexSpiralLearn(container, { nodeEls: nodeEls, spokeEls: spokeEls });

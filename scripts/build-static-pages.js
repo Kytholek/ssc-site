@@ -204,7 +204,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260915-twitch"></script>
+<script defer src="/js/app.js?v=20260918-circle"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -255,8 +255,8 @@ function buildCodex() {
     body: body,
     extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/quest-theme.css?v=20260915-codex-read'],
     extraScripts: [
-      '/js/codex-spiral.js',
-      '/js/codex-spiral-learn.js',
+      '/js/codex-spiral.js?v=20260918-void2',
+      '/js/codex-spiral-learn.js?v=20260918-below',
       '/js/codex-matrix.js',
       '/js/codex-learn.js',
     ],

@@ -1512,7 +1512,7 @@ function setCodexView(view, pushState) {
 
   if (instruction) {
     instruction.textContent = view === 'spiral'
-      ? 'Click any number to learn \u00b7 Play traces 0\u219299 in spiral order \u00b7 Root-aligned rays'
+      ? 'Click a number to learn \u00b7 Grow Sequence traces 0\u219299'
       : 'Hover to explore \u00b7 Click to pin \u00b7 Keys 0\u20139 \u00b7 Arrows follow the flow';
   }
 
@@ -1591,8 +1591,8 @@ function navigateCodexNode(num, e) {
 window.navigateCodexNode = navigateCodexNode;
 
 var CODEX_SCRIPT_PATHS = [
-  '/js/codex-spiral.js',
-  '/js/codex-spiral-learn.js',
+  '/js/codex-spiral.js?v=20260918-void2',
+  '/js/codex-spiral-learn.js?v=20260918-below',
   '/js/codex-matrix.js',
   '/js/codex-learn.js'
 ];

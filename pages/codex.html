@@ -560,6 +560,11 @@
   #page-codex .cdx-spiral-bang-shock.is-active,
   #page-codex .cdx-spiral-bang-flash.is-active { animation: none !important; opacity: 0 !important; }
   #page-codex .cdx-matrix-bang-flash.is-active { animation: none !important; opacity: 0 !important; }
+  #page-codex .cdx-spiral-cycle-ring,
+  #page-codex .cdx-spiral-void-halo,
+  #page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-node--void circle {
+    animation: none !important;
+  }
 }
 
 /* ── Codex view tabs + numerical spiral ── */
@@ -570,7 +575,7 @@
   margin: 0 auto;
 }
 #page-codex[data-cdx-active-view="spiral"] .cdx-view-stage {
-  max-width: min(1120px, 96vw);
+  max-width: min(920px, 96vw);
 }
 #page-codex .cdx-view {
   display: none;
@@ -737,6 +742,46 @@
   margin: 0 auto;
 }
 #page-codex .cdx-spiral-ring-guide { fill: none; stroke: rgba(255,255,255,.09); stroke-dasharray: 3 6; }
+#page-codex .cdx-spiral-cycle-ring {
+  fill: none;
+  stroke: rgba(175,169,236,.45);
+  stroke-width: 1.6;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+@keyframes cdxSpiralCycleFlow {
+  to { stroke-dashoffset: -220; }
+}
+@keyframes cdxSpiralVoidBreath {
+  0%, 100% {
+    stroke: #AFA9EC;
+    stroke-opacity: .45;
+    filter: drop-shadow(0 0 0 rgba(175,169,236,0));
+  }
+  50% {
+    stroke: #EEEDFE;
+    stroke-opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(175,169,236,.95));
+  }
+}
+@keyframes cdxSpiralVoidHalo {
+  0%, 100% { opacity: .22; transform: scale(1); }
+  50% { opacity: .9; transform: scale(1.55); }
+}
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-cycle-ring {
+  opacity: 1;
+  stroke-dasharray: 8 14;
+  animation: cdxSpiralCycleFlow 16s linear infinite;
+}
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-spoke,
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-root-ray,
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-ring-guide,
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-ring-label,
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-arc {
+  opacity: 0 !important;
+  pointer-events: none;
+}
 #page-codex .cdx-spiral-spoke { fill: none; stroke: rgba(255,255,255,.07); stroke-dasharray: 2 5; }
 #page-codex .cdx-spiral-root-ray { fill: none; stroke: rgba(175,169,236,.12); stroke-linecap: round; stroke-linejoin: round; }
 #page-codex .cdx-spiral-arc {
@@ -784,6 +829,7 @@
 }
 html[data-theme='light'] #page-codex .cdx-spiral-ring-guide,
 html[data-theme='light'] #page-codex .cdx-spiral-spoke { stroke: rgba(0,0,0,.06); }
+html[data-theme='light'] #page-codex .cdx-spiral-cycle-ring { stroke: rgba(83,74,183,.42); }
 html[data-theme='light'] #page-codex .cdx-spiral-arc { stroke: #7F77DD; }
 html[data-theme='light'] #page-codex .cdx-spiral-node-r0c { fill: #EEEDFE; stroke: #534AB7; }
 html[data-theme='light'] #page-codex .cdx-spiral-node-r0t { fill: #26215C; }
@@ -818,6 +864,7 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   width: 100%;
   max-width: 640px;
   min-width: 0;
+  scroll-margin-top: 96px;
 }
 #page-codex .cdx-spiral-intro {
   font-family: 'Cinzel', serif !important;
@@ -835,7 +882,11 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin: 14px 0 0;
+  margin: 0 0 14px;
+  flex-wrap: wrap;
+}
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-svg {
+  min-height: clamp(240px, 38vw, 440px);
 }
 #page-codex .cdx-spiral-learn-panel {
   position: relative;
@@ -852,6 +903,7 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   animation: cdxViewIn .35s ease both;
   scrollbar-width: thin;
   scrollbar-color: rgba(245,200,66,.28) transparent;
+  scroll-margin-top: 96px;
 }
 #page-codex .cdx-spiral-learn-num {
   font-family: 'Cinzel Decorative', serif;
@@ -905,10 +957,12 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   text-transform: uppercase;
   color: rgba(245,200,66,.62);
   margin: 0 0 12px;
+  text-align: center;
 }
 #page-codex .cdx-spiral-chips {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
   margin-top: 8px;
 }
@@ -929,29 +983,53 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
   color: rgba(192,192,216,.7);
   background: rgba(192,192,216,.05);
 }
-#page-codex .cdx-spiral-learn-actions {
+#page-codex .cdx-spiral-learn-articles {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  align-items: center;
-  margin-top: 14px;
+  margin-top: 18px;
 }
-#page-codex .cdx-spiral-learn-links {
+#page-codex .cdx-spiral-learn-articles-label {
+  flex: 1 1 100%;
   font-family: 'Cinzel', serif;
-  font-size: 8px;
-  letter-spacing: .15em;
+  font-size: 9px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(245,200,66,.72);
 }
-#page-codex .cdx-spiral-learn-links a { color: rgba(126,200,200,.75); text-decoration: none; }
-#page-codex .cdx-spiral-learn-links a:hover { color: rgba(126,200,200,1); }
-#page-codex .cdx-spiral-learn-more {
+#page-codex .cdx-spiral-learn-article {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 calc(50% - 5px);
+  min-width: 0;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(201,168,76,.42);
+  border-radius: 4px;
+  background: rgba(201,168,76,.1);
+  text-decoration: none;
+  transition: background .2s ease, border-color .2s ease;
+}
+#page-codex .cdx-spiral-learn-article:hover {
+  background: rgba(201,168,76,.18);
+  border-color: rgba(201,168,76,.78);
+}
+#page-codex .cdx-spiral-learn-article-title {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: .12em;
-  margin-top: 14px;
-  margin-bottom: 0;
+  text-transform: uppercase;
+  color: rgba(245,200,66,.96);
+  line-height: 1.35;
 }
-#page-codex .cdx-spiral-learn-more a { color: rgba(192,192,216,.45); text-decoration: none; }
-#page-codex .cdx-spiral-learn-more a:hover { color: rgba(192,192,216,.75); }
+#page-codex .cdx-spiral-learn-article-cue {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(245,200,66,.58);
+}
 #page-codex .cdx-spiral-matrix-mini {
   display: grid;
   grid-template-columns: repeat(3, 28px);
@@ -1007,24 +1085,32 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 }
 #page-codex .cdx-spiral-node:focus-visible { outline: 2px solid rgba(245,200,66,.55); outline-offset: 2px; }
 #page-codex .cdx-spiral-node.is-selected circle { stroke-width: 2.8; filter: url(#cdx-spiral-arc-glow); }
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-node circle { stroke-width: 1.8; }
+#page-codex .cdx-spiral-void-halo {
+  fill: none;
+  stroke: rgba(175,169,236,.7);
+  stroke-width: 1.6;
+  stroke-dasharray: 3 4;
+  opacity: 0;
+  pointer-events: none;
+}
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-void-halo {
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cdxSpiralVoidHalo 4.5s ease-in-out infinite;
+}
+#page-codex .cdx-spiral-root.is-circle-mode .cdx-spiral-node--void circle:not(.cdx-spiral-void-halo) {
+  stroke-dasharray: 4 3;
+  stroke-width: 2.2;
+  animation: cdxSpiralVoidBreath 4.5s ease-in-out infinite;
+}
+#page-codex .cdx-spiral-btn[data-spiral-action="play"] {
+  background: rgba(201,168,76,.08);
+  border-color: rgba(201,168,76,.5);
+}
 #page-codex[data-cdx-active-view="spiral"] .codex-instruction { display: none; }
 @media (min-width: 960px) {
-  #page-codex .cdx-spiral-layout {
-    flex-direction: row;
-    align-items: flex-start;
-    max-width: min(1120px, 100%);
-    gap: 28px;
-  }
-  #page-codex .cdx-spiral-col-visual {
-    flex: 1 1 58%;
-    min-width: 0;
-  }
-  #page-codex .cdx-spiral-col-panel {
-    flex: 1 1 42%;
-    max-width: 460px;
-    position: sticky;
-    top: 88px;
-  }
   #page-codex .cdx-spiral-learn-panel {
     max-height: min(72vh, 680px);
   }
@@ -1036,6 +1122,9 @@ html[data-theme='light'] #page-codex .cdx-spiral-btn {
 }
 @media (max-width: 640px) {
   #page-codex .cdx-spiral-controls .cdx-spiral-btn { min-height: 44px; padding: 10px 22px; }
+}
+@media (max-width: 420px) {
+  #page-codex .cdx-spiral-learn-article { flex-basis: 100%; }
 }
 
 /* Trace pulse + node flash (journey chapter animations) */
@@ -1549,13 +1638,17 @@ html[data-theme='light'] #page-codex .nc-body {
     </div><!-- /.cdx-view-matrix -->
 
     <div class="cdx-view cdx-view-spiral" id="cdx-view-spiral">
-      <p class="cdx-spiral-intro">Click a number to explore its octave &nbsp;·&nbsp; Play traces 0→99</p>
+      <p class="cdx-spiral-intro">Click a number to explore &nbsp;·&nbsp; Grow Sequence traces 0→99</p>
       <div class="cdx-spiral-layout">
         <div class="cdx-spiral-col-visual">
           <div class="cdx-spiral-root">
+            <div class="cdx-spiral-controls">
+              <button type="button" class="cdx-spiral-btn" data-spiral-action="play">&#9654; Grow Sequence</button>
+              <button type="button" class="cdx-spiral-btn" data-spiral-action="reset">&#8635; Reset</button>
+            </div>
             <div class="cdx-spiral-visual-wrap">
             <div class="cdx-spiral-bang-flash" aria-hidden="true"></div>
-            <svg class="cdx-spiral-svg" viewBox="0 0 840 840" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Numerical spiral from 0 to 99 on nine root rays aligned to the consciousness matrix">
+            <svg class="cdx-spiral-svg" viewBox="0 0 840 840" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Evolution of energy: 0 through 9 on a consecutive circle, then the growing sequence from 0 to 99">
               <defs>
                 <radialGradient id="cdx-spiral-field-halo" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stop-color="#7c3aed" stop-opacity="0"/>
@@ -1583,10 +1676,6 @@ html[data-theme='light'] #page-codex .nc-body {
               <path class="cdx-spiral-arc" fill="none" stroke-width="1.6" stroke-linecap="round" opacity="0.65" marker-end="url(#cdx-spiral-arrowhead)"/>
               <g class="cdx-spiral-nodes"></g>
             </svg>
-            </div>
-            <div class="cdx-spiral-controls">
-              <button type="button" class="cdx-spiral-btn" data-spiral-action="play">&#9654; Play</button>
-              <button type="button" class="cdx-spiral-btn" data-spiral-action="reset">&#8635; Reset</button>
             </div>
           </div>
         </div>

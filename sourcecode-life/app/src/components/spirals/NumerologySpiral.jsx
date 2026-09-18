@@ -4,12 +4,16 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppState } from '../../context/AppContext'
-import { calcPinnacles, calcFourMonthCycle } from '../../lib/numerology'
+import { calcPinnacles, calcFourMonthCycle, calcPersonalYear, reduceToSimple, dateAtAge } from '../../lib/numerology'
 import { CYCLE_MEANINGS } from '../../lib/data'
 
 const MAX_AGE = 90, MIN_ZOOM = 0.35, MAX_ZOOM = 4.0
-const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 const INFO_BAR_H = 52
+
+function cycleHue(colors, root) {
+  const key = reduceToSimple(root) || 1
+  return colors.py[key - 1] !== undefined ? colors.py[key - 1] : 30
+}
 
 const N9 = {
   1:  { theme: '9-Yr Cycle 1 (0-9) - The Awakening', summary: 'The foundational epoch. Character shaped, core beliefs form, earliest soul patterns established.' },
@@ -24,11 +28,6 @@ const N9 = {
   10: { theme: '9-Yr Cycle 10 (81-90) - The Transcendent', summary: 'Beyond cycles - a state of pure presence. Every moment complete.' },
 }
 
-function reduceNum(n) {
-  n = parseInt(n)
-  while (n > 9 && !MASTERS.has(n)) n = String(n).split('').reduce((a, c) => a + parseInt(c), 0)
-  return n
-}
 function ageToSpiral(age, zoom, cx, cy, radius) {
   const t = (age / MAX_AGE) * 7 * 2 * Math.PI
   const r = (age / MAX_AGE) * radius * zoom
@@ -95,6 +94,20 @@ export default function NumerologySpiral() {
 
   const pinnacles = useMemo(() => calcPinnacles(m, d, y, { root: lp }), [m, d, y, lp])
   pinnaclesRef.current = pinnacles
+
+  const yearCycles = useMemo(() => {
+    const years = []
+    for (let yr = 0; yr < MAX_AGE; yr++) {
+      const py = calcPersonalYear(m, d, dateAtAge(m, d, y, yr + 0.5)).root
+      const segs = [0, 1, 2].map((seg) =>
+        calcFourMonthCycle(m, d, dateAtAge(m, d, y, yr + (seg + 0.5) / 3))
+      )
+      years.push({ py, segs })
+    }
+    return years
+  }, [m, d, y])
+  const yearCyclesRef = useRef(yearCycles)
+  yearCyclesRef.current = yearCycles
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -218,17 +231,20 @@ export default function NumerologySpiral() {
         if (s >= e || s >= MAX_AGE * prog) continue
         drawBand(s, Math.min(e, MAX_AGE * prog), pColors[i], 1.19, 1.3)
       }
+      const cycles = yearCyclesRef.current || []
       for (let yr = 0; yr < MAX_AGE * prog; yr++) {
-        const py2 = reduceNum(reduceNum(m) + reduceNum(d) + reduceNum(y + yr))
-        const hue = c.py[(py2 || 1) - 1] !== undefined ? c.py[(py2 || 1) - 1] : 30
+        const py2 = cycles[yr] ? cycles[yr].py : calcPersonalYear(m, d, dateAtAge(m, d, y, yr + 0.5)).root
+        const hue = cycleHue(c, py2)
         drawBand(yr, Math.min(yr + 1, MAX_AGE * prog), `hsla(${hue},75%,55%,0.18)`, 0.88, 1.0)
       }
       for (let yr = 0; yr < MAX_AGE * prog; yr++) {
-        const baseHue = c.fm === '#00c8ff' ? 195 : c.fm === '#c9a84c' ? 42 : c.fm === '#c81c06' ? 5 : 260
-        const hueOffsets = [-8, 0, 8]
+        const segs = cycles[yr] && cycles[yr].segs
         for (let seg = 0; seg < 3; seg++) {
-          const segHue = baseHue + hueOffsets[seg]
-          drawBand(yr + seg / 3, Math.min(yr + (seg + 1) / 3, MAX_AGE * prog), `hsla(${segHue},70%,55%,0.15)`, 0.74, 0.87)
+          const fmc = segs
+            ? segs[seg]
+            : calcFourMonthCycle(m, d, dateAtAge(m, d, y, yr + (seg + 0.5) / 3))
+          const hue = cycleHue(c, fmc.root)
+          drawBand(yr + seg / 3, Math.min(yr + (seg + 1) / 3, MAX_AGE * prog), `hsla(${hue},70%,55%,0.15)`, 0.74, 0.87)
         }
       }
 
@@ -457,7 +473,7 @@ export default function NumerologySpiral() {
     }
   }, [m, d, y])
 
-  const currentPY = reduceNum(reduceNum(m) + reduceNum(d) + reduceNum(y + Math.floor(nowFrac)))
+  const currentPY = calcPersonalYear(m, d).root
   const popupDateStr = pinnedAge !== null
     ? (() => {
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -547,22 +563,21 @@ export default function NumerologySpiral() {
 }
 
 function CyclePopup({ age, m, d, y, lp }) {
-  const frac = age - Math.floor(age)
-  const py = reduceNum(reduceNum(m) + reduceNum(d) + reduceNum(y + Math.floor(age)))
-  const fmcSeg = frac < 1 / 3 ? 1 : frac < 2 / 3 ? 2 : 3
+  const asOf = dateAtAge(m, d, y, age)
+  const py = calcPersonalYear(m, d, asOf).root
+  const fmc = calcFourMonthCycle(m, d, asOf)
   const n9 = Math.min(Math.floor(age / 9) + 1, 10)
   const pins = calcPinnacles(m, d, y, { root: typeof lp === 'number' ? lp : lp?.root || 9 })
   const pin = pins.find((p, i) => i < 3 ? age >= p.startAge && age <= p.endAge : age >= p.startAge) || pins[3]
 
-  const fmcRoot = reduceNum(py + fmcSeg - 1)
   const pyMeaning = (CYCLE_MEANINGS.personalYear && CYCLE_MEANINGS.personalYear[py]) || {}
-  const fmcMeaning = (CYCLE_MEANINGS.fourMonthCycle && CYCLE_MEANINGS.fourMonthCycle[fmcRoot]) || {}
+  const fmcMeaning = (CYCLE_MEANINGS.fourMonthCycle && CYCLE_MEANINGS.fourMonthCycle[fmc.root]) || {}
   const pinMeaning = (CYCLE_MEANINGS.pinnacle && CYCLE_MEANINGS.pinnacle[pin?.root]) || {}
   const n9Meaning = N9[n9] || {}
 
   const sections = [
     { color: '#EF9F27', label: `Personal Year ${py}`, meaning: pyMeaning },
-    { color: '#3B8BD4', label: `4-Month Segment ${fmcSeg} · Root ${fmcRoot}`, meaning: fmcMeaning },
+    { color: '#3B8BD4', label: `4-Month Segment ${fmc.cycleNum} · Root ${fmc.root}`, meaning: fmcMeaning },
     { color: '#1D9E75', label: `9-Year Cycle ${n9}`, meaning: n9Meaning },
     { color: '#D4537E', label: `Pinnacle ${pin?.root} (Ages ${pin?.startAge}–${pin?.endAge || '∞'})`, meaning: pinMeaning },
   ]

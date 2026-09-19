@@ -390,13 +390,31 @@
 .hp-scl-body .hp-scl-list li {
   margin-bottom: 8px;
 }
+.hp-scl-stakes {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hp-scl-stakes li {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  color: #c8d8f0;
+  padding: 0 0 0 12px;
+  border-left: 2px solid #00e5cc;
+}
 .hp-scl-note {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
-  color: #384858;
-  margin: 0;
+  color: #d4a843;
+  margin: 0 0 16px;
   text-align: left;
+  letter-spacing: 0.04em;
 }
 .hp-scl-device {
   position: relative;
@@ -1313,23 +1331,26 @@ html.hp-snapping .hp-hero-codex-arrow {
   <div class="hp-use-inner">
     <div class="hp-use-header">
       <div class="hp-use-eyebrow" data-i18n="home.revamp.services.eyebrow">// GO DEEPER</div>
-      <h2 class="hp-use-title" data-i18n="home.revamp.services.title">Written, live, or learn</h2>
+      <h2 class="hp-use-title" data-i18n="home.revamp.services.title">Keep the report. Or walk it live.</h2>
     </div>
     <div class="hp-use-offers">
-      <a href="/services" class="hp-use-offer js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
-        <span class="hp-use-offer-tier">Written</span>
+      <a href="/calculator" class="hp-use-offer hp-use-offer--featured js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
+        <span class="hp-use-offer-top">
+          <span class="hp-use-offer-tier">Written</span>
+          <span class="hp-use-offer-price" data-i18n="home.revamp.services.guidebook.price">$22</span>
+        </span>
         <span class="hp-use-offer-name" data-i18n="home.revamp.services.guidebook">Guidebook Report</span>
-        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.guidebook.desc">All seven frequencies decoded in a written guidebook you keep forever.</span>
+        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.guidebook.desc">The written integration you keep — compounds, shadows, and how the seven relate.</span>
+        <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.guidebook.cadence">one-time · instant delivery</span>
       </a>
-      <a href="/services" class="hp-use-offer hp-use-offer--featured js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
-        <span class="hp-use-offer-tier">Live</span>
+      <a href="/services#readings" class="hp-use-offer js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#readings');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
+        <span class="hp-use-offer-top">
+          <span class="hp-use-offer-tier">Live</span>
+          <span class="hp-use-offer-price" data-i18n="home.revamp.services.consult.price">$55</span>
+        </span>
         <span class="hp-use-offer-name" data-i18n="home.revamp.services.consult">Live Reading</span>
         <span class="hp-use-offer-desc" data-i18n="home.revamp.services.consult.desc">A one-on-one session decoding your complete blueprint in real time.</span>
-      </a>
-      <a href="/services" class="hp-use-offer js-track-cta" data-cta="services_membership" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">
-        <span class="hp-use-offer-tier">Learn</span>
-        <span class="hp-use-offer-name" data-i18n="home.revamp.services.membership">Learn the System</span>
-        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.membership.desc">Free community to decode patterns yourself — weekly calls and the full SSC framework.</span>
+        <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.consult.cadence">1 hour · video call</span>
       </a>
       <a href="/services" class="hp-services-all js-track-cta" data-cta="services_view_all" data-i18n="home.revamp.services.all" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">View All Services &#8594;</a>
     </div>
@@ -1368,10 +1389,18 @@ html.hp-snapping .hp-hero-codex-arrow {
         </div>
       </div>
       <div class="hp-scl-content">
-        <div class="hp-scl-eyebrow" data-i18n="home.revamp.scl.eyebrow">&gt; Source Code: Life Quest app</div>
-        <div class="hp-scl-title" data-i18n="home.revamp.scl.title">Play your Blueprint in the game of life</div>
-        <p class="hp-scl-body" data-i18n="home.revamp.scl.body">Quests, stats, and a real-world path from your numbers.</p>
+        <div class="hp-scl-eyebrow" data-i18n="home.revamp.scl.eyebrow">◈ YOU ALREADY ROLLED</div>
+        <h2 class="hp-scl-title" data-i18n="home.revamp.scl.title">Born with a character sheet. Most people never open it.</h2>
+        <p class="hp-scl-body" data-i18n="home.revamp.scl.body">The calculator named your class. Source Code: Life is the campaign — a Main Quest from your Life Calling, a new objective every Personal Day, and a map where other players are already in the field.</p>
+        <ul class="hp-scl-stakes">
+          <li data-i18n="home.revamp.scl.stake1">Main Quest = your Life Calling</li>
+          <li data-i18n="home.revamp.scl.stake2">Every sunrise drops a Personal Day</li>
+          <li data-i18n="home.revamp.scl.stake3">Pinnacles tell you which chapter you are in</li>
+          <li data-i18n="home.revamp.scl.stake4">The map is real. Other players are on it.</li>
+        </ul>
+        <p class="hp-scl-note" data-i18n="home.revamp.scl.note">You already rolled. Press start.</p>
         <div class="hp-scl-actions">
+          <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_enter" data-i18n="home.revamp.scl.prototype">▶ ENTER THE SIMULATION</a>
           <details class="hp-scl-install-details">
             <summary class="hp-scl-install-summary" data-i18n="home.revamp.install.summary">Android beta — three steps</summary>
             <div class="hp-scl-install">
@@ -1392,7 +1421,6 @@ html.hp-snapping .hp-hero-codex-arrow {
               </a>
             </div>
           </details>
-          <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_prototype" data-i18n="home.revamp.scl.prototype">&gt; Try the Prototype</a>
         </div>
       </div>
     </div>
@@ -1424,16 +1452,16 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span data-i18n="home.revamp.faq.q2">Do I need a reading after the calculator?</span>
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">No. The free decode is complete. Guidebooks and live sessions are for depth when you want someone to walk the numbers with you.</p>
-        <p class="faq-more"><a href="/services" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">See services &#8594;</a></p>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A live session is if you want to walk them with someone.</p>
+        <p class="faq-more"><a href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Get the $22 Guidebook &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
           <span data-i18n="home.revamp.faq.q3">How do I get the app?</span>
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a3">Android beta is live — three steps to join the testers. Or try the web prototype now.</p>
-        <p class="faq-more"><a href="https://portal.simulationsourcecode.com">Try the prototype &#8594;</a></p>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a3">Open it in the browser. Or join the Android beta in three steps.</p>
+        <p class="faq-more"><a href="https://portal.simulationsourcecode.com">Enter the Simulation &#8594;</a></p>
       </details>
     </div>
   </div>
@@ -1445,7 +1473,7 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
 </nav>
 
-<a href="/calculator" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" data-i18n="home.revamp.sticky" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
+<a href="/calculator" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" data-i18n="home.revamp.sticky" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof handleHomeStickyCta==='function'){handleHomeStickyCta(event);}else{showPage('calculator');}}">
   Find Your Blueprint
 </a>
 

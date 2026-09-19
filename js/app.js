@@ -882,8 +882,39 @@ function initHomeFaqAccordion() {
   }, true);
 }
 
+function _homeHasDecoded() {
+  try { return sessionStorage.getItem('ssc_has_decoded') === '1'; } catch (e) { return false; }
+}
+
+function applyHomeStickyOffer() {
+  var sticky = document.querySelector('.hp-sticky-calc-cta');
+  if (!sticky) return;
+  if (!_homeHasDecoded()) return;
+
+  sticky.setAttribute('href', '/calculator#unlock-cta');
+  sticky.setAttribute('data-cta', 'sticky_guidebook');
+  sticky.setAttribute('data-i18n', 'home.revamp.sticky.guidebook');
+  sticky.setAttribute('aria-label', 'Get the $22 Guidebook');
+
+  var dict = (window.SSC_TRANSLATIONS || {})['home.revamp.sticky.guidebook'];
+  var lang = typeof getLang === 'function' ? getLang() : 'en';
+  sticky.textContent = (dict && (dict[lang] || dict.en)) || 'Get the $22 Guidebook';
+}
+
+function handleHomeStickyCta(e) {
+  if (e) e.preventDefault();
+  showPage('calculator');
+  if (!_homeHasDecoded()) return;
+  setTimeout(function () {
+    if (typeof scrollToUnlockCta === 'function' && document.getElementById('unlock-cta')) {
+      scrollToUnlockCta();
+    }
+  }, 80);
+}
+
 function initHomeStickyCta() {
   var sticky = document.querySelector('.hp-sticky-calc-cta');
+  applyHomeStickyOffer();
   if (!sticky || !window.matchMedia('(max-width: 600px)').matches) return;
   function updateSticky() {
     var onHome = document.getElementById('page-home') && document.getElementById('page-home').classList.contains('active');
@@ -2594,6 +2625,9 @@ window.closeCalculatorModal = closeCalculatorModal;
 window.openBookDetail = openBookDetail;
 window.closeBookDetail = closeBookDetail;
 window.initServicesPage = initServicesPage;
+window.scrollServicesHash = scrollServicesHash;
+window.applyHomeStickyOffer = applyHomeStickyOffer;
+window.handleHomeStickyCta = handleHomeStickyCta;
 
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;

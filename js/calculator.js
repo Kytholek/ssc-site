@@ -977,7 +977,9 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   const readingFor = _t('calc.results.reading_for') || 'Reading for';
   const firstName  = fullName.split(' ')[0];
 
-  const summaryCta = buildSummaryCta(firstName, lp.root, exp.root, calling.root);
+  const lockedCompounds = collectLockedCompounds(lp, exp, calling, soul, outer, achieve, theme);
+  const summaryCta = buildSummaryCta(firstName, lp.root, exp.root, calling.root, lockedCompounds);
+  const midCta = buildMidResultsCta(lockedCompounds);
   var leadEmailForNote = _getGuidebookEmail();
 
   const coreSummary = buildCoreSummary(lp, exp, calling);
@@ -1019,6 +1021,10 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
       .ssc-fc--purpose-anchor::before { content:''; position:absolute; top:0; left:18px; right:18px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,.55), transparent); }
       .ssc-fc--purpose-anchor .ssc-fn { color:var(--gold-light) !important; text-shadow:0 0 24px rgba(201,168,76,.22); }
       .ssc-fc--purpose-anchor .ssc-role { color:rgba(232,201,107,.68) !important; }
+      .ssc-mid-cta { margin:0 auto 28px; max-width:880px; padding:18px 20px 20px; border:1px solid rgba(201,168,76,.32); border-radius:12px; background:linear-gradient(135deg, rgba(26,20,8,.72), rgba(13,11,24,.88)); text-align:center; }
+      .ssc-mid-cta-lock { font-family:'Cormorant SC',serif; font-size:20px; color:var(--gold-light); margin:0 0 6px; line-height:1.25; }
+      .ssc-mid-cta-sub { font-family:'EB Garamond',serif; font-size:15px; color:var(--text-dim); margin:0 0 14px; line-height:1.5; }
+      .ssc-mid-cta-btn { display:inline-flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--deep); background:linear-gradient(135deg, var(--gold), #b8943a); border:1px solid var(--gold); border-radius:8px; padding:12px 18px; text-decoration:none; }
       @media (min-width: 768px) {
         .ssc-rw  { max-width: 1100px; margin: 0 auto; }
         .ssc-tg  { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
@@ -1050,6 +1056,8 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         .ssc-th  { padding: 16px 18px !important; }
         .ssc-tr  { margin-bottom: 28px !important; border-radius: 14px !important; }
         .ssc-compound-p { font-size: 12px !important; }
+        .ssc-mid-cta { padding: 16px 16px 18px !important; }
+        .ssc-mid-cta-lock { font-size: 16px !important; }
       }
     </style>
     <div class="ssc-rw">
@@ -1060,6 +1068,7 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
         <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
       </div>
       ${coreSummary}
+      ${midCta}
       <div class="ssc-mobile-chart ssc-reveal ssc-delay-1" style="display:flex;justify-content:center;margin-bottom:20px">
         ${buildFreqChart(numbers)}
       </div>
@@ -1109,6 +1118,9 @@ function _doCalculateReading(month, day, year, fullName, btn, origBtnText, resul
   }
 
   _scrollResultIntoViewIfNeeded(resultsTarget);
+  try { sessionStorage.setItem('ssc_has_decoded', '1'); } catch (e) {}
+  if (typeof applyHomeStickyOffer === 'function') applyHomeStickyOffer();
+  showCalcStickyGuidebook();
 
   // ── Reset button state ─────────────────────────────────────
   if (btn) {
@@ -1147,58 +1159,68 @@ function buildCoreSummary(lp, exp, calling) {
 
 // ── Dynamic result hook — sells the guidebook ────────────────────────────
 
-function buildSummaryCta(firstName, lp, exp, calling) {
-  const frictionMap = {
-    1: 'keep finding yourself at new beginnings — situations that demand you go first, even when you feel unready',
-    2: 'keep encountering dynamics that test your ability to hold your own while staying connected to others',
-    3: 'keep being pulled toward creative expression but hitting blocks around follow-through and self-doubt',
-    4: 'keep running into situations that demand structure, discipline, and long-term commitment',
-    5: 'keep attracting experiences that push you out of comfort zones — the simulation keeps moving the ground beneath you',
-    6: 'keep finding yourself responsible for others — carrying, nurturing, holding things together',
-    7: 'keep being driven inward — situations that strip away surface certainty and demand real self-knowledge',
-    8: 'keep encountering power dynamics — situations where authority, control, and self-mastery are the central lesson',
-    9: 'keep being drawn toward completion, release, and contribution — the simulation keeps asking you to let go and give back',
-    11: 'keep being placed in the role of bridge — between people, between ideas, between what is and what could be',
-    22: 'keep being handed visions larger than what feels practical — the simulation keeps testing whether you can build them',
-    33: 'keep being called to serve, teach, and hold space — the simulation keeps placing people who need your clarity in your path',
-    44: 'keep being tasked with building things that last — structures, systems, legacies that go beyond the personal',
-  };
-  const expressionMap = {
-    1: 'encoded to initiate — to cut through, begin, and demonstrate independence',
-    2: 'encoded to connect — to bridge, harmonise, and bring people into coherence',
-    3: 'encoded to express — through communication, creativity, and authentic voice',
-    4: 'encoded to build — to create order, structure, and lasting foundations',
-    5: 'encoded to experience — to be present, adapt, and embody freedom',
-    6: 'encoded to nurture — to care, integrate, and hold the wellbeing of the whole',
-    7: 'encoded to seek — to go deep, question, and carry real inner wisdom',
-    8: 'encoded to master — to accumulate real authority and demonstrate it through results',
-    9: 'encoded to complete — to serve, release, and hold a universal perspective',
-    11: 'encoded to illuminate — to channel insight and bridge seen and unseen',
-    22: 'encoded to build at scale — to manifest vision in structures that serve many',
-    33: 'encoded to teach through compassion — to express healing through presence',
-    44: 'encoded to organise power — to create systems of enduring strength',
-  };
+function collectLockedCompounds() {
+  var freqs = Array.prototype.slice.call(arguments);
+  var seen = {};
+  var out = [];
+  freqs.forEach(function (f) {
+    if (!f) return;
+    var compound = f.compound;
+    var root = f.root;
+    if (compound && compound !== root && compound > 9 && !seen[compound]) {
+      seen[compound] = true;
+      out.push(compound);
+    }
+  });
+  return out;
+}
 
-  const friction   = frictionMap[lp]  || 'keep encountering situations that reflect your core frequencies back to you';
-  const expression = expressionMap[exp] || 'encoded to express your unique frequency in the world';
+function formatLockedCompoundList(locked) {
+  if (!locked || !locked.length) return '';
+  if (locked.length === 1) return String(locked[0]);
+  if (locked.length === 2) return locked[0] + ' and ' + locked[1];
+  return locked.slice(0, -1).join(', ') + ', and ' + locked[locked.length - 1];
+}
+
+function buildMidResultsCta(locked) {
+  locked = locked || [];
+  var lockLine = locked.length
+    ? 'Your ' + formatLockedCompoundList(locked) + (locked.length === 1 ? ' is' : ' are') + ' still locked.'
+    : 'The snapshot named the numbers. The book writes the integration.';
+  var sub = locked.length
+    ? 'Compounds, shadows, and how the seven relate — in a Guidebook you keep.'
+    : 'Shadows, how the seven pull on each other, and a PDF you keep.';
+  return ''
+    + '<div class="ssc-mid-cta ssc-reveal ssc-delay-1" id="mid-unlock-cta">'
+    +   '<p class="ssc-mid-cta-lock">' + lockLine + '</p>'
+    +   '<p class="ssc-mid-cta-sub">' + sub + '</p>'
+    +   '<a href="#unlock-cta" class="ssc-mid-cta-btn" onclick="return scrollToUnlockCta(event)">⬡ Get the $22 Guidebook</a>'
+    + '</div>';
+}
+
+function buildSummaryCta(firstName, lp, exp, calling, locked) {
+  locked = locked || [];
+  const lockedLine = locked.length
+    ? 'Your <strong>' + formatLockedCompoundList(locked) + '</strong> ' + (locked.length === 1 ? 'is' : 'are') + ' still locked.'
+    : 'The snapshot named the class. The Guidebook is the book you keep.';
 
   return `
     <div class="unlock-card ssc-summary-cta-card">
       <div class="unlock-glow ssc-summary-cta-glow ssc-summary-cta-glow--gold" aria-hidden="true"></div>
       <div class="unlock-glow ssc-summary-cta-glow ssc-summary-cta-glow--teal" aria-hidden="true"></div>
 
-      <div class="ssc-summary-cta-eyebrow">What This Means For You</div>
+      <div class="ssc-summary-cta-eyebrow">The written keep</div>
 
       <div class="ssc-summary-cta-meaning">
         <p>
-          ${firstName}, your <strong>Life Path <span id="unlock-life-path">${lp}</span></strong> means you will
-          ${friction}.
+          ${firstName}, the free decode named Life Path <strong><span id="unlock-life-path">${lp}</span></strong>,
+          Expression <strong><span id="unlock-expression">${exp}</span></strong>, and
+          Life Calling <strong><span id="unlock-life-calling">${calling}</span></strong>.
+          ${lockedLine}
         </p>
         <p>
-          Your <strong>Expression <span id="unlock-expression">${exp}</span></strong> means you are
-          ${expression}.
-          Your <strong>Life Calling <span id="unlock-life-calling">${calling}</span></strong> is where those circuits converge —
-          the Guidebook expands compounds, shadows, and integration across all seven frequencies.
+          The $22 Guidebook writes the compounds, the shadows, and how the seven pull on each other —
+          a report you keep. Not a reprint of the snapshot.
         </p>
       </div>
 
@@ -1206,11 +1228,11 @@ function buildSummaryCta(firstName, lp, exp, calling) {
         <span class="ssc-cta-divider-sigil">✦</span>
       </div>
 
-      <div class="ssc-summary-cta-sell-eyebrow">Unlock Your Full Blueprint</div>
+      <div class="ssc-summary-cta-sell-eyebrow">Unlock the written integration</div>
 
       <ul class="unlock-features ssc-summary-cta-features" aria-label="What's included">
         <li><span class="unlock-check" aria-hidden="true">◈</span> Compound stories &amp; shadow patterns for all 7 frequencies</li>
-        <li><span class="unlock-check" aria-hidden="true">◈</span> Life Calling directive written in clear language</li>
+        <li><span class="unlock-check" aria-hidden="true">◈</span> How the seven relate — written integration, not a reprint</li>
         <li><span class="unlock-check" aria-hidden="true">◈</span> Branded PDF delivered to your inbox within minutes</li>
       </ul>
 
@@ -1599,14 +1621,15 @@ function handleUnlockPayment() {
 
   if (!email) {
     errorEls.forEach(function (errorEl) {
-      errorEl.textContent = 'Enter your email in the Life Decoder above, then decode again.';
+      errorEl.textContent = 'Enter the email where we should send the guidebook.';
       errorEl.style.color = 'var(--rose-light)';
     });
-    var leadEmailEl = document.getElementById('calc-lead-email');
-    var leadField = document.querySelector('.calc-email-field');
-    if (leadField) leadField.hidden = false;
-    if (leadEmailEl) leadEmailEl.focus();
+    var unlockEmailEl = document.getElementById('unlock-email')
+      || document.getElementById('summary-unlock-email');
     scrollToUnlockCta();
+    if (unlockEmailEl) {
+      try { unlockEmailEl.focus({ preventScroll: true }); } catch (_) { unlockEmailEl.focus(); }
+    }
     return;
   }
   errorEls.forEach(function (errorEl) { errorEl.textContent = ''; });
@@ -1655,8 +1678,33 @@ function handleUnlockPayment() {
   window.location.href = '/checkout/?' + qs.toString();
 }
 
+function showCalcStickyGuidebook() {
+  var sticky = document.getElementById('calc-sticky-guidebook');
+  var payCard = document.getElementById('unlock-cta');
+  if (!sticky || !payCard) return;
+  sticky.hidden = false;
+  sticky.classList.add('is-visible');
+  sticky.setAttribute('href', '#unlock-cta');
+  sticky.onclick = function (e) {
+    return scrollToUnlockCta(e);
+  };
+
+  if (sticky._ctaObserver) {
+    sticky._ctaObserver.disconnect();
+  }
+  if (typeof IntersectionObserver !== 'function') return;
+  var observer = new IntersectionObserver(function (entries) {
+    var entry = entries[0];
+    var payInView = !!(entry && entry.isIntersecting);
+    sticky.classList.toggle('is-visible', !payInView);
+  }, { threshold: 0.35 });
+  observer.observe(payCard);
+  sticky._ctaObserver = observer;
+}
+
 window.handleUnlockPayment = handleUnlockPayment;
 window.scrollToUnlockCta = scrollToUnlockCta;
+window.showCalcStickyGuidebook = showCalcStickyGuidebook;
 
 /* ═══════════════════════════════════════════════════════════════
    EXPOSE TO WINDOW

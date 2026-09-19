@@ -396,6 +396,16 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
   flex-direction: column;
   gap: 12px;
 }
+@media (min-width: 700px) {
+  .hp-use-offers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .hp-use-offers .hp-services-all {
+    grid-column: 1 / -1;
+  }
+}
 .hp-use-offer {
   display: flex;
   flex-direction: column;
@@ -413,12 +423,28 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
   border-color: rgba(201, 168, 76, 0.32);
   background: rgba(201, 168, 76, 0.06);
 }
+.hp-use-offer--featured {
+  box-shadow: inset 0 0 0 1px rgba(201, 168, 76, 0.18);
+}
+.hp-use-offer-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
 .hp-use-offer-tier {
   font-family: 'Cinzel', serif;
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--teal-light);
+}
+.hp-use-offer-price {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+  line-height: 1;
 }
 .hp-use-offer-name {
   font-family: 'Cormorant SC', serif;
@@ -431,6 +457,14 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
   font-size: 14px;
   line-height: 1.4;
   color: var(--text-dim);
+}
+.hp-use-offer-cadence {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 .hp-use-offers .hp-services-all {
   margin: 8px 0 0;
@@ -1076,7 +1110,11 @@ html.hp-snapping .hp-scl-title {
   margin-bottom: 12px;
 }
 html.hp-snapping .hp-scl-body {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
+}
+html.hp-snapping .hp-scl-stakes {
+  margin-bottom: 12px;
+  gap: 6px;
 }
 html.hp-snapping .hp-faq-list {
   overflow: auto;
@@ -1368,6 +1406,16 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   }
   html.hp-snapping .hp-scl-title {
     font-size: clamp(18px, 5vw, 24px);
+  }
+  html.hp-snapping .hp-scl-body,
+  html.hp-snapping .hp-scl-stakes {
+    display: none;
+  }
+  html.hp-snapping .hp-scl-note {
+    margin-bottom: 10px;
+  }
+  html.hp-snapping .hp-scl-actions {
+    margin-top: 4px;
   }
   html.hp-snapping .hp-faq-title {
     font-size: 24px;

@@ -136,7 +136,8 @@ export function calcPersonalYear(m, d, asOf = new Date()) {
 
 /** Returns [p1,p2,p3,p4] each { root, startAge, endAge } */
 export function calcPinnacles(m, d, y, lp) {
-  const lps = reduceToSimple(lp.root)
+  const lpRoot = typeof lp === 'number' ? lp : lp && lp.root
+  const lps = reduceToSimple(lpRoot || 9)
   const p1 = { root: reduce(m + d),            startAge: 0,             endAge: 36 - lps }
   const p2 = { root: reduce(d + y),             startAge: p1.endAge + 1, endAge: p1.endAge + 9 }
   const p3 = { root: reduce(p1.root + p2.root), startAge: p2.endAge + 1, endAge: p2.endAge + 9 }

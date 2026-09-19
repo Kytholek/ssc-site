@@ -93,7 +93,7 @@ function AppRoot() {
   }
 
   return (
-    <div className="relative min-h-svh">
+    <div className="relative h-svh overflow-hidden">
       {screen === 'boot'       && <BootSplash onComplete={handleBootComplete} />}
       {screen === 'restoring'  && <BootSplash restoring onComplete={() => {}} />}
       {screen === 'auth'       && <AuthOverlay />}

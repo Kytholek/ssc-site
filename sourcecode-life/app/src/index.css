@@ -29,17 +29,25 @@
 
 html {
   background-color: #05040a;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
 }
 
 body {
   margin: 0;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
   background-color: #05040a;
   color: #e8dfc8;
   font-family: 'EB Garamond', 'Georgia', serif;
 }
 
 #root {
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
 }
 
 /* ── Android fullscreen safe-area bottom padding ───────────── */

@@ -15,6 +15,17 @@ function cycleHue(colors, root) {
   return colors.py[key - 1] !== undefined ? colors.py[key - 1] : 30
 }
 
+function n9Band(age) {
+  const index = Math.min(Math.max(1, Math.floor(age / 9) + 1), 10)
+  return { index, start: (index - 1) * 9, end: index === 10 ? 90 : index * 9 }
+}
+
+function pinnacleAtAge(pins, age) {
+  return pins.find((p, i) => (
+    i < 3 ? age >= p.startAge && age <= p.endAge : age >= p.startAge
+  )) || pins[3]
+}
+
 const N9 = {
   1:  { theme: '9-Yr Cycle 1 (0-9) - The Awakening', summary: 'The foundational epoch. Character shaped, core beliefs form, earliest soul patterns established.' },
   2:  { theme: '9-Yr Cycle 2 (9-18) - The Learning', summary: 'School of life. Peer bonds, academic paths, emotional intelligence develop rapidly.' },
@@ -113,7 +124,8 @@ export default function NumerologySpiral() {
     const wrap = wrapRef.current
     if (!wrap) return
     const updateH = (el) => {
-      const h = Math.max(400, window.innerHeight - el.getBoundingClientRect().top - 20)
+      const tabH = document.querySelector('.tab-bar')?.getBoundingClientRect().height || 60
+      const h = Math.max(400, window.innerHeight - el.getBoundingClientRect().top - tabH - 8)
       setCanvasH(h)
       canvasHRef.current = h
       radiusRef.current = Math.min(wrap.offsetWidth || 640, h) * 0.46
@@ -155,6 +167,26 @@ export default function NumerologySpiral() {
     drawStartRef.current = Date.now()
 
     function spiralOrigin() { return { cx: W / 2 + panRef.current.x, cy: H / 2 + panRef.current.y } }
+
+    function ageAtPoint(sx, sy, hitNow, hitMax) {
+      const { cx, cy } = spiralOrigin()
+      const z = zoomRef.current
+      const nowAge = nowFracRef.current
+      const np = ageToSpiral(nowAge, z, cx, cy, radius)
+      const nowDist = Math.hypot(np.x - sx, np.y - sy)
+      if (nowAge >= 0 && nowAge <= MAX_AGE && nowDist < hitNow) return nowAge
+
+      let best = null, bestD = 99999
+      let nearNow = null, nearNowD = 99999
+      for (let a = 0; a <= MAX_AGE; a += 0.25) {
+        const p = ageToSpiral(a, z, cx, cy, radius)
+        const dist = Math.hypot(p.x - sx, p.y - sy)
+        if (dist < bestD) { bestD = dist; best = a }
+        if (Math.abs(a - nowAge) <= 2 && dist < nearNowD) { nearNowD = dist; nearNow = a }
+      }
+      if (nearNow !== null && nearNowD < hitMax && nearNowD <= bestD + 18) return nowAge
+      return bestD < hitMax ? best : null
+    }
 
     function drawBg() {
       if (!bg || !bg.getContext) return
@@ -373,14 +405,9 @@ export default function NumerologySpiral() {
       if (!dragRef.current) {
         if (!canvas) return
         const rect = canvas.getBoundingClientRect()
-        const { cx, cy } = spiralOrigin()
-        let best = null, bestD = 99999
-        for (let a = 0; a <= MAX_AGE; a += 0.5) {
-          const p = ageToSpiral(a, zoomRef.current, cx, cy, radius)
-          const dist = Math.hypot(p.x - (e.clientX - rect.left), p.y - (e.clientY - rect.top))
-          if (dist < bestD) { bestD = dist; best = a }
-        }
-        setHoverAge(bestD < 35 ? best : null)
+        const mx = e.clientX - rect.left, my = e.clientY - rect.top
+        const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
+        setHoverAge(ageAtPoint(mx * scaleX, my * scaleY, 36, 40))
         return
       }
       const dx = e.clientX - dragStartRef.current.x, dy = e.clientY - dragStartRef.current.y
@@ -393,19 +420,9 @@ export default function NumerologySpiral() {
       clickPos = { x: e.clientX, y: e.clientY }
       if (dragDist < 15) {
         const rect = canvas.getBoundingClientRect()
-        const { cx, cy } = spiralOrigin()
-        const r = radius
         const mx = clickPos.x - rect.left, my = clickPos.y - rect.top
         const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
-        const sx = mx * scaleX, sy = my * scaleY
-        let best = null, bestD = 99999
-        for (let a = 0; a <= MAX_AGE; a += 0.25) {
-          const p = ageToSpiral(a, zoomRef.current, cx, cy, r)
-          const dist = Math.hypot(p.x - sx, p.y - sy)
-          if (dist < bestD) { bestD = dist; best = a }
-        }
-        if (bestD < 80 && best !== null) setPinnedAge(best)
-        else setPinnedAge(null)
+        setPinnedAge(ageAtPoint(mx * scaleX, my * scaleY, 48, 80))
       }
     }
     canvas.onwheel = (e) => { e.preventDefault(); zoomTargetRef.current = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomTargetRef.current * (e.deltaY < 0 ? 1.08 : 0.93))) }
@@ -447,19 +464,9 @@ export default function NumerologySpiral() {
         if (e.changedTouches.length === 1 && dx < 12 && dy < 12) {
           const touch = e.changedTouches[0]
           const rect = canvas.getBoundingClientRect()
-          const { cx, cy } = spiralOrigin()
-          const r = radius
           const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
           const mx = touch.clientX - rect.left, my = touch.clientY - rect.top
-          const sx = mx * scaleX, sy = my * scaleY
-          let best = null, bestD = 99999
-          for (let a = 0; a <= MAX_AGE; a += 0.25) {
-            const p = ageToSpiral(a, zoomRef.current, cx, cy, r)
-            const dist = Math.hypot(p.x - sx, p.y - sy)
-            if (dist < bestD) { bestD = dist; best = a }
-          }
-          if (bestD < 80 && best !== null) setPinnedAge(best)
-          else setPinnedAge(null)
+          setPinnedAge(ageAtPoint(mx * scaleX, my * scaleY, 52, 80))
         }
       }
     }
@@ -474,6 +481,7 @@ export default function NumerologySpiral() {
   }, [m, d, y])
 
   const currentPY = calcPersonalYear(m, d).root
+  const livePin = pinnacleAtAge(pinnacles, nowFrac)
   const popupDateStr = pinnedAge !== null
     ? (() => {
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -503,6 +511,10 @@ export default function NumerologySpiral() {
           <span className="spiral-info-label">LP</span><span className="spiral-info-value">{lp}</span>
           <span className="spiral-info-label">Age</span><span className="spiral-info-value">{Math.floor(nowFrac)}</span>
           <span className="spiral-info-label">PY</span><span className="spiral-info-value">{currentPY}</span>
+          <span className="spiral-info-label">PIN</span>
+          <span className="spiral-info-value">
+            {livePin.root} · {livePin.endAge == null ? `${livePin.startAge}+` : `${livePin.startAge}–${livePin.endAge}`}
+          </span>
           <button className="spiral-reset" onClick={handleReset}>↺</button>
         </div>
 
@@ -547,7 +559,11 @@ export default function NumerologySpiral() {
               </div>
               <div className="spiral-popup-actions">
                 <button className="spiral-popup-action"
-                  onClick={() => { panRef.current = { x: 0, y: 0 }; zoomTargetRef.current = 1 }}>
+                  onClick={() => {
+                    panRef.current = { x: 0, y: 0 }
+                    zoomTargetRef.current = 1
+                    setPinnedAge(nowFrac)
+                  }}>
                   ↺ Now
                 </button>
                 <button className="spiral-popup-close" onClick={() => setPinnedAge(null)}>✕</button>
@@ -566,20 +582,21 @@ function CyclePopup({ age, m, d, y, lp }) {
   const asOf = dateAtAge(m, d, y, age)
   const py = calcPersonalYear(m, d, asOf).root
   const fmc = calcFourMonthCycle(m, d, asOf)
-  const n9 = Math.min(Math.floor(age / 9) + 1, 10)
+  const n9 = n9Band(age)
   const pins = calcPinnacles(m, d, y, { root: typeof lp === 'number' ? lp : lp?.root || 9 })
-  const pin = pins.find((p, i) => i < 3 ? age >= p.startAge && age <= p.endAge : age >= p.startAge) || pins[3]
+  const pin = pinnacleAtAge(pins, age)
+  const pinRange = pin.endAge == null ? `Age ${pin.startAge}+` : `Ages ${pin.startAge}–${pin.endAge}`
 
   const pyMeaning = (CYCLE_MEANINGS.personalYear && CYCLE_MEANINGS.personalYear[py]) || {}
   const fmcMeaning = (CYCLE_MEANINGS.fourMonthCycle && CYCLE_MEANINGS.fourMonthCycle[fmc.root]) || {}
   const pinMeaning = (CYCLE_MEANINGS.pinnacle && CYCLE_MEANINGS.pinnacle[pin?.root]) || {}
-  const n9Meaning = N9[n9] || {}
+  const n9Meaning = N9[n9.index] || {}
 
   const sections = [
     { color: '#EF9F27', label: `Personal Year ${py}`, meaning: pyMeaning },
     { color: '#3B8BD4', label: `4-Month Segment ${fmc.cycleNum} · Root ${fmc.root}`, meaning: fmcMeaning },
-    { color: '#1D9E75', label: `9-Year Cycle ${n9}`, meaning: n9Meaning },
-    { color: '#D4537E', label: `Pinnacle ${pin?.root} (Ages ${pin?.startAge}–${pin?.endAge || '∞'})`, meaning: pinMeaning },
+    { color: '#1D9E75', label: `9-Year Cycle ${n9.index} · Ages ${n9.start}–${n9.end}`, meaning: n9Meaning },
+    { color: '#D4537E', label: `Pinnacle ${pin?.root} (${pinRange})`, meaning: pinMeaning },
   ]
 
   return (

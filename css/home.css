@@ -367,7 +367,7 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
   padding: 72px 80px 40px;
 }
 .hp-use-inner {
-  max-width: 720px;
+  max-width: 980px;
   margin: 0 auto;
   width: 100%;
 }
@@ -396,10 +396,10 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
   flex-direction: column;
   gap: 12px;
 }
-@media (min-width: 700px) {
+@media (min-width: 900px) {
   .hp-use-offers {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
   }
   .hp-use-offers .hp-services-all {
@@ -1394,6 +1394,24 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   }
   html.hp-snapping .hp-use-header {
     margin-bottom: 12px;
+  }
+  html.hp-snapping .hp-use-offers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  html.hp-snapping .hp-use-offer {
+    padding: 10px 14px;
+  }
+  html.hp-snapping .hp-use-offer-desc,
+  html.hp-snapping .hp-use-offer-cadence {
+    display: none;
+  }
+  html.hp-snapping .hp-use-offer-name {
+    font-size: 17px;
+  }
+  html.hp-snapping .hp-use-offer-price {
+    font-size: 18px;
   }
   html.hp-snapping .hp-scl-inner {
     gap: 16px;

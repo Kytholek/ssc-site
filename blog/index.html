@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var t=localStorage.getItem('ssc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog &mdash; Simulation Source Code | Numerology Deep Dives</title>
   <meta name="description" content="Deep dives into numerology as source code � Life Path, Expression numbers, the Codex, shadow patterns, and the philosophy of the simulation you are living in.">
@@ -41,7 +42,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260920-sitewide">
 
   <style>
     /* ── Page chrome ── */
@@ -304,7 +307,27 @@
     .blog-search-no-results {
       text-align: center; padding: 64px 24px; display: none;
       font-family: "Cinzel", serif; font-size: 9px; letter-spacing: .3em;
-      text-transform: uppercase; color: #4a4a4a;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    :root[data-theme='light'] .blog-idx-card {
+      background: var(--surface-card);
+    }
+    :root[data-theme='light'] .blog-idx-card-thumb.sys,
+    :root[data-theme='light'] .blog-idx-card-thumb.phil,
+    :root[data-theme='light'] .blog-idx-card-thumb.num,
+    :root[data-theme='light'] .blog-idx-card-thumb.prac,
+    :root[data-theme='light'] .blog-idx-apex-thumb {
+      background: linear-gradient(135deg, #e8d6b5, #d2c2a4);
+    }
+    :root[data-theme='light'] .blog-idx-apex-card {
+      background: var(--gradient-card);
+    }
+    :root[data-theme='light'] .blog-search-input {
+      color: var(--text);
+      background: var(--surface-elevated);
+    }
+    :root[data-theme='light'] .blog-search-input::placeholder {
+      color: var(--text-muted);
     }
   </style>
 <!-- Meta Pixel Code -->
@@ -332,12 +355,13 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
 <nav id="main-nav"></nav>
 
+<main id="main-content">
 <!-- Hero -->
 <div class="blog-idx-hero">
   <div class="blog-idx-eyebrow" data-i18n="blog.eyebrow">Insights &amp; Exploration</div>
   <h1 class="blog-idx-title" data-i18n="blog.title">The Blog</h1>
   <p class="blog-idx-sub" data-i18n="blog.subtitle">Deep dives into numerology, sacred mathematics, and the philosophy of simulated reality.</p>
-  <div class="blog-idx-count" id="post-count">54 articles</div>
+  <div class="blog-idx-count" id="post-count">56 articles</div>
 </div>
 
 <!-- Search -->
@@ -371,6 +395,24 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     <div class="blog-idx-section-label">Latest Articles</div>
     <div class="blog-idx-grid">
       <!-- GENERATED_POSTS_START -->
+      <a href="/blog/action-reaction-electromagnetism-numerology/" class="blog-idx-card" data-cat="system">
+        <div class="blog-idx-card-thumb sys" style="padding:0;overflow:hidden;"><img src="/Images/electromagneticcodex.webp" alt="Electromagnetic Codex — Electric and Magnetic numbers" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="blog-idx-card-body">
+          <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Sep 2026</span></div>
+          <div class="blog-idx-card-title">Action/Reaction | Electro/Magnetism</div>
+          <p class="blog-idx-card-excerpt">3 is electric thought. 6 is the magnetic world that reflects it. 9 is the observer who chooses. The action/reaction loop of consciousness — and the path to sovereignty.</p>
+          <span class="blog-idx-read">Read Article →</span>
+        </div>
+      </a>
+      <a href="/blog/numerology-codex-explained/" class="blog-idx-card" data-cat="system">
+        <div class="blog-idx-card-thumb sys" style="padding:0;overflow:hidden;"><img src="/Images/codex.webp" alt="The Basic Codex 3×3 grid" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="blog-idx-card-body">
+          <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Sep 2026</span></div>
+          <div class="blog-idx-card-title">The Numerology Codex: How the 3×3 Grid Maps Consciousness</div>
+          <p class="blog-idx-card-excerpt">The Codex is a language for repeating structure — Mind, Body, and Spirit on the 3×3 grid. Numbers 1–9 encode light into form. The keypad on your phone is the clue.</p>
+          <span class="blog-idx-read">Read Article →</span>
+        </div>
+      </a>
       <a href="/blog/396-electromagnetic-self-spiritual-spine/" class="blog-idx-card" data-cat="system">
         <div class="blog-idx-card-thumb sys">396</div>
         <div class="blog-idx-card-body">
@@ -397,7 +439,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <!-- ── APEX FEATURED ────────────────────────────────────── -->
   <div class="blog-idx-apex">
     <a href="/blog/pillar-numerology-source-code/" class="blog-idx-apex-card" data-cat="system">
-      <div class="blog-idx-apex-thumb">?</div>
+      <div class="blog-idx-apex-thumb">&#10022;</div>
       <div class="blog-idx-apex-body">
         <div class="blog-idx-apex-eyebrow">
           <span class="blog-idx-tag gold">The System</span>
@@ -465,6 +507,16 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
         </div>
       </a>
 
+      <a href="/blog/numerology-codex-explained/" class="blog-idx-card" data-cat="system">
+        <div class="blog-idx-card-thumb sys" style="padding:0;overflow:hidden;"><img src="/Images/codex.webp" alt="The Basic Codex 3×3 grid" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="blog-idx-card-body">
+          <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Sep 2026</span></div>
+          <div class="blog-idx-card-title">The Numerology Codex: How the 3×3 Grid Maps Consciousness</div>
+          <p class="blog-idx-card-excerpt">The Codex is a language for repeating structure — Mind, Body, and Spirit on the 3×3 grid. Numbers 1–9 encode light into form. The keypad on your phone is the clue.</p>
+          <span class="blog-idx-read">Read Article →</span>
+        </div>
+      </a>
+
       <a href="/blog/codex-architecture-consciousness-matrix/" class="blog-idx-card" data-cat="system">
         <div class="blog-idx-card-thumb sys">✦</div>
         <div class="blog-idx-card-body">
@@ -476,7 +528,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/evolution-of-energy-0-through-9/" class="blog-idx-card" data-cat="system">
-        <div class="blog-idx-card-thumb sys"><span style="font-size:32px;font-family:Cinzel,serif;letter-spacing:-.05em">0?9</span></div>
+        <div class="blog-idx-card-thumb sys"><span style="font-size:32px;font-family:Cinzel,serif;letter-spacing:-.05em">0&#8211;9</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">Numerology Numbers 0 to 9: The Evolution of Energy</div>
@@ -485,8 +537,18 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
         </div>
       </a>
 
+      <a href="/blog/action-reaction-electromagnetism-numerology/" class="blog-idx-card" data-cat="system">
+        <div class="blog-idx-card-thumb sys" style="padding:0;overflow:hidden;"><img src="/Images/electromagneticcodex.webp" alt="Electromagnetic Codex — Electric and Magnetic numbers" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="blog-idx-card-body">
+          <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Sep 2026</span></div>
+          <div class="blog-idx-card-title">Action/Reaction | Electro/Magnetism</div>
+          <p class="blog-idx-card-excerpt">3 is electric thought. 6 is the magnetic world that reflects it. 9 is the observer who chooses. The action/reaction loop of consciousness — and the path to sovereignty.</p>
+          <span class="blog-idx-read">Read Article →</span>
+        </div>
+      </a>
+
       <a href="/blog/electric-magnetic-aether-three-natures-of-number/" class="blog-idx-card" data-cat="system">
-        <div class="blog-idx-card-thumb sys"><span style="font-size:28px;font-family:Cinzel,serif">E?M??</span></div>
+        <div class="blog-idx-card-thumb sys"><span style="font-size:28px;font-family:Cinzel,serif">E&#8211;M&#8211;A</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">The Three Types of Numbers: Electric, Magnetic, and Aether</div>
@@ -496,7 +558,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/3-6-9-pattern-tesla-numerology/" class="blog-idx-card" data-cat="system">
-        <div class="blog-idx-card-thumb sys"><span style="font-size:30px;font-family:Cinzel,serif">3?6?9</span></div>
+        <div class="blog-idx-card-thumb sys"><span style="font-size:30px;font-family:Cinzel,serif">3&#8211;6&#8211;9</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">Tesla 3 6 9 and Numerology: Why This Pattern Is the Key to the Codex</div>
@@ -516,7 +578,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/path-of-transformation-1-4-7-2-5-8-3-6-9/" class="blog-idx-card" data-cat="system">
-        <div class="blog-idx-card-thumb sys"><span style="font-size:30px;font-family:Cinzel,serif">1?9</span></div>
+        <div class="blog-idx-card-thumb sys"><span style="font-size:30px;font-family:Cinzel,serif">1&#8211;9</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">The Numerology Transformation Path: How Change Really Moves</div>
@@ -546,7 +608,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/infinity-loop-cycles-recursion-numerology/" class="blog-idx-card" data-cat="system">
-        <div class="blog-idx-card-thumb sys"><span style="font-size:52px;font-family:Georgia,serif">?</span></div>
+        <div class="blog-idx-card-thumb sys"><span style="font-size:52px;font-family:Georgia,serif">&#8734;</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">The System</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">Numerology Cycles: The Infinity Loop and Recurring Life Patterns</div>
@@ -564,7 +626,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     <div class="blog-idx-grid">
 
       <a href="/blog/simulation-theory-numerology-source-code/" class="blog-idx-card" data-cat="philosophy">
-        <div class="blog-idx-card-thumb phil">?</div>
+        <div class="blog-idx-card-thumb phil">&#10022;</div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">Philosophy</span><span class="blog-idx-date">Dec 2024</span></div>
           <div class="blog-idx-card-title">Simulation Theory and Numerology: Your Numbers Are Source Code</div>
@@ -574,7 +636,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/shadow-side-of-numerology-numbers/" class="blog-idx-card" data-cat="philosophy">
-        <div class="blog-idx-card-thumb phil"><span style="font-size:48px;font-family:Georgia,serif">?</span></div>
+        <div class="blog-idx-card-thumb phil"><span style="font-size:48px;font-family:Georgia,serif">&#9680;</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag gold">Philosophy</span><span class="blog-idx-date">Jul 2024</span></div>
           <div class="blog-idx-card-title">Shadow Numbers: The Dark Side of Every Frequency</div>
@@ -584,7 +646,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/pythagorean-vs-chaldean-numerology/" class="blog-idx-card" data-cat="numbers">
-        <div class="blog-idx-card-thumb num"><span style="font-size:44px;font-family:Georgia,serif">?</span></div>
+        <div class="blog-idx-card-thumb num"><span style="font-size:28px;font-family:Cinzel,serif">vs</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag teal">The Numbers</span><span class="blog-idx-date">Aug 2024</span></div>
           <div class="blog-idx-card-title">Pythagorean vs Chaldean Numerology: Key Differences</div>
@@ -594,7 +656,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/master-numbers-11-22-33-numerology/" class="blog-idx-card" data-cat="numbers">
-        <div class="blog-idx-card-thumb num"><span style="font-size:36px;font-family:Cinzel,serif;letter-spacing:-.05em">11?22?33</span></div>
+        <div class="blog-idx-card-thumb num"><span style="font-size:36px;font-family:Cinzel,serif;letter-spacing:-.05em">11&#8211;22&#8211;33</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag teal">The Numbers</span><span class="blog-idx-date">Oct 2024</span></div>
           <div class="blog-idx-card-title">Master Numbers 11, 22, 33: What They Mean and How They Work</div>
@@ -604,7 +666,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/life-path-number-explained/" class="blog-idx-card" data-cat="numbers">
-        <div class="blog-idx-card-thumb num"><span style="font-size:44px;font-family:Georgia,serif">?</span></div>
+        <div class="blog-idx-card-thumb num"><span style="font-size:44px;font-family:Cinzel,serif">LP</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag teal">The Numbers</span><span class="blog-idx-date">Nov 2024</span></div>
           <div class="blog-idx-card-title">Life Path Number Meaning: What It Really Tells You</div>
@@ -614,7 +676,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/theme-number-birth-year-numerology/" class="blog-idx-card" data-cat="numbers">
-        <div class="blog-idx-card-thumb num"><span style="font-size:44px;font-family:Georgia,serif">?</span></div>
+        <div class="blog-idx-card-thumb num"><span style="font-size:36px;font-family:Cinzel,serif">TH</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag teal">The Numbers</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">Theme Number: What Your Birth Year Encodes</div>
@@ -634,7 +696,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/birth-name-vs-known-name-numerology/" class="blog-idx-card" data-cat="practice">
-        <div class="blog-idx-card-thumb prac"><span style="font-size:40px">?</span></div>
+        <div class="blog-idx-card-thumb prac"><span style="font-size:32px;font-family:Cinzel,serif">Aa</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag rose">Practice</span><span class="blog-idx-date">Oct 2024</span></div>
           <div class="blog-idx-card-title">Birth Name vs Known Name: Which Do You Use in Numerology?</div>
@@ -654,7 +716,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       </a>
 
       <a href="/blog/name-change-numerology-simulation/" class="blog-idx-card" data-cat="practice">
-        <div class="blog-idx-card-thumb prac"><span style="font-size:40px">?</span></div>
+        <div class="blog-idx-card-thumb prac"><span style="font-size:40px;font-family:Cinzel,serif">&#8594;</span></div>
         <div class="blog-idx-card-body">
           <div class="blog-idx-card-tags"><span class="blog-idx-tag rose">Practice</span><span class="blog-idx-date">Mar 2026</span></div>
           <div class="blog-idx-card-title">Changing Your Name in Numerology: Does It Change Your Frequencies?</div>
@@ -1139,91 +1201,23 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.4),transparent);"></div>
     <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:16px;">Know Your Numbers</div>
     <p style="font-size:17px;line-height:1.8;color:var(--text-dim);max-width:500px;margin:0 auto 24px;">Every article here maps to your personal blueprint. Enter your birth details to see all seven of your encoded frequencies.</p>
-    <a href="/calculator" style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:16px 36px;border-radius:5px;background:rgba(74,148,148,.25);border:1px solid rgba(126,200,200,.4);color:var(--teal-light);text-decoration:none;display:inline-block;transition:all .3s;">&#11042;&nbsp;&nbsp;Decode Your Blueprint</a>
+    <a href="/calculator/" style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:16px 36px;border-radius:5px;background:rgba(74,148,148,.25);border:1px solid rgba(126,200,200,.4);color:var(--teal-light);text-decoration:none;display:inline-block;transition:all .3s;">&#11042;&nbsp;&nbsp;Decode Your Blueprint</a>
   </div>
 
 </div><!-- /blog-idx-wrap -->
+</main>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div class="footer-logo-text">Simulation Source Code</div>
-      <p class="footer-tagline">Seven frequencies encoded in your birthdate and name &#8212; reveal the complete architecture of your simulation.</p>
-    </div>
-    <div>
-      <div class="footer-col-title">Navigate</div>
-      <div class="footer-links">
-        <a class="footer-link" href="/">Home</a>
-        <a class="footer-link" href="/calculator/">Calculator</a>
-        <a class="footer-link" href="/blog/">Blog</a>
-        <a class="footer-link" href="/about/">About</a>
-      </div>
-    </div>
-    <div>
-      <div class="footer-col-title">Life Paths</div>
-      <div class="footer-links">
-        <a class="footer-link" href="/blog/life-path-1-numerology/">Life Path 1</a>
-        <a class="footer-link" href="/blog/life-path-2-numerology/">Life Path 2</a>
-        <a class="footer-link" href="/blog/life-path-3-numerology/">Life Path 3</a>
-        <a class="footer-link" href="/blog/life-path-4-numerology/">Life Path 4</a>
-        <a class="footer-link" href="/blog/life-path-5-numerology/">Life Path 5</a>
-        <a class="footer-link" href="/blog/life-path-6-numerology/">Life Path 6</a>
-        <a class="footer-link" href="/blog/life-path-7-numerology/">Life Path 7</a>
-        <a class="footer-link" href="/blog/life-path-8-numerology/">Life Path 8</a>
-        <a class="footer-link" href="/blog/life-path-9-numerology/">Life Path 9</a>
-        <a class="footer-link" href="/blog/life-path-11-numerology/">Life Path 11 →</a>
-        <a class="footer-link" href="/blog/life-path-22-numerology/">Life Path 22 →</a>
-        <a class="footer-link" href="/blog/life-path-33-numerology/">Life Path 33 →</a>
-        <a class="footer-link" href="/blog/life-path-44-numerology/">Life Path 44 →</a>
-      </div>
-    </div>
-    <div>
-      <div class="footer-col-title">Expression</div>
-      <div class="footer-links">
-        <a class="footer-link" href="/blog/expression-1-numerology/">Expression 1</a>
-        <a class="footer-link" href="/blog/expression-2-numerology/">Expression 2</a>
-        <a class="footer-link" href="/blog/expression-3-numerology/">Expression 3</a>
-        <a class="footer-link" href="/blog/expression-4-numerology/">Expression 4</a>
-        <a class="footer-link" href="/blog/expression-5-numerology/">Expression 5</a>
-        <a class="footer-link" href="/blog/expression-6-numerology/">Expression 6</a>
-        <a class="footer-link" href="/blog/expression-7-numerology/">Expression 7</a>
-        <a class="footer-link" href="/blog/expression-8-numerology/">Expression 8</a>
-        <a class="footer-link" href="/blog/expression-9-numerology/">Expression 9</a>
-        <a class="footer-link" href="/blog/expression-11-numerology/">Expression 11 →</a>
-        <a class="footer-link" href="/blog/expression-22-numerology/">Expression 22 →</a>
-        <a class="footer-link" href="/blog/expression-33-numerology/">Expression 33 →</a>
-      </div>
-    </div>
-    <div>
-      <div class="footer-col-title">Soul Urge</div>
-      <div class="footer-links">
-        <a class="footer-link" href="/blog/soul-urge-1-numerology/">Soul Urge 1</a>
-        <a class="footer-link" href="/blog/soul-urge-2-numerology/">Soul Urge 2</a>
-        <a class="footer-link" href="/blog/soul-urge-3-numerology/">Soul Urge 3</a>
-        <a class="footer-link" href="/blog/soul-urge-4-numerology/">Soul Urge 4</a>
-        <a class="footer-link" href="/blog/soul-urge-5-numerology/">Soul Urge 5</a>
-        <a class="footer-link" href="/blog/soul-urge-6-numerology/">Soul Urge 6</a>
-        <a class="footer-link" href="/blog/soul-urge-7-numerology/">Soul Urge 7</a>
-        <a class="footer-link" href="/blog/soul-urge-8-numerology/">Soul Urge 8</a>
-        <a class="footer-link" href="/blog/soul-urge-9-numerology/">Soul Urge 9</a>
-        <a class="footer-link" href="/blog/soul-urge-11-numerology/">Soul Urge 11 →</a>
-        <a class="footer-link" href="/blog/soul-urge-22-numerology/">Soul Urge 22 →</a>
-        <a class="footer-link" href="/blog/soul-urge-33-numerology/">Soul Urge 33 →</a>
-      </div>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-copy">&#169; 2026 Simulation Source Code &middot; All Rights Reserved</div>
-  </div>
-</footer>
+<footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js?v=20260731-es-freq"></script>
-<script src="/js/app.js?v=20260915-audit"></script>
+<script src="/js/translations.js?v=20260920-sitewide"></script>
+<script src="/js/app.js?v=20260920-sitewide"></script>
 <script>
 if (typeof loadNav === 'function') {
   Promise.resolve(loadNav()).then(function () {
-    if (typeof applyLanguage === 'function') applyLanguage(typeof getLang === 'function' — getLang() : 'en');
-    if (typeof _updateLangToggle === 'function') _updateLangToggle(typeof getLang === 'function' — getLang() : 'en');
+    return typeof loadFooter === 'function' ? loadFooter() : null;
+  }).then(function () {
+    if (typeof applyLanguage === 'function') applyLanguage(typeof getLang === 'function' ? getLang() : 'en');
+    if (typeof _updateLangToggle === 'function') _updateLangToggle(typeof getLang === 'function' ? getLang() : 'en');
     updatePostCountLabel(document.querySelectorAll('.blog-idx-card:not(.hidden)').length);
   });
 }
@@ -1239,7 +1233,7 @@ if (typeof window.toggleLang === 'function') {
 
 function tBlog(key, fallback) {
   if (typeof SSC_TRANSLATIONS === 'undefined') return fallback;
-  var lang = (typeof getLang === 'function' — getLang() : 'en') || 'en';
+  var lang = (typeof getLang === 'function' ? getLang() : 'en') || 'en';
   var entry = SSC_TRANSLATIONS[key];
   return (entry && (entry[lang] || entry.en)) || fallback;
 }
@@ -1281,7 +1275,7 @@ function filterPosts(cat, btn) {
     section.classList.toggle('section-empty', !hasVisible);
   });
   var trinityRow = document.querySelector('.blog-trinity-row');
-  if (trinityRow) trinityRow.style.display = trinityRow.querySelector('.blog-idx-card:not(.hidden)') — '' : 'none';
+  if (trinityRow) trinityRow.style.display = trinityRow.querySelector('.blog-idx-card:not(.hidden)') ? '' : 'none';
 }
 
 function searchPosts(query) {
@@ -1317,8 +1311,10 @@ function searchPosts(query) {
   var visible = 0;
 
   cards.forEach(function(card) {
-    var title   = (card.querySelector('.blog-idx-card-title')   — card.querySelector('.blog-idx-card-title').textContent   : '').toLowerCase();
-    var excerpt = (card.querySelector('.blog-idx-card-excerpt') — card.querySelector('.blog-idx-card-excerpt').textContent : '').toLowerCase();
+    var titleEl = card.querySelector('.blog-idx-card-title');
+    var excerptEl = card.querySelector('.blog-idx-card-excerpt');
+    var title   = (titleEl ? titleEl.textContent : '').toLowerCase();
+    var excerpt = (excerptEl ? excerptEl.textContent : '').toLowerCase();
     var cats    = (card.dataset.cat || '').toLowerCase();
     var allText = title + ' ' + excerpt + ' ' + cats;
 
@@ -1346,10 +1342,10 @@ function searchPosts(query) {
     section.classList.toggle('section-empty', !section.querySelector('.blog-idx-card:not(.hidden)'));
   });
   var trinityRow = document.querySelector('.blog-trinity-row');
-  if (trinityRow) trinityRow.style.display = trinityRow.querySelector('.blog-idx-card:not(.hidden)') — '' : 'none';
+  if (trinityRow) trinityRow.style.display = trinityRow.querySelector('.blog-idx-card:not(.hidden)') ? '' : 'none';
 
   updatePostCountLabel(visible);
-  noResults.style.display = visible === 0 — 'block' : 'none';
+  noResults.style.display = visible === 0 ? 'block' : 'none';
 }
 
 function clearSearch() {

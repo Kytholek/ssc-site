@@ -215,7 +215,7 @@ nav.nav-hero .nav-logo-sigil {
 }
 nav.nav-hero .nav-link {
   font-size: 11px !important;
-  letter-spacing: .3em !important;
+  letter-spacing: .1em !important;
   transition: font-size .4s ease;
 }
 nav.nav-hero .nav-cta {
@@ -661,6 +661,44 @@ body { padding-top: 64px; }
 
 .calc-container { max-width: 760px; margin: 0 auto; padding: 20px 24px 80px; }
 
+.calc-decoded-strip {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.form-card.is-collapsed .calc-decoded-strip {
+  display: flex;
+}
+.form-card.is-collapsed .calc-form-head,
+.form-card.is-collapsed .field,
+.form-card.is-collapsed .calc-meta-row,
+.form-card.is-collapsed .calc-btn {
+  display: none;
+}
+.calc-decoded-identity {
+  margin: 0;
+  font-family: 'EB Garamond', serif;
+  font-size: 17px;
+  color: var(--gold-light);
+}
+.calc-decoded-again {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: transparent;
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.calc-decoded-again:hover {
+  border-color: var(--gold);
+}
+
 .calc-sticky-guidebook {
   display: none;
   position: fixed;
@@ -824,7 +862,7 @@ html[data-theme='light'] #page-calculator .field input[type="date"] {
   background: rgba(74,148,148,.25);
   border: 1px solid rgba(126,200,200,.3); border-radius: 6px;
   color: var(--gold); font-family: 'Cormorant SC', serif; font-size: 12px;
-  letter-spacing: .3em; text-transform: uppercase; cursor: pointer;
+  letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
   min-height: 58px;
   overflow: hidden;
   position: relative;
@@ -5332,9 +5370,9 @@ footer {
 }
 
 .svc-card-glyph {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5344,7 +5382,7 @@ footer {
   filter: drop-shadow(0 0 12px rgba(201,168,76,.25)) drop-shadow(0 0 28px rgba(201,168,76,.08));
   transition: filter .35s;
 }
-.svc-card-glyph svg { width: 56px; height: 56px; }
+.svc-card-glyph svg { width: 34px; height: 34px; }
 .svc-card:hover .svc-card-glyph {
   filter: drop-shadow(0 0 18px rgba(201,168,76,.42)) drop-shadow(0 0 40px rgba(201,168,76,.14));
 }
@@ -5629,8 +5667,8 @@ footer {
 /* ── CSS Glyph Icons (replaces inline SVG to avoid innerHTML parser issues) ── */
 
 .svc-glyph-icon {
-  width: 52px;
-  height: 52px;
+  width: 34px;
+  height: 34px;
   position: relative;
   display: flex;
   align-items: center;

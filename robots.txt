@@ -3,6 +3,7 @@ Allow: /
 
 Sitemap: https://simulationsourcecode.com/sitemap.xml
 
-# Block admin and function endpoints
+# Block admin, function endpoints, and SPA include fragments
 Disallow: /.netlify/
 Disallow: /admin
+Disallow: /pages/

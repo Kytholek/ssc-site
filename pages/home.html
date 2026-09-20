@@ -173,9 +173,9 @@
 .hp-ssc-body {
   font-family: 'EB Garamond', serif;
   font-size: 18px;
-  line-height: 1.85;
+  line-height: 1.65;
   color: var(--text-dim);
-  margin-bottom: 32px;
+  margin: 0 0 16px;
 }
 .hp-ssc-actions {
   display: grid;
@@ -932,8 +932,10 @@ a.hp-trinity-item:hover {
 
 /* View All Articles — sits under pillar reads */
 .hp-articles-section .hp-view-all-link {
-  display: inline-block;
-  margin-top: 20px;
+  display: block;
+  width: fit-content;
+  margin: 20px auto 0;
+  text-align: center;
   font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: .28em;
@@ -1143,8 +1145,8 @@ html.hp-snapping .hp-hero-codex-arrow {
   <div class="hp-hero-content">
     <div class="hp-hero-eyebrow" data-i18n="home.revamp.hero.eyebrow">// Simulation Source Code</div>
     <h1 class="hp-hero-title" data-i18n="home.revamp.hero.title">The Map of Your Inner World —<br><span>and How to Give Life Direction</span></h1>
-    <p class="hp-hero-sub hp-hero-sub--full" data-i18n="home.revamp.hero.sub.full">Get your numbers. Then you have a map — seven frequencies from birth date and name.</p>
-    <p class="hp-hero-sub hp-hero-sub--short" data-i18n="home.revamp.hero.sub.short">Get your numbers. Then you have a map.</p>
+    <p class="hp-hero-sub hp-hero-sub--full" data-i18n="home.revamp.hero.sub.full">Your birth date and name already hold seven frequencies. Decode them and you have a map — the lessons you came to learn, how you move, and the calling those two make together.</p>
+    <p class="hp-hero-sub hp-hero-sub--short" data-i18n="home.revamp.hero.sub.short">Seven frequencies from date and name. Then you have a map.</p>
   </div>
   <div class="hp-hero-codex-arrow" aria-hidden="true">&#8594;</div>
   <a href="/codex" class="hp-codex-link js-track-cta" data-cta="codex_hero_matrix" aria-label="Explore the Codex" onclick="if(document.getElementById('page-home')){event.preventDefault();var lnk=this;lnk.classList.add('hp-codex-expanding');setTimeout(function(){showPage('codex');},350);setTimeout(function(){lnk.classList.remove('hp-codex-expanding');},700);}">
@@ -1198,7 +1200,7 @@ html.hp-snapping .hp-hero-codex-arrow {
   <div class="hp-hero-cta-bar">
     <div class="hp-hero-actions hp-hero-actions--balanced">
       <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode your Blueprint</a>
-      <a href="/blog/how-to-read-numerology-blueprint/" class="btn-secondary js-track-cta" data-cta="hero_how_to_read" data-i18n="home.revamp.hero.cta.secondary">How to read it</a>
+      <a href="/services" class="btn-secondary js-track-cta" data-cta="hero_see_services" data-i18n="home.revamp.hero.cta.secondary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">See services</a>
     </div>
     <p class="hp-hero-micro" data-i18n="home.revamp.hero.micro">Free decode in 60 seconds</p>
     <div class="hp-scroll-hint">
@@ -1212,24 +1214,25 @@ html.hp-snapping .hp-hero-codex-arrow {
 <div class="hp-main-row hp-reveal hp-snap" data-snap-label="Blueprint">
   <div class="hp-ssc">
     <h2 class="hp-ssc-title" data-i18n="home.revamp.ssc.title">Your Seven-Frequency Blueprint</h2>
+    <p class="hp-ssc-body" data-i18n="home.revamp.ssc.body">Date gives you three lessons. Name gives you three ways you move. Together they name a Life Calling — seven frequencies, three circuits.</p>
 
     <ul class="hp-trinity-list">
       <li>
         <a class="hp-trinity-item" href="/blog/trinity-of-lessons-numerology/">
           <strong data-i18n="home.revamp.trinity.lessons">Lessons</strong>
-          <span data-i18n="home.revamp.trinity.lessons.desc">Life Path, Achievement, Theme (date)</span>
+          <span data-i18n="home.revamp.trinity.lessons.desc">Life Path, Achievement, Theme — the curriculum your date set.</span>
         </a>
       </li>
       <li>
         <a class="hp-trinity-item" href="/blog/trinity-of-expression-numerology/">
           <strong data-i18n="home.revamp.trinity.expression">Expression</strong>
-          <span data-i18n="home.revamp.trinity.expression.desc">Soul Urge, Expression, Outer Self (name)</span>
+          <span data-i18n="home.revamp.trinity.expression.desc">Soul Urge, Expression, Outer Self — what you want, how you move, what people meet first.</span>
         </a>
       </li>
       <li>
         <a class="hp-trinity-item" href="/blog/trinity-of-purpose-numerology/">
           <strong data-i18n="home.revamp.trinity.purpose">Purpose</strong>
-          <span data-i18n="home.revamp.trinity.purpose.desc">Life Path + Expression → Life Calling</span>
+          <span data-i18n="home.revamp.trinity.purpose.desc">Life Path + Expression become Life Calling — the work those two make together.</span>
         </a>
       </li>
     </ul>
@@ -1251,9 +1254,9 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
   <div class="hp-codex-teaser-inner">
     <div class="hp-codex-teaser-copy">
-      <div class="hp-codex-teaser-eyebrow" data-i18n="home.revamp.teaser.eyebrow">The psychology map</div>
+      <div class="hp-codex-teaser-eyebrow" data-i18n="home.revamp.teaser.eyebrow">The map of creation</div>
       <h2 class="hp-codex-teaser-title" data-i18n="home.revamp.teaser.title">The Codex of Consciousness</h2>
-      <p class="hp-codex-teaser-body" data-i18n="home.revamp.teaser.body">Nine positions. Mind, Body, Spirit across Witness, Actor, Sage.</p>
+      <p class="hp-codex-teaser-body" data-i18n="home.revamp.teaser.body">Not a personal chart. A 3×3 map of creation and energy management — Mind, Body, Spirit across Witness, Actor, Sage — that explains how reality and light actually move.</p>
       <a href="/codex/" class="btn-primary js-track-cta" data-cta="codex_teaser" data-i18n="home.revamp.teaser.btn" onclick="navigateCodex('matrix', event)">Explore the Codex</a>
     </div>
     <div class="hp-codex-map" aria-hidden="true">
@@ -1331,7 +1334,8 @@ html.hp-snapping .hp-hero-codex-arrow {
   <div class="hp-use-inner">
     <div class="hp-use-header">
       <div class="hp-use-eyebrow" data-i18n="home.revamp.services.eyebrow">// GO DEEPER</div>
-      <h2 class="hp-use-title" data-i18n="home.revamp.services.title">Keep the report. Time the cycle. Or walk it live.</h2>
+      <h2 class="hp-use-title" data-i18n="home.revamp.services.title">Keep the report. Time the cycle. Or book a consultation.</h2>
+      <p class="hp-use-sub" data-i18n="home.revamp.services.sub">The calculator names the seven. These are how you keep them, time them, or walk them with someone.</p>
     </div>
     <div class="hp-use-offers">
       <a href="/calculator" class="hp-use-offer hp-use-offer--featured js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
@@ -1340,7 +1344,7 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.guidebook.price">$22</span>
         </span>
         <span class="hp-use-offer-name" data-i18n="home.revamp.services.guidebook">Guidebook Report</span>
-        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.guidebook.desc">The written integration you keep — compounds, shadows, and how the seven relate.</span>
+        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.guidebook.desc">The written integration you keep — compounds, shadows, and how the seven relate. Not a reprint of the free decode.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.guidebook.cadence">one-time · instant delivery</span>
       </a>
       <a href="/services#season" class="hp-use-offer js-track-cta" data-cta="services_timecycle" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#season');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
@@ -1349,7 +1353,7 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.timecycle.price">$17</span>
         </span>
         <span class="hp-use-offer-name" data-i18n="home.revamp.services.timecycle">Time Cycle</span>
-        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.timecycle.desc">Your next 90 days, mapped — month by month, this pinnacle, what to refuse.</span>
+        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.timecycle.desc">Your next 90 days, mapped — month by month, this pinnacle, what to refuse. For when you already know the map and need the season.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.timecycle.cadence">one-time · instant delivery</span>
       </a>
       <a href="/services#readings" class="hp-use-offer js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#readings');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
@@ -1357,8 +1361,8 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span class="hp-use-offer-tier">Live</span>
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.consult.price">$55</span>
         </span>
-        <span class="hp-use-offer-name" data-i18n="home.revamp.services.consult">Live Reading</span>
-        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.consult.desc">A one-on-one session decoding your complete blueprint in real time.</span>
+        <span class="hp-use-offer-name" data-i18n="home.revamp.services.consult">Personal Consultation</span>
+        <span class="hp-use-offer-desc" data-i18n="home.revamp.services.consult.desc">A one-on-one session walking your complete blueprint in real time. For the moment you want someone in the room with the numbers.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.consult.cadence">1 hour · video call</span>
       </a>
       <a href="/services" class="hp-services-all js-track-cta" data-cta="services_view_all" data-i18n="home.revamp.services.all" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">View All Services &#8594;</a>
@@ -1453,7 +1457,7 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span data-i18n="home.revamp.faq.q_codex">What is the difference between Blueprint and Codex?</span>
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a_codex">Blueprint is your numbers. Codex is the 3×3 map those numbers sit on — Mind, Body, Spirit across Witness, Actor, Sage.</p>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a_codex">Blueprint is personal — your seven frequencies. Codex is not. It is the 3×3 map of creation: energy management, reality, and light dynamics across Mind, Body, Spirit and Witness, Actor, Sage.</p>
         <p class="faq-more"><a href="/codex/" onclick="navigateCodex('matrix', event)">Explore the Codex &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
@@ -1461,7 +1465,7 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span data-i18n="home.revamp.faq.q2">Do I need a reading after the calculator?</span>
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A live session is if you want to walk them with someone.</p>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A Personal Consultation is if you want to walk them with someone.</p>
         <p class="faq-more"><a href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Get the $22 Guidebook &#8594;</a></p>
       </details>
       <details class="hp-faq-item">

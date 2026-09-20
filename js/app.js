@@ -150,8 +150,8 @@ const PAGE_META = {
     description: 'Simulation Source Code is a numerology framework built on Pythagorean principles, simulation theory, and consciousness research — offering practical, grounded readings of your seven encoded frequencies.',
   },
   services: {
-    title      : 'Numerology Reading & Guidebook Report · Services · SSC',
-    description: 'Order a numerology guidebook report or live numerology reading — PDF blueprint, consultation, TellTale Tarot, and original books by Kytholek.',
+    title      : 'Numerology Services · Guidebooks, Readings & Books · SSC',
+    description: 'Shop guidebooks, Time Cycle, Personal Consultations, TellTale Tarot, and original books by Kytholek — PDF reports and live sessions.',
     ogImage    : 'https://simulationsourcecode.com/Images/services-og.png',
   },
   codex: {
@@ -400,8 +400,35 @@ function showPage(name, pushState = true) {
   }
 }
 
+function _setStaticLdActive(activeIds) {
+  ['ssc-ld-faq', 'ssc-ld-person', 'ssc-ld-service', 'ssc-ld-books'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.type = activeIds.indexOf(id) !== -1 ? 'application/ld+json' : 'application/ld+json-inactive';
+  });
+}
+
+function _faqEntity(name, text) {
+  return {
+    '@type': 'Question',
+    name: name,
+    acceptedAnswer: { '@type': 'Answer', text: text }
+  };
+}
+
 function _injectPageSchema(name) {
   _clearJsonLd();
+  if (name === 'home') {
+    _setStaticLdActive(['ssc-ld-faq']);
+  } else if (name === 'about') {
+    _setStaticLdActive(['ssc-ld-person']);
+  } else if (name === 'books') {
+    _setStaticLdActive(['ssc-ld-books']);
+  } else if (name === 'services') {
+    _setStaticLdActive(['ssc-ld-service']);
+  } else {
+    _setStaticLdActive([]);
+  }
   if (name === 'calculator') {
     _setJsonLd({
       '@context': 'https://schema.org',
@@ -433,10 +460,12 @@ function _injectPageSchema(name) {
   } else if (name === 'services') {
     _setJsonLd({
       '@context': 'https://schema.org',
+      '@graph': [
+      {
       '@type'   : ['Service', 'Product'],
       'name'    : 'Numerology Readings — Simulation Source Code',
       'url'     : 'https://simulationsourcecode.com/services/',
-      'description': 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
+      'description': 'Shop guidebooks, Time Cycle, Personal Consultations, TellTale Tarot, and original books by Kytholek — PDF reports and live sessions.',
       'image'   : 'https://simulationsourcecode.com/Images/services-og.png',
       'provider': { '@type': 'Organization', 'name': 'Simulation Source Code' },
       'brand'   : { '@type': 'Brand', 'name': 'Simulation Source Code' },
@@ -526,6 +555,21 @@ function _injectPageSchema(name) {
           }
         }
       ]
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        _faqEntity('How long does delivery take?', 'The Guidebook Report, Time Cycle, and Blueprint Bundle are emailed within minutes of payment. Personal Consultations are booked on the calendar — you pick a 1-hour slot. TellTale Tarot is scheduled by WhatsApp message.'),
+        _faqEntity('What information do I need to provide?', 'Your full date of birth (day, month, year) and the full name on your birth certificate. Both are required to calculate all seven frequencies accurately.'),
+        _faqEntity('What does the Guidebook Report cover?', 'All seven encoded frequencies: Life Path, Theme, Achievement, Soul Urge, Outer Expression, Expression, and Life Calling. Each is calculated, its compound story explored, and the full reading interpreted in writing — including how the numbers relate to each other.'),
+        _faqEntity('How long is a Personal Consultation?', 'One hour on video, $55. You choose the time on the booking calendar. The session is a live 7-frequency reading with Q&A, and a recording is shared afterward.'),
+        _faqEntity('How do I book a TellTale Tarot reading?', 'It is a live reading, $20. Send a WhatsApp message to schedule a time. The spread is read with you — themes, timing, and next steps in the session.'),
+        _faqEntity('What is Source Decoder?', 'A community for learning the system — free to join, with some events or options paid. Weekly group calls, member chat, and deep dives into frequencies and compounds.'),
+        _faqEntity('Is this a refundable purchase?', 'Guidebook, Time Cycle, and Blueprint Bundle are digital products delivered instantly, so those sales are final. If a PDF does not arrive, contact us and we will resolve it promptly. Live bookings are scheduled separately.'),
+        _faqEntity('How is this different from other numerology readings?', 'SSC uses a proprietary seven-frequency architecture built on the Codex — a 3×3 grid mapping consciousness through number. This is not a translation of traditional numerology. It is an original system designed to read the structural code beneath your life experience.')
+      ]
+    }
+    ]
     });
   } else if (name === 'about') {
     _setJsonLd({
@@ -1012,8 +1056,6 @@ function enableHomeSnap() {
       btn.className = 'hp-snap-dot';
       var label = sec.getAttribute('data-snap-label') || ('Section ' + (i + 1));
       btn.setAttribute('aria-label', label);
-      btn.setAttribute('data-label', label);
-      btn.title = label;
       btn.addEventListener('click', function () { goTo(i); });
       nav.appendChild(btn);
     });
@@ -1022,8 +1064,6 @@ function enableHomeSnap() {
       fbtn.type = 'button';
       fbtn.className = 'hp-snap-dot';
       fbtn.setAttribute('aria-label', 'Footer');
-      fbtn.setAttribute('data-label', 'Footer');
-      fbtn.title = 'Footer';
       fbtn.addEventListener('click', function () { goToFooter(); });
       nav.appendChild(fbtn);
     }
@@ -2129,12 +2169,74 @@ function openCalculatorModal(product) {
   }
   MODAL_CHECKOUT_BTN_LABEL = copy.btnLabel;
 
+  prefillModalFromLastLead();
+
   var overlay = document.getElementById('calculator-modal-overlay');
   if (overlay) overlay.classList.add('open');
   setTimeout(function() {
-    var month = document.getElementById('modal-calc-month');
-    if (month) month.focus();
+    var dateEl = document.getElementById('modal-calc-birthdate');
+    var nameEl = document.getElementById('modal-calc-fullname');
+    if (dateEl && !dateEl.value) dateEl.focus();
+    else if (nameEl && !nameEl.value) nameEl.focus();
+    else {
+      var emailEl = document.getElementById('modal-unlock-email');
+      if (emailEl && !emailEl.value) emailEl.focus();
+    }
   }, 100);
+}
+
+function _padModalDate(n) {
+  return String(n).padStart(2, '0');
+}
+
+function syncModalBirthdateParts() {
+  var dateEl = document.getElementById('modal-calc-birthdate');
+  var monthEl = document.getElementById('modal-calc-month');
+  var dayEl = document.getElementById('modal-calc-day');
+  var yearEl = document.getElementById('modal-calc-year');
+  if (!dateEl || !monthEl || !dayEl || !yearEl) return;
+  var parts = (dateEl.value || '').split('-');
+  if (parts.length !== 3) {
+    monthEl.value = '';
+    dayEl.value = '';
+    yearEl.value = '';
+    return;
+  }
+  yearEl.value = String(parseInt(parts[0], 10) || '');
+  monthEl.value = String(parseInt(parts[1], 10) || '');
+  dayEl.value = String(parseInt(parts[2], 10) || '');
+}
+
+function syncModalBirthdateFromParts() {
+  var dateEl = document.getElementById('modal-calc-birthdate');
+  var monthEl = document.getElementById('modal-calc-month');
+  var dayEl = document.getElementById('modal-calc-day');
+  var yearEl = document.getElementById('modal-calc-year');
+  if (!dateEl || !monthEl || !dayEl || !yearEl) return;
+  var month = parseInt(monthEl.value, 10);
+  var day = parseInt(dayEl.value, 10);
+  var year = parseInt(yearEl.value, 10);
+  if (!month || !day || !year) return;
+  dateEl.value = year + '-' + _padModalDate(month) + '-' + _padModalDate(day);
+}
+
+function prefillModalFromLastLead() {
+  var lead = null;
+  try { lead = JSON.parse(sessionStorage.getItem('ssc_last_lead') || 'null'); } catch (e) { lead = null; }
+  if (!lead && typeof window._lastCalculatorLead === 'object') lead = window._lastCalculatorLead;
+  if (!lead) return;
+
+  var nameEl = document.getElementById('modal-calc-fullname');
+  var emailEl = document.getElementById('modal-unlock-email');
+  var monthEl = document.getElementById('modal-calc-month');
+  var dayEl = document.getElementById('modal-calc-day');
+  var yearEl = document.getElementById('modal-calc-year');
+  if (nameEl && lead.name) nameEl.value = lead.name;
+  if (emailEl && lead.email) emailEl.value = lead.email;
+  if (monthEl && lead.month) monthEl.value = String(lead.month);
+  if (dayEl && lead.day) dayEl.value = String(lead.day);
+  if (yearEl && lead.year) yearEl.value = String(lead.year);
+  syncModalBirthdateFromParts();
 }
 
 /**
@@ -2169,6 +2271,7 @@ function applyGuidebookPrefillFromQuery() {
   if (yearEl && year) yearEl.value = String(parseInt(year, 10) || '');
   if (nameEl && name) nameEl.value = name;
   if (emailEl && email) emailEl.value = email;
+  syncModalBirthdateFromParts();
 
   openCalculatorModal(product);
 
@@ -2460,24 +2563,28 @@ function loadGoogleReviews() {
 }
 
 function resetCalculatorModal() {
+  var date  = document.getElementById('modal-calc-birthdate');
   var month = document.getElementById('modal-calc-month');
   var day   = document.getElementById('modal-calc-day');
   var year  = document.getElementById('modal-calc-year');
   var name  = document.getElementById('modal-calc-fullname');
   var email = document.getElementById('modal-unlock-email');
   var err   = document.getElementById('modal-unlock-email-error');
+  if (date)  date.value = '';
   if (month) month.value = '';
   if (day)   day.value = '';
   if (year)  year.value = '';
   if (name)  name.value = '';
   if (email) email.value = '';
   if (err)   err.textContent = '';
-  [month, day, year, name].forEach(function(el) {
+  [date, name].forEach(function(el) {
     if (el) el.classList.remove('ssc-input-error');
   });
 }
 
 function validateModalGuidebookFields() {
+  syncModalBirthdateParts();
+  var dateEl  = document.getElementById('modal-calc-birthdate');
   var monthEl = document.getElementById('modal-calc-month');
   var dayEl   = document.getElementById('modal-calc-day');
   var yearEl  = document.getElementById('modal-calc-year');
@@ -2485,16 +2592,15 @@ function validateModalGuidebookFields() {
   if (!monthEl || !dayEl || !yearEl || !nameEl) return false;
 
   var hasError = false;
-  [monthEl, dayEl, yearEl, nameEl].forEach(function(el) { el.classList.remove('ssc-input-error'); });
+  [dateEl, nameEl].forEach(function(el) { if (el) el.classList.remove('ssc-input-error'); });
   var month = parseInt(monthEl.value, 10);
   var day = parseInt(dayEl.value, 10);
   var year = parseInt(yearEl.value, 10);
-  var daysInMonth = [0, 31, (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  if (!month || month < 1 || month > 12) { monthEl.classList.add('ssc-input-error'); hasError = true; }
-  if (!year || year < 1900 || year > 2099) { yearEl.classList.add('ssc-input-error'); hasError = true; }
-  var maxDay = daysInMonth[month] || 31;
-  if (!day || day < 1 || day > maxDay) { dayEl.classList.add('ssc-input-error'); hasError = true; }
-  if (!nameEl.value.trim())     { nameEl.classList.add('ssc-input-error'); hasError = true; }
+  if (!month || !day || !year) {
+    if (dateEl) dateEl.classList.add('ssc-input-error');
+    hasError = true;
+  }
+  if (!nameEl.value.trim()) { nameEl.classList.add('ssc-input-error'); hasError = true; }
   if (hasError) {
     var firstErr = document.querySelector('#calculator-modal-overlay .ssc-input-error');
     if (firstErr) firstErr.focus();
@@ -2703,7 +2809,7 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
   }
 
   function _bindModalInputs() {
-    var ids = ['modal-calc-month', 'modal-calc-day', 'modal-calc-year', 'modal-calc-fullname'];
+    var ids = ['modal-calc-birthdate', 'modal-calc-fullname'];
     ids.forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
@@ -2711,6 +2817,13 @@ window.handleUnlockPaymentModal = handleUnlockPaymentModal;
         el.addEventListener('keydown', _onModalKeydown);
       }
     });
+    var dateEl = document.getElementById('modal-calc-birthdate');
+    if (dateEl) {
+      dateEl.removeEventListener('change', syncModalBirthdateParts);
+      dateEl.removeEventListener('input', syncModalBirthdateParts);
+      dateEl.addEventListener('change', syncModalBirthdateParts);
+      dateEl.addEventListener('input', syncModalBirthdateParts);
+    }
     var modalUnlockEmail = document.getElementById('modal-unlock-email');
     if (modalUnlockEmail) {
       modalUnlockEmail.removeEventListener('keydown', _onModalUnlockEmailKeydown);

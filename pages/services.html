@@ -3,7 +3,7 @@
   <header class="svc-shop-intro">
     <p class="svc-shop-eyebrow">Shop &amp; Services</p>
     <h1 class="svc-shop-title">Choose your path</h1>
-    <p class="svc-shop-lead">Guidebooks, live readings, and original books — one place to decode.</p>
+    <p class="svc-shop-lead">Guidebook, Time Cycle, personal consultations — one shop.</p>
   </header>
 
   <nav class="svc-section-nav" aria-label="Shop sections">
@@ -115,7 +115,7 @@
           </ul>
           <div class="svc-card-footer">
             <button type="button" class="svc-cta svc-cta--gold" onclick="openCalculatorModal('time-cycle')">Get My Time Cycle</button>
-            <p class="svc-delivery-note">PDF delivered within minutes</p>
+            <p class="svc-delivery-note"><a href="/sample-time-cycle.html" target="_blank" rel="noopener">View sample</a> &#183; PDF delivered within minutes</p>
           </div>
         </div>
 
@@ -417,33 +417,12 @@
 
       <div id="modal-form-card" class="form-card">
         <div class="form-section-label" data-i18n="calc.label.birthdate">· Birth Date ·</div>
-        <div class="date-row">
-          <div class="field">
-            <label data-i18n="calc.label.month">Month</label>
-            <select id="modal-calc-month">
-              <option value="">—</option>
-              <option value="1"  data-i18n="calc.month.1">January</option>
-              <option value="2"  data-i18n="calc.month.2">February</option>
-              <option value="3"  data-i18n="calc.month.3">March</option>
-              <option value="4"  data-i18n="calc.month.4">April</option>
-              <option value="5"  data-i18n="calc.month.5">May</option>
-              <option value="6"  data-i18n="calc.month.6">June</option>
-              <option value="7"  data-i18n="calc.month.7">July</option>
-              <option value="8"  data-i18n="calc.month.8">August</option>
-              <option value="9"  data-i18n="calc.month.9">September</option>
-              <option value="10" data-i18n="calc.month.10">October</option>
-              <option value="11" data-i18n="calc.month.11">November</option>
-              <option value="12" data-i18n="calc.month.12">December</option>
-            </select>
-          </div>
-          <div class="field">
-            <label data-i18n="calc.label.day">Day</label>
-            <input type="number" id="modal-calc-day" placeholder="DD" min="1" max="31">
-          </div>
-          <div class="field">
-            <label data-i18n="calc.label.year">Year</label>
-            <input type="number" id="modal-calc-year" placeholder="YYYY" min="1900" max="2099">
-          </div>
+        <div class="field">
+          <label for="modal-calc-birthdate" data-i18n="calc.label.birthdate">Birth Date</label>
+          <input type="date" id="modal-calc-birthdate" min="1900-01-01" max="2099-12-31" autocomplete="bday" required>
+          <input type="hidden" id="modal-calc-month" value="">
+          <input type="hidden" id="modal-calc-day" value="">
+          <input type="hidden" id="modal-calc-year" value="">
         </div>
         <div class="form-section-label" style="margin-top:20px" data-i18n="calc.label.fullname">· Full Birth Name ·</div>
         <div class="field">

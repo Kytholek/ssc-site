@@ -43,6 +43,30 @@ function parseCodexNodes() {
   }).filter(Boolean);
 }
 
+function servicesFaqJsonLd() {
+  function q(name, text) {
+    return {
+      '@type': 'Question',
+      name: name,
+      acceptedAnswer: { '@type': 'Answer', text: text },
+    };
+  }
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      q('How long does delivery take?', 'The Guidebook Report, Time Cycle, and Blueprint Bundle are emailed within minutes of payment. Personal Consultations are booked on the calendar — you pick a 1-hour slot. TellTale Tarot is scheduled by WhatsApp message.'),
+      q('What information do I need to provide?', 'Your full date of birth (day, month, year) and the full name on your birth certificate. Both are required to calculate all seven frequencies accurately.'),
+      q('What does the Guidebook Report cover?', 'All seven encoded frequencies: Life Path, Theme, Achievement, Soul Urge, Outer Expression, Expression, and Life Calling. Each is calculated, its compound story explored, and the full reading interpreted in writing — including how the numbers relate to each other.'),
+      q('How long is a Personal Consultation?', 'One hour on video, $55. You choose the time on the booking calendar. The session is a live 7-frequency reading with Q&A, and a recording is shared afterward.'),
+      q('How do I book a TellTale Tarot reading?', 'It is a live reading, $20. Send a WhatsApp message to schedule a time. The spread is read with you — themes, timing, and next steps in the session.'),
+      q('What is Source Decoder?', 'A community for learning the system — free to join, with some events or options paid. Weekly group calls, member chat, and deep dives into frequencies and compounds.'),
+      q('Is this a refundable purchase?', 'Guidebook, Time Cycle, and Blueprint Bundle are digital products delivered instantly, so those sales are final. If a PDF does not arrive, contact us and we will resolve it promptly. Live bookings are scheduled separately.'),
+      q('How is this different from other numerology readings?', 'SSC uses a proprietary seven-frequency architecture built on the Codex — a 3×3 grid mapping consciousness through number. This is not a translation of traditional numerology. It is an original system designed to read the structural code beneath your life experience.'),
+    ],
+  }, null, 2);
+}
+
 function servicesJsonLd() {
   const reviews = SEO.FACEBOOK_REVIEWS.map(function (r) {
     return {
@@ -60,7 +84,7 @@ function servicesJsonLd() {
     '@type': ['Service', 'Product'],
     name: 'Numerology Readings — Simulation Source Code',
     url: SEO.SITE_ORIGIN + '/services/',
-    description: 'Personalised numerology guidebook PDF, live consultation, TellTale Tarot, group membership, and original books by Kytholek.',
+    description: 'Shop guidebooks, Time Cycle, Personal Consultations, TellTale Tarot, and original books by Kytholek — PDF reports and live sessions.',
     image: SEO.SERVICES_OG_IMAGE,
     provider: {
       '@type': 'Organization',
@@ -157,6 +181,7 @@ function staticShell(opts) {
   <script type="application/ld+json">
 ${opts.jsonLd}
   </script>
+${opts.extraJsonLd ? `  <script type="application/ld+json">\n${opts.extraJsonLd}\n  </script>` : ''}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -226,10 +251,11 @@ function buildServices() {
     pageId: 'services',
     marker: 'SERVICES_BODY',
     title: 'Numerology Services · Guidebooks, Readings & Books · SSC',
-    description: 'Shop guidebooks, live readings, TellTale Tarot, and original books by Kytholek — PDF reports, consultation, community, and more.',
+    description: 'Shop guidebooks, Time Cycle, Personal Consultations, TellTale Tarot, and original books by Kytholek — PDF reports and live sessions.',
     canonical: SEO.SITE_ORIGIN + '/services/',
     ogImage: SEO.SERVICES_OG_IMAGE,
     jsonLd: servicesJsonLd(),
+    extraJsonLd: servicesFaqJsonLd(),
     body: body,
     extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css'],
     bootScript: "if (typeof initServicesPage === 'function') initServicesPage();\n    if (typeof applyLanguage === 'function') applyLanguage(getLang());",

@@ -390,7 +390,17 @@ export default {
     }
 
     if (url.pathname !== '/webhook/stripe') {
-      return env.ASSETS ? env.ASSETS.fetch(request) : new Response('Not found', { status: 404 });
+      const assetRes = env.ASSETS ? await env.ASSETS.fetch(request) : new Response('Not found', { status: 404 });
+      if (url.pathname.startsWith('/pages/')) {
+        const headers = new Headers(assetRes.headers);
+        headers.set('X-Robots-Tag', 'noindex, nofollow');
+        return new Response(assetRes.body, {
+          status: assetRes.status,
+          statusText: assetRes.statusText,
+          headers,
+        });
+      }
+      return assetRes;
     }
     if (request.method !== 'POST') {
       return new Response('Method not allowed', { status: 405 });

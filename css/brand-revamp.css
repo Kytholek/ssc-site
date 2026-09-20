@@ -1639,9 +1639,9 @@ nav.svc-section-nav:not(.breadcrumb) {
 }
 
 .svc-card-glyph {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 20px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1651,7 +1651,7 @@ nav.svc-section-nav:not(.breadcrumb) {
   filter: drop-shadow(0 0 12px rgba(201,168,76,.25)) drop-shadow(0 0 28px rgba(201,168,76,.08));
   transition: filter .35s;
 }
-.svc-card-glyph svg { width: 56px; height: 56px; }
+.svc-card-glyph svg { width: 34px; height: 34px; }
 .svc-card:hover .svc-card-glyph {
   filter: drop-shadow(0 0 18px rgba(201,168,76,.42)) drop-shadow(0 0 40px rgba(201,168,76,.14));
 }
@@ -2423,8 +2423,8 @@ html[data-theme='light'] #page-home .hp-codex-node--center text {
 /* ?? CSS Glyph Icons (replaces inline SVG to avoid innerHTML parser issues) ?? */
 
 .svc-glyph-icon {
-  width: 52px;
-  height: 52px;
+  width: 34px;
+  height: 34px;
   position: relative;
   display: flex;
   align-items: center;

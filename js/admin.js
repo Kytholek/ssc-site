@@ -26,6 +26,7 @@ var adminSystem = (function () {
   // path = the folder name inside /blog/ (file is always index.html)
   var POST_REGISTRY = [
     // ── The System series ──────────────────────────────────────
+    { id:'post-simulated-self',          path:'the-simulated-self',                                 title:'The Simulated Self',                                       category:'the-system' },
     { id:'post-simulation',              path:'simulation-theory-numerology-source-code',           title:'You Are Running on a Simulation',                          category:'the-system' },
     { id:'post-system',                  path:'evolution-of-energy-0-through-9',                    title:'The Evolution of Energy: 0 Through 9',                     category:'the-system' },
     { id:'post-electric-magnetic-aether',path:'electric-magnetic-aether-three-natures-of-number',  title:'Electric, Magnetic & Aether: The Three Natures of Number', category:'the-system' },

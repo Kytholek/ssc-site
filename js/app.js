@@ -33,6 +33,7 @@ window.sscTrackEvent = window.sscTrackEvent || trackSscEvent;
 
 // Maps legacy SPA post ids (?post=post-…) to /blog/{slug}/ — keep in sync with admin.js POST_REGISTRY.
 const LEGACY_POST_SLUGS = {
+  'post-simulated-self': 'the-simulated-self',
   'post-simulation': 'simulation-theory-numerology-source-code',
   'post-system': 'evolution-of-energy-0-through-9',
   'post-electric-magnetic-aether': 'electric-magnetic-aether-three-natures-of-number',

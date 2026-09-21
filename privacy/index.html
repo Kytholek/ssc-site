@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var t=localStorage.getItem('ssc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy · Simulation Source Code</title>
   <meta name="description" content="How Simulation Source Code handles your data, including calculator inputs, purchases, analytics, and advertising measurement.">
@@ -15,7 +16,9 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260920-sitewide">
   <style>
     body { padding-top: 64px; }
     .page { display: block !important; opacity: 1 !important; }
@@ -25,7 +28,7 @@
 
 <nav id="main-nav"></nav>
 
-<main>
+<main id="main-content">
   <div class="page" id="page-privacy">
     <div class="privacy-hero a0">
       <div class="section-eyebrow" data-i18n="privacy.eyebrow">Legal</div>
@@ -62,7 +65,7 @@
       </div>
       <div class="privacy-section a4">
         <div class="privacy-section-title"><span class="ps-num">7</span> <span data-i18n="privacy.s7.title">Children's Privacy</span></div>
-        <p data-i18n="privacy.s7.body">The app is not directed at children under 13. We do not knowingly collect their personal information.</p>
+        <p data-i18n="privacy.s7.body">This site and the Source Code: Life app are not directed at children under 13. We do not knowingly collect their personal information.</p>
       </div>
       <div class="privacy-section a4">
         <div class="privacy-section-title"><span class="ps-num">8</span> <span data-i18n="privacy.s8.title">Changes to This Policy</span></div>
@@ -78,10 +81,14 @@
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/app.js"></script>
+<script src="/js/translations.js?v=20260920-sitewide"></script>
+<script src="/js/app.js?v=20260920-sitewide"></script>
 <script>
-  if (typeof loadNav === 'function') loadNav();
-  if (typeof loadFooter === 'function') loadFooter();
+  (async function () {
+    if (typeof loadNav === 'function') await loadNav();
+    if (typeof loadFooter === 'function') await loadFooter();
+    if (typeof applyLanguage === 'function') applyLanguage(typeof getLang === 'function' ? getLang() : 'en');
+  })();
 </script>
 </body>
 </html>

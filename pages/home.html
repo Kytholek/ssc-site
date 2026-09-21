@@ -1199,8 +1199,8 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div><!-- /hp-hero-main -->
   <div class="hp-hero-cta-bar">
     <div class="hp-hero-actions hp-hero-actions--balanced">
-      <a href="/calculator" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode your Blueprint</a>
-      <a href="/services" class="btn-secondary js-track-cta" data-cta="hero_see_services" data-i18n="home.revamp.hero.cta.secondary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">See services</a>
+      <a href="/calculator/" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode your Blueprint</a>
+      <a href="/services/" class="btn-secondary js-track-cta" data-cta="hero_see_services" data-i18n="home.revamp.hero.cta.secondary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">See services</a>
     </div>
     <p class="hp-hero-micro" data-i18n="home.revamp.hero.micro">Free decode in 60 seconds</p>
     <div class="hp-scroll-hint">
@@ -1238,7 +1238,7 @@ html.hp-snapping .hp-hero-codex-arrow {
     </ul>
 
     <div class="hp-ssc-actions hp-ssc-actions--single">
-      <a href="/calculator" class="btn-primary js-track-cta" data-cta="ssc_calculator" data-i18n="home.revamp.ssc.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
+      <a href="/calculator/" class="btn-primary js-track-cta" data-cta="ssc_calculator" data-i18n="home.revamp.ssc.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
     </div>
     <div class="hp-ssc-links">
       <a href="/blog/how-to-read-numerology-blueprint/" class="hp-ssc-text-link js-track-cta" data-cta="ssc_how_to_read" data-i18n="home.revamp.ssc.cta.read">How to read your Blueprint &#8594;</a>
@@ -1338,7 +1338,7 @@ html.hp-snapping .hp-hero-codex-arrow {
       <p class="hp-use-sub" data-i18n="home.revamp.services.sub">The calculator names the seven. These are how you keep them, time them, or walk them with someone.</p>
     </div>
     <div class="hp-use-offers">
-      <a href="/calculator" class="hp-use-offer hp-use-offer--featured js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">
+      <a href="/services/#guidebook" class="hp-use-offer hp-use-offer--featured js-track-cta" data-cta="services_guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof openCalculatorModal==='function'){openCalculatorModal('guidebook');}else{showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#guidebook');if(typeof scrollServicesHash==='function')scrollServicesHash();}}">
         <span class="hp-use-offer-top">
           <span class="hp-use-offer-tier">Written</span>
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.guidebook.price">$22</span>
@@ -1347,7 +1347,7 @@ html.hp-snapping .hp-hero-codex-arrow {
         <span class="hp-use-offer-desc" data-i18n="home.revamp.services.guidebook.desc">The written integration you keep — compounds, shadows, and how the seven relate. Not a reprint of the free decode.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.guidebook.cadence">one-time · instant delivery</span>
       </a>
-      <a href="/services#season" class="hp-use-offer js-track-cta" data-cta="services_timecycle" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#season');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
+      <a href="/services/#season" class="hp-use-offer js-track-cta" data-cta="services_timecycle" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#season');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
         <span class="hp-use-offer-top">
           <span class="hp-use-offer-tier" data-i18n="home.revamp.services.timecycle.tier">Timeline</span>
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.timecycle.price">$17</span>
@@ -1356,7 +1356,7 @@ html.hp-snapping .hp-hero-codex-arrow {
         <span class="hp-use-offer-desc" data-i18n="home.revamp.services.timecycle.desc">Your next 90 days, mapped — month by month, this pinnacle, what to refuse. For when you already know the map and need the season.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.timecycle.cadence">one-time · instant delivery</span>
       </a>
-      <a href="/services#readings" class="hp-use-offer js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#readings');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
+      <a href="/services/#consult" class="hp-use-offer js-track-cta" data-cta="services_consult" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#consult');if(typeof scrollServicesHash==='function')scrollServicesHash();}">
         <span class="hp-use-offer-top">
           <span class="hp-use-offer-tier">Live</span>
           <span class="hp-use-offer-price" data-i18n="home.revamp.services.consult.price">$55</span>
@@ -1365,7 +1365,8 @@ html.hp-snapping .hp-hero-codex-arrow {
         <span class="hp-use-offer-desc" data-i18n="home.revamp.services.consult.desc">A one-on-one session walking your complete blueprint in real time. For the moment you want someone in the room with the numbers.</span>
         <span class="hp-use-offer-cadence" data-i18n="home.revamp.services.consult.cadence">1 hour · video call</span>
       </a>
-      <a href="/services" class="hp-services-all js-track-cta" data-cta="services_view_all" data-i18n="home.revamp.services.all" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">View All Services &#8594;</a>
+      <a href="/services/" class="hp-services-all js-track-cta" data-cta="services_view_all" data-i18n="home.revamp.services.all" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');}">View All Services &#8594;</a>
+      <p class="hp-use-bundle-note">Best value: <a href="/services/#bundle" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#bundle');if(typeof scrollServicesHash==='function')scrollServicesHash();}">Guidebook + Time Cycle together for $29</a>.</p>
     </div>
   </div>
 </section>
@@ -1449,8 +1450,8 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span data-i18n="home.revamp.faq.q1">What do I get from the free decode?</span>
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a1">Your seven frequencies from birth date and name — Lessons, Expression, and Life Calling. No account. About sixty seconds.</p>
-        <p class="faq-more"><a href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint &#8594;</a></p>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a1">Your seven frequencies from birth date and name — Life Path, Achievement, Theme, Soul Urge, Outer Self, Expression, and Life Calling. No account. About sixty seconds.</p>
+        <p class="faq-more"><a href="/calculator/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
@@ -1466,7 +1467,7 @@ html.hp-snapping .hp-hero-codex-arrow {
           <span class="hp-faq-icon" aria-hidden="true"></span>
         </summary>
         <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A Personal Consultation is if you want to walk them with someone.</p>
-        <p class="faq-more"><a href="/calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Get the $22 Guidebook &#8594;</a></p>
+        <p class="faq-more"><a href="/services/#guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof openCalculatorModal==='function'){openCalculatorModal('guidebook');}else{showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#guidebook');if(typeof scrollServicesHash==='function')scrollServicesHash();}}">Get the $22 Guidebook &#8594;</a></p>
       </details>
       <details class="hp-faq-item">
         <summary class="hp-faq-q">
@@ -1486,7 +1487,7 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
 </nav>
 
-<a href="/calculator" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" data-i18n="home.revamp.sticky" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof handleHomeStickyCta==='function'){handleHomeStickyCta(event);}else{showPage('calculator');}}">
+<a href="/calculator/" class="hp-sticky-calc-cta js-track-cta" data-cta="sticky_blueprint" data-i18n="home.revamp.sticky" aria-label="Find your blueprint — free calculator" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof handleHomeStickyCta==='function'){handleHomeStickyCta(event);}else{showPage('calculator');}}">
   Find Your Blueprint
 </a>
 

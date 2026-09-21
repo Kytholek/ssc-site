@@ -3,7 +3,7 @@
   <div class="calc-page-hero a0">
     <div class="calc-page-eyebrow" data-i18n="calc.eyebrow">Simulation Source Code</div>
     <h1 class="calc-page-title" data-i18n="calc.title">Decode Your Blueprint</h1>
-    <p class="calc-page-sub" data-i18n="calc.subtitle">Enter your birth name and date to reveal your seven encoded frequencies.</p>
+    <p class="calc-page-sub" data-i18n="calc.subtitle">Enter your birth details to reveal your seven encoded frequencies.</p>
     <p class="calc-social-proof">
       Rated 5.0 on Facebook · <a href="https://www.facebook.com/kytholek/reviews" target="_blank" rel="noopener noreferrer">See reviews</a>
     </p>
@@ -27,7 +27,7 @@
 
       <div class="calc-meta-row">
         <div class="field">
-          <label for="calc-birthdate" data-i18n="calc.label.birthdate">Quest Origin</label>
+          <label for="calc-birthdate" data-i18n="calc.label.birthdate">· Birth Date ·</label>
           <input type="date" id="calc-birthdate" min="1900-01-01" max="2099-12-31" autocomplete="bday" required>
           <div class="calc-field-message" id="calc-birthdate-message"></div>
           <!-- Kept in sync for existing decode / restore logic -->
@@ -48,14 +48,14 @@
     <section class="calc-how-it-works a2" aria-labelledby="calc-how-title">
       <h2 class="calc-how-title" id="calc-how-title" data-i18n="calc.how.title">How it works</h2>
       <ol class="calc-how-steps">
-        <li data-i18n="calc.how.step1"><strong>Quest Origin</strong> — birth date unlocks your Path, Theme, and Achievement quests</li>
+        <li data-i18n="calc.how.step1"><strong>Birth Date</strong> — birth date unlocks your Path, Theme, and Achievement quests</li>
         <li data-i18n="calc.how.step2"><strong>True Name</strong> — unlocks Soul, Outer, and Expression quests</li>
         <li data-i18n="calc.how.step3"><strong>Decode</strong> — together they forge your Life Calling</li>
       </ol>
       <p class="calc-seo-blurb">
         This free Pythagorean numerology calculator maps seven frequencies from your birth date and full birth name:
-        Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme —
-        a complete character and Life Quest snapshot before the full Guidebook.
+        Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme —
+        a complete character and Life Quest snapshot before the $22 written Guidebook.
       </p>
     </section>
 
@@ -114,46 +114,3 @@
     Get the $22 Guidebook
   </a>
 </div><!-- /page-calculator -->
-
-
-<!-- ════ STRIPE PAYMENT SCRIPT ════ -->
-<script>
-// ── Show success banner if returning from Stripe ──────────────────────────
-(function checkPaymentReturn() {
-  var params = new URLSearchParams(window.location.search);
-  if (params.get('payment') !== 'success') return;
-
-  // Remove the query param from the URL without a reload
-  history.replaceState({}, '', window.location.pathname);
-
-  // Retrieve stored email
-  var stored = {};
-  try { stored = JSON.parse(sessionStorage.getItem('ssc_pending_order') || '{}'); } catch(e) {}
-
-  // Show a success toast / banner
-  var toast = document.createElement('div');
-  toast.setAttribute('role', 'status');
-  toast.setAttribute('aria-live', 'polite');
-  toast.style.cssText = [
-    'position:fixed','top:80px','left:50%','transform:translateX(-50%)',
-    'background:rgba(74,148,148,0.18)','border:1px solid rgba(126,200,200,0.5)',
-    'border-radius:8px','padding:18px 32px','z-index:9999',
-    'font-family:Cinzel,serif','font-size:11px','letter-spacing:.25em',
-    'text-transform:uppercase','color:#7ec8c8','text-align:center',
-    'max-width:90vw','backdrop-filter:blur(12px)'
-  ].join(';');
-  toast.innerHTML =
-    '✦ &nbsp; Payment received — your guidebook is being generated' +
-    (stored.email ? ' and will arrive at <strong style="color:#e8c96b">' + stored.email + '</strong>' : '') +
-    ' shortly &nbsp; ✦';
-  document.body.appendChild(toast);
-  setTimeout(function() {
-    toast.style.transition = 'opacity 1s';
-    toast.style.opacity = '0';
-    setTimeout(function() { toast.remove(); }, 1000);
-  }, 8000);
-
-  // Clear storage
-  try { sessionStorage.removeItem('ssc_pending_order'); } catch(e) {}
-})();
-</script>

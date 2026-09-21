@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var t=localStorage.getItem('ssc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Numerology Consultation | Shadow Work & Life Direction</title>
   <meta name="description" content="One-on-one numerology consultation to decode your life lessons, identify shadow patterns, and clarify what you are here to express.">
@@ -26,6 +27,13 @@
       "@type": "Organization",
       "name": "Simulation Source Code",
       "url": "https://simulationsourcecode.com/"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "55",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/OnlineOnly",
+      "url": "https://simulationsourcecode.com/consultation/"
     }
   }
   </script>
@@ -33,7 +41,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260920-sitewide">
   <style>
     :root {
       --co-bg: #05070e;
@@ -45,6 +55,14 @@
       --co-gold: #d8bc76;
       --co-cyan: #7bdce2;
       --co-rose: #f2a1bf;
+    }
+    :root[data-theme='light'] {
+      --co-bg: #e8dfcc;
+      --co-panel: rgba(248, 242, 232, 0.92);
+      --co-panel-soft: rgba(242, 230, 206, 0.86);
+      --co-text: #1f1a14;
+      --co-dim: #4a4338;
+      --co-line: rgba(0, 0, 0, 0.1);
     }
 
     body {
@@ -196,6 +214,17 @@
       border-radius: 999px;
       border: 1px solid var(--co-gold);
     }
+    .co-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .co-services-cta--ghost {
+      background: transparent;
+      color: var(--co-gold);
+      margin-top: 12px;
+    }
 
     .co-steps { display: grid; gap: 10px; }
 
@@ -275,12 +304,12 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 <body>
 <nav id="main-nav"></nav>
 
-<main class="co-wrap">
+<main id="main-content" class="co-wrap">
   <section class="co-hero">
     <div class="co-eyebrow">Private Session</div>
     <h1 class="co-title">Personal Consultation</h1>
     <p class="co-sub">Use your code to plan your life intentionally, work through shadow patterns and shortcomings, understand your core lessons, and clarify what you are here to express.</p>
-    <div class="co-intent">Strategy · Shadow Work · Direction</div>
+    <div class="co-intent">$55 · 1-hour video · Strategy · Shadow Work · Direction</div>
   </section>
 
   <section class="co-grid">
@@ -297,8 +326,11 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
       <div class="co-block">
         <h3>Where To Book</h3>
-        <p>Booking and payment are handled in the Services section so everything stays in one place.</p>
-        <a class="co-services-cta" href="https://ssc.setmore.com/services/7f96af84-b31f-427a-92c0-11ea42128eef">Book a Session</a>
+        <p>Book a 1-hour video slot on the calendar, or review the full offer on Services first.</p>
+        <div class="co-cta-row">
+          <a class="co-services-cta" href="https://ssc.setmore.com/services/7f96af84-b31f-427a-92c0-11ea42128eef">Book a Session</a>
+          <a class="co-services-cta co-services-cta--ghost" href="/services/#consult">See Services</a>
+        </div>
       </div>
     </article>
 
@@ -319,17 +351,21 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
         <h3>4. Express</h3>
         <p>We define what you are here to express and how to apply it in daily life and work.</p>
       </article>
-      <div class="co-footer-note">Session format: 1-hour one-on-one video call with practical integration focus.</div>
+      <div class="co-footer-note">Session format: $55 · 1-hour one-on-one video call with practical integration focus.</div>
     </aside>
   </section>
 </main>
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/app.js"></script>
+<script src="/js/translations.js?v=20260920-sitewide"></script>
+<script src="/js/app.js?v=20260920-sitewide"></script>
 <script>
-  if (typeof loadNav === 'function') loadNav();
-  if (typeof loadFooter === 'function') loadFooter();
+  (async function () {
+    if (typeof loadNav === 'function') await loadNav();
+    if (typeof loadFooter === 'function') await loadFooter();
+    if (typeof applyLanguage === 'function') applyLanguage(typeof getLang === 'function' ? getLang() : 'en');
+  })();
 </script>
 </body>
 </html>

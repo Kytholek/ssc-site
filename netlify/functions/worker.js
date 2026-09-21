@@ -343,6 +343,21 @@ export default {
       return Response.redirect('https://portal.simulationsourcecode.com' + appPath + url.search, 301);
     }
 
+    const slashDirs = [
+      '/about', '/books', '/privacy', '/blog', '/calculator', '/services',
+      '/codex', '/consultation', '/checkout', '/thank-you', '/blueprint',
+      '/4-phase-alchemy'
+    ];
+    if (slashDirs.includes(url.pathname)) {
+      return Response.redirect(url.origin + url.pathname + '/' + url.search, 301);
+    }
+    if (
+      url.pathname === '/blog/decoding-the-matrix-simulation-source-code'
+      || url.pathname === '/blog/decoding-the-matrix-simulation-source-code/'
+    ) {
+      return Response.redirect(url.origin + '/blog/decoding-matrix/', 301);
+    }
+
     // ── Route dispatch ──────────────────────────────────────────────────
     if (request.method === 'POST' && url.pathname === '/api/session') {
       return handleCreateCheckout(request, env, origin);

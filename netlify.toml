@@ -19,3 +19,38 @@ status = 301
 from = "/codex"
 to = "/codex/"
 status = 301
+
+[[redirects]]
+from = "/about"
+to = "/about/"
+status = 301
+
+[[redirects]]
+from = "/books"
+to = "/books/"
+status = 301
+
+[[redirects]]
+from = "/privacy"
+to = "/privacy/"
+status = 301
+
+[[redirects]]
+from = "/blog"
+to = "/blog/"
+status = 301
+
+[[redirects]]
+from = "/consultation"
+to = "/consultation/"
+status = 301
+
+[[redirects]]
+from = "/blog/decoding-the-matrix-simulation-source-code"
+to = "/blog/decoding-matrix/"
+status = 301
+
+[[redirects]]
+from = "/blog/decoding-the-matrix-simulation-source-code/"
+to = "/blog/decoding-matrix/"
+status = 301

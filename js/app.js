@@ -131,7 +131,7 @@ function closePosts() {
 const PAGE_META = {
   home: {
     title      : 'Simulation Source Code · Numerology Calculator · Decode Your Blueprint',
-    description: 'Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.',
+    description: 'Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Free numerology calculator.',
   },
   ssc: {
     title      : 'The SSC System · Seven Frequencies · Simulation Source Code',
@@ -139,7 +139,7 @@ const PAGE_META = {
   },
   calculator: {
     title      : 'Free Numerology Calculator · Life Path & Seven Frequencies · SSC',
-    description: 'Free numerology calculator for your Life Path number and six more frequencies — Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme from birth date and name.',
+    description: 'Free numerology calculator for Life Path and six more frequencies — then keep the $22 written Guidebook. Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme from birth date and name.',
     ogImage    : 'https://simulationsourcecode.com/Images/calculator-og.png',
   },
   books: {
@@ -223,7 +223,7 @@ async function loadNav() {
     const navPlaceholder = document.getElementById('main-nav');
     if (!navPlaceholder) return; // No placeholder, nav not needed on this page
     
-    const response = await fetch('/pages/nav.html?v=20260731-logo-only', { cache: 'no-store' });
+    const response = await fetch('/pages/nav.html?v=20260920-sitewide', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load nav');
     
     const navHtml = await response.text();
@@ -250,10 +250,30 @@ async function loadNav() {
         hamburger.onclick = toggleMenu;
       }
     }
+    if (typeof applyLanguage === 'function') applyLanguage(getLang());
+    _bindSkipLink();
     ensureChatWidget();
   } catch (err) {
     console.error('loadNav error:', err);
   }
+}
+
+function _bindSkipLink() {
+  if (window._sscSkipBound) return;
+  window._sscSkipBound = true;
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest ? e.target.closest('.skip-link') : null;
+    if (!link) return;
+    var main = document.getElementById('main-content');
+    var home = document.getElementById('page-home');
+    var target = main || home;
+    if (!target) return;
+    e.preventDefault();
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+    if (home && home.scrollTo) home.scrollTo({ top: 0, behavior: 'smooth' });
+    else if (typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 /** Load site assistant widget (CSS + JS) once — SPA shell and blog pages. */
@@ -301,13 +321,14 @@ async function loadFooter() {
     if (!placeholder) return;
     if (placeholder.innerHTML.trim().length > 0) return;
 
-    const response = await fetch('/pages/footer.html?v=20260731-logo-only');
+    const response = await fetch('/pages/footer.html?v=20260920-sitewide', { cache: 'no-store' });
     if (!response.ok) throw new Error('Failed to load footer');
     const html = await response.text();
     const temp = document.createElement('div');
     temp.innerHTML = html;
     const newFooter = temp.firstElementChild;
     if (newFooter) placeholder.replaceWith(newFooter);
+    if (typeof applyLanguage === 'function') applyLanguage(getLang());
   } catch (err) {
     console.error('loadFooter error:', err);
   }
@@ -438,7 +459,7 @@ function _injectPageSchema(name) {
           '@type': 'WebApplication',
           'name': 'SSC Numerology Calculator',
           'url': 'https://simulationsourcecode.com/calculator/',
-          'description': 'Free numerology calculator. Enter your birth date and full name to calculate your seven core frequencies: Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.',
+          'description': 'Free numerology calculator. Enter your birth date and full name to calculate your seven core frequencies: Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. The $22 Guidebook is the written integration after the free decode.',
           'applicationCategory': 'UtilitiesApplication',
           'operatingSystem': 'Any',
           'offers': {
@@ -662,12 +683,14 @@ async function handleDeepLink() {
   }
 
   if (payment === 'cancelled') {
+    window._sscPaymentCancelledHandled = true;
     showPage('calculator', false);
     history.replaceState({ page: 'calculator', post: null }, document.title, '/calculator/');
     setTimeout(function() {
       restorePendingGuidebookDetails();
       showPaymentCancelledNotice();
       trackSscEvent('guidebook_checkout_cancelled', { source: 'stripe' });
+      if (typeof maybeRestoreCalculatorReading === 'function') maybeRestoreCalculatorReading();
     }, 80);
     return;
   }
@@ -787,6 +810,7 @@ async function initApp() {
   initHomePage();
   initCodexPage();
   ensureChatWidget();
+  if (typeof maybeRestoreCalculatorReading === 'function') maybeRestoreCalculatorReading();
 }
 
 
@@ -795,8 +819,6 @@ async function initApp() {
 // ────────────────────────────────────────────────────────────
 var _homePageInited = false;
 var _homeRevealInited = false;
-var _homeChipsInited = false;
-
 function initHomePage() {
   var page = document.getElementById('page-home');
   if (!page) {
@@ -858,34 +880,6 @@ function initHomePage() {
     requestAnimationFrame(flushHomeReveals);
     setTimeout(flushHomeReveals, 100);
     _homeRevealInited = true;
-  }
-
-  function revealChips(block) {
-    block.querySelectorAll('.hp-freq-chip').forEach(function (chip, i) {
-      setTimeout(function () { chip.classList.add('is-visible'); }, i * 90);
-    });
-    var calling = block.querySelector('.hp-freq-calling-wrap');
-    if (calling) calling.classList.add('is-visible');
-  }
-  var freqBlock = document.getElementById('hp-freq-block');
-  if (freqBlock && !_homeChipsInited) {
-    freqBlock.querySelectorAll('.hp-freq-chip').forEach(function (chip) {
-      chip.classList.add('pre-animate');
-    });
-    var calling = freqBlock.querySelector('.hp-freq-calling-wrap');
-    if (calling) calling.classList.add('pre-animate');
-
-    var chipObs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        revealChips(e.target);
-        chipObs.unobserve(e.target);
-      });
-    }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
-    chipObs.observe(freqBlock);
-    _homeChipsInited = true;
-  } else if (freqBlock && _homeChipsInited) {
-    revealChips(freqBlock);
   }
 
   // SCL terminal boot sequence

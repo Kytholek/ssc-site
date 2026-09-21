@@ -149,11 +149,11 @@ function staticShell(opts) {
 
   const dataModule = opts.dataModule || '/js/codex-data.js?v=20260915-vessel';
   const coreScripts = [
-    '<script src="/js/translations.js?v=20260915-footer6"></script>',
+    '<script src="/js/translations.js?v=20260920-sitewide"></script>',
     '<script type="module" src="' + dataModule + '"></script>',
   ];
   if (opts.includeCalculator !== false) {
-    coreScripts.push('<script defer src="/js/calculator.js?v=20260915-audit"></script>');
+    coreScripts.push('<script defer src="/js/calculator.js?v=20260920-calc"></script>');
   }
 
   return `<!DOCTYPE html>
@@ -185,8 +185,8 @@ ${opts.extraJsonLd ? `  <script type="application/ld+json">\n${opts.extraJsonLd}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/style.css?v=20260915-footer6">
-  <link rel="stylesheet" href="/css/calculator-codex.css?v=20260822-results-restore">
+  <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
+  <link rel="stylesheet" href="/css/calculator-codex.css?v=20260920-calc">
 ${extraStyles}
   <style>
     body { padding-top: 64px; }
@@ -229,7 +229,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260918-circle"></script>
+<script defer src="/js/app.js?v=20260920-sitewide"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -340,6 +340,27 @@ function buildBlueprint() {
   console.log('Wrote blueprint/index.html');
 }
 
+function calculatorFaqJsonLd() {
+  function q(name, text) {
+    return {
+      '@type': 'Question',
+      name: name,
+      acceptedAnswer: { '@type': 'Answer', text: text },
+    };
+  }
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      q('What is a Life Path number?', 'Your Life Path number is calculated from your full date of birth. It represents the core theme and curriculum of your life — the lessons the simulation has designed for you to learn and embody.'),
+      q('What is numerology?', 'Numerology is the study of the symbolic meaning of numbers and their relationship to events, personality, and life patterns. Simulation Source Code uses the Pythagorean system to calculate seven distinct frequencies from your birth date and full birth name.'),
+      q('What is the Life Calling number?', 'The Life Calling is the fusion of your Life Path and Expression numbers. It represents the specific directive that emerges when your external curriculum and internal frequency are combined — your unique mission.'),
+      q('How is the Expression number calculated?', 'The Expression number is calculated from your full birth name using the Pythagorean system, where each letter is assigned a numerical value. It represents your natural talents and the authentic frequency you are here to express.'),
+      q('What are master numbers in numerology?', 'Master numbers in the Simulation Source Code system are 11, 22, 33, and 44. These numbers are not reduced to a single digit and carry amplified potential and challenge.'),
+    ],
+  }, null, 2);
+}
+
 function calculatorJsonLd() {
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -348,7 +369,7 @@ function calculatorJsonLd() {
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Any',
     url: SEO.SITE_ORIGIN + '/calculator/',
-    description: 'Free numerology calculator for your Life Path number and six more frequencies. Enter your birth date and full name to calculate Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.',
+    description: 'Free numerology calculator for your Life Path number and six more frequencies. Enter your birth date and full name to calculate Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. The $22 Guidebook is the written integration after the free decode.',
     image: SEO.SITE_ORIGIN + '/Images/calculator-og.png',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     author: { '@type': 'Organization', name: 'Simulation Source Code', url: SEO.SITE_ORIGIN },
@@ -362,12 +383,13 @@ function buildCalculator() {
     pageId: 'calculator',
     marker: 'CALCULATOR_BODY',
     title: 'Free Numerology Calculator · Life Path & Seven Frequencies · SSC',
-    description: 'Free numerology calculator for your Life Path number and six more frequencies — Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme from birth date and name.',
+    description: 'Free numerology calculator for Life Path and six more frequencies — then keep the $22 written Guidebook. Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme from birth date and name.',
     canonical: SEO.SITE_ORIGIN + '/calculator/',
     ogImage: SEO.SITE_ORIGIN + '/Images/calculator-og.png',
     jsonLd: calculatorJsonLd(),
+    extraJsonLd: calculatorFaqJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css'],
+    extraStyles: ['/css/brand-revamp.css?v=20260920-sitewide', '/css/modal.css'],
     bootScript: "if (typeof applyLanguage === 'function') applyLanguage(getLang());",
   });
 

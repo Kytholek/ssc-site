@@ -689,6 +689,8 @@ function _setFieldMessage(id, message, isError) {
   messageEl.textContent = message || '';
   messageEl.classList.toggle('is-error', !!isError);
   messageEl.classList.toggle('is-success', !!message && !isError);
+  if (isError && message) messageEl.setAttribute('role', 'alert');
+  else messageEl.removeAttribute('role');
 }
 
 function _clearCalculatorFieldMessages() {
@@ -853,11 +855,17 @@ function calculateReading() {
   var hasError = false;
   _clearCalculatorFieldMessages();
   [dateEl, monthEl, dayEl, yearEl, nameEl, emailEl].forEach(function(el) {
-    if (el) el.classList.remove('ssc-input-error');
+    if (el) {
+      el.classList.remove('ssc-input-error');
+      el.removeAttribute('aria-invalid');
+      el.removeAttribute('aria-describedby');
+    }
   });
   if (!month || !day || !year) {
     if (dateEl) {
       dateEl.classList.add('ssc-input-error');
+      dateEl.setAttribute('aria-invalid', 'true');
+      dateEl.setAttribute('aria-describedby', 'calc-birthdate-message');
       _setFieldMessage('calc-birthdate', 'Choose your birth date.', true);
     } else {
       if (monthEl && !month) {
@@ -877,6 +885,8 @@ function calculateReading() {
   }
   if (!fullName) {
     nameEl.classList.add('ssc-input-error');
+    nameEl.setAttribute('aria-invalid', 'true');
+    nameEl.setAttribute('aria-describedby', 'calc-fullname-message');
     _setFieldMessage('calc-fullname', 'Enter your full birth name.', true);
     hasError = true;
   }
@@ -884,6 +894,8 @@ function calculateReading() {
     // Email is optional for the free decode.
   } else if (!_isValidEmail(emailEl.value.trim())) {
     emailEl.classList.add('ssc-input-error');
+    emailEl.setAttribute('aria-invalid', 'true');
+    emailEl.setAttribute('aria-describedby', 'calc-lead-message');
     _setCalculatorLeadMessage('Please enter a valid email address.', true);
     hasError = true;
   }
@@ -1502,7 +1514,7 @@ function buildFreqChart(numbers) {
       @keyframes sscPulse2  { 0%,100% { r:148; opacity:0.08 } 50% { r:168; opacity:0.20 } }
       @keyframes sscPulse3  { 0%,100% { opacity:0.06 } 50% { opacity:0.18 } }
     </style>
-    <div class="ssc-chart-wrap" style="max-width:${W}px;width:100%;margin:0 auto">
+    <div class="ssc-chart-wrap" role="img" aria-label="Seven-frequency chart: Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme" style="max-width:${W}px;width:100%;margin:0 auto">
     <svg viewBox="0 0 ${W} ${H}" width="100%" height="100%"
       style="overflow:visible;display:block"
       xmlns="http://www.w3.org/2000/svg">
@@ -1683,6 +1695,24 @@ function expandCalcForm() {
   var learn = document.querySelector('#page-calculator .calc-learn-more');
   if (faq) faq.hidden = false;
   if (learn) learn.hidden = false;
+  var results = document.getElementById('results-area');
+  if (results) {
+    results.innerHTML = '';
+    results.hidden = true;
+    results.className = 'results-placeholder results-area--empty a3';
+  }
+  var container = document.querySelector('#page-calculator .calc-container');
+  if (container) container.classList.remove('has-wide-results');
+  var sticky = document.getElementById('calc-sticky-guidebook');
+  if (sticky) {
+    sticky.hidden = true;
+    sticky.classList.remove('is-visible');
+    if (sticky._ctaObserver) {
+      try { sticky._ctaObserver.disconnect(); } catch (e) {}
+      sticky._ctaObserver = null;
+    }
+  }
+  try { sessionStorage.removeItem('ssc_has_decoded'); } catch (e) {}
   var nameEl = document.getElementById('calc-fullname');
   if (nameEl) nameEl.focus();
 }
@@ -1695,7 +1725,57 @@ document.addEventListener('DOMContentLoaded', function() {
   syncCalcBirthdateFromParts();
   var again = document.getElementById('calc-decode-another');
   if (again) again.addEventListener('click', expandCalcForm);
+  maybeRestoreCalculatorReading();
 });
+
+function maybeRestoreCalculatorReading() {
+  var nameEl = document.getElementById('calc-fullname');
+  var monthEl = document.getElementById('calc-month');
+  var dayEl = document.getElementById('calc-day');
+  var yearEl = document.getElementById('calc-year');
+  if (!nameEl || !monthEl || !dayEl || !yearEl) return false;
+
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'cancelled' && !window._sscPaymentCancelledHandled) {
+    window._sscPaymentCancelledHandled = true;
+    history.replaceState({}, '', window.location.pathname || '/calculator/');
+    if (typeof restorePendingGuidebookDetails === 'function') restorePendingGuidebookDetails();
+    if (typeof showPaymentCancelledNotice === 'function') showPaymentCancelledNotice();
+  }
+
+  if (window._calcRestoreAttempted) return true;
+  window._calcRestoreAttempted = true;
+
+  var decoded = false;
+  try { decoded = sessionStorage.getItem('ssc_has_decoded') === '1'; } catch (e) {}
+  if (!decoded) {
+    if (window.location.hash === '#unlock-cta') {
+      var unlock = document.getElementById('unlock-cta');
+      if (unlock) unlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return true;
+  }
+  var lead = null;
+  try { lead = JSON.parse(sessionStorage.getItem('ssc_last_lead') || 'null'); } catch (e) { lead = null; }
+  if (!lead || !lead.name || !lead.month || !lead.day || !lead.year) return true;
+  nameEl.value = lead.name;
+  monthEl.value = lead.month;
+  dayEl.value = lead.day;
+  yearEl.value = lead.year;
+  var emailEl = document.getElementById('calc-lead-email');
+  if (emailEl && lead.email) emailEl.value = lead.email;
+  if (typeof syncCalcBirthdateFromParts === 'function') syncCalcBirthdateFromParts();
+  calculateReading();
+  if (window.location.hash === '#unlock-cta') {
+    setTimeout(function () {
+      var unlockEl = document.getElementById('unlock-cta');
+      if (unlockEl) unlockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+  }
+  return true;
+}
+
+window.maybeRestoreCalculatorReading = maybeRestoreCalculatorReading;
 
 window.handleUnlockPayment = handleUnlockPayment;
 window.scrollToUnlockCta = scrollToUnlockCta;

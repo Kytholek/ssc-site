@@ -11,6 +11,7 @@
 #page-home .hp-ssc-text-link:focus-visible,
 #page-home .hp-scl-install-step:focus-visible,
 #page-home .hp-cta-text:focus-visible,
+#page-home .hp-use-offer:focus-visible,
 #page-home .hp-service-card:focus-visible,
 #page-home .hp-faq-q:focus-visible,
 #page-home .hp-sticky-calc-cta:focus-visible,
@@ -487,6 +488,21 @@ html[data-theme='light'] .hp-codex-teaser-grid span.hp-codex-teaser-pivot {
 }
 .hp-use-offers .hp-services-all {
   margin: 12px auto 0;
+}
+.hp-use-bundle-note {
+  width: 100%;
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.hp-use-bundle-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+}
+.hp-use-bundle-note a:hover {
+  text-decoration: underline;
 }
 
 /* Section handoff — Blueprint → Codex → Services */

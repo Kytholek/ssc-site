@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>(function(){try{var t=localStorage.getItem('ssc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Secure Checkout · Simulation Source Code</title>
   <meta name="robots" content="noindex, nofollow">
@@ -10,7 +11,9 @@
   <link rel="icon" type="image/svg+xml" href="/Images/infinity codex_logo_outline.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
+  <link rel="stylesheet" href="/css/brand-revamp.css?v=20260920-sitewide">
 
   <!-- Meta Pixel Code -->
   <script>
@@ -30,6 +33,7 @@
   /></noscript>
   <!-- End Meta Pixel Code -->
   <script src="/js/meta-pixel.js"></script>
+  <script src="/js/analytics.js"></script>
 
   <style>
     body { padding-top: 64px; }
@@ -102,7 +106,7 @@
 <body>
 <nav id="main-nav"></nav>
 
-<main class="co-wrap">
+<main id="main-content" class="co-wrap">
   <div class="co-eyebrow">Secure Checkout</div>
   <h1 class="co-title">Connecting to Stripe</h1>
   <div class="co-product" id="coProduct">Guidebook Report</div>
@@ -120,8 +124,8 @@
 
 <footer class="footer" id="footer"></footer>
 
-<script src="/js/translations.js"></script>
-<script src="/js/app.js"></script>
+<script src="/js/translations.js?v=20260920-sitewide"></script>
+<script src="/js/app.js?v=20260920-sitewide"></script>
 <script>
 (function () {
   if (typeof loadNav === 'function') loadNav();
@@ -131,14 +135,16 @@
     guidebook: 'Guidebook Report — $22',
     'time-cycle': 'Time Cycle — $17',
     bundle: 'Blueprint Bundle — $29',
-    consultation: 'Personal Consultation — $55'
+    consultation: 'Personal Consultation — $55',
+    membership: 'Source Decoder — membership'
   };
 
   var EVENT_BY_PRODUCT = {
     guidebook: 'guidebook_checkout_start',
     'time-cycle': 'timecycle_checkout_start',
     bundle: 'bundle_checkout_start',
-    consultation: 'guidebook_checkout_start'
+    consultation: 'consultation_checkout_start',
+    membership: 'membership_checkout_start'
   };
 
   var params = new URLSearchParams(window.location.search);
@@ -210,10 +216,10 @@
 
     try { sessionStorage.setItem('ssc_pending_order', JSON.stringify(order)); } catch (e) {}
 
-    setStatus('Firing checkout event…');
+    setStatus('Preparing checkout…');
     fireCheckoutPixel();
 
-    setStatus('Opening Stripe…');
+    setStatus('Connecting to Stripe…');
     fetch('/api/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

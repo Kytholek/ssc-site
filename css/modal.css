@@ -34,6 +34,10 @@ button.svc-cta {
 
 #calculator-modal-overlay.open {
   display: flex;
+  opacity: 1;
+}
+#calculator-modal-overlay.open #calculator-modal {
+  opacity: 1;
 }
 
 @keyframes fadeIn {

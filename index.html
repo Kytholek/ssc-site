@@ -9,7 +9,7 @@
 
   <!-- Primary SEO -->
   <title>Simulation Source Code · Numerology Calculator · Decode Your Blueprint</title>
-  <meta name="description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.">
+  <meta name="description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Free numerology calculator.">
   <meta name="keywords" content="numerology, simulation source code, life path number, numerology calculator, simulation theory, expression number, soul urge, numerology reading, holographic universe, pythagorean numerology, life path, destiny">
   <meta name="author" content="Simulation Source Code">
   <link rel="canonical" href="https://simulationsourcecode.com/">
@@ -18,7 +18,7 @@
   <meta property="og:type"        content="website">
   <meta property="og:site_name"   content="Simulation Source Code">
   <meta property="og:title"       content="Simulation Source Code · Numerology Calculator · Decode Your Blueprint">
-  <meta property="og:description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.">
+  <meta property="og:description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Free numerology calculator.">
   <meta property="og:url"         content="https://simulationsourcecode.com/">
   <meta property="og:image"       content="https://simulationsourcecode.com/Images/ssc-og.png">
   <meta property="og:image:width" content="1200">
@@ -28,7 +28,7 @@
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:site"        content="@simulationsourcecode">
   <meta name="twitter:title"       content="Simulation Source Code · Numerology Calculator · Decode Your Blueprint">
-  <meta name="twitter:description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Free numerology calculator.">
+  <meta name="twitter:description" content="Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Free numerology calculator.">
   <meta name="twitter:image"       content="https://simulationsourcecode.com/Images/ssc-og.png">
 
   <!-- Structured Data: WebSite + SearchAction -->
@@ -39,7 +39,7 @@
     "name": "Simulation Source Code",
     "alternateName": "SSC Numerology",
     "url": "https://simulationsourcecode.com",
-    "description": "Numerology framework decoding seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme."
+    "description": "Numerology framework decoding seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme."
   }
   </script>
 
@@ -72,7 +72,7 @@
         "name": "What do I get from the free decode?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Your seven frequencies from birth date and name — Lessons, Expression, and Life Calling. No account. About sixty seconds."
+          "text": "Your seven frequencies from birth date and name — Life Path, Achievement, Theme, Soul Urge, Outer Self, Expression, and Life Calling. No account. About sixty seconds."
         }
       },
       {
@@ -134,7 +134,7 @@
     "@type": "Service",
     "name": "Numerology Readings — Simulation Source Code",
     "url": "https://simulationsourcecode.com/services/",
-    "description": "Personal numerology readings decoding all seven frequencies — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme. Written guidebook reports and live readings available.",
+    "description": "Personal numerology readings decoding all seven frequencies — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Written guidebook reports and live readings available.",
     "provider": {
       "@type": "Person",
       "name": "Kytholek",
@@ -275,7 +275,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <div id="include-nav"></div>
 
   <!-- ════ PAGES ════ -->
-  <div id="main-content">
+  <main id="main-content">
   <div id="include-home"></div>
   <div id="include-ssc"></div>
   <div id="include-calculator"></div>
@@ -285,9 +285,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
   <div id="include-codex"></div>
   <div id="include-guidebook"></div>
   <div id="include-privacy"></div>
-  </div>
-
-  <!-- ════ FOOTER ════ -->
+  </main>
   <div id="include-footer"></div>
 
   <!-- ════ ADMIN OVERLAY ════ -->
@@ -298,10 +296,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
   <!-- ════ SCRIPTS ════ -->
   <!-- Core scripts needed before app init — loaded normally so initApp is ready -->
-  <script src="js/translations.js?v=20260919-codexmap"></script>
+  <script src="js/translations.js?v=20260920-sitewide"></script>
   <script type="module" src="js/codex-data.js?v=20260915-vessel"></script>
-  <script defer src="js/calculator.js?v=20260919-copy"></script>
-  <script defer src="js/app.js?v=20260919-seo"></script>
+  <script defer src="js/calculator.js?v=20260920-calc"></script>
+  <script defer src="js/app.js?v=20260920-sitewide"></script>
   <script defer src="js/chat-widget.js?v=20260726-chat" data-ssc-chat-widget="1"></script>
   <!-- Non-critical scripts — deferred, don't block rendering -->
   <script src="js/simulation.js" defer></script>
@@ -315,11 +313,11 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     (function () {
       // Critical pages — fetched immediately, app boots when these are done
       var CRITICAL = [
-        { id: 'include-nav',        src: 'pages/nav.html?v=20260915-audit' },
-        { id: 'include-home',       src: 'pages/home.html?v=20260919-typealign'  },
-        { id: 'include-calculator', src: 'pages/calculator.html?v=20260919-copy' },
-        { id: 'include-footer',     src: 'pages/footer.html?v=20260915-footer6' },
-        { id: 'include-services',   src: 'pages/services.html?v=20260919-copy'   },
+        { id: 'include-nav',        src: 'pages/nav.html?v=20260920-sitewide' },
+        { id: 'include-home',       src: 'pages/home.html?v=20260920-sitewide'  },
+        { id: 'include-calculator', src: 'pages/calculator.html?v=20260920-calc' },
+        { id: 'include-footer',     src: 'pages/footer.html?v=20260920-sitewide' },
+        { id: 'include-services',   src: 'pages/services.html?v=20260920-sitewide'   },
       ];
 
       var CODEX_PAGE = { id: 'include-codex', src: 'pages/codex.html?v=20260918-void2' };

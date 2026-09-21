@@ -75,7 +75,6 @@ for (const [n, info] of Object.entries(LIFE_PATH)) {
     `/blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide`,
     `/blog/life-path-${prev}-numerology/|Life Path ${prev} Meaning|Read Deep Dive`,
     `/blog/life-path-${next}-numerology/|Life Path ${next} Meaning|Read Deep Dive`,
-    `/calculator/|Free Numerology Calculator|Calculate`,
   ];
   patchFile(file, (meta) => {
     let b = meta;
@@ -93,7 +92,6 @@ for (const [n, info] of Object.entries(EXPRESSION)) {
   const related = [
     `/blog/life-path-number-explained/|Life Path Number Meaning|Read Guide`,
     `/blog/how-to-read-numerology-blueprint/|How to Read Your Blueprint|Read Guide`,
-    `/calculator/|Free Numerology Calculator|Calculate`,
   ];
   patchFile(file, (meta) => {
     let b = meta;
@@ -113,7 +111,6 @@ patchFile('how-to-read-numerology-blueprint.md', (meta) => {
   b = setRelated(b, [
     '/blog/life-path-number-explained/|Life Path Number Meaning Explained|Read Guide',
     '/blog/how-to-calculate-life-path-number/|How to Calculate Life Path Number|Read Guide',
-    '/calculator/|Free Numerology Calculator|Calculate',
   ]);
   return b;
 });

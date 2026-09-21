@@ -281,7 +281,10 @@ ${relatedHtml}
 
     <div class="post-cta-block">
       <p>${ctaText}</p>
-      <a href="/calculator/">&#11042;&nbsp;Free Numerology Calculator — Life Path &amp; Full Blueprint</a>
+      <div class="post-cta-actions">
+        <a href="/services/#guidebook">&#11042;&nbsp;Get Your Full Blueprint — $22&nbsp;&#11042;</a>
+        <a class="post-cta-secondary" href="/calculator/">Free calculator</a>
+      </div>
     </div>
 
   </div>

@@ -10,7 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="/Images/infinity codex_logo_outline.svg">
   <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
   <link rel="stylesheet" href="/css/brand-revamp.css?v=20260915-audit">
-  <link rel="stylesheet" href="/css/blog-post.css?v=20260915-audit">
+  <link rel="stylesheet" href="/css/blog-post.css?v=20260921-cta">
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&display=swap" rel="stylesheet"></noscript>
   <style>
@@ -53,7 +53,16 @@
     .post-cta-block::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg,transparent,rgba(201,168,76,0.4),transparent); }
     .post-cta-block p { font-size: 16px; line-height: 1.8; color: var(--text-dim); margin-bottom: 20px; max-width: 520px; margin-left: auto; margin-right: auto; }
     .post-cta-block a { font-family: "Cinzel", serif; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; padding: 16px 32px; border-radius: 5px; cursor: pointer; background: rgba(74,148,148,.25); border: 1px solid rgba(126,200,200,.4); color: var(--teal-light); text-decoration: none; display: inline-block; transition: all .3s; }
-    .post-cta-block a:hover { box-shadow: 0 0 32px rgba(74,148,148,.4); transform: translateY(-2px); border-color: rgba(126,200,200,.6); }</style>
+    .post-cta-block a:hover { box-shadow: 0 0 32px rgba(74,148,148,.4); transform: translateY(-2px); border-color: rgba(126,200,200,.6); }
+    .post-cta-actions { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+    .post-cta-block a.post-cta-secondary {
+      display: block; background: none; border: none; padding: 0; border-radius: 0;
+      font-family: 'EB Garamond', 'Cormorant Garamond', serif; font-size: 16px; letter-spacing: .02em;
+      text-transform: none; color: var(--text-dim, #9a9a9a); text-decoration: underline; text-underline-offset: 3px;
+      box-shadow: none; transform: none;
+    }
+    .post-cta-block a.post-cta-secondary:hover { box-shadow: none; transform: none; border-color: transparent; color: var(--teal-light, #7ec8c8); }
+</style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -99,7 +108,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
     </nav>
 
     <div class="blog-post">
-      <button class="blog-post-back" onclick="history.back()">‹ Back to Blog</button>
+      <a class="blog-post-back" href="/blog/">← Back to Blog</a>
     <div class="blog-post-eyebrow"><span class="blog-tag teal">The Numbers</span></div>
     <h1 class="blog-post-title">666 Is Not What You Think</h1>
     <div class="blog-post-meta">March 2026 — 8 min read</div>
@@ -176,7 +185,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
     <div class="post-cta-block">
       <p>Every number in this article is one piece of a larger architecture. Your complete blueprint &#8212; seven frequencies calculated from your birth date and name &#8212; is what the Full Blueprint Reading reveals.</p>
-      <a href="/services/">&#11042;&nbsp;Get Your Full Blueprint &#8212; $22&nbsp;&#11042;</a>
+      <div class="post-cta-actions">
+        <a href="/services/#guidebook">&#11042;&nbsp;Get Your Full Blueprint — $22&nbsp;&#11042;</a>
+        <a class="post-cta-secondary" href="/calculator/">Free calculator</a>
+      </div>
     </div>
   <div class="related-posts">
     <div class="related-posts-title">Related Articles</div>

@@ -11,7 +11,6 @@ keywords: expression number 4 numerology, expression 4 meaning, numerology expre
 breadcrumb-name: Expression 4 Numerology
 cta: Your Expression number is one of seven encoded frequencies. The Full Blueprint reveals the complete architecture — how your builder's expression interacts with your Life Path, Soul Urge, and the specific directive your Life Calling encodes.
 ---
-
 ## What Is an Expression Number?
 
     

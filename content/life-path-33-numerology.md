@@ -16,7 +16,6 @@ related:
   - /blog/life-path-44-numerology/|Life Path 44 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 33?
 
     
@@ -251,5 +250,3 @@ For the broader context of service and its integration, see [The Trinity of Less
     
       
 The Life Path 33 is one number in a seven-frequency blueprint. Whether the 33 is confirmed by your birth date, what Expression number carries that frequency into the world, and how the complete architecture of your birth name and birth date interact — the Full Blueprint reveals the entire structure.
-
-        Calculate Your Full Blueprint

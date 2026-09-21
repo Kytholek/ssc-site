@@ -16,7 +16,6 @@ related:
   - /blog/life-path-8-numerology/|Life Path 8 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 7?
 
 Sum every digit in your full date of birth and reduce to a single digit. Life Path 7 means the simulation is running a curriculum of investigation, discernment, and the search for what is genuinely true beneath surface appearances.
@@ -61,5 +60,3 @@ The integration practice: take one thing you understand deeply and apply it — 
     
       
 Your Life Path 7 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

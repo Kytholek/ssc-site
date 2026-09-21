@@ -11,7 +11,6 @@ keywords: soul urge number 6, heart's desire number 6, soul urge 6 meaning, soul
 breadcrumb-name: Soul Urge 6
 cta: Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the caring frequency is costing you rather than sustaining you.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ The full Blueprint reveals precisely where your Soul Urge 6 sits in relation to 
     
       
 Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the caring frequency is costing you rather than sustaining you.
-
-        Calculate Your Full Blueprint

@@ -16,7 +16,6 @@ related:
   - /blog/life-path-11-numerology/|Life Path 11 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 9?
 
 Sum every digit in your full date of birth and reduce to a single digit. Life Path 9 means the simulation is running a curriculum of completion, release, and the discovery that the end of something is not failure — it is the necessary condition for the next something to begin.
@@ -61,5 +60,3 @@ The integration practice: identify one thing in your life that has genuinely com
     
       
 Your Life Path 9 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

@@ -16,7 +16,6 @@ related:
   - /blog/life-path-2-numerology/|Life Path 2 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 1?
 
     

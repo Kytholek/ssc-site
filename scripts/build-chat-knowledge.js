@@ -157,60 +157,103 @@ function buildCoreChunks() {
   ];
 }
 
+const HTML_ONLY_SLUGS = [
+  'five-lenses-of-self-ego-mind-soul-spirit-void',
+  'evolution-of-energy-0-through-9',
+  '3-6-9-pattern-tesla-numerology',
+  'infinity-loop-cycles-recursion-numerology',
+  'pillar-numerology-source-code',
+  'trinity-of-purpose-numerology',
+  'trinity-of-expression-numerology',
+  'trinity-of-lessons-numerology',
+  'path-of-transformation-1-4-7-2-5-8-3-6-9',
+  'decoding-matrix',
+];
+
+function stripTags(s) {
+  return String(s || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#8212;|&mdash;/g, '—')
+    .replace(/&#8250;/g, '›')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractHtmlPost(slug) {
+  const htmlPath = path.join(ROOT, 'blog', slug, 'index.html');
+  if (!fs.existsSync(htmlPath)) return null;
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  const titleM = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  const title = titleM ? stripTags(titleM[1]) : slug;
+  html = html.replace(/<head[\s\S]*?<\/head>/i, ' ');
+  html = html.replace(/<nav[\s\S]*?<\/nav>/gi, ' ');
+  html = html.replace(/<footer[\s\S]*?<\/footer>/gi, ' ');
+  html = html.replace(/<script[\s\S]*?<\/script>/gi, ' ');
+  html = html.replace(/<style[\s\S]*?<\/style>/gi, ' ');
+  html = html.replace(/<section class="post-faq"[\s\S]*?<\/section>/gi, ' ');
+  const paras = [];
+  const re = /<(p|h2|h3|h4|li|blockquote)[^>]*>([\s\S]*?)<\/\1>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    const t = stripTags(m[2]);
+    if (t.length > 40) paras.push(t);
+  }
+  return { title, text: paras.join('\n\n') };
+}
+
+function pushChunks(chunks, slug, title, text) {
+  chunkText(text).forEach((part, i) => {
+    chunks.push({
+      id: `blog-${slug}-${i}`,
+      title,
+      slug,
+      url: `https://simulationsourcecode.com/blog/${slug}/`,
+      core: false,
+      text: part,
+    });
+  });
+}
+
 function buildBlogChunks() {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith('.md') && !SKIP_FILES.has(f));
   const chunks = [];
+  const seen = new Set();
 
   for (const file of files) {
     const raw = fs.readFileSync(path.join(CONTENT_DIR, file), 'utf8');
     const { meta, body } = parseFrontmatter(raw);
-    if (String(meta.draft || '').toLowerCase() === 'true') {
-      const draftSlug = meta.slug || file.replace(/\.md$/, '');
-      if (draftSlug === 'decoding-matrix') {
-        const htmlPath = path.join(ROOT, 'blog', 'decoding-matrix', 'index.html');
-        if (fs.existsSync(htmlPath)) {
-          const html = fs.readFileSync(htmlPath, 'utf8');
-          const m = html.match(/<div class="post-body">([\s\S]*?)<\/div>\s*<\/div>\s*<!-- FOOTER/);
-          const text = String(m ? m[1] : '')
-            .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          chunkText(text).forEach(function (part, i) {
-            chunks.push({
-              id: 'blog-decoding-matrix-' + i,
-              title: 'Decoding the Matrix: The Complete Architecture',
-              slug: 'decoding-matrix',
-              url: 'https://simulationsourcecode.com/blog/decoding-matrix/',
-              core: false,
-              text: part,
-            });
-          });
-        }
-      }
-      continue;
-    }
+    if (String(meta.draft || '').toLowerCase() === 'true') continue;
     const slug = meta.slug || file.replace(/\.md$/, '');
     const title = meta.title || slug;
-    const url = `https://simulationsourcecode.com/blog/${slug}/`;
     const excerpt = meta.excerpt || meta.description || '';
     const parts = chunkText(body);
     if (!parts.length && excerpt) parts.push(stripMarkdown(excerpt));
-
     parts.forEach((text, i) => {
       const prefix = excerpt && i === 0 ? `${stripMarkdown(excerpt)}\n\n` : '';
       chunks.push({
         id: `blog-${slug}-${i}`,
-        // Keep base title only — numeric "(part N)" suffixes break frequency retrieval
         title,
         slug,
-        url,
+        url: `https://simulationsourcecode.com/blog/${slug}/`,
         core: false,
         text: (prefix + text).slice(0, CHUNK_MAX + 200),
       });
     });
+    seen.add(slug);
   }
+
+  for (const slug of HTML_ONLY_SLUGS) {
+    if (seen.has(slug)) continue;
+    const extracted = extractHtmlPost(slug);
+    if (!extracted || !extracted.text) continue;
+    pushChunks(chunks, slug, extracted.title, extracted.text);
+    seen.add(slug);
+  }
+
   return chunks;
 }
 

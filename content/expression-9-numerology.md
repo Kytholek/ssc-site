@@ -11,7 +11,6 @@ keywords: expression number 9 numerology, expression 9 meaning, numerology expre
 breadcrumb-name: Expression 9 Numerology
 cta: Your Expression number is one of seven encoded frequencies. The Full Blueprint reveals the complete architecture of your simulation — including how your universal 9 expression interacts with your Life Path and the specific directive your Life Calling encodes.
 ---
-
 ## What Is an Expression Number?
 
     

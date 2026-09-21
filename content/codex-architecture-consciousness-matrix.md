@@ -11,7 +11,6 @@ keywords: numerology codex, consciousness matrix numerology, architecture of con
 breadcrumb-name: Codex Architecture — The Consciousness Matrix
 cta: Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
 ---
-
 There is a geometry to how consciousness evolves. Not the geometry of Euclidean space, with its straight lines and perfect circles — something more fundamental. A topology of transformation itself. The ancients attempted to capture it in mandalas, in the Kabbalistic Tree of Life, in the I Ching's hexagrams. Each system was trying to map the same essential truth: that awareness develops according to pattern, and that pattern can be read.
 
     

@@ -11,13 +11,6 @@ keywords: electric magnetic aether numerology, three natures of number, energy n
 breadcrumb-name: Electric, Magnetic, Aether — Three Natures of Number
 cta: Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
 ---
-
-‹ Back to Blog
-  The System
-  Electric, Magnetic & Aether: The Three Natures of Energy
-  March 2026 — 7 min read
-  
-      
 Most numerology treats all nine frequencies as variations of the same kind of thing. A number, a meaning, traits attributed to them. But the nine frequencies are not equal in kind. They differ not just in quality but in nature — in the fundamental type of energy they represent.
 
 Simulation Source Code groups the ten digits (0 through 9) into three categories: Electric, Magnetic, and Aetheric. As each number has its own means of expression, those expressions have a quality to them. Electric makes things happen, magnetic holds things together and Aetheric is both. We will get to the Aether in a future post.
@@ -75,5 +68,3 @@ You are not just living within this system. You are, in some essential sense, on
     
       
 Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

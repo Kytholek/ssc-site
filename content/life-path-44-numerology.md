@@ -16,7 +16,6 @@ related:
   - /blog/life-path-1-numerology/|Life Path 1 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 44?
 
     
@@ -222,5 +221,3 @@ Self-inquiry for the 44:
     
       
 Your Life Path 44 is one frequency within a complete seven-number architecture. The full blueprint — Expression, Soul Urge, Life Calling, the compound story behind each number — reveals how the master current intersects with the rest of your encoded system.
-
-       Calculate Your Full Blueprint

@@ -11,7 +11,6 @@ keywords: numerology Codex, 3x3 consciousness matrix, Mind Body Spirit numerolog
 breadcrumb-name: The Numerology Codex Explained
 cta: The Codex is the map. Your seven frequencies are where you sit on it. Run the free decode, then place the numbers on the grid.
 ---
-
 The prior sections laid the groundwork for the idea that our experience within life is a simulated one within holographic perception, and how energy evolves its expression through experience. Now we get into the patterning within this expression — to see if we can find any deeper meaning within the phenomena of light.
 
 Language, as we know it, struggles here. Words are descriptive, but also imprecise. To understand something that repeats across scales, we need a form of communication that does not shift with interpretation. When a pattern repeats enough times, it can be reduced into a symbol. The numerology Codex translates repeating structures into a map that can be followed once it is understood.

@@ -16,7 +16,6 @@ related:
   - /blog/life-path-7-numerology/|Life Path 7 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 6?
 
 Sum every digit in your full date of birth and reduce to a single digit. Life Path 6 means the simulation is running a curriculum centred on care, responsibility, and the question of whether you can give without losing yourself in the giving.
@@ -61,5 +60,3 @@ The integration practice: identify one area where you have been giving from empt
     
       
 Your Life Path 6 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

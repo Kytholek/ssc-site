@@ -16,7 +16,6 @@ related:
   - /blog/life-path-33-numerology/|Life Path 33 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 22?
 
     
@@ -245,5 +244,3 @@ For the broader context of how the Life Path interacts with the other numbers in
     
       
 Your Life Path 22 is one frequency in a seven-number blueprint. How the 22 interacts with your Expression, Soul Urge, and the compound story of your full birth date — that is the complete architecture of your encoded curriculum.
-
-        Calculate Your Full Blueprint

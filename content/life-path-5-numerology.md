@@ -16,7 +16,6 @@ related:
   - /blog/life-path-6-numerology/|Life Path 6 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 5?
 
 Sum every digit in your full date of birth and reduce to a single digit. Life Path 5 is the central pivot of the Codex — not just another frequency, but the fulcrum through which all transformation passes.
@@ -52,5 +51,3 @@ The integration practice: choose one situation you have been partially present i
     
       
 Your Life Path 5 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

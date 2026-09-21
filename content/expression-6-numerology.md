@@ -11,7 +11,6 @@ keywords: expression number 6 numerology, expression 6 meaning, numerology expre
 breadcrumb-name: Expression 6 Numerology
 cta: Your Expression number is one of seven encoded frequencies. The Full Blueprint reveals how your caring expression interacts with your Life Path, Soul Urge, and the specific Life Calling directive encoded in your complete map.
 ---
-
 ## What Is an Expression Number?
 
     

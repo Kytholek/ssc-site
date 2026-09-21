@@ -11,7 +11,6 @@ keywords: action reaction numerology, 3 6 9 electromagnetic, electric magnetic n
 breadcrumb-name: Action/Reaction — Electro/Magnetism
 cta: The loop is 3 → 6 → 9 → 3. Your seven frequencies show which side of that loop you live on — and where the 9 is asleep.
 ---
-
 3 is the epitome of Mind and an Electric number — the mental story that pulses out into experience. When electricity moves, a magnetic field is generated. That field is 6, a double of 3, which governs the world and the grid of influence in the Codex.
 
 This is the action/reaction dynamic at the heart of experience. Every thought is an Electric impulse. That impulse generates a magnetic field that organizes experience to reflect the nature of the impulse. The world you experience is the magnetic reflection of your electric thoughts.

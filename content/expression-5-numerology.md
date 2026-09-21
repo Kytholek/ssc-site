@@ -11,7 +11,6 @@ keywords: expression number 5 numerology, expression 5 meaning, numerology expre
 breadcrumb-name: Expression 5 Numerology
 cta: Your Expression number is one of seven encoded frequencies in your blueprint. The Full Reading reveals how your freedom-seeker energy interacts with every other frequency in your map — and the specific directive your Life Calling encodes.
 ---
-
 ## What Is an Expression Number?
 
     

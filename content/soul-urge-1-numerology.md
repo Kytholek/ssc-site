@@ -11,7 +11,6 @@ keywords: soul urge number 1, heart's desire number 1, soul urge 1 meaning, soul
 breadcrumb-name: Soul Urge 1
 cta: Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ The Outer Persona number — derived from the consonants of the birth name — a
     
       
 Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
-
-        Calculate Your Full Blueprint

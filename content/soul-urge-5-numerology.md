@@ -11,7 +11,6 @@ keywords: soul urge number 5, heart's desire number 5, soul urge 5 meaning, soul
 breadcrumb-name: Soul Urge 5
 cta: Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the tension between them is running on autopilot.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ Where your Soul Urge 5 sits in relation to your other numbers determines a great
     
       
 Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the tension between them is running on autopilot.
-
-        Calculate Your Full Blueprint

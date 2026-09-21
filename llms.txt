@@ -1,23 +1,62 @@
 # Simulation Source Code
 
-> Numerology framework decoding seven frequencies from your birth date and full birth name — Life Path, Expression, Life Calling, Soul Urge, Outer Persona, Achievement, and Theme.
+> Numerology framework decoding seven frequencies from your birth date and full birth name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme.
 
 ## Primary pages
 
 - Home: https://simulationsourcecode.com/
 - Free Calculator: https://simulationsourcecode.com/calculator/
 - The Codex (nine-frequency consciousness matrix): https://simulationsourcecode.com/codex/
-- Services (readings, guidebook, membership): https://simulationsourcecode.com/services/
+- Services (guidebook $22, Time Cycle $17, bundle $29, consultation $55): https://simulationsourcecode.com/services/
 - Consultation: https://simulationsourcecode.com/consultation/
 - Blog: https://simulationsourcecode.com/blog/
 - About: https://simulationsourcecode.com/about/
 
-## Pillar articles
+## Start here
 
-- How to Calculate Your Life Path Number: https://simulationsourcecode.com/blog/how-to-calculate-life-path-number/
-- The Pillar — Numerology as Source Code: https://simulationsourcecode.com/blog/pillar-numerology-source-code/
+- What Is Numerology?: https://simulationsourcecode.com/blog/what-is-numerology/
+- Numerology for Beginners: https://simulationsourcecode.com/blog/numerology-for-beginners/
+- What Is a Numerology Chart?: https://simulationsourcecode.com/blog/numerology-chart-explained/
 - How to Read Your Numerology Blueprint: https://simulationsourcecode.com/blog/how-to-read-numerology-blueprint/
+- How to Calculate Your Life Path Number: https://simulationsourcecode.com/blog/how-to-calculate-life-path-number/
+- How to Calculate Your Expression Number: https://simulationsourcecode.com/blog/how-to-calculate-expression-number/
+- How to Calculate Your Soul Urge Number: https://simulationsourcecode.com/blog/how-to-calculate-soul-urge-number/
+- How to Calculate Your Personality Number: https://simulationsourcecode.com/blog/how-to-calculate-personality-number/
+
+## Core method
+
+- Life Path Number Explained: https://simulationsourcecode.com/blog/life-path-number-explained/
+- Life Calling Number: https://simulationsourcecode.com/blog/life-calling-number-numerology/
+- Destiny Number vs Expression: https://simulationsourcecode.com/blog/destiny-number-vs-expression-numerology/
+- Heart's Desire vs Soul Urge: https://simulationsourcecode.com/blog/hearts-desire-vs-soul-urge-numerology/
+- Pythagorean vs Chaldean: https://simulationsourcecode.com/blog/pythagorean-vs-chaldean-numerology/
+- Is Y a Vowel in Numerology?: https://simulationsourcecode.com/blog/is-y-a-vowel-in-numerology/
+- Compound Numbers: https://simulationsourcecode.com/blog/compound-numbers-numerology/
+- Karmic Debt Numbers 13, 14, 16, 19: https://simulationsourcecode.com/blog/karmic-debt-numbers-13-14-16-19/
+- Master Numbers 11, 22, 33: https://simulationsourcecode.com/blog/master-numbers-11-22-33-numerology/
+- Master Number 44: https://simulationsourcecode.com/blog/master-number-44-numerology/
+- Which Name Do You Use?: https://simulationsourcecode.com/blog/birth-name-vs-known-name-numerology/
+- Name Numerology: https://simulationsourcecode.com/blog/name-numerology/
+- Numerology Compatibility: https://simulationsourcecode.com/blog/numerology-compatibility/
+- Career Numerology: https://simulationsourcecode.com/blog/career-numerology/
+- Maturity Number vs Life Calling: https://simulationsourcecode.com/blog/maturity-number-vs-life-calling/
+
+## Repeating sequences
+
+- Angel Numbers Are Being Read Wrong: https://simulationsourcecode.com/blog/angel-numbers-being-read-wrong/
+- 1111 Angel Number: https://simulationsourcecode.com/blog/1111-angel-number-meaning/
+- 222 Angel Number: https://simulationsourcecode.com/blog/222-angel-number-meaning/
+- 444 Angel Number: https://simulationsourcecode.com/blog/444-angel-number-meaning/
+- 555 Angel Number: https://simulationsourcecode.com/blog/555-angel-number-meaning/
+- 666 Meaning: https://simulationsourcecode.com/blog/666-numerology-meaning/
+- 777 Angel Number: https://simulationsourcecode.com/blog/777-angel-number-meaning/
+
+## Pillar essays
+
+- The Pillar — Numerology as Source Code: https://simulationsourcecode.com/blog/pillar-numerology-source-code/
 - Codex Architecture: https://simulationsourcecode.com/blog/codex-architecture-consciousness-matrix/
+- The Simulated Self: https://simulationsourcecode.com/blog/the-simulated-self/
+- Simulation Theory and Numerology: https://simulationsourcecode.com/blog/simulation-theory-numerology-source-code/
 
 ## Optional
 

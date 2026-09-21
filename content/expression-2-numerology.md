@@ -11,7 +11,6 @@ keywords: expression number 2 numerology, expression 2 meaning, numerology expre
 breadcrumb-name: Expression 2 Numerology
 cta: Your Expression number is one of seven encoded frequencies. The Full Blueprint reveals all seven — including how your Expression interacts with your Life Path to create the specific friction and alignment encoded in your name and birth date.
 ---
-
 ## What Is an Expression Number?
 
     

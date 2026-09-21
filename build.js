@@ -21,6 +21,23 @@ const BLOG_INDEX   = path.join(BLOG_DIR, 'index.html');
 const POSTS_JSON   = path.join(CONTENT_DIR, 'posts.json');
 const SITE_ORIGIN  = 'https://simulationsourcecode.com';
 
+// Hand-authored layouts — never overwrite from markdown unless --force.
+const CUSTOM_HTML_SLUGS = new Set([
+  'five-lenses-of-self-ego-mind-soul-spirit-void',
+  'evolution-of-energy-0-through-9',
+  '3-6-9-pattern-tesla-numerology',
+  'infinity-loop-cycles-recursion-numerology',
+  'pillar-numerology-source-code',
+  'trinity-of-purpose-numerology',
+  'trinity-of-expression-numerology',
+  'trinity-of-lessons-numerology',
+  'path-of-transformation-1-4-7-2-5-8-3-6-9',
+  'decoding-matrix',
+  'how-to-calculate-life-path-number',
+  'life-path-number-explained',
+  'simulation-theory-numerology-source-code',
+]);
+
 // â”€â”€â”€ Frontmatter Parser â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function parseFrontmatter(raw) {
   const fm = {};
@@ -118,20 +135,237 @@ function mdToHtml(md) {
 }
 
 // â”€â”€â”€ Related Posts HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const CHROME_CATS = new Set([
+  'Philosophy', 'Numerology', 'The System', 'Practice', 'The Numbers',
+  'Life Paths', 'Expressions', 'Soul Urge', 'Insights',
+]);
+const DATE_CHROME_RE = /^(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}(\s+[—–\-→]\s+\d+\s+min read)?$/i;
+const CTA_CHROME_RE  = /^(⬡\s*)?(Get Your Full Blueprint( — \$?22)?|Calculate Your Full Blueprint)(\s*⬡)?$/i;
+const LP_LABEL = {
+  '1': 'The Initiator', '2': 'The Bridge', '3': 'The Creator',
+  '4': 'The Foundation', '5': 'The Change Agent', '6': 'The Responsibility',
+  '7': 'The Seeker', '8': 'The Powerhouse', '9': 'The Completor',
+  '11': 'The Illuminated Bridge', '22': 'The Master Builder',
+  '33': 'The Master Teacher', '44': 'The Master Pragmatist',
+};
+const EX_LABEL = {
+  '1': 'The Independent Voice', '2': 'The Bridge Builder',
+  '3': 'The Creative Communicator', '4': 'The Architect',
+  '5': 'The Freedom Seeker', '6': 'The Nurturer',
+  '7': 'The Inner Truth Holder', '8': 'The Manifestor',
+  '9': 'The Humanitarian', '11': 'The Illuminated Bridge',
+  '22': 'The Master Architect', '33': 'The Master Transmitter',
+};
+const SU_LABEL = {
+  '1': "The Pioneer's Desire", '2': "The Heart's Desire for Union",
+  '3': "The Heart's Desire to Create", '4': "The Heart's Desire to Build",
+  '5': "The Heart's Desire for Freedom", '6': "The Heart's Desire to Love",
+  '7': 'The Inner Mystic', '8': "The Heart's Desire for Power",
+  '9': "The Heart's Desire to Serve", '11': 'The Illuminated Heart',
+  '22': "The Master Builder's Heart", '33': "The Master Teacher's Heart",
+};
+
+function parseNumberSlug(slug) {
+  const m = String(slug || '').match(/^(life-path|expression|soul-urge)-(\d+)-numerology$/);
+  return m ? { kind: m[1], n: m[2] } : null;
+}
+
+function normTitle(s) {
+  return String(s || '').trim().toLowerCase().replace(/[.:]+$/, '').replace(/\s+explained$/, '');
+}
+
+function isCssDumpLine(s) {
+  const t = String(s || '').trim();
+  if (!t) return false;
+  if (t === '}' || t === '{') return true;
+  if (/^\/(\*|—|--|\s)/.test(t)) return true;
+  if (/^(from|to)\s*\{/i.test(t)) return true;
+  if (/^(\d+%|0%)/.test(t) && t.includes('{')) return true;
+  return /@keyframes|offset-distance|stroke-dashoffset|\.codex-flow/.test(t);
+}
+
+function stripBodyChrome(body, meta) {
+  const title = (meta && meta.title) || '';
+  const lines = String(body || '').split(/\r?\n/);
+  let i = 0;
+  while (i < lines.length && !lines[i].trim()) i++;
+  while (i < lines.length) {
+    const s = lines[i].trim();
+    if (s === '‹ Back to Blog' || s === '← Back to Blog' || s === 'Back to Blog') { i++; continue; }
+    if (CHROME_CATS.has(s)) { i++; continue; }
+    if (DATE_CHROME_RE.test(s)) { i++; continue; }
+    if (CTA_CHROME_RE.test(s)) { i++; continue; }
+    if (title && (s === title || normTitle(s) === normTitle(title))) { i++; continue; }
+    if (isCssDumpLine(s)) { i++; continue; }
+    break;
+  }
+  let end = lines.length;
+  while (end > i && !lines[end - 1].trim()) end--;
+  const ctaPara = String((meta && meta.cta) || '').trim();
+  while (end > i) {
+    const last = lines[end - 1].trim();
+    if (CTA_CHROME_RE.test(last) || (ctaPara && last === ctaPara)) {
+      end--;
+      while (end > i && !lines[end - 1].trim()) end--;
+      continue;
+    }
+    break;
+  }
+  return lines.slice(i, end).join('\n');
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function numberFaqItems(kind, n, title) {
+  if (kind === 'life-path') {
+    const label = LP_LABEL[n] || title || ('Life Path ' + n);
+    return [
+      { q: `What is Life Path ${n} in numerology?`, a: `Life Path ${n} (${label}) is the external curriculum encoded in your full date of birth. It describes the repeating lesson the simulation keeps delivering through circumstances, relationships, and challenges.` },
+      { q: 'How is the Life Path number calculated?', a: 'Sum every digit in your full date of birth — month, day, and year — and reduce to a single digit or master number (11, 22, 33, 44).' },
+      { q: `What is the shadow of Life Path ${n}?`, a: `The same frequency that produces the gift of ${String(label).toLowerCase()} also produces its distortion when it runs on autopilot. SSC readings include both gift and shadow so you can recognise which side of the number you are living.` },
+    ];
+  }
+  if (kind === 'expression') {
+    const label = EX_LABEL[n] || title || ('Expression ' + n);
+    return [
+      { q: `What is Expression number ${n}?`, a: `Expression ${n} (${label}) is calculated from the full birth name. It is the internal circuit — how you are wired to process reality and express yourself.` },
+      { q: 'How is the Expression number calculated?', a: 'Each letter of the full birth-certificate name is assigned its Pythagorean value. Those values are summed and reduced to a single digit or master number.' },
+      { q: `How does Expression ${n} relate to Life Path?`, a: 'Life Path is the external curriculum. Expression is the hardware you run it on. Their sum is the Life Calling. Tension between them is information, not a malfunction.' },
+    ];
+  }
+  const label = SU_LABEL[n] || title || ('Soul Urge ' + n);
+  return [
+    { q: `What is Soul Urge number ${n}?`, a: `Soul Urge ${n} (${label}) is calculated from the vowels only of the birth name. It is the private drive — what you actually crave beneath social conditioning.` },
+    { q: 'How is the Soul Urge calculated?', a: 'Take the vowels only of the full birth-certificate name, assign Pythagorean values, sum, and reduce to a single digit or master number.' },
+    { q: `What happens when Soul Urge ${n} is suppressed?`, a: 'Suppressing the Soul Urge creates chronic low-level friction. The inner hunger still runs; it just misfires through the nearest available channel.' },
+  ];
+}
+
+function categoryFaqItems(meta) {
+  const cat = meta.category || 'system';
+  if (cat === 'philosophy') {
+    return [
+      { q: 'What is Simulation Source Code?', a: 'Simulation Source Code reads the numbers in your birth date and name as parameters of a holographic experience — not as personality labels, but as the architecture of the simulation you are running.' },
+      { q: 'How does numerology relate to simulation theory?', a: 'If reality is computational, numbers are structure, not symbols. Birth date is a timestamp. The birth name carries a frequency. Together they describe the parameters of this instantiation.' },
+      { q: 'Where should I start?', a: 'Run the free calculator for all seven frequencies, then read the matching Life Path, Expression, and Soul Urge articles. The Guidebook writes the full compound story.' },
+    ];
+  }
+  return [
+    { q: 'What are the seven frequencies in SSC?', a: 'Life Path, Expression, Soul Urge, Life Calling, Achievement, Theme, and Outer Self. Each is calculated from a different slice of your birth date or name and measures a different layer of the simulation.' },
+    { q: 'How do I calculate my numbers?', a: 'The free calculator generates all seven from your full birth-certificate name and date of birth. The Guidebook then writes the compound story behind each number.' },
+    { q: 'What is the Codex?', a: 'The Codex is the 3×3 map of consciousness SSC is built on — nine positions that describe how energy moves from perception through embodiment into contribution.' },
+  ];
+}
+
+function parseFaqFrontmatter(meta) {
+  const raw = meta.faq;
+  if (!raw) return [];
+  const list = Array.isArray(raw) ? raw : [raw];
+  return list.map(entry => {
+    const idx = String(entry).indexOf('|');
+    if (idx === -1) return null;
+    const q = String(entry).slice(0, idx).trim();
+    const a = String(entry).slice(idx + 1).trim();
+    return (q && a) ? { q, a } : null;
+  }).filter(Boolean);
+}
+
+function resolveFaqItems(meta) {
+  const fromFm = parseFaqFrontmatter(meta);
+  if (fromFm.length) return fromFm.slice(0, 4);
+  const parsed = parseNumberSlug(meta.slug);
+  if (parsed) return numberFaqItems(parsed.kind, parsed.n, meta.title);
+  return categoryFaqItems(meta);
+}
+
+function buildFaqJsonLd(items) {
+  if (!items || !items.length) return '';
+  const payload = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(it => ({
+      '@type': 'Question',
+      name: it.q,
+      acceptedAnswer: { '@type': 'Answer', text: it.a },
+    })),
+  };
+  return `  <script type="application/ld+json">\n${JSON.stringify(payload, null, 2)}\n  </script>\n`;
+}
+
+function buildFaqHtml(slug, items) {
+  if (!items || !items.length) return '';
+  const fid = String(slug || 'post').replace(/\//g, '-') + '-faq-title';
+  const rows = items.map(it => `  <details>
+    <summary>${escapeHtml(it.q)}</summary>
+    <p>${escapeHtml(it.a)}</p>
+  </details>`).join('\n');
+  return `
+<section class="post-faq" aria-labelledby="${fid}">
+  <h2 id="${fid}">Frequently Asked Questions</h2>
+${rows}
+</section>`;
+}
+
+function numberRelated(kind, n) {
+  if (kind === 'life-path') {
+    if (n === '44') {
+      return [
+        '/blog/life-path-8-numerology/|Life Path 8: The Powerhouse|Read More',
+        '/blog/expression-8-numerology/|Expression 8: The Manifestor|Read More',
+        '/blog/life-path-number-explained/|Life Path Number Meaning Explained|Read More',
+      ];
+    }
+    return [
+      `/blog/expression-${n}-numerology/|Expression ${n}: ${EX_LABEL[n] || ''}|Read More`,
+      `/blog/soul-urge-${n}-numerology/|Soul Urge ${n}: ${SU_LABEL[n] || ''}|Read More`,
+      '/blog/life-path-number-explained/|Life Path Number Meaning Explained|Read More',
+    ];
+  }
+  if (kind === 'expression') {
+    return [
+      `/blog/life-path-${n}-numerology/|Life Path ${n}: ${LP_LABEL[n] || ''}|Read More`,
+      `/blog/soul-urge-${n}-numerology/|Soul Urge ${n}: ${SU_LABEL[n] || ''}|Read More`,
+      '/blog/trinity-of-expression-numerology/|The Trinity of Expression|Read More',
+    ];
+  }
+  return [
+    `/blog/expression-${n}-numerology/|Expression ${n}: ${EX_LABEL[n] || ''}|Read More`,
+    `/blog/life-path-${n}-numerology/|Life Path ${n}: ${LP_LABEL[n] || ''}|Read More`,
+    '/blog/trinity-of-expression-numerology/|The Trinity of Expression|Read More',
+  ];
+}
+
+function resolveRelated(meta) {
+  const fromFm = Array.isArray(meta.related) ? meta.related : [];
+  const cleaned = fromFm.filter(entry => {
+    const href = String(entry).split('|')[0] || '';
+    return href && !/\/calculator\/?$/.test(href);
+  });
+  if (cleaned.length >= 3) return cleaned.slice(0, 3);
+  const parsed = parseNumberSlug(meta.slug);
+  if (parsed) return numberRelated(parsed.kind, parsed.n);
+  return cleaned.slice(0, 3);
+}
+
 function buildRelatedPostsHtml(related) {
   if (!related || !related.length) return '';
   const cards = related.map(entry => {
-    // Format: "url|Title|Link Text"
-    const [href, title, linkText] = entry.split('|');
+    const [href, title, linkText] = String(entry).split('|');
     return `    <a href="${href}" class="related-post-card">
       <div class="related-post-title">${title}</div>
-      <span class="related-post-link">${linkText || 'Read Deep Dive'} →</span>
+      <span class="related-post-link">${linkText || 'Read More'}</span>
     </a>`;
   }).join('\n');
 
   return `
 <div class="related-posts">
-  <div class="related-posts-title">Explore More Numbers</div>
+  <div class="related-posts-title">Related Articles</div>
   <div class="related-posts-grid">
 ${cards}
   </div>
@@ -139,7 +373,7 @@ ${cards}
 }
 
 // â”€â”€â”€ Full Post HTML Template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function buildPostHtml(meta, bodyHtml, relatedHtml) {
+function buildPostHtml(meta, bodyHtml, relatedHtml, faqHtml, faqJsonLd) {
   const slug        = meta.slug;
   const title       = meta.title       || '';
   const description = meta.description || meta.excerpt || '';
@@ -149,6 +383,8 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   const ctaText     = meta.cta         || 'The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.';
   const breadcrumbName = meta['breadcrumb-name'] || title;
   const canonicalUrl   = `${SITE_ORIGIN}/blog/${slug}/`;
+  const ogPath         = meta['og-image'] || '/Images/ssc-og.png';
+  const ogImage        = /^https?:\/\//i.test(ogPath) ? ogPath : `${SITE_ORIGIN}${ogPath.startsWith('/') ? '' : '/'}${ogPath}`;
   const fontUrl = 'https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Cormorant+SC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap';
 
   return `<!DOCTYPE html>
@@ -169,10 +405,11 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   <meta property="og:description" content="${description}">
   <meta property="og:url" content="${canonicalUrl}">
   <meta property="og:site_name" content="Simulation Source Code">
-  <meta property="og:image" content="${SITE_ORIGIN}/Images/ssc-og.png">
+  <meta property="og:image" content="${ogImage}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
+  <meta name="twitter:image" content="${ogImage}">
 
   <!-- Article Schema -->
   <script type="application/ld+json">
@@ -181,6 +418,7 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
     "@type": "Article",
     "headline": "${title}",
     "description": "${description}",
+    "image": "${ogImage}",
     "url": "${canonicalUrl}",
     "datePublished": "${date}",
     "dateModified": "${date}",
@@ -211,7 +449,7 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
   <noscript><link href="${fontUrl}" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="/css/style.css?v=20260915-audit">
   <link rel="stylesheet" href="/css/brand-revamp.css?v=20260915-audit">
-  <link rel="stylesheet" href="/css/blog-post.css?v=20260915-audit">
+  <link rel="stylesheet" href="/css/blog-post.css?v=20260921-cta">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- BreadcrumbList Schema -->
@@ -226,7 +464,7 @@ function buildPostHtml(meta, bodyHtml, relatedHtml) {
     ]
   }
   </script>
-
+${faqJsonLd || ''}
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -277,8 +515,6 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
 ${bodyHtml}
 
-${relatedHtml}
-
     <div class="post-cta-block">
       <p>${ctaText}</p>
       <div class="post-cta-actions">
@@ -286,6 +522,8 @@ ${relatedHtml}
         <a class="post-cta-secondary" href="/calculator/">Free calculator</a>
       </div>
     </div>
+${faqHtml || ''}
+${relatedHtml}
 
   </div>
 
@@ -426,6 +664,11 @@ function main() {
 
     // Skip if HTML is newer than .md (unless --force flag)
     const force = process.argv.includes('--force');
+    if (!force && CUSTOM_HTML_SLUGS.has(meta.slug) && fs.existsSync(outFile)) {
+      skipped++;
+      allMeta.push(meta);
+      continue;
+    }
     if (!force && fs.existsSync(outFile)) {
       const srcMtime = fs.statSync(srcPath).mtimeMs;
       const outMtime = fs.statSync(outFile).mtimeMs;
@@ -436,9 +679,12 @@ function main() {
       }
     }
 
-    const bodyHtml    = mdToHtml(body);
-    const relatedHtml = buildRelatedPostsHtml(meta.related);
-    const html        = buildPostHtml(meta, bodyHtml, relatedHtml);
+    const bodyHtml    = mdToHtml(stripBodyChrome(body, meta));
+    const faqItems    = resolveFaqItems(meta);
+    const faqHtml     = buildFaqHtml(meta.slug, faqItems);
+    const faqJsonLd   = buildFaqJsonLd(faqItems);
+    const relatedHtml = buildRelatedPostsHtml(resolveRelated(meta));
+    const html        = buildPostHtml(meta, bodyHtml, relatedHtml, faqHtml, faqJsonLd);
 
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(outFile, html, 'utf8');

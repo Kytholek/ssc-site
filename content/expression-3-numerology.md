@@ -11,7 +11,6 @@ keywords: expression number 3 numerology, expression 3 meaning, numerology expre
 breadcrumb-name: Expression 3 Numerology
 cta: Your Expression number is one of seven encoded frequencies in your full blueprint. The Complete Reading reveals how all seven interact — the friction, the alignment, and the specific directive your Life Calling encodes.
 ---
-
 ## What Is an Expression Number?
 
     

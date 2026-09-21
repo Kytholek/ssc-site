@@ -1,5 +1,5 @@
 ---
-title: You Are Running on a Simulation ? And Your Numbers Are the Source Code
+title: You Are Running on a Simulation — And Your Numbers Are the Source Code
 slug: simulation-theory-numerology-source-code
 date: 2026-01-01
 category: philosophy
@@ -9,15 +9,9 @@ excerpt: Modern physics increasingly suggests reality is information. If the uni
 description: Modern physics increasingly suggests reality is information. If the universe is computational, the numbers encoded in your birth and name are literal parameters of your simulation.
 keywords: simulation theory numerology, numerology simulation, reality source code numerology, SSC numerology, simulation source code
 breadcrumb-name: Simulation Theory & Numerology
+og-image: /Images/og/simulation-theory-numerology-source-code.png
 cta: Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
 ---
-
-‹ Back to Blog
-    Philosophy
-    You Are Running on a Simulation — And Your Numbers Are the Source Code
-    December 2024 — 8 min read
-    
-      
 In 2003, philosopher Nick Bostrom published a paper that sent a quiet tremor through academic circles. His argument, simply stated: at least one of three things must be true. Either civilisations almost always go extinct before becoming technologically mature. Or technologically mature civilisations almost never run simulations of their ancestors. Or we are almost certainly living in a computer simulation right now.
 
 Physicists and mathematicians have taken the idea seriously ever since. Not as science fiction — as a testable hypothesis. The evidence is not conclusive, but it is uncomfortable. The universe runs on mathematics with uncanny precision. Physical constants appear fine-tuned. Reality at the quantum level behaves like information being processed, not matter existing independently.
@@ -47,5 +41,3 @@ That is enormously useful information. Not as fate. As a map.
     
       
 Every number in this article is one piece of a larger architecture. Your complete blueprint — seven frequencies calculated from your birth date and name — is what the Full Blueprint Reading reveals.
-
-       Get Your Full Blueprint — $22

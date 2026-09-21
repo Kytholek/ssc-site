@@ -11,7 +11,6 @@ keywords: soul urge 11, soul urge number 11, master number 11 soul urge, heart's
 breadcrumb-name: Soul Urge 11
 cta: Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including where your 11 sits in relation to your Expression, your Life Path, and the specific compound story your vowels tell.
 ---
-
 ## What Is a Master Soul Urge?
 
     
@@ -142,5 +141,3 @@ For the broader context of what master numbers mean in the SSC system — why th
     
       
 Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including where your 11 sits in relation to your Expression, your Life Path, and the specific compound story your vowels tell.
-
-        Calculate Your Full Blueprint

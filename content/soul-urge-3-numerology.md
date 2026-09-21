@@ -11,7 +11,6 @@ keywords: soul urge number 3, heart's desire number 3, soul urge 3 meaning, soul
 breadcrumb-name: Soul Urge 3
 cta: Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -123,5 +122,3 @@ The Outer Persona — the consonants of the birth name — adds the third dimens
     
       
 Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
-
-        Calculate Your Full Blueprint

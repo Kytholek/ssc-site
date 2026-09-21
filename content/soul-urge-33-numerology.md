@@ -11,7 +11,6 @@ keywords: soul urge 33, soul urge number 33, master number 33 soul urge, heart's
 breadcrumb-name: Soul Urge 33
 cta: Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including whether your vowels genuinely sum to 33, how that frequency interacts with your Expression number, and the specific transmission your complete birth name encodes.
 ---
-
 ## What Is a Master Soul Urge?
 
     
@@ -145,5 +144,3 @@ For the complete context of how master numbers are treated in the SSC system and
     
       
 Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including whether your vowels genuinely sum to 33, how that frequency interacts with your Expression number, and the specific transmission your complete birth name encodes.
-
-        Calculate Your Full Blueprint

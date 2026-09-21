@@ -16,7 +16,6 @@ related:
   - /blog/five-lenses-of-self-ego-mind-soul-spirit-void/|Five Lenses of Self|Read Article
   - /codex|The Codex Matrix — All 9 Frequencies|Explore
 ---
-
 The numerical sequence that creates the shape — the container — has already been traced. What remains is the central vertical line running through that container. Call it the Spiritual Spine. If the [doubling sequence](/blog/3-6-9-pattern-tesla-numerology/) is what builds the physical body and the simplistic ego mind that holds Spirit, it is this column, with its alternating current between 3 and 6, that maps how to power the vessel rather than be run by it.
 
 That distinction matters. The Saturnian confinement described across the Codex is not a prison. It is a misuse of tools that were given for a reason. As is often the case in this world, what begins as a useful instrument can take over the abilities it was meant to serve and become a crutch. We have forgotten how the system works, and the forgetting has consumed Spirit.

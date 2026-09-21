@@ -11,7 +11,6 @@ keywords: soul urge number 2, heart's desire number 2, soul urge 2 meaning, soul
 breadcrumb-name: Soul Urge 2
 cta: Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ When Soul Urge 2 is paired with a different Expression number — Expression 1, 
     
       
 Your Soul Urge is one of seven encoded frequencies in your full numerological blueprint. The complete reading maps all seven — including your Expression number, Life Path, and the compound stories running beneath each one.
-
-        Calculate Your Full Blueprint

@@ -16,7 +16,6 @@ related:
   - /blog/life-path-3-numerology/|Life Path 3 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 The NumbersMarch 2026
   Life Path 2  ·  External Circuit  ·  Codex Position 2
 

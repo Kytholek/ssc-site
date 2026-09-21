@@ -16,7 +16,6 @@ related:
   - /blog/life-path-5-numerology/|Life Path 5 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 The NumbersMarch 2026
   Life Path 4 in Numerology: The Builder — Meaning, Shadow, and Integration
   Life Path 4  ·  External Circuit  ·  Codex Position 4
@@ -145,4 +144,3 @@ The integration practice: choose one area of your life where you have been worki
 
     
 Your Life Path 4 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
- Calculate Your Full Blueprint

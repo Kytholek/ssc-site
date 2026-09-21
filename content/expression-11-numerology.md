@@ -11,7 +11,6 @@ keywords: expression 11 numerology, expression 11/2, illuminated bridge numerolo
 breadcrumb-name: Expression 11/2: The Illuminated Bridge
 cta: Your Expression 11 is one frequency within a complete seven-number architecture. The Full Blueprint reveals how the master current interacts with your Life Path, Soul Urge, and the compound story encoded in your specific name calculation.
 ---
-
 ## A Channel Between Inner and Outer Worlds
 
     

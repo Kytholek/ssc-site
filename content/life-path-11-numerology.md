@@ -16,7 +16,6 @@ related:
   - /blog/life-path-22-numerology/|Life Path 22 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is a Life Path 11?
 
     
@@ -188,5 +187,3 @@ The integration practice for Life Path 11 is sequential: establish grounding unt
     
       
 Your Life Path 11 is one signal in a complete blueprint. The full picture — Expression number, Soul Urge, Life Calling, and how they interact with the master frequency — is what the Full Blueprint Reading reveals. Calculate yours now.
-
-        Calculate Your Full Blueprint

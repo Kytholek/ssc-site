@@ -16,7 +16,6 @@ related:
   - /blog/life-path-4-numerology/|Life Path 4 Meaning|Read Deep Dive
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 The NumbersMarch 2026
   Life Path 3 in Numerology: The Creator — Meaning, Shadow, and Integration
   Life Path 3  ·  External Circuit  ·  Codex Position 3
@@ -146,5 +145,3 @@ The integration practice: finish one thing. Not the thing that is easiest or saf
     
       
 Your Life Path 3 is one of seven encoded frequencies. The complete blueprint — including your Expression, Soul Urge, Life Calling, and the compound story behind each number — is what the Full Blueprint Reading reveals.
-
-       Calculate Your Full Blueprint

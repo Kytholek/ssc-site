@@ -11,7 +11,6 @@ keywords: expression number 8 numerology, expression 8 meaning, numerology expre
 breadcrumb-name: Expression 8 Numerology
 cta: Your Expression number is one of seven encoded frequencies in your complete blueprint. The Full Reading reveals how your manifestation drive interacts with every other frequency — including the specific directive your Life Calling encodes.
 ---
-
 ## What Is an Expression Number?
 
     

@@ -15,7 +15,6 @@ related:
   - /blog/how-to-read-numerology-blueprint/|How to Read Your Blueprint|Read Guide
   - /calculator/|Free Numerology Calculator|Calculate
 ---
-
 ## What Is an Expression Number?
 
     

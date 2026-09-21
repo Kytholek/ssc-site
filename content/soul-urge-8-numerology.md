@@ -11,7 +11,6 @@ keywords: soul urge number 8, heart's desire number 8, soul urge 8 meaning, soul
 breadcrumb-name: Soul Urge 8
 cta: Your Soul Urge number is one component of seven encoded frequencies. The Full Blueprint reveals the complete map — how your inner craving for power and mastery interacts with your visible output, your life's external curriculum, and the compound story running beneath each number.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ If the Life Path is 8, the simulation is presenting the same curriculum of power
     
       
 Your Soul Urge number is one component of seven encoded frequencies. The Full Blueprint reveals the complete map — how your inner craving for power and mastery interacts with your visible output, your life's external curriculum, and the compound story running beneath each number.
-
-        Calculate Your Full Blueprint

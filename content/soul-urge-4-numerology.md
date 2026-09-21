@@ -11,7 +11,6 @@ keywords: soul urge number 4, heart's desire number 4, soul urge 4 meaning, soul
 breadcrumb-name: Soul Urge 4
 cta: Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the friction between them is costing you.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -114,5 +113,3 @@ Understanding where your Soul Urge 4 sits in relation to your other numbers is t
     
       
 Your Soul Urge is one layer of the encoded Blueprint. The full calculation reveals where your private drive aligns with your external output — and where the friction between them is costing you.
-
-        Calculate Your Full Blueprint

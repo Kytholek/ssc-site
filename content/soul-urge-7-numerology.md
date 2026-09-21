@@ -11,7 +11,6 @@ keywords: soul urge number 7, heart's desire number 7, soul urge 7 meaning, soul
 breadcrumb-name: Soul Urge 7
 cta: Your Soul Urge number is one component of seven encoded frequencies. The Full Blueprint reveals the complete map — how your inner craving interacts with your visible output, your life's external curriculum, and the compound story running beneath each number.
 ---
-
 ## What Is the Soul Urge Number?
 
     
@@ -117,5 +116,3 @@ Read the full framework in the [Trinity of Expression](/blog/trinity-of-expressi
     
       
 Your Soul Urge number is one component of seven encoded frequencies. The Full Blueprint reveals the complete map — how your inner craving interacts with your visible output, your life's external curriculum, and the compound story running beneath each number.
-
-        Calculate Your Full Blueprint

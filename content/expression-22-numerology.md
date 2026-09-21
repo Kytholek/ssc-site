@@ -11,7 +11,6 @@ keywords: expression 22 numerology, expression number 22 meaning, master number 
 breadcrumb-name: Expression 22 in Numerology: The Master Architect — Master Number Meaning & Shadow
 cta: Your Expression 22 is one frequency within a complete seven-number architecture. The Full Blueprint reveals how the master architect current interacts with your Life Path, Soul Urge, and the compound story your specific name encodes.
 ---
-
 ## What Is an Expression 22?
 
     
@@ -145,5 +144,3 @@ Self-inquiry for Expression 22:
     
       
 Your Expression 22 is one frequency within a complete seven-number architecture. The Full Blueprint reveals how the master architect current interacts with your Life Path, Soul Urge, and the compound story your specific name encodes.
-
-      ⬡  Calculate Your Full Blueprint  ⬡

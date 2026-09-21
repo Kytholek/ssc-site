@@ -9,13 +9,13 @@ excerpt: The simulation is not a cosmic AI. It is Intelligent Light experiencing
 description: The simulation is not a cosmic AI. It is Intelligent Light experiencing itself as you — through your name, your ego, and the work of forgetting to remember.
 keywords: simulated self, simulation theory consciousness, holographic perception, power of the spoken word, name frequency numerology, social conditioning ego NPC, higher self vs ego, energy management consciousness, forgetting to remember, simulation of experience
 breadcrumb-name: The Simulated Self
+og-image: /Images/og/the-simulated-self.png
 cta: Your name is a frequency. Your birth date is the curriculum. The Guidebook writes the full blueprint — seven numbers as the map of the simulated self.
 related:
   - /blog/simulation-theory-numerology-source-code/|Simulation Theory & Numerology|Read More
   - /blog/five-lenses-of-self-ego-mind-soul-spirit-void/|The Five Lenses of Self|Read More
   - /blog/birth-name-vs-known-name-numerology/|Birth Name vs. Known Name|Read More
 ---
-
 Perception is a holographic phenomenon constructed and projected by Intelligent Light. The more we recalibrate our perception of this universe toward Light and Energy, the more we see ourselves — and all things — as expressions of a specific frequency of that energy.
 
 An intelligent field of light orchestrates individual experience through the data contained within its frequencies. The question becomes: what is being orchestrated, and why?

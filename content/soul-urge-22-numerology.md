@@ -11,7 +11,6 @@ keywords: soul urge 22, soul urge number 22, master number 22 soul urge, heart's
 breadcrumb-name: Soul Urge 22
 cta: Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including how your 22 interacts with your Expression number, your Life Path, and the specific construction arc your complete name encodes.
 ---
-
 ## What Is a Master Soul Urge?
 
     
@@ -142,5 +141,3 @@ For the broader context of how master numbers are handled in the SSC system, see
     
       
 Your Soul Urge is one of seven encoded frequencies in your blueprint. The Full Blueprint reveals all seven — including how your 22 interacts with your Expression number, your Life Path, and the specific construction arc your complete name encodes.
-
-        Calculate Your Full Blueprint

@@ -1,12 +1,5 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactFlow, {
-	useNodesState,
-	useEdgesState,
-	Position,
-} from "reactflow";
-import "reactflow/dist/style.css";
 import { getSkillTreeTierObjectives, SKILL_OBJECTIVES } from '../../lib/objectives';
 import FlowProgressNode from '../flow/FlowProgressNode';
 import { FLOW_NODE_SIZE } from '../flow/flowNodeConstants';
@@ -19,12 +12,10 @@ function _skillText(numId, difficulty) {
 		const objs = getSkillTreeTierObjectives(Number(numId), tier)
 		if (objs.length) return objs.map(o => o.text)
 	}
-	// Fallback to legacy SKILL_OBJECTIVES
 	const obj = SKILL_OBJECTIVES[Number(numId)]?.find(o => o.difficulty === difficulty)
 	return obj ? [obj.text] : ['(No objective defined)']
 }
 
-// Add unlock requirements to each stage
 export const NUMBERS = [
 	{
 		id: "1", label: "POWER", subtitle: "Action / Initiative", icon: "▲", color: "#FF4D00", glow: "#FF4D0066",
@@ -100,16 +91,14 @@ export const NUMBERS = [
 	},
 ];
 
-
-// Unlock logic — prev stage + stat threshold (innate seeds bypass stat gate)
 function isStageUnlocked(numberId, stageIdx, completed, statValues = {}, seeds = {}) {
 	if (stageIdx === 0) return true;
-	const prevDone    = completed[numberId]?.[stageIdx - 1] === true;
+	const prevDone = completed[numberId]?.[stageIdx - 1] === true;
 	if (!prevDone) return false;
-	const innate      = seeds?.[numberId] || [false, false, false]
-	if (innate[stageIdx]) return true;          // innate seed bypasses stat gate
-	const statVal     = statValues?.[numberId] || 0
-	const threshold   = stageIdx === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3
+	const innate = seeds?.[numberId] || [false, false, false]
+	if (innate[stageIdx]) return true;
+	const statVal = statValues?.[numberId] || 0
+	const threshold = stageIdx === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3
 	return statVal >= threshold;
 }
 
@@ -121,14 +110,12 @@ const STAGE_COLORS = {
 
 const THRESHOLDS = { stage2: 5, stage3: 10 }
 
-function SkillNode({ data }) {
-	const { number, completed, active, seeds, statValues } = data;
-	const stagesDone  = completed.filter(Boolean).length;
-	const progress    = (stagesDone / 3) * 100;
-
+function SkillSeal({ number, completed, active, seeds, statValues, size, onSelect }) {
+	const stagesDone = completed.filter(Boolean).length;
+	const progress = (stagesDone / 3) * 100;
 	const innateStages = seeds?.[number.id] || [false, false, false]
-	const isInnate     = innateStages[0]
-	const statVal      = statValues?.[number.id] || 0
+	const isInnate = innateStages[0]
+	const statVal = statValues?.[number.id] || 0
 	const fullyAligned = stagesDone === 3 && statVal >= THRESHOLDS.stage3
 
 	const eligible = [
@@ -143,40 +130,29 @@ function SkillNode({ data }) {
 		innate: innateStages[i],
 	}))
 
-	const skillHandles = [
-		{ type: 'target', position: Position.Top, id: 't-in' },
-		{ type: 'source', position: Position.Top, id: 't-out' },
-		{ type: 'target', position: Position.Bottom, id: 'b-in' },
-		{ type: 'source', position: Position.Bottom, id: 'b-out' },
-		{ type: 'target', position: Position.Left, id: 'l-in' },
-		{ type: 'source', position: Position.Left, id: 'l-out' },
-		{ type: 'target', position: Position.Right, id: 'r-in' },
-		{ type: 'source', position: Position.Right, id: 'r-out' },
-	]
-
 	return (
-		<FlowProgressNode
-			color={number.color}
-			icon={number.icon}
-			displayNum={number.id}
-			label={number.label}
-			subtitle={number.subtitle}
-			isSelected={active}
-			progressPct={progress}
-			stagesDone={stagesDone}
-			pipStates={pipStates}
-			innateGlow={isInnate}
-			fullyAligned={fullyAligned}
-			size={FLOW_NODE_SIZE}
-			withHandles
-			handles={skillHandles}
-			ariaLabel={`${number.label}${active ? ', selected' : ''}`}
-			ariaPressed={active}
-		/>
+		<div className="skills-grid-cell">
+			<FlowProgressNode
+				color={number.color}
+				icon={number.icon}
+				displayNum={number.id}
+				label={number.label}
+				subtitle={number.subtitle}
+				isSelected={active}
+				progressPct={progress}
+				stagesDone={stagesDone}
+				pipStates={pipStates}
+				innateGlow={isInnate}
+				fullyAligned={fullyAligned}
+				size={size}
+				onClick={() => onSelect(number)}
+				ariaLabel={`${number.label}${active ? ', selected' : ''}`}
+				ariaPressed={active}
+			/>
+		</div>
 	);
 }
 
-// Responsive helpers
 function useIsMobile() {
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 700);
 	useEffect(() => {
@@ -187,205 +163,56 @@ function useIsMobile() {
 	return isMobile;
 }
 
-const nodeTypes = { skillNode: SkillNode };
-
-function buildGraph(numbers, completed, activeId, seeds = {}, statValues = {}) {
-	// Diamond/crystal layout with increased spacing
-	//    2
-	//  1   3
-	// 4  5  6
-	//  7   9
-	//    8
-	const SPACING_X = 170;
-	const SPACING_Y = 115;
-	const positions = [
-		{ x: SPACING_X * 0.5, y: SPACING_Y * 0.8 },  // 1
-		{ x: SPACING_X,       y: 0 },               // 2 (top center)
-		{ x: SPACING_X * 1.5, y: SPACING_Y * 0.8 }, // 3
-		{ x: 0,               y: SPACING_Y * 1.8 }, // 4 (left)
-		{ x: SPACING_X,       y: SPACING_Y * 1.8 }, // 5 (center)
-		{ x: SPACING_X * 2,   y: SPACING_Y * 1.8 }, // 6 (right)
-		{ x: SPACING_X * 0.5, y: SPACING_Y * 2.8 }, // 7
-		{ x: SPACING_X,       y: SPACING_Y * 3.8 }, // 8 (bottom center)
-		{ x: SPACING_X * 1.5, y: SPACING_Y * 2.8 }, // 9
-	];
-
-	const nodes = numbers.map((num, i) => ({
-		id: num.id,
-		type: "skillNode",
-		position: positions[i],
-		data: {
-			number: num,
-			completed: completed[num.id] || [false, false, false],
-			active: activeId === num.id,
-			seeds,
-			statValues,
-		},
-	}));
-
-	// Connector path: 1 → 2 → 3 → 5 → 7 → 8 → 9 → 5 → 1 (figure-8 through 5)
-	// Handle ids must match SkillNode skillHandles (t/b/l/r · in/out)
-	const edges = [
-		{ id: "e1-2", source: "1", sourceHandle: "r-out", target: "2", targetHandle: "l-in" },
-		{ id: "e2-3", source: "2", sourceHandle: "r-out", target: "3", targetHandle: "l-in" },
-		{ id: "e3-5", source: "3", sourceHandle: "b-out", target: "5", targetHandle: "r-in" },
-		{ id: "e5-7", source: "5", sourceHandle: "b-out", target: "7", targetHandle: "t-in" },
-		{ id: "e7-8", source: "7", sourceHandle: "b-out", target: "8", targetHandle: "l-in" },
-		{ id: "e8-9", source: "8", sourceHandle: "r-out", target: "9", targetHandle: "b-in" },
-		{ id: "e9-5", source: "9", sourceHandle: "l-out", target: "5", targetHandle: "r-in" },
-		{ id: "e5-1", source: "5", sourceHandle: "l-out", target: "1", targetHandle: "b-in" },
-	].map((e) => ({
-		...e,
-		type: 'default',
-		animated: false,
-	}));
-
-	return { nodes, edges };
-}
-
 export default function SkillTree({ completed, activeNode, setActiveNode, seeds = {}, statValues = {} }) {
 	const isMobile = useIsMobile();
-	const [nodes, setNodes, onNodesChange] = useNodesState([]);
-	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-	const [zoomLock, setZoomLock] = useState(null);
-	const rfRef = useRef(null);
 	const wrapRef = useRef(null);
-	const sheetOpenRef = useRef(false);
-	const setActiveNodeRef = useRef(setActiveNode);
-	setActiveNodeRef.current = setActiveNode;
+	const [sealSize, setSealSize] = useState(FLOW_NODE_SIZE);
 
 	const toggleNode = useCallback((number) => {
-		setActiveNodeRef.current((prev) => (prev?.id === number.id ? null : number));
-	}, []);
+		setActiveNode((prev) => (prev?.id === number.id ? null : number));
+	}, [setActiveNode]);
 
-	const fitSkills = useCallback((rf, { sheetOpen = false, animate = false } = {}) => {
-		if (!rf) return false;
-		try {
-			const el = wrapRef.current?.querySelector('.react-flow') || wrapRef.current;
-			const w = el?.clientWidth || 0;
-			const h = el?.clientHeight || 0;
-			if (w < 40 || h < 40) return false;
-
-			rf.setMinZoom(0.15);
-			rf.setMaxZoom(4);
-
-			const duration = animate ? 220 : 0;
-			const SHEET_W = 340;
-
-			if (sheetOpen) {
-				// Center in full stage, then slide into the clear region beside/above the sheet
-				rf.fitView({ padding: 0.18, duration: 0 });
-				const vp = rf.getViewport();
-				if (isMobile) {
-					rf.setViewport(
-						{ ...vp, y: vp.y - Math.min(h * 0.2, 140) },
-						{ duration },
-					);
-				} else {
-					rf.setViewport(
-						{ ...vp, x: vp.x - SHEET_W / 2 },
-						{ duration },
-					);
-				}
-			} else {
-				// Idle: diamond centered in the full stage
-				rf.fitView({ padding: 0.18, duration });
-			}
-
-			const z = rf.getZoom();
-			if (!Number.isFinite(z) || z < 0.05 || z > 4) return false;
-			setZoomLock(z);
-			rf.setMinZoom(z);
-			rf.setMaxZoom(z);
-			return true;
-		} catch {
-			return false;
-		}
-	}, [isMobile]);
-
-	const onInit = useCallback((rf) => {
-		rfRef.current = rf;
-		let attempts = 0;
-		const tryFit = () => {
-			attempts += 1;
-			const ok = fitSkills(rf, { sheetOpen: sheetOpenRef.current });
-			if (!ok && attempts < 30) requestAnimationFrame(tryFit);
-		};
-		requestAnimationFrame(() => requestAnimationFrame(tryFit));
-	}, [fitSkills]);
-
-	const onFlowNodeClick = useCallback((_, node) => {
-		const number = NUMBERS.find((n) => n.id === node.id);
-		if (number) toggleNode(number);
-	}, [toggleNode]);
-
-	useEffect(() => {
-		const { nodes: n, edges: e } = buildGraph(NUMBERS, completed, activeNode?.id, seeds, statValues);
-		setNodes(n);
-		setEdges(e);
-	}, [completed, activeNode, setNodes, setEdges, isMobile, statValues, seeds]);
-
-	// Re-fit when the reading sheet opens or closes
-	useEffect(() => {
-		sheetOpenRef.current = !!activeNode;
-		const rf = rfRef.current;
-		if (!rf) return undefined;
-		const id = requestAnimationFrame(() => {
-			requestAnimationFrame(() => {
-				fitSkills(rf, { sheetOpen: !!activeNode, animate: true });
-			});
-		});
-		return () => cancelAnimationFrame(id);
-	}, [activeNode, fitSkills]);
-
-	// Re-fit when the canvas wrap changes size (flex sheet / viewport)
+	// Scale seals from cell size so the 3×3 fills the stage without clipping
 	useEffect(() => {
 		const el = wrapRef.current;
-		if (!el || typeof ResizeObserver === 'undefined') return undefined;
-		let timer = null;
-		const ro = new ResizeObserver(() => {
-			clearTimeout(timer);
-			timer = setTimeout(() => {
-				if (rfRef.current) {
-					fitSkills(rfRef.current, { sheetOpen: sheetOpenRef.current, animate: false });
-				}
-			}, 80);
-		});
-		ro.observe(el);
-		return () => {
-			clearTimeout(timer);
-			ro.disconnect();
+		if (!el || typeof ResizeObserver === "undefined") return undefined;
+
+		const measure = () => {
+			const w = el.clientWidth || 0;
+			const h = el.clientHeight || 0;
+			if (w < 40 || h < 40) return;
+			const pad = 12;
+			const gap = 8;
+			const cellW = (w - pad * 2 - gap * 2) / 3;
+			const cellH = (h - pad * 2 - gap * 2) / 3;
+			const next = Math.max(48, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)));
+			setSealSize((prev) => (prev === next ? prev : next));
 		};
-	}, [fitSkills]);
+
+		measure();
+		const ro = new ResizeObserver(() => measure());
+		ro.observe(el);
+		return () => ro.disconnect();
+	}, []);
 
 	const activeData = activeNode ? NUMBERS.find((n) => n.id === activeNode.id) : null;
+	const sheetOpen = !!activeData;
 	const totalCompleted = Object.values(completed).flat().filter(Boolean).length;
 	const totalQuests = NUMBERS.length * 3;
 
+	const gridClass = [
+		"skills-grid",
+		sheetOpen && !isMobile ? "skills-grid--sheet-desktop" : "",
+		sheetOpen && isMobile ? "skills-grid--sheet-mobile" : "",
+	].filter(Boolean).join(" ");
+
 	return (
-		<div
-			className="skills-stage"
-			role="main"
-			aria-label="Numerology Skill Tree"
-		>
+		<div className="skills-stage" role="main" aria-label="Numerology Skill Tree">
 			<style>{`
-				@keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
-				@keyframes pulse-aura { 0%,100% { opacity:0.5; transform:scale(1); } 50% { opacity:1; transform:scale(1.08); } }
 				.quest-item:hover, .quest-item:focus-visible, .quest-item:active {
 					background: rgba(255,255,255,0.08) !important;
 					outline: none;
 					box-shadow: 0 0 0 2px #fff2, 0 2px 8px #0002;
-				}
-				.skill-node-interactive:focus-visible {
-					box-shadow: 0 0 0 4px #fff4, 0 0 24px #fff2;
-					z-index: 2;
-				}
-				.skill-node-interactive:hover .skill-node-interactive-inner,
-				.skill-node-interactive:focus-visible .skill-node-interactive-inner,
-				.skill-node-interactive:active .skill-node-interactive-inner {
-					filter: brightness(1.08) drop-shadow(0 0 12px #fff3);
-					box-shadow: 0 0 32px #fff2, 0 0 0 4px #fff2;
-					border-color: #fff8 !important;
 				}
 				@media (max-width: 700px) {
 					.side-panel-mobile { width: 100vw !important; left: 0 !important; right: 0 !important; border-radius: 18px 18px 0 0 !important; }
@@ -407,38 +234,28 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 			</header>
 
 			<div className="skills-stage-body">
-				<div ref={wrapRef} className="flow-canvas-wrap skills-flow-wrap">
+				<div ref={wrapRef} className="skills-flow-wrap">
 					{!activeData && (
 						<p className="skills-idle-hint" aria-hidden="true">
 							Select a skill to view its path.
 						</p>
 					)}
-					<ReactFlow
-						nodes={nodes}
-						edges={edges}
-						onNodesChange={onNodesChange}
-						onEdgesChange={onEdgesChange}
-						nodeTypes={nodeTypes}
-						onInit={onInit}
-						onNodeClick={onFlowNodeClick}
-						nodesDraggable={false}
-						nodesConnectable={false}
-						elementsSelectable={false}
-						zoomOnDoubleClick={false}
-						zoomOnScroll={false}
-						zoomOnPinch={false}
-						panOnDrag={false}
-						panOnScroll={false}
-						preventScrolling
-						minZoom={zoomLock ?? (isMobile ? 0.2 : 0.4)}
-						maxZoom={zoomLock ?? (isMobile ? 3 : 2)}
-						proOptions={{ hideAttribution: true }}
-						style={{ touchAction: "none", width: "100%", height: "100%" }}
-						aria-label="Skill Tree Graph"
-					/>
+					<div className={gridClass} aria-label="Skill Tree">
+						{NUMBERS.map((num) => (
+							<SkillSeal
+								key={num.id}
+								number={num}
+								completed={completed[num.id] || [false, false, false]}
+								active={activeNode?.id === num.id}
+								seeds={seeds}
+								statValues={statValues}
+								size={sealSize}
+								onSelect={toggleNode}
+							/>
+						))}
+					</div>
 				</div>
 
-				{/* Side Panel: modal overlay on mobile, side panel on desktop */}
 				<AnimatePresence>
 				{activeData && (
 					<>

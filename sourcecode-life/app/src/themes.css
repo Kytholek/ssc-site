@@ -518,7 +518,7 @@
 
 /* Skill trees, quest tracks, alignment bars */
 [data-theme="fantasy"] .skill-bars,
-[data-theme="fantasy"] .skills-grid,
+[data-theme="fantasy"] .skills-wrap .skills-grid,
 [data-theme="fantasy"] .quest-tracks,
 [data-theme="fantasy"] .alignment-tracks,
 [data-theme="fantasy"] .skill-tree-display {

@@ -1681,28 +1681,42 @@ body.scl-realm-open .tab-bar {
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
-.skills-flow-wrap .react-flow {
+.skills-grid {
   width: 100%;
   height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  place-items: center;
+  gap: 8px;
+  padding: 12px;
+  transition: transform 0.22s ease;
+  z-index: 1;
 }
-.skills-flow-wrap .react-flow__pane {
-  cursor: default;
+.skills-grid--sheet-desktop {
+  transform: translateX(calc(-0.5 * min(340px, 42vw)));
 }
-.skills-flow-wrap .react-flow__node {
-  pointer-events: all;
-  cursor: pointer;
+.skills-grid--sheet-mobile {
+  transform: translateY(-10%);
 }
-.skills-flow-wrap .react-flow__edge,
-.skills-flow-wrap .react-flow__edge-interaction,
-.skills-flow-wrap .react-flow__edge-path {
-  pointer-events: none;
+.skills-grid-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 .skills-idle-hint {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 10px;
+  transform: translateX(-50%);
   z-index: 2;
   margin: 0;
   max-width: 80%;
@@ -5727,19 +5741,6 @@ body.scl-realm-open .tab-bar {
   animation: skilltree-edge-flow 1.2s linear infinite;
 }
 
-/* Skills stage: quiet static connectors (override march above) */
-.flow-canvas-wrap.skills-flow-wrap .react-flow__edge .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.14);
-  stroke-width: 1.5;
-  stroke-dasharray: none;
-  animation: none;
-  filter: none;
-}
-.flow-canvas-wrap.skills-flow-wrap .react-flow__edge-interaction {
-  stroke-width: 0;
-  filter: none;
-}
-
 /* Glow layer â€” uses the interaction edge class ReactFlow provides */
 .flow-canvas-wrap .react-flow__edge-interaction {
   stroke: rgba(255,255,255,0.04);
@@ -7057,7 +7058,8 @@ body.scl-realm-open .tab-bar {
   color: var(--gold);
 }
 
-.skills-grid {
+/* Legacy stats skill cards (unused by Skills stage seal grid) */
+.skills-wrap .skills-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
@@ -7631,7 +7633,7 @@ body.scl-realm-open .tab-bar {
   .master-chip-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .skills-grid {
+  .skills-wrap .skills-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

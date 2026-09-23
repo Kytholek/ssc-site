@@ -69,18 +69,17 @@ export default function FlowProgressNode({
   return (
     <div
       onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
-      onMouseDown={onClick ? (e) => e.stopPropagation() : undefined}
       className={[
         'flow-node-interactive',
         isActive ? 'flow-node-interactive--static-select' : '',
         isSquare ? 'flow-node-interactive--square' : '',
       ].filter(Boolean).join(' ')}
       style={{ ...cssVars, width: size, height: size, position: 'relative' }}
-      role="button"
-      tabIndex={0}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
       aria-label={ariaLabel || undefined}
       aria-pressed={ariaPressed != null ? ariaPressed : undefined}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } } : undefined}
     >
       {withHandles && handles.map((h) => (
         <Handle

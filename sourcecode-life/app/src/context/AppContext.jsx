@@ -11,6 +11,8 @@ const initialState = {
   screen: 'boot',
   /** Active main tab: 'home' | 'quests' | 'map' | 'profile' | 'config' */
   activeTab: 'home',
+  /** Short-lived deep-link into a tab's section (e.g. 'blueprint', 'stats'); cleared after consume */
+  tabSection: null,
   /** Auth form errors: { loginError, regError, charError, forgotError, forgotSuccess, cpError, cpSuccess, deleteError } */
   authErrors: {},
   /** Auth loading spinners: { loginLoading, regLoading, charLoading, forgotLoading } */
@@ -34,7 +36,17 @@ function appReducer(state, action) {
       return { ...state, playerData: action.payload }
 
     case 'SET_TAB':
-      return { ...state, activeTab: action.payload }
+      return {
+        ...state,
+        activeTab: action.payload,
+        tabSection: action.section ?? null,
+      }
+
+    case 'SET_TAB_SECTION':
+      return { ...state, tabSection: action.payload }
+
+    case 'CLEAR_TAB_SECTION':
+      return { ...state, tabSection: null }
 
     case 'LOGIN': {
       const { uid, email } = action.payload

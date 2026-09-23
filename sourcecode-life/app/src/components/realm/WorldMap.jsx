@@ -17,19 +17,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-// ── Constants ─────────────────────────────────────────────────────────────────
 const LS_ALLIES          = 'scl_allies'
 const LS_ACCEPTED_QUESTS = 'scl_accepted_quests'
 
-const QUEST_TYPES_WITH_COLORS = [
-  { key: 'exploration', label: '🗺 EXPLORE', color: '#00e5cc' },
-  { key: 'connection',  label: '⚔ CONNECT',  color: '#2ecc71' },
-  { key: 'achievement', label: '▲ ACHIEVE',  color: '#f0c060' },
-  { key: 'healing',     label: '✦ HEAL',     color: '#f472b6' },
-  { key: 'creation',    label: '◈ CREATE',   color: '#a78bfa' },
-  { key: 'reflection',  label: '◇ REFLECT',  color: '#fbbf24' },
-]
-const QUEST_TYPE_MAP = Object.fromEntries(QUEST_TYPES_WITH_COLORS.map(t => [t.key, t]))
+const QUEST_TYPE_MAP = Object.fromEntries(QUEST_TYPES.map(t => [t.key, t]))
 const REWARD_LABELS  = {
   1:'Leadership · Willpower · New Beginnings',  2:'Partnership · Intuition · Balance',
   3:'Creativity · Joy · Communication',          4:'Discipline · Stability · Mastery',
@@ -38,7 +29,6 @@ const REWARD_LABELS  = {
   9:'Completion · Compassion · Transcendence',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function loadAllies()           { try { return JSON.parse(localStorage.getItem(LS_ALLIES)           || '[]') } catch { return [] } }
 function loadAccepted()         { try { return JSON.parse(localStorage.getItem(LS_ACCEPTED_QUESTS) || '{}') } catch { return {} } }
 
@@ -50,7 +40,6 @@ function haversineMi(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
 }
 
-// ── Map theme ─────────────────────────────────────────────────────────────────
 const CARTO_KEY = 'cb1_3jdj_1_55d91f33e6530529aecedc44'
 const TILE_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
 const LIGHT_THEMES = ['unicorn']
@@ -91,16 +80,18 @@ function CartoBasemapTiles() {
   return null
 }
 
-function makeCircleIcon(color, glow, size = 16) {
+function makeCircleIcon(color, glow, size = 16, shape = 'circle') {
+  const radius = shape === 'diamond' ? '2px' : '50%'
+  const transform = shape === 'diamond' ? 'transform:rotate(45deg);' : ''
   return L.divIcon({
     className: '',
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid rgba(0,0,0,0.6);box-shadow:0 0 8px ${glow}"></div>`,
+    html: `<div style="width:${size}px;height:${size}px;border-radius:${radius};background:${color};border:2px solid rgba(0,0,0,0.65);box-shadow:0 0 8px ${glow};${transform}"></div>`,
     iconSize: [size, size], iconAnchor: [size/2, size/2],
   })
 }
 
-function makeQuestMarkerWithReputation(color, glow, reputation, isOwn) {
-  const size = 18
+function makeQuestMarkerWithReputation(color, glow, reputation, shape = 'circle') {
+  const size = shape === 'diamond' ? 18 : 16
   const ratingCount = reputation?.ratingCount || 0
   const totalRating = reputation?.totalRating || 0
   const avgRating = ratingCount > 0
@@ -115,11 +106,13 @@ function makeQuestMarkerWithReputation(color, glow, reputation, isOwn) {
   }
 
   const iconSize = badgeHtml ? size + 24 : size
+  const radius = shape === 'diamond' ? '2px' : '50%'
+  const transform = shape === 'diamond' ? 'transform:rotate(45deg);' : ''
 
   return L.divIcon({
     className: 'rm-marker-icon',
     html: `<div class="rm-marker-wrapper" style="position:relative;width:${iconSize}px;height:${iconSize}px;display:flex;align-items:center;justify-content:center;">
-      <div class="rm-marker-circle" style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid rgba(0,0,0,0.6);box-shadow:0 0 8px ${glow}"></div>
+      <div class="rm-marker-circle" style="width:${size}px;height:${size}px;border-radius:${radius};background:${color};border:2px solid rgba(0,0,0,0.65);box-shadow:0 0 8px ${glow};${transform}"></div>
       ${badgeHtml}
     </div>`,
     iconSize: [iconSize, iconSize],
@@ -127,9 +120,17 @@ function makeQuestMarkerWithReputation(color, glow, reputation, isOwn) {
   })
 }
 
-const MINE_ICON  = makeCircleIcon('#d4a843', '#d4a84388', 18)
-const ALLY_ICON  = makeCircleIcon('#00e5cc', '#00e5cc88', 16)
-const PLACE_ICON = makeCircleIcon('#d4a843', '#d4a84388', 18)
+const YOU_ICON   = makeCircleIcon('#f5e6a3', '#f5e6a388', 14, 'circle')
+const OWN_QUEST_ICON = makeCircleIcon('#d4a843', '#d4a843aa', 18, 'diamond')
+const ALLY_ICON  = makeCircleIcon('#00e5cc', '#00e5cc88', 14, 'circle')
+const PLACE_ICON = makeCircleIcon('#ffd76a', '#ffd76a88', 18, 'diamond')
+
+function questIcon(quest, myUid, reputation) {
+  if (quest.uid === myUid) return OWN_QUEST_ICON
+  const tint = QUEST_TYPE_MAP[quest.type]?.color || '#00e5cc'
+  if (reputation) return makeQuestMarkerWithReputation(tint, tint + '88', reputation, 'circle')
+  return makeCircleIcon(tint, tint + '88', 16, 'circle')
+}
 
 function MapClickHandler({ onMapClick }) {
   useMapEvents({ click: e => onMapClick(e.latlng) })
@@ -140,7 +141,6 @@ function FlyToLocation({ coords }) {
   useEffect(() => { if (coords) map.flyTo(coords, 13, { duration: 1.4 }) }, [coords, map])
   return null
 }
-/** Recalculate Leaflet size after flex/tab layout settles. */
 function InvalidateSizeOnMount() {
   const map = useMap()
   useEffect(() => {
@@ -161,23 +161,20 @@ function InvalidateSizeOnMount() {
   return null
 }
 
-// ── Quest Popup ───────────────────────────────────────────────────────────────
 function QuestPopup({ quest, myUid, onAccept }) {
   const [rep, setRep] = useState(null)
   const isOwn      = quest.uid === myUid
-  const color      = isOwn ? '#d4a843' : '#00e5cc'
-  const typeLabel  = (QUEST_TYPE_MAP[quest.type] || QUEST_TYPES_WITH_COLORS[0]).label
+  const color      = isOwn ? '#d4a843' : (QUEST_TYPE_MAP[quest.type]?.color || '#00e5cc')
+  const typeLabel  = (QUEST_TYPE_MAP[quest.type] || QUEST_TYPES[0]).label
   const isAccepted = !!loadAccepted()[quest.id]
   const seekerIcon = { solo: '◈ SOLO', partner: '⚔ PARTNER', group: '✦ GROUP' }
 
   useEffect(() => {
     if (quest.uid && quest.uid !== myUid) {
       fetchCreatorReputation(quest.uid).then(r => {
-        const rep = r || { totalRating: 0, ratingCount: 0, completions: 0, noShows: 0 }
-        setRep(rep)
+        setRep(r || { totalRating: 0, ratingCount: 0, completions: 0, noShows: 0 })
       })
     } else {
-      // Own quest or no uid - show empty reputation
       setRep({ totalRating: 0, ratingCount: 0, completions: 0, noShows: 0 })
     }
   }, [quest.uid, myUid])
@@ -209,7 +206,7 @@ function QuestPopup({ quest, myUid, onAccept }) {
         </div>
       )}
       {quest.playerName && <div className="rm-popup-creator">— {formatDisplayName(quest.playerName)}</div>}
-      {rep && (
+      {rep && !isOwn && (
         <div className="rm-popup-rep">
           <div className="rm-popup-stars">
             {[1,2,3,4,5].map(n => (
@@ -226,19 +223,23 @@ function QuestPopup({ quest, myUid, onAccept }) {
           )}
         </div>
       )}
-      <button
-        className={`rm-popup-btn${isAccepted ? ' rm-popup-btn--accepted' : ''}`}
-        style={{ borderColor: isAccepted ? 'rgba(201,168,76,0.4)' : color + '88', color: isAccepted ? '#c9a84c' : color }}
-        onClick={() => !isAccepted && onAccept(quest.id)}
-        disabled={isAccepted}
-      >
-        {isAccepted ? '✓ ALREADY IN LOG' : '▶ ACCEPT QUEST'}
-      </button>
+      {isOwn ? (
+        <div className="rm-popup-own">YOUR QUEST</div>
+      ) : (
+        <button
+          type="button"
+          className={`rm-popup-btn${isAccepted ? ' rm-popup-btn--accepted' : ''}`}
+          style={{ borderColor: isAccepted ? 'rgba(201,168,76,0.4)' : color + '88', color: isAccepted ? '#c9a84c' : color }}
+          onClick={() => !isAccepted && onAccept(quest.id)}
+          disabled={isAccepted}
+        >
+          {isAccepted ? '✓ ALREADY IN LOG' : '▶ ACCEPT QUEST'}
+        </button>
+      )}
     </div>
   )
 }
 
-// ── Create Quest Form ─────────────────────────────────────────────────────────
 function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) {
   const [name, setName]   = useState('')
   const [desc, setDesc]   = useState('')
@@ -247,6 +248,7 @@ function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) 
   const [reward, setReward] = useState(1)
   const [objs, setObjs]   = useState(['', '', ''])
   const [error, setError] = useState('')
+  const [moreOpen, setMoreOpen] = useState(false)
 
   async function handleSave() {
     if (!name.trim()) { setError('Quest name is required.'); return }
@@ -266,7 +268,6 @@ function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) 
       visibility: creatorTier >= 3 ? 'featured' : 'local',
     }
 
-    // Save to Firestore (shared across all players)
     const saved = await createWorldQuest(q)
     if (saved) {
       onSave(saved)
@@ -275,51 +276,67 @@ function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) 
     }
   }
 
-  const typeColor = (QUEST_TYPE_MAP[type] || QUEST_TYPES_WITH_COLORS[0]).color
-
   return (
-    <div className="rm-cq-form">
-      <div className="rm-cq-title" style={{ color: typeColor }}>◈ NEW QUEST MARKER</div>
-      <label className="rm-cq-label">QUEST TYPE</label>
-      <div className="rm-cq-type-grid">
-        {QUEST_TYPES.map(t => (
-          <button key={t.key} className={`rm-cq-type-btn${type === t.key ? ' active' : ''}`} onClick={() => setType(t.key)}>{t.label}</button>
-        ))}
-      </div>
-      <label className="rm-cq-label">QUEST NAME <span className="rm-cq-count">{name.length}/60</span></label>
-      <input className="rm-cq-input" maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="Name your quest…" />
-      <label className="rm-cq-label">DESCRIPTION <span className="rm-cq-count">{desc.length}/200</span></label>
-      <textarea className="rm-cq-textarea" maxLength={200} rows={3} value={desc} onChange={e => setDesc(e.target.value)} placeholder="What is this quest about?" />
-      <label className="rm-cq-label">OBJECTIVES</label>
-      {objs.map((o, i) => (
-        <input key={i} className="rm-cq-input rm-cq-obj" maxLength={120} value={o}
-          onChange={e => setObjs(objs.map((v, j) => j === i ? e.target.value : v))}
-          placeholder={`Objective ${i + 1}`} />
-      ))}
-      <label className="rm-cq-label">SEEKER TYPE</label>
-      <div className="rm-cq-seeker-row">
-        {SEEKER_TYPES.map(s => (
-          <button key={s} className={`rm-cq-seeker-btn${seeker === s ? ' active' : ''}`} onClick={() => setSeeker(s)}>{s.toUpperCase()}</button>
-        ))}
-      </div>
-      <label className="rm-cq-label">REWARD FREQUENCY</label>
-      <div className="rm-cq-reward-grid">
-        {[1,2,3,4,5,6,7,8,9].map(n => (
-          <button key={n} className={`rm-cq-reward-btn${reward === n ? ' active' : ''}`} onClick={() => setReward(n)}>{n}</button>
-        ))}
-      </div>
-      <div className="rm-cq-reward-label">{REWARD_LABELS[reward]}</div>
-      {error && <div className="rm-cq-error">{error}</div>}
-      <div className="rm-cq-actions">
-        <button className="rm-cq-cancel" onClick={onCancel}>CANCEL</button>
-        <button className="rm-cq-submit" onClick={handleSave}>PLACE QUEST</button>
+    <div className="rm-cq-sheet" role="dialog" aria-label="New quest marker">
+      <div className="rm-cq-sheet-handle" aria-hidden="true" />
+      <div className="rm-cq-form rm-cq-form--sheet">
+        <div className="rm-cq-header">
+          <div className="rm-cq-title">◈ NEW QUEST MARKER</div>
+          <div className="rm-cq-coords">{latlng.lat.toFixed(4)}, {latlng.lng.toFixed(4)}</div>
+          <button type="button" className="rm-cq-close" onClick={onCancel} aria-label="Cancel">✕</button>
+        </div>
+
+        <label className="rm-cq-label">QUEST NAME <span className="rm-cq-count">{name.length}/60</span></label>
+        <input className="rm-cq-input" maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="Name your quest…" />
+
+        <label className="rm-cq-label">SEEKER TYPE</label>
+        <div className="rm-cq-seeker-row">
+          {SEEKER_TYPES.map(s => (
+            <button key={s} type="button" className={`rm-cq-seeker-btn${seeker === s ? ' active' : ''}`} onClick={() => setSeeker(s)}>{s.toUpperCase()}</button>
+          ))}
+        </div>
+
+        <button type="button" className="rm-cq-more-toggle" onClick={() => setMoreOpen(v => !v)}>
+          {moreOpen ? '▾ LESS' : '▸ MORE DETAILS'}
+        </button>
+
+        {moreOpen && (
+          <div className="rm-cq-more">
+            <label className="rm-cq-label">QUEST TYPE</label>
+            <div className="rm-cq-type-grid">
+              {QUEST_TYPES.map(t => (
+                <button key={t.key} type="button" className={`rm-cq-type-btn${type === t.key ? ' active' : ''}`} onClick={() => setType(t.key)}>{t.label}</button>
+              ))}
+            </div>
+            <label className="rm-cq-label">DESCRIPTION <span className="rm-cq-count">{desc.length}/200</span></label>
+            <textarea className="rm-cq-textarea" maxLength={200} rows={3} value={desc} onChange={e => setDesc(e.target.value)} placeholder="What is this quest about?" />
+            <label className="rm-cq-label">OBJECTIVES</label>
+            {objs.map((o, i) => (
+              <input key={i} className="rm-cq-input rm-cq-obj" maxLength={120} value={o}
+                onChange={e => setObjs(objs.map((v, j) => j === i ? e.target.value : v))}
+                placeholder={`Objective ${i + 1}`} />
+            ))}
+            <label className="rm-cq-label">REWARD FREQUENCY</label>
+            <div className="rm-cq-reward-grid">
+              {[1,2,3,4,5,6,7,8,9].map(n => (
+                <button key={n} type="button" className={`rm-cq-reward-btn${reward === n ? ' active' : ''}`} onClick={() => setReward(n)}>{n}</button>
+              ))}
+            </div>
+            <div className="rm-cq-reward-label">{REWARD_LABELS[reward]}</div>
+          </div>
+        )}
+
+        {error && <div className="rm-cq-error">{error}</div>}
+        <div className="rm-cq-actions">
+          <button type="button" className="rm-cq-cancel" onClick={onCancel}>CANCEL</button>
+          <button type="button" className="rm-cq-save rm-cq-submit" onClick={handleSave}>PLACE QUEST</button>
+        </div>
       </div>
     </div>
   )
 }
 
-// ── World Map ─────────────────────────────────────────────────────────────────
-export default function WorldMapView({ playerData }) {
+export default function WorldMapView({ playerData, onOpenSideQuests }) {
   const gameDispatch = useGameDispatch()
   const creatorTier = getCreatorTier()
   const [quests, setQuests]         = useState(() => loadQuests())
@@ -332,14 +349,19 @@ export default function WorldMapView({ playerData }) {
   const [placingMode, setPlacingMode] = useState(false)
   const [pendingLL, setPendingLL]   = useState(null)
   const [showCreate, setShowCreate] = useState(null)
+  const [toast, setToast]           = useState(null)
   const myUid = playerData?.uid || playerData?.name || 'me'
 
-  // Refresh side quests in GameContext when they change
   useEffect(() => {
     gameDispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
   }, [])
 
-  // Load quests from Firestore on mount
+  useEffect(() => {
+    if (!toast) return undefined
+    const id = setTimeout(() => setToast(null), 4200)
+    return () => clearTimeout(id)
+  }, [toast])
+
   useEffect(() => {
     const loadFirestoreQuests = async () => {
       const firestoreQuests = await fetchAllWorldQuests()
@@ -347,7 +369,6 @@ export default function WorldMapView({ playerData }) {
         setQuests(firestoreQuests)
         saveQuests(firestoreQuests)
 
-        // Fetch reputations for all quest creators
         const reps = {}
         for (const q of firestoreQuests) {
           if (q.uid && q.uid !== myUid && !reps[q.uid]) {
@@ -382,34 +403,44 @@ export default function WorldMapView({ playerData }) {
   }
 
   function handleAccept(questId) {
-    const q = quests.find(q => q.id === questId) || { id: questId }
+    const q = quests.find(item => item.id === questId)
+    if (!q || q.uid === myUid) return
     const result = qeAcceptQuest(q)
     if (result.ok) {
       setQuests([...loadQuests()])
       gameDispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
+      setToast({
+        msg: 'Quest accepted',
+        actionLabel: 'VIEW SIDE QUESTS',
+        onAction: onOpenSideQuests,
+      })
     }
   }
 
   const nearby = userCoords
     ? quests
-        .filter(q => q.lat && q.lng)
+        .filter(q => q.lat && q.lng && q.uid !== myUid)
         .map(q => ({ ...q, _dist: haversineMi(userCoords[0], userCoords[1], q.lat, q.lng) }))
         .filter(q => q._dist <= 30)
         .sort((a, b) => a._dist - b._dist)
+        .slice(0, 5)
     : []
 
+  const showColdStart = !userCoords && !locLoading && quests.length === 0 && !showCreate
+
   return (
-    <div className="rm-digital-view rm-world-map-view">
+    <div className="rm-digital-view rm-world-view rm-world-map-view">
       <div className="rm-map-controls">
         {userCoords
           ? <span className="rm-loc-active">◎ LOCATION ACTIVE</span>
-          : <button className="rm-loc-btn" onClick={requestLocation} disabled={locLoading}>
+          : <button type="button" className="rm-loc-btn" onClick={requestLocation} disabled={locLoading}>
               {locLoading ? '◎ LOCATING…' : '◎ USE MY LOCATION'}
             </button>
         }
         {locError && <span className="rm-loc-error">{locError}</span>}
         <button
-          className={`rm-place-btn${placingMode ? ' rm-place-btn--active' : ''}${creatorTier < 2 ? ' rm-place-btn--locked' : ''}`}
+          type="button"
+          className={`rm-place-btn${placingMode ? ' rm-place-btn--active active' : ''}${creatorTier < 2 ? ' rm-place-btn--locked' : ''}`}
           onClick={() => {
             if (placingMode) {
               gameDispatch({ type: ACTIONS.SET_TOAST, payload: {
@@ -418,6 +449,7 @@ export default function WorldMapView({ playerData }) {
               }})
               setPlacingMode(false)
               setPendingLL(null)
+              setShowCreate(null)
               return
             }
             if (creatorTier < 2) {
@@ -439,31 +471,24 @@ export default function WorldMapView({ playerData }) {
       </div>
       {placingMode && <div className="rm-placing-hint">◈ Tap the map to place your quest</div>}
 
-      <div className="rm-map-wrap">
+      <div className={`rm-map-wrap${showCreate ? ' rm-map-wrap--sheet' : ''}`}>
         <MapContainer center={userCoords || [20, 0]} zoom={userCoords ? 13 : 3} className="rm-leaflet" zoomControl>
           <CartoBasemapTiles />
           <InvalidateSizeOnMount />
           <MapClickHandler onMapClick={handleMapClick} />
           {flyTo && <FlyToLocation coords={flyTo} />}
           {userCoords && (
-            <Marker position={userCoords} icon={MINE_ICON}>
+            <Marker position={userCoords} icon={YOU_ICON}>
               <Popup><div className="rm-popup"><div className="rm-popup-name">You are here</div></div></Popup>
             </Marker>
           )}
-          {quests.filter(q => q.lat && q.lng).map(q => {
-            let icon = MINE_ICON
-            if (q.uid !== myUid) {
-              const rep = questReps[q.uid]
-              icon = makeQuestMarkerWithReputation('#00e5cc', '#00e5cc88', rep, false)
-            }
-            return (
-              <Marker key={q.id} position={[q.lat, q.lng]} icon={icon}>
-                <Popup maxWidth={280}><QuestPopup quest={q} myUid={myUid} onAccept={handleAccept} /></Popup>
-              </Marker>
-            )
-          })}
+          {quests.filter(q => q.lat && q.lng).map(q => (
+            <Marker key={q.id} position={[q.lat, q.lng]} icon={questIcon(q, myUid, questReps[q.uid])}>
+              <Popup maxWidth={280}><QuestPopup quest={q} myUid={myUid} onAccept={handleAccept} /></Popup>
+            </Marker>
+          ))}
           {allies.filter(a => a.lat && a.lng).map((a, i) => (
-            <Marker key={i} position={[a.lat, a.lng]} icon={ALLY_ICON}>
+            <Marker key={`ally-${i}`} position={[a.lat, a.lng]} icon={ALLY_ICON}>
               <Popup maxWidth={240}>
                 <div className="rm-popup">
                   <div className="rm-popup-type" style={{ color: '#00e5cc' }}>⚔ ALLY</div>
@@ -474,29 +499,64 @@ export default function WorldMapView({ playerData }) {
           ))}
           {pendingLL && <Marker position={[pendingLL.lat, pendingLL.lng]} icon={PLACE_ICON} />}
         </MapContainer>
+
+        {showColdStart && (
+          <div className="rm-map-coldstart">
+            <div className="rm-map-coldstart-title">FIND YOUR GROUND</div>
+            <p className="rm-map-coldstart-copy">Use your location, then tap the map to place a quest.</p>
+            <button type="button" className="rm-loc-btn rm-map-coldstart-btn" onClick={requestLocation} disabled={locLoading}>
+              {locLoading ? '◎ LOCATING…' : '◎ USE MY LOCATION'}
+            </button>
+            {creatorTier >= 2 && (
+              <button
+                type="button"
+                className="rm-place-btn rm-map-coldstart-place"
+                onClick={() => setPlacingMode(true)}
+              >
+                + PLACE WITHOUT LOCATION
+              </button>
+            )}
+          </div>
+        )}
+
+        {showCreate && (
+          <CreateQuestForm
+            latlng={showCreate}
+            playerData={playerData}
+            creatorTier={creatorTier}
+            onSave={q => {
+              const updated = [...loadQuests(), q]
+              saveQuests(updated)
+              setQuests(updated)
+              setShowCreate(null)
+              setPendingLL(null)
+              setToast({
+                msg: 'Quest placed on the map',
+                actionLabel: 'VIEW SIDE QUESTS',
+                onAction: onOpenSideQuests,
+              })
+            }}
+            onCancel={() => { setShowCreate(null); setPendingLL(null) }}
+          />
+        )}
       </div>
 
-      {showCreate && (
-        <CreateQuestForm
-          latlng={showCreate}
-          playerData={playerData}
-          creatorTier={creatorTier}
-          onSave={q => {
-            const updated = [...loadQuests(), q]
-            saveQuests(updated)
-            setQuests(updated)
-            setShowCreate(null)
-            setPendingLL(null)
-          }}
-          onCancel={() => { setShowCreate(null); setPendingLL(null) }}
-        />
+      {toast && (
+        <div className="rm-map-toast" role="status">
+          <span>{toast.msg}</span>
+          {typeof toast.onAction === 'function' && (
+            <button type="button" className="rm-map-toast-action" onClick={() => { toast.onAction(); setToast(null) }}>
+              {toast.actionLabel}
+            </button>
+          )}
+        </div>
       )}
 
       {nearby.length > 0 && (
         <div className="rm-nearby">
-          <div className="rm-nearby-title">◈ NEARBY QUESTS — WITHIN 30 MI</div>
+          <div className="rm-nearby-title rm-nearby-label">◈ NEARBY — WITHIN 30 MI</div>
           {nearby.map(q => {
-            const questColor = (QUEST_TYPE_MAP[q.type] || QUEST_TYPES_WITH_COLORS[0]).color
+            const questColor = (QUEST_TYPE_MAP[q.type] || QUEST_TYPES[0]).color
             return (
               <div key={q.id} className="rm-nearby-card" style={{ '--quest-color': questColor }}>
                 <div className="rm-nearby-header">
@@ -505,11 +565,12 @@ export default function WorldMapView({ playerData }) {
                 </div>
                 {q.rewardNum && <div className="rm-nearby-reward">✦ {q.rewardNum} · {REWARD_NAMES[q.rewardNum]}</div>}
                 <button
+                  type="button"
                   className={`rm-nearby-accept${loadAccepted()[q.id] ? ' accepted' : ''}`}
                   onClick={() => !loadAccepted()[q.id] && handleAccept(q.id)}
                   disabled={!!loadAccepted()[q.id]}
                 >
-                  {loadAccepted()[q.id] ? '✓ IN YOUR LOG' : '▶ ACCEPT QUEST'}
+                  {loadAccepted()[q.id] ? '✓ IN YOUR LOG' : '▶ ACCEPT'}
                 </button>
               </div>
             )

@@ -8,11 +8,12 @@ import { QUEST_TYPES } from './sidequestHelpers'
 const SQ_SEEKER_LABEL = { solo: '◈ SOLO', partner: '⚔ PARTNER', group: '✦ GROUP' }
 const QUEST_COLORS = Object.fromEntries(QUEST_TYPES.map(t => [t.key, t.color]))
 
-export default function SideQuestsView() {
+export default function SideQuestsView({ onOpenWorldMap }) {
   const { sideQuests, completeSideQuest, cancelSideQuest } = useQuestEngine()
   const { user } = useGameState()
   const [pendingRatings, setPendingRatings] = useState([])
   const [pendingStars, setPendingStars] = useState({})
+  const [confirmAbandon, setConfirmAbandon] = useState(null)
 
   useEffect(() => {
     if (user?.uid) {
@@ -31,15 +32,22 @@ export default function SideQuestsView() {
       localStorage.setItem('scl_rated_' + qid, '1')
     }
     cancelSideQuest(qid)
+    setConfirmAbandon(null)
   }
 
   if (!active.length && !completed.length) {
     return (
-      <div className="rm-sq-empty-state">
+      <div className="rm-sq-empty-state rm-side-empty">
         <div style={{ fontSize: 22, marginBottom: 10 }}>⚔</div>
-        <strong>No active side quests.</strong><br />
-        Go to <em>World Map</em>, tap a quest marker on the map,<br />
-        then press ▶ ACCEPT QUEST to begin.
+        <strong>No active side quests.</strong>
+        <p className="rm-side-empty-copy">
+          Open the World Map, tap a quest marker, then press ▶ ACCEPT QUEST to begin.
+        </p>
+        {typeof onOpenWorldMap === 'function' && (
+          <button type="button" className="rm-side-empty-cta" onClick={onOpenWorldMap}>
+            ▶ OPEN WORLD MAP
+          </button>
+        )}
       </div>
     )
   }
@@ -58,11 +66,13 @@ export default function SideQuestsView() {
               <div className="quest-detail-rating-stars">
                 {[1,2,3,4,5].map(n => (
                   <button key={n}
+                    type="button"
                     className={`star-btn${(pendingStars[pr.id] || 0) >= n ? ' filled' : ''}`}
                     onClick={() => setPendingStars(s => ({ ...s, [pr.id]: n }))}>★</button>
                 ))}
               </div>
               <button
+                type="button"
                 className="rm-sq-rate-submit-btn"
                 disabled={!pendingStars[pr.id]}
                 onClick={async () => {
@@ -92,10 +102,18 @@ export default function SideQuestsView() {
               </ul>
             )}
             {q.seekerType && <div className="rm-sq-seeker" style={{ color: questColor }}>{SQ_SEEKER_LABEL[q.seekerType] || q.seekerType}</div>}
-            <div className="rm-sq-xp-info">+{xpAmt} SOCIAL XP · STAT {statTarget}</div>
+            <div className="rm-sq-xp-info">+{xpAmt} SOCIAL · STAT {statTarget}</div>
             <div className="rm-sq-actions">
-              <button className="rm-sq-complete-btn" style={{ '--quest-color': questColor }} onClick={() => handleComplete(qid)}>▶ COMPLETE</button>
-              <button className="rm-sq-abandon-btn" onClick={() => handleCancel(q)}>✕ ABANDON</button>
+              <button type="button" className="rm-sq-complete-btn" style={{ '--quest-color': questColor }} onClick={() => handleComplete(qid)}>▶ COMPLETE</button>
+              {confirmAbandon === qid ? (
+                <div className="side-quest-abandon-confirm">
+                  <span>Abandon?</span>
+                  <button type="button" className="rm-sq-abandon-btn" onClick={() => handleCancel(q)}>YES</button>
+                  <button type="button" className="rm-sq-abandon-btn" onClick={() => setConfirmAbandon(null)}>NO</button>
+                </div>
+              ) : (
+                <button type="button" className="rm-sq-abandon-btn" onClick={() => setConfirmAbandon(qid)}>✕ ABANDON</button>
+              )}
             </div>
           </div>
         )
@@ -111,7 +129,7 @@ export default function SideQuestsView() {
                 <div className="rm-sq-card-title" style={{ textDecoration: 'line-through' }}>{q.name || 'Quest'}</div>
                 <div className="rm-sq-completed-badge">✓ COMPLETE</div>
                 <div className="rm-sq-actions">
-                  <button className="rm-sq-abandon-btn" onClick={() => cancelSideQuest(qid)}>✕ CLEAR</button>
+                  <button type="button" className="rm-sq-abandon-btn" onClick={() => cancelSideQuest(qid)}>✕ CLEAR</button>
                 </div>
               </div>
             )

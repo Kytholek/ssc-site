@@ -29,6 +29,7 @@ export default function Header({ onTabChange, hidden = false }) {
   const gameDispatch = useGameDispatch()
   const [menuOpen, setMenuOpen] = useState(false)
   const [spikeDismissed, setSpikeDismissed] = useState(false)
+  const menuWrapRef = useRef(null)
   const menuBtnRef = useRef(null)
 
   const savedAlias = (() => { try { return localStorage.getItem('scl_char_alias') || '' } catch { return '' } })()
@@ -47,15 +48,25 @@ export default function Header({ onTabChange, hidden = false }) {
   }, [playerData])
 
   useEffect(() => {
-    if (!menuOpen) return
+    if (!menuOpen) return undefined
+
+    function handlePointerDown(e) {
+      const root = menuWrapRef.current
+      if (root && !root.contains(e.target)) setMenuOpen(false)
+    }
     function handleKey(e) {
       if (e.key === 'Escape') {
         setMenuOpen(false)
         menuBtnRef.current?.focus()
       }
     }
+
+    document.addEventListener('pointerdown', handlePointerDown, true)
     document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true)
+      document.removeEventListener('keydown', handleKey)
+    }
   }, [menuOpen])
 
   function handleSignOut() {
@@ -83,26 +94,28 @@ export default function Header({ onTabChange, hidden = false }) {
           {dobText && <div className="app-header-dob">{dobText}</div>}
         </div>
 
-        <button
-          ref={menuBtnRef}
-          type="button"
-          className="app-header-menu-btn"
-          onClick={() => setMenuOpen(v => !v)}
-          aria-label="Menu"
-          aria-expanded={menuOpen}
-          aria-haspopup="true"
-        >
-          ☰
-        </button>
+        <div className="app-header-menu-wrap" ref={menuWrapRef}>
+          <button
+            ref={menuBtnRef}
+            type="button"
+            className="app-header-menu-btn"
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+          >
+            ☰
+          </button>
 
-        {menuOpen && (
-          <div className="app-header-menu" role="menu">
-            <button type="button" className="app-menu-item" role="menuitem" onClick={handleResetChar}>↺ Reset Character</button>
-            <button type="button" className="app-menu-item app-menu-item-danger" role="menuitem" onClick={handleSignOut}>⏥ Sign Out</button>
-            <button type="button" className="app-menu-item" role="menuitem" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('config', 'settings') }}>⚙ Settings</button>
-            <a href="https://simulationsourcecode.com" target="_blank" rel="noopener noreferrer" className="app-menu-item" role="menuitem">← Back to Site</a>
-          </div>
-        )}
+          {menuOpen && (
+            <div className="app-header-menu" role="menu">
+              <button type="button" className="app-menu-item" role="menuitem" onClick={handleResetChar}>↺ Reset Character</button>
+              <button type="button" className="app-menu-item app-menu-item-danger" role="menuitem" onClick={handleSignOut}>⏏ Sign Out</button>
+              <button type="button" className="app-menu-item" role="menuitem" onClick={() => { setMenuOpen(false); onTabChange && onTabChange('config', 'settings') }}>⚙ Settings</button>
+              <a href="https://simulationsourcecode.com" target="_blank" rel="noopener noreferrer" className="app-menu-item" role="menuitem">← Back to Site</a>
+            </div>
+          )}
+        </div>
       </header>
 
       {spikeText && !spikeDismissed && (

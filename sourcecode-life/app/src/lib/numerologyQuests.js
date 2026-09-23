@@ -1315,7 +1315,14 @@ export function generateDailyQuests(user) {
 export function getGeneratedQuests() {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
-    if (raw && raw.date === todayStr()) return { quests: raw.quests || [], cycleLabel: raw.cycleLabel || '' }
+    if (raw && raw.date === todayStr()) {
+      const quests = (raw.quests || []).map(q => {
+        if (q?.multiDay?.totalDays) return q
+        const multiDay = detectMultiDay(q?.title || '')
+        return multiDay ? { ...q, multiDay } : q
+      })
+      return { quests, cycleLabel: raw.cycleLabel || '' }
+    }
   } catch {}
   return null
 }

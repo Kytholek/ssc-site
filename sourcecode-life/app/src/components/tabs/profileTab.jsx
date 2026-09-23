@@ -4,6 +4,7 @@
  * Navbar: INSIGHTS / SETTINGS
  */
 import { useState, useEffect } from 'react'
+import { useAppState, useAppDispatch } from '../../context/AppContext'
 import SettingsTab from '../datachunks/SettingsTab'
 import QuestCompletionChart from '../charts/QuestCompletionChart'
 import InsightsSummary from '../charts/InsightsSummary'
@@ -31,7 +32,23 @@ const CONFIG_SECTIONS = [
 ]
 
 export default function ProfileTab() {
+  const { tabSection } = useAppState()
+  const dispatch = useAppDispatch()
   const [section, setSection] = useState('insights')
+  const [prevTabSection, setPrevTabSection] = useState(tabSection)
+
+  if (tabSection !== prevTabSection) {
+    setPrevTabSection(tabSection)
+    if (CONFIG_SECTIONS.some(s => s.id === tabSection)) {
+      setSection(tabSection)
+    }
+  }
+
+  useEffect(() => {
+    if (CONFIG_SECTIONS.some(s => s.id === tabSection)) {
+      dispatch({ type: 'CLEAR_TAB_SECTION' })
+    }
+  }, [tabSection, dispatch])
 
   useEffect(() => {
     function handleOpenSubTab(e) {

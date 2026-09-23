@@ -1,7 +1,7 @@
 /**
  * HomeTab
  *
- * Daily dashboard: hero char card, Today quests, Seasons cycles.
+ * Daily dashboard: dossier CharCard, quest journal TODAY, Seasons cycles.
  */
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
@@ -11,7 +11,12 @@ import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { fmt } from '../../lib/numerology'
 import { CALLING } from '../../lib/data'
 import { loadAvatar, AURA_COLORS } from '../../lib/avatarParts'
-import { fetchUserAvatar, fetchUserEquipment, fetchCreatorReputation, fetchTakerReputation } from '../auth/firestoreprofile'
+import {
+  fetchUserAvatar,
+  fetchUserEquipment,
+  fetchCreatorReputation,
+  fetchTakerReputation,
+} from '../auth/firestoreprofile'
 import { getDisplayName, setDisplayName } from '../../lib/storage'
 import { formatDisplayName } from '../../lib/formatters'
 import { CharacterCardPanel } from '../equipment/equipment.jsx'
@@ -20,9 +25,9 @@ import SeasonsSection from '../datachunks/Seasons'
 import DailySection from '../datachunks/dailyquests'
 import { useFloatingXP, useParticleBurst } from '../effects/FloatingXP'
 import { useQuestRewardToast } from '../effects/QuestRewardToast'
+import { MedalsRow } from '../Achievements.jsx'
 import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
-import InlineHint from '../ui/InlineHint'
 import TodayProgressChips from '../ui/TodayProgressChips'
 
 const HEADGEAR_MAP = {
@@ -41,12 +46,6 @@ const XP_HINTS = {
   social: 'World-map / ally quests — grows from side quests on the map.',
 }
 
-const CORE_CHIPS = [
-  { key: 'lp', label: 'LP' },
-  { key: 'ex', label: 'EX' },
-  { key: 'so', label: 'SO' },
-]
-
 function AvatarPreview({ config }) {
   const auraColor = AURA_COLORS[config.aura]?.color || 'transparent'
   const bg = auraColor !== 'transparent' ? auraColor : '#0a1520'
@@ -54,25 +53,6 @@ function AvatarPreview({ config }) {
     <div style={{ position: 'absolute', inset: 0, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '10px' }}>
       <RPGCharacterCanvas config={config} size={80} auraColor={auraColor} />
     </div>
-  )
-}
-
-function FrequencyChip({ label, root, compound }) {
-  const dispatch = useAppDispatch()
-  const openDecode = () => {
-    dispatch({ type: 'SET_TAB', payload: 'profile' })
-    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'blueprint' } }))
-  }
-  return (
-    <button
-      type="button"
-      className="char-card-freq-chip"
-      onClick={openDecode}
-      aria-label={`${label} ${fmt(root, compound)} — open Decode blueprint`}
-    >
-      <span className="char-card-freq-chip-label">{label}</span>
-      <span className="char-card-freq-chip-num">{fmt(root, compound)}</span>
-    </button>
   )
 }
 
@@ -179,12 +159,10 @@ function CharCard({ dailyProgress }) {
 
   const openCharacterCard = useCallback(() => setCardOpen(true), [])
   const openBlueprint = useCallback(() => {
-    dispatch({ type: 'SET_TAB', payload: 'profile' })
-    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'blueprint' } }))
+    dispatch({ type: 'SET_TAB', payload: 'profile', section: 'blueprint' })
   }, [dispatch])
   const openStats = useCallback(() => {
-    dispatch({ type: 'SET_TAB', payload: 'profile' })
-    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'stats' } }))
+    dispatch({ type: 'SET_TAB', payload: 'profile', section: 'stats' })
   }, [dispatch])
 
   useEffect(() => {
@@ -233,10 +211,11 @@ function CharCard({ dailyProgress }) {
   }, [currentUser, playerData])
 
   useEffect(() => {
-    if (currentUser?.uid) {
-      fetchCreatorReputation(currentUser.uid).then(setOwnRep)
-      fetchTakerReputation(currentUser.uid).then(setTakerRep)
-    }
+    if (!currentUser?.uid) return undefined
+    let cancelled = false
+    fetchCreatorReputation(currentUser.uid).then((rep) => { if (!cancelled) setOwnRep(rep) })
+    fetchTakerReputation(currentUser.uid).then((rep) => { if (!cancelled) setTakerRep(rep) })
+    return () => { cancelled = true }
   }, [currentUser?.uid])
 
   if (!playerData) {
@@ -257,18 +236,26 @@ function CharCard({ dailyProgress }) {
     )
   }
 
-  const { cl, name, lp, ex, so } = playerData
+  const { cl, name } = playerData
   const displayName = getDisplayName() || name || ''
   const displayNameUpper = formatDisplayName(displayName).toUpperCase()
-  const archetypeName = CALLING[cl.root]?.name || 'Unknown'
-  const hasMakerRep = ownRep && ownRep.ratingCount > 0
-  const hasSeekerRep = takerRep && takerRep.ratingCount > 0
-  const hasAnyRep = hasMakerRep || hasSeekerRep
+  const callingName = (CALLING[cl.root]?.name || 'Unknown').toUpperCase()
+  const callingTitle = CALLING[cl.root]?.essence || CALLING[cl.root]?.summary || 'Life calling'
+
+  const makerEmpty = !ownRep || ownRep.ratingCount === 0
+  const seekerEmpty = !takerRep || takerRep.ratingCount === 0
+  const makerAvg = !makerEmpty ? (ownRep.totalRating / ownRep.ratingCount).toFixed(1) : null
+  const makerTotal = !makerEmpty ? (ownRep.completions + ownRep.noShows) : 0
+  const makerPct = makerTotal > 0
+    ? Math.round(ownRep.completions / makerTotal * 100)
+    : null
   const showCustomize = !avatarLoading && !avatarConfig
 
   return (
-    <div className="char-card char-card--entrance" data-tour="char-card">
-      <span className="char-card-corners" aria-hidden="true" />
+    <div className="char-card char-card--dossier char-card--entrance" data-tour="char-card">
+      <span className="char-card-spine" aria-hidden="true" />
+      <span className="char-card-grain" aria-hidden="true" />
+
       <div className="char-card-identity">
         <button
           type="button"
@@ -290,7 +277,11 @@ function CharCard({ dailyProgress }) {
         </button>
 
         <div className="char-card-id-text">
-          <div className="char-card-name-group">
+          <div className="char-card-calling-archetype" title={callingTitle}>
+            <div className="char-card-calling-archetype-name">{callingName}</div>
+          </div>
+
+          <div className="char-card-name-row">
             <button
               type="button"
               className="char-card-name char-card-name--editable"
@@ -304,84 +295,76 @@ function CharCard({ dailyProgress }) {
             >
               {displayNameUpper || 'SET NAME'}
             </button>
-            {user.isPremium && <PremiumBadge size="sm" />}
-          </div>
-
-          <p className="char-card-archetype" title={CALLING[cl.root]?.essence || CALLING[cl.root]?.summary}>
-            {archetypeName}
-          </p>
-
-          <div className="char-card-meta-row">
-            <div
-              className="char-card-calling-block"
-              title={CALLING[cl.root]?.essence || CALLING[cl.root]?.summary || 'Life calling'}
+            {user?.isPremium && <PremiumBadge size="sm" />}
+            <span
+              className="char-card-calling"
+              title={callingTitle}
+              aria-label={callingTitle}
             >
-              <span className="char-card-calling-label">CALLING</span>
               <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
-            </div>
-            <div className="char-card-freq-chips" role="group" aria-label="Core frequencies">
-              {CORE_CHIPS.map(({ key, label }) => {
-                const freq = playerData[key]
-                if (!freq) return null
-                return (
-                  <FrequencyChip
-                    key={key}
-                    label={label}
-                    root={freq.root}
-                    compound={freq.compound}
-                  />
-                )
-              })}
-            </div>
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="char-card-xp-bars">
-        <div className="quest-xp-row quest-xp-row--hover-glow">
-          <div className="quest-xp-label-row-compact">
-            <span className="quest-xp-track-name quest-xp-track-name--teal">FREQ</span>
-            <span className="quest-xp-level quest-xp-level--teal">
-              LV {xp.freqLevel} · {Math.round(freqBarPct)}%
-            </span>
-            <InlineHint label="What is FREQ XP?" text={XP_HINTS.freq} />
+      <div className="char-card-rep-section" aria-label="Maker and seeker reputation">
+        <div className={`char-card-rep${makerEmpty ? ' char-card-rep--empty' : ''}`}>
+          <span className="char-card-rep-label">MAKER</span>
+          {!makerEmpty ? (
+            <div className="char-card-rep-body">
+              <span className="char-card-rep-stars">⭐ {makerAvg}</span>
+              <span className="char-card-rep-sub">{makerPct}% · {ownRep.ratingCount} quests</span>
+            </div>
+          ) : (
+            <span className="char-card-rep-none">No ratings yet</span>
+          )}
+        </div>
+        <div className={`char-card-rep${seekerEmpty ? ' char-card-rep--empty' : ''}`}>
+          <span className="char-card-rep-label">SEEKER</span>
+          {!seekerEmpty ? (
+            <div className="char-card-rep-body">
+              <span className="char-card-rep-stars">⭐ {(takerRep.totalRating / takerRep.ratingCount).toFixed(1)}</span>
+              <span className="char-card-rep-sub">{takerRep.ratingCount} rated</span>
+            </div>
+          ) : (
+            <span className="char-card-rep-none">No ratings yet</span>
+          )}
+        </div>
+      </div>
+
+      <div className="char-card-meta char-card-meta--medals" aria-label="Earned medals">
+        <MedalsRow />
+      </div>
+
+      <div className="char-card-xp-mirror" aria-label="Experience">
+        <div className="char-card-xp-side char-card-xp-side--freq" title={XP_HINTS.freq}>
+          <div className="char-card-xp-side-head">
+            <span className="char-card-xp-side-label">FREQ</span>
+            <span className="char-card-xp-side-lv">LV {xp.freqLevel}</span>
           </div>
-          <div
-            className="quest-xp-track"
-            role="progressbar"
-            aria-valuenow={Math.round(freqBarPct)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`FREQ level ${xp.freqLevel}, ${Math.round(freqBarPct)} percent to next level`}
-          >
+          <div className="char-card-xp-track char-card-xp-track--freq">
             <div
               className={`quest-xp-fill quest-xp-fill--freq quest-xp-fill--shimmer${freqPulsing ? ' quest-xp-fill--pulsing-freq' : ''}`}
               style={{ width: `${freqBarPct}%` }}
             />
           </div>
+          <span className="char-card-xp-side-pct">{freqBarPct}%</span>
         </div>
 
-        <div className="quest-xp-row quest-xp-row--hover-glow">
-          <div className="quest-xp-label-row-compact">
-            <span className="quest-xp-track-name quest-xp-track-name--gold">SOCIAL</span>
-            <span className="quest-xp-level quest-xp-level--gold">
-              LV {xp.charLevel} · {Math.round(charBarPct)}%
-            </span>
-            <InlineHint label="What is SOCIAL XP?" text={XP_HINTS.social} />
+        <span className="char-card-xp-divider" aria-hidden="true" />
+
+        <div className="char-card-xp-side char-card-xp-side--social" title={XP_HINTS.social}>
+          <div className="char-card-xp-side-head">
+            <span className="char-card-xp-side-label">SOCIAL</span>
+            <span className="char-card-xp-side-lv">LV {xp.charLevel}</span>
           </div>
-          <div
-            className="quest-xp-track"
-            role="progressbar"
-            aria-valuenow={Math.round(charBarPct)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`SOCIAL level ${xp.charLevel}, ${Math.round(charBarPct)} percent to next level`}
-          >
+          <div className="char-card-xp-track char-card-xp-track--social">
             <div
               className={`quest-xp-fill quest-xp-fill--char quest-xp-fill--shimmer${charPulsing ? ' quest-xp-fill--pulsing-char' : ''}`}
               style={{ width: `${charBarPct}%` }}
             />
           </div>
+          <span className="char-card-xp-side-pct">{charBarPct}%</span>
         </div>
       </div>
 
@@ -393,47 +376,6 @@ function CharCard({ dailyProgress }) {
           dailyComplete={dailyProgress.dailyComplete}
         />
       )}
-
-      <div className="char-card-rep-section">
-        {hasAnyRep ? (
-          <>
-            <div className={`char-card-rep${!hasMakerRep ? ' char-card-rep--empty' : ''}`}>
-              <span className="char-card-rep-label">MAKER</span>
-              {hasMakerRep ? (
-                <>
-                  <span>⭐ {(ownRep.totalRating / ownRep.ratingCount).toFixed(1)}</span>
-                  <span className="char-card-rep-sep">·</span>
-                  <span>{Math.round(ownRep.completions / (ownRep.completions + ownRep.noShows) * 100)}%</span>
-                  <span className="char-card-rep-sep">·</span>
-                  <span>{ownRep.ratingCount} quests</span>
-                </>
-              ) : (
-                <span className="char-card-rep-none">—</span>
-              )}
-            </div>
-            <div className={`char-card-rep${!hasSeekerRep ? ' char-card-rep--empty' : ''}`}>
-              <span className="char-card-rep-label">SEEKER</span>
-              {hasSeekerRep ? (
-                <>
-                  <span>⭐ {(takerRep.totalRating / takerRep.ratingCount).toFixed(1)}</span>
-                  <span className="char-card-rep-sep">·</span>
-                  <span>{takerRep.ratingCount} rated</span>
-                </>
-              ) : (
-                <span className="char-card-rep-none">—</span>
-              )}
-            </div>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="char-card-rep-empty-link"
-            onClick={() => dispatch({ type: 'SET_TAB', payload: 'map' })}
-          >
-            Maker · Seeker — build reputation in Realm
-          </button>
-        )}
-      </div>
 
       <nav className="char-card-rail" aria-label="Character shortcuts">
         <button type="button" className="char-card-seal" onClick={openBlueprint}>
@@ -496,33 +438,11 @@ export default function HomeTab() {
         <CharCard dailyProgress={dailyProgress} />
 
         {playerData && daily && (
-          <section className="home-today-section home-section-shell" data-tour="today" aria-labelledby="home-today-heading">
-            <div className="home-today-header">
-              <h2 id="home-today-heading" className="home-section-heading home-today-heading">
-                <span className="home-today-line home-section-heading-line" aria-hidden="true" />
-                <span className="home-today-glyph home-section-heading-glyph" aria-hidden="true">✦</span>
-                TODAY
-                <span className="home-today-glyph home-section-heading-glyph" aria-hidden="true">✦</span>
-                <span className="home-today-line home-section-heading-line" aria-hidden="true" />
-              </h2>
-              <div className="home-today-date">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-              </div>
-              {dailyProgress && (
-                <TodayProgressChips
-                  className="home-today-progress"
-                  glyphsDone={dailyProgress.glyphsDone}
-                  glyphsTotal={dailyProgress.glyphsTotal}
-                  dailyComplete={dailyProgress.dailyComplete}
-                />
-              )}
-            </div>
-
+          <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
             <DailySection
               playerData={playerData}
               daily={daily}
               completeDailyQuest={completeDailyQuest}
-              lpRoot={playerData.lp.root}
             />
           </section>
         )}

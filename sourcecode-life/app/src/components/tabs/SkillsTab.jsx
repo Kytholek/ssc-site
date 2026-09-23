@@ -4,7 +4,7 @@
  * Sub-tabs: STATS | SKILLS | BLUEPRINT | SPIRAL
  */
 import { useState, useEffect } from 'react'
-import { useAppState } from '../../context/AppContext'
+import { useAppState, useAppDispatch } from '../../context/AppContext'
 import InnateSkills from '../skilltree/InnateSkills.jsx'
 import StatsTab from '../datachunks/StatsTab'
 import NumerologySpiral from '../spirals/NumerologySpiral'
@@ -58,14 +58,29 @@ function BlueprintSection() {
 }
 
 export default function SkillsTab() {
-  const { playerData } = useAppState()
+  const { playerData, tabSection } = useAppState()
+  const dispatch = useAppDispatch()
   const [tab, setTab] = useState('stats')
+  const [prevTabSection, setPrevTabSection] = useState(tabSection)
+
+  if (tabSection !== prevTabSection) {
+    setPrevTabSection(tabSection)
+    if (PROFILE_TABS.some(t => t.id === tabSection)) {
+      setTab(tabSection)
+    }
+  }
+
+  useEffect(() => {
+    if (PROFILE_TABS.some(t => t.id === tabSection)) {
+      dispatch({ type: 'CLEAR_TAB_SECTION' })
+    }
+  }, [tabSection, dispatch])
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [tab])
 
-  // Listen for sub-tab deep links
+  // Listen for sub-tab deep links (legacy custom events)
   useEffect(() => {
     const handleSubTab = (e) => {
       if (e.detail.main === 'profile' && PROFILE_TABS.some(t => t.id === e.detail.sub)) {

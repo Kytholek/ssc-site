@@ -1,29 +1,29 @@
-/* ════════════════════════════════════════════════════════════════
-   SOURCE CODE: LIFE — themes.css
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SOURCE CODE: LIFE â€” themes.css
    All theme variable overrides + component-level theme CSS.
    Ported from source project styles.css.
    The default (no data-theme) is the SCL dark/scifi palette.
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Required for @apply in non-entry CSS files (Tailwind v4) */
 @reference "tailwindcss";
 
-/* ── Source-named CSS variables (default = mystical brand palette) ───────────
+/* â”€â”€ Source-named CSS variables (default = mystical brand palette) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    These mirror our Tailwind @theme tokens so the theme overrides work
    without rewriting App.css.
-   ─────────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 :root {
-  /* ── Backgrounds ─────────────────────────────────────────────── */
+  /* â”€â”€ Backgrounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --bg-deep:      #05040a;
   --bg-panel:     #0d0b18;
   --bg-panel2:    #110f1f;
   --bg-inset:     #0a0816;
 
-  /* ── Borders ─────────────────────────────────────────────────── */
+  /* â”€â”€ Borders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --border:       rgba(201,168,76,0.14);
   --border-glow:  rgba(201,168,76,0.22);
 
-  /* ── Palette ─────────────────────────────────────────────────── */
+  /* â”€â”€ Palette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --gold:         #c9a84c;
   --gold-bright:  #e8c96b;
   --gold-dim:     #7a6330;
@@ -48,13 +48,13 @@
   --silver-muted: #2a2620;
   --red:          #a04070;
 
-  /* ── Typography ─────────────────────────────────────────────── */
+  /* â”€â”€ Typography â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --text:         #e8dfc8;
   --text-dim:     #9b9080;
   --text-mid:     #b8a898;
   --white:        #e8dfc8;
 
-  /* ── Spacing (8px base) ─────────────────────────────────────── */
+  /* â”€â”€ Spacing (8px base) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --space-xs:  4px;
   --space-sm:  8px;
   --space-md:  12px;
@@ -63,13 +63,13 @@
   --space-2xl: 24px;
   --space-3xl: 32px;
 
-  /* ── Shadows ─────────────────────────────────────────────────── */
+  /* â”€â”€ Shadows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.1);
   --shadow-sm: 0 4px 12px rgba(0,0,0,0.15);
   --shadow-md: 0 8px 24px rgba(0,0,0,0.25);
   --shadow-lg: 0 20px 48px rgba(0,0,0,0.4);
 
-  /* ── Radii ───────────────────────────────────────────────────── */
+  /* â”€â”€ Radii â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   12px;
@@ -77,7 +77,7 @@
   --radius-full: 9999px;
 }
 
-/* ── Shared transition helpers — apply to all interactive theme elements ─── */
+/* â”€â”€ Shared transition helpers â€” apply to all interactive theme elements â”€â”€â”€ */
 .journal-strip,
 .quest-card,
 .char-card,
@@ -89,9 +89,9 @@
   @apply transition-all duration-200 ease-out;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   SCIFI THEME (neon/electric palette — legacy default)
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SCIFI THEME (neon/electric palette â€” legacy default)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="scifi"] {
   --bg-deep:      #050508;
   --bg-panel:     #0b0b14;
@@ -134,17 +134,17 @@
   --portal-gold: rgba(240,192,96,0.45);
 }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FANTASY THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="fantasy"] {
-  --bg-deep:      #f0e6d4;  /* warm parchment — all backgrounds */
+  --bg-deep:      #f0e6d4;  /* warm parchment â€” all backgrounds */
   --bg-panel:     #f5eddf;  /* light parchment */
   --bg-panel2:    #ecdaae;  /* medium parchment */
   --bg-inset:     #e8dcc8;  /* inset parchment */
   --border:       #c4a46c;  /* warm gold border */
   --border-glow:  #d0a030;  /* bright amber glow */
-  --gold:         #6c3c08;  /* deep amber-brown — text on parchment */
+  --gold:         #6c3c08;  /* deep amber-brown â€” text on parchment */
   --gold-bright:  #9a5e18;  /* brighter amber */
   --gold-dim:     #b87828;  /* medium amber */
   --gold-muted:   #e8d0a0;
@@ -167,7 +167,7 @@
   --silver-dim:   #506070;
   --silver-muted: #d4dce4;
   --red:          #9a1818;
-  --text:         #2a1808;  /* dark warm brown — readable on parchment */
+  --text:         #2a1808;  /* dark warm brown â€” readable on parchment */
   --text-dim:     #6c4e30;  /* warm mid-brown */
   --text-mid:     #3a2210;  /* dark warm brown */
   --white:        #faf4e8;  /* warm cream */
@@ -530,9 +530,9 @@
   color: var(--text);
 }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    DIABLO THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="diablo"] {
   --bg-deep:      #0c0a07;
   --bg-panel:     #181410;
@@ -544,7 +544,7 @@
   --gold-bright:  #f0b020;
   --gold-dim:     #8c5c10;
   --gold-muted:   #2c1a06;
-  --teal:         #c82808;  /* blood crimson — accent slot */
+  --teal:         #c82808;  /* blood crimson â€” accent slot */
   --teal-dim:     #8c1c06;
   --teal-muted:   #2c0a04;
   --purple:       #803068;
@@ -793,9 +793,9 @@
   border-color: var(--border);
 }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    UNICORN THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="unicorn"] {
   --bg-deep:      #1a0a2e;
   --bg-panel:     #26104a;
@@ -1018,9 +1018,9 @@
 [data-theme="unicorn"] ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
 [data-theme="unicorn"] ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SCI-FI HOLOGRAPHIC THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="scifi"] body {
   background-image:
     radial-gradient(ellipse at 50% 20%, rgba(0,180,160,0.12) 0%, transparent 60%),
@@ -1200,17 +1200,17 @@
 [data-theme="scifi"] .strip-trigger:hover  { background: rgba(0, 220, 200, 0.09); }
 [data-theme="scifi"] .strip-body          { border-top-color: rgba(0,200,180,0.18); }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FANTASY THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="fantasy"] {
-  --bg-deep:      #f0e6d4;  /* warm parchment — all backgrounds */
+  --bg-deep:      #f0e6d4;  /* warm parchment â€” all backgrounds */
   --bg-panel:     #f5eddf;  /* light parchment */
   --bg-panel2:    #ecdaae;  /* medium parchment */
   --bg-inset:     #e8dcc8;  /* inset parchment */
   --border:       #c4a46c;  /* warm gold border */
   --border-glow:  #d0a030;  /* bright amber glow */
-  --gold:         #6c3c08;  /* deep amber-brown — text on parchment */
+  --gold:         #6c3c08;  /* deep amber-brown â€” text on parchment */
   --gold-bright:  #9a5e18;  /* brighter amber */
   --gold-dim:     #b87828;  /* medium amber */
   --gold-muted:   #e8d0a0;
@@ -1233,7 +1233,7 @@
   --silver-dim:   #506070;
   --silver-muted: #d4dce4;
   --red:          #9a1818;
-  --text:         #2a1808;  /* dark warm brown — readable on parchment */
+  --text:         #2a1808;  /* dark warm brown â€” readable on parchment */
   --text-dim:     #6c4e30;  /* warm mid-brown */
   --text-mid:     #3a2210;  /* dark warm brown */
   --white:        #faf4e8;  /* warm cream */
@@ -1389,7 +1389,7 @@
 
 [data-theme="fantasy"] .app-header::before { display: none; }
 
-/* Warm amber top accent line — FF9 gold window frame feel */
+/* Warm amber top accent line â€” FF9 gold window frame feel */
 [data-theme="fantasy"] .app-header-wrap::before {
   background: linear-gradient(90deg,
     transparent 0%,
@@ -1404,7 +1404,7 @@
   background: linear-gradient(180deg, rgba(240,230,212,0.99) 0%, rgba(236,218,174,0.99) 100%);
   border-top: 1px solid var(--border);
 }
-/* Re-enable decorative rule above tab bar — warm gold FF9 tone */
+/* Re-enable decorative rule above tab bar â€” warm gold FF9 tone */
 [data-theme="fantasy"] .tab-bar::before {
   display: block;
   background: linear-gradient(90deg,
@@ -1426,7 +1426,7 @@
   background: #9a6e28;
   box-shadow: 0 0 6px rgba(180,130,40,0.40);
 }
-/* Active indicator dot — FF9 emerald crystal */
+/* Active indicator dot â€” FF9 emerald crystal */
 [data-theme="fantasy"] .tab-btn.active::before,
 [data-theme="fantasy"] .tab-btn[aria-selected="true"]::before {
   background: var(--teal);
@@ -1548,7 +1548,7 @@
   background: rgba(240,192,64,0.08);
 }
 
-/* Header identity — bright values for the dark espresso frame */
+/* Header identity â€” bright values for the dark espresso frame */
 [data-theme="fantasy"] .app-header-name { color: #f0c040; text-shadow: 0 0 12px rgba(240,192,64,0.40); }
 [data-theme="fantasy"] .app-header-dob  { color: #a87c38; letter-spacing: 0.14em; }
 [data-theme="fantasy"] .app-header-menu-btn { color: #a87c38; }
@@ -1575,7 +1575,7 @@
 [data-theme="fantasy"] .c-teal   { color: var(--teal);   text-shadow: 0 0 10px rgba(30,88,48,0.50); }
 [data-theme="fantasy"] .c-silver { color: var(--silver); }
 
-/* rpg-glow-gold override — warm amber glow on parchment */
+/* rpg-glow-gold override â€” warm amber glow on parchment */
 [data-theme="fantasy"] .rpg-glow-gold {
   text-shadow:
     0 0 8px rgba(180,120,30,0.55),
@@ -1583,9 +1583,9 @@
     0 0 40px rgba(180,120,30,0.12);
 }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    DIABLO THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="diablo"] {
   --bg-deep:      #0c0a07;
   --bg-panel:     #181410;
@@ -1597,7 +1597,7 @@
   --gold-bright:  #f0b020;
   --gold-dim:     #8c5c10;
   --gold-muted:   #2c1a06;
-  --teal:         #c82808;  /* blood crimson — accent slot */
+  --teal:         #c82808;  /* blood crimson â€” accent slot */
   --teal-dim:     #8c1c06;
   --teal-muted:   #2c0a04;
   --purple:       #803068;
@@ -1799,7 +1799,7 @@
 }
 [data-theme="diablo"] .app-header::before { display: none; }
 
-/* Override the base gold accent line at the very top — make it ember/blood */
+/* Override the base gold accent line at the very top â€” make it ember/blood */
 [data-theme="diablo"] .app-header-wrap::before {
   background: linear-gradient(90deg,
     transparent 0%,
@@ -1818,7 +1818,7 @@
   background: linear-gradient(180deg, rgba(14,10,8,0.99) 0%, rgba(12,9,6,0.99) 100%);
   border-top: 1px solid var(--border);
 }
-/* Re-enable the decorative rule above the tab bar — blood/ember tone */
+/* Re-enable the decorative rule above the tab bar â€” blood/ember tone */
 [data-theme="diablo"] .tab-bar::before {
   display: block;
   background: linear-gradient(90deg,
@@ -1934,7 +1934,7 @@
 [data-theme="diablo"] .char-card-portrait:hover { border-color: rgba(212,144,16,0.6); }
 [data-theme="diablo"] .char-card-portrait-placeholder { color: rgba(212,144,16,0.35); }
 
-/* Frequency spike banner — ember/blood treatment */
+/* Frequency spike banner â€” ember/blood treatment */
 [data-theme="diablo"] .freq-spike-banner {
   background: linear-gradient(90deg, rgba(200,28,6,0.12) 0%, rgba(212,144,16,0.08) 60%, transparent 100%);
   border-bottom: 1px solid rgba(200,28,6,0.25);
@@ -1998,9 +1998,9 @@
     var(--bg-deep);
 }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    UNICORN THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="unicorn"] {
   --bg-deep:      #1a0a2e;
   --bg-panel:     #26104a;
@@ -2165,9 +2165,9 @@
 [data-theme="unicorn"] ::-webkit-scrollbar-thumb { background: var(--border); }
 [data-theme="unicorn"] ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
 
-/* ════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SCI-FI HOLOGRAPHIC THEME
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="scifi"] body {
   background-image:
     radial-gradient(ellipse at 50% 20%, rgba(0,180,160,0.12) 0%, transparent 60%),
@@ -2500,7 +2500,7 @@
 }
 [data-theme="scifi"] .stt-node--unlocked { animation: stt-unlock-pulse-scifi 1.5s ease-out forwards; }
 
-/* Contrast/readability pass � navigation + life quest tree */
+/* Contrast/readability pass ï¿½ navigation + life quest tree */
 [data-theme="fantasy"] .tab-btn,
 [data-theme="fantasy"] .section-btn { color: var(--text-mid); }
 [data-theme="fantasy"] .tab-btn:hover,
@@ -2571,10 +2571,10 @@
 }
 
 /* ============================================================
-   PORTAL � theme-specific overrides (data-portal-theme attr)
+   PORTAL ï¿½ theme-specific overrides (data-portal-theme attr)
    ============================================================ */
 
-/* -- DIABLO � hellfire portal -------------------------------- */
+/* -- DIABLO ï¿½ hellfire portal -------------------------------- */
 [data-portal-theme="diablo"] .portal-void {
   background:
     radial-gradient(ellipse 35% 30% at 40% 38%, rgba(255,120,20,0.3) 0%, transparent 50%),
@@ -2656,7 +2656,7 @@
 [data-portal-theme="diablo"] .portal-corner { border-color: rgba(200,35,8,0.5); }
 [data-portal-theme="diablo"] .portal-footer { color: rgba(200,50,15,0.32); }
 
-/* -- FANTASY � Final Fantasy crystal portal ------------------ */
+/* -- FANTASY ï¿½ Final Fantasy crystal portal ------------------ */
 [data-portal-theme="fantasy"] .portal-void {
   background:
     radial-gradient(ellipse 38% 32% at 44% 40%, rgba(200,220,255,0.45) 0%, transparent 50%),
@@ -2734,7 +2734,7 @@
 [data-portal-theme="fantasy"] .portal-corner { border-color: rgba(100,155,225,0.42); }
 [data-portal-theme="fantasy"] .portal-footer { color: rgba(120,165,255,0.28); }
 
-/* -- UNICORN � rainbow iridescent portal --------------------- */
+/* -- UNICORN ï¿½ rainbow iridescent portal --------------------- */
 [data-portal-theme="unicorn"] .portal-void {
   background:
     radial-gradient(ellipse at center, rgba(10,4,24,0.88) 28%, transparent 68%),
@@ -2846,11 +2846,11 @@
 }
 
 /* --------------------------------------------------------------
-   SIMULATION MATRIX (Map internal HUB/SOCIAL) � theme overlays
+   SIMULATION MATRIX (Map internal HUB/SOCIAL) ï¿½ theme overlays
    -------------------------------------------------------------- */
 
 /* -- Fantasy matrix shell ------------------------------------- */
-/* Fantasy simulation-matrix: realm stays dark — it's an immersive world, not parchment.
+/* Fantasy simulation-matrix: realm stays dark â€” it's an immersive world, not parchment.
    Re-scope --text / --text-dim to light so realm content (which uses var(--text)) is
    readable against the dark background. Fantasy root has dark-brown --text (#1a0c02)
    which is invisible on #06060e without this override. */
@@ -3359,11 +3359,11 @@
 }
 
 /* --------------------------------------------------------------
-   SKILL TREE � theme-specific overlays
+   SKILL TREE ï¿½ theme-specific overlays
    -------------------------------------------------------------- */
 
 /* -- FANTASY --------------------------------------------------- */
-/* Selector grid � illuminated manuscript chips */
+/* Selector grid ï¿½ illuminated manuscript chips */
 [data-theme="fantasy"] .skills-selector {
   border: 1px solid rgba(154,98,24,0.35);
   border-radius: 8px;
@@ -3378,7 +3378,7 @@
 [data-theme="fantasy"] .skills-selector-num  { color: var(--gold); }
 [data-theme="fantasy"] .skills-selector-name { color: var(--text-dim); }
 
-/* Constellation shell � aged star-chart parchment */
+/* Constellation shell ï¿½ aged star-chart parchment */
 [data-theme="fantasy"] .constellation-shell {
   background:
     radial-gradient(circle at 20% 0%,   rgba(180,130,40,0.18),  transparent 35%),
@@ -3399,13 +3399,13 @@
 [data-theme="fantasy"] .constellation-shell.unlocked {
   box-shadow: 2px 2px 14px rgba(80,40,0,0.18), inset 0 0 0 1px rgba(255,220,120,0.4);
 }
-/* Ley lines � sepia ink strokes */
+/* Ley lines ï¿½ sepia ink strokes */
 [data-theme="fantasy"] .constellation-lines line {
   stroke: rgba(154,98,24,0.5);
   filter: drop-shadow(0 0 3px rgba(154,98,24,0.35));
 }
 
-/* Life Quest Flow nodes — THEME PARITY */
+/* Life Quest Flow nodes â€” THEME PARITY */
 [data-theme="fantasy"] .lqt-node-num {
   color: var(--gold);
   border-color: var(--gold);
@@ -3481,7 +3481,7 @@
   color: rgba(126,188,178,0.74);
   opacity: 0.4;
 }
-/* Center node � gold medallion */
+/* Center node ï¿½ gold medallion */
 [data-theme="fantasy"] .constellation-center {
   border: 1px solid rgba(154,98,24,0.55);
   background: radial-gradient(circle at 50% 35%, rgba(200,160,60,0.22), rgba(216,188,130,0.88));
@@ -3489,7 +3489,7 @@
 }
 [data-theme="fantasy"] .constellation-center-num   { color: var(--gold); }
 [data-theme="fantasy"] .constellation-center-label { color: var(--text-dim); }
-/* Branch nodes � parchment insets */
+/* Branch nodes ï¿½ parchment insets */
 [data-theme="fantasy"] .constellation-branch {
   border: 1px solid rgba(154,98,24,0.3);
   background: rgba(220,196,140,0.88);
@@ -3543,7 +3543,7 @@
 [data-theme="fantasy"] .master-panel-state { color: var(--teal); }
 
 /* -- DIABLO ---------------------------------------------------- */
-/* Selector grid � rune stone chips */
+/* Selector grid ï¿½ rune stone chips */
 [data-theme="diablo"] .skills-selector {
   border: 1px solid rgba(90,72,40,0.5);
   border-radius: 6px;
@@ -3558,7 +3558,7 @@
 [data-theme="diablo"] .skills-selector-num  { color: var(--gold); }
 [data-theme="diablo"] .skills-selector-name { color: var(--text-dim); }
 
-/* Constellation shell � dark stone rune diagram */
+/* Constellation shell ï¿½ dark stone rune diagram */
 [data-theme="diablo"] .constellation-shell {
   background:
     radial-gradient(circle at 20% 0%,   rgba(192,48,24,0.18),  transparent 35%),
@@ -3579,12 +3579,12 @@
 [data-theme="diablo"] .constellation-shell.unlocked {
   box-shadow: 0 0 0 1px rgba(200,144,26,0.1), 0 0 20px rgba(192,48,24,0.1);
 }
-/* Ley lines � hellfire crimson cracks */
+/* Ley lines ï¿½ hellfire crimson cracks */
 [data-theme="diablo"] .constellation-lines line {
   stroke: rgba(200,40,8,0.5);
   filter: drop-shadow(0 0 4px rgba(220,60,10,0.55));
 }
-/* Center node � dark ember medallion */
+/* Center node ï¿½ dark ember medallion */
 [data-theme="diablo"] .constellation-center {
   border: 1px solid rgba(176,120,40,0.45);
   background: radial-gradient(circle at 50% 35%, rgba(192,48,24,0.28), rgba(16,14,10,0.94));
@@ -3592,7 +3592,7 @@
 }
 [data-theme="diablo"] .constellation-center-num   { color: var(--gold); text-shadow: 0 0 10px rgba(200,144,26,0.4); }
 [data-theme="diablo"] .constellation-center-label { color: var(--text-mid); }
-/* Branch nodes � dark stone insets */
+/* Branch nodes ï¿½ dark stone insets */
 [data-theme="diablo"] .constellation-branch {
   border: 1px solid rgba(90,72,40,0.4);
   background: rgba(22,20,16,0.88);
@@ -3646,7 +3646,7 @@
 [data-theme="diablo"] .master-panel-state { color: var(--amber); }
 
 /* -- UNICORN --------------------------------------------------- */
-/* Selector grid � prismatic crystal chips */
+/* Selector grid ï¿½ prismatic crystal chips */
 [data-theme="unicorn"] .skills-selector {
   border: 1px solid rgba(122,64,192,0.35);
   border-radius: 12px;
@@ -3661,7 +3661,7 @@
 [data-theme="unicorn"] .skills-selector-num  { color: var(--gold); text-shadow: 0 0 10px rgba(224,64,251,0.45); }
 [data-theme="unicorn"] .skills-selector-name { color: var(--text-dim); }
 
-/* Constellation shell � crystal nebula */
+/* Constellation shell ï¿½ crystal nebula */
 [data-theme="unicorn"] .constellation-shell {
   background:
     radial-gradient(circle at 20% 0%,   rgba(196,64,251,0.22),  transparent 38%),
@@ -3685,12 +3685,12 @@
 [data-theme="unicorn"] .constellation-shell.unlocked {
   box-shadow: 0 0 0 1px rgba(224,64,251,0.12), 0 0 30px rgba(224,64,251,0.12);
 }
-/* Ley lines � iridescent crystal threads */
+/* Ley lines ï¿½ iridescent crystal threads */
 [data-theme="unicorn"] .constellation-lines line {
   stroke: rgba(200,80,255,0.45);
   filter: drop-shadow(0 0 5px rgba(224,64,251,0.6));
 }
-/* Center node � crystalline prism hub */
+/* Center node ï¿½ crystalline prism hub */
 [data-theme="unicorn"] .constellation-center {
   border: 1px solid rgba(192,80,255,0.5);
   background: radial-gradient(circle at 50% 35%, rgba(160,64,251,0.3), rgba(26,10,46,0.92));
@@ -3698,7 +3698,7 @@
 }
 [data-theme="unicorn"] .constellation-center-num   { color: var(--gold); text-shadow: 0 0 14px rgba(224,64,251,0.55); }
 [data-theme="unicorn"] .constellation-center-label { color: rgba(220,180,255,0.9); }
-/* Branch nodes � translucent crystal facets */
+/* Branch nodes ï¿½ translucent crystal facets */
 [data-theme="unicorn"] .constellation-branch {
   border: 1px solid rgba(168,80,255,0.32);
   background: rgba(38,16,74,0.78);
@@ -3756,9 +3756,9 @@
 [data-theme="unicorn"] .master-panel-desc  { color: var(--text-dim); }
 [data-theme="unicorn"] .master-panel-state { color: var(--gold); text-shadow: 0 0 8px rgba(224,64,251,0.4); }
 
-/* ════════════════════════════════════════════════════════════════
-   FLOW CHARTS — theme overrides
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FLOW CHARTS â€” theme overrides
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* -- FANTASY --------------------------------------------------- */
 /* Canvas background: full warm parchment gradient */
@@ -3769,7 +3769,7 @@
 [data-theme="fantasy"] .lqt-flow-wrap .react-flow__background pattern circle {
   fill: rgba(108,60,8,0.2) !important;
 }
-/* Node circles: keep dark globe on parchment (intentional contrast) — tighten ring visibility */
+/* Node circles: keep dark globe on parchment (intentional contrast) â€” tighten ring visibility */
 [data-theme="fantasy"] .flow-node-circle {
   box-shadow: none !important;
 }
@@ -3828,9 +3828,9 @@
   border-bottom-color: rgba(130,50,200,0.2) !important;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   INNATE GIFTS CARDS — theme overrides
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   INNATE GIFTS CARDS â€” theme overrides
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* -- FANTASY: parchment cards ---------------------------------- */
 [data-theme="fantasy"] .innate-gift-card {
@@ -3861,7 +3861,7 @@
   background: linear-gradient(90deg, rgba(154,98,24,0.3), transparent) !important;
 }
 
-/* -- FANTASY: nav buttons — stronger active contrast ----------- */
+/* -- FANTASY: nav buttons â€” stronger active contrast ----------- */
 [data-theme="fantasy"] .sm-tab-btn.active,
 [data-theme="fantasy"] .sm-sub-btn.active {
   color: var(--text) !important;
@@ -3880,7 +3880,7 @@
 [data-theme="fantasy"] .react-flow__pane {
   background: #0a0a18 !important;
 }
-/* Flow edge lines — brighter on parchment context */
+/* Flow edge lines â€” brighter on parchment context */
 [data-theme="fantasy"] .react-flow__edge-path {
   stroke: rgba(201,168,76,0.5) !important;
   stroke-width: 2.5 !important;
@@ -3888,7 +3888,7 @@
 [data-theme="fantasy"] .react-flow__edge-animated-path {
   stroke: rgba(201,168,76,0.8) !important;
 }
-/* Blueprint section wrapper — dark canvas behind flow */
+/* Blueprint section wrapper â€” dark canvas behind flow */
 [data-theme="fantasy"] .blueprint-section {
   background: #06060f;
   border-radius: 8px;
@@ -3922,11 +3922,11 @@
   color: rgba(200,170,255,0.38) !important;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   CHARACTER CREATION — Full theme support
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CHARACTER CREATION â€” Full theme support
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Fantasy: warm parchment ── */
+/* â”€â”€ Fantasy: warm parchment â”€â”€ */
 [data-theme="fantasy"] .char-create-overlay {
   background: radial-gradient(ellipse at 50% 30%, rgba(108,60,8,0.08) 0%, #f0e6d4 60%);
 }
@@ -3987,7 +3987,7 @@
   color: var(--gold);
 }
 
-/* ── Diablo: dark ember ── */
+/* â”€â”€ Diablo: dark ember â”€â”€ */
 [data-theme="diablo"] .char-create-overlay {
   background: radial-gradient(ellipse at 50% 30%, rgba(176,80,20,0.06) 0%, #140e08 60%);
 }
@@ -4049,7 +4049,7 @@
   color: var(--gold);
 }
 
-/* ── Unicorn: prismatic ── */
+/* â”€â”€ Unicorn: prismatic â”€â”€ */
 [data-theme="unicorn"] .char-create-overlay {
   background: radial-gradient(ellipse at 50% 30%, rgba(140,60,200,0.06) 0%, #100818 60%);
 }
@@ -4111,7 +4111,7 @@
   color: var(--purple);
 }
 
-/* ── Sci-Fi: neon teal ── */
+/* â”€â”€ Sci-Fi: neon teal â”€â”€ */
 [data-theme="scifi"] .char-create-overlay {
   background: radial-gradient(ellipse at 50% 30%, rgba(0,229,204,0.04) 0%, #0a0b0f 60%);
 }
@@ -4172,9 +4172,9 @@
   color: #00c8ff;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   TODAY SECTION — Theme support
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   TODAY SECTION â€” Theme support
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /* Fantasy: parchment glass */
 [data-theme="fantasy"] .home-today-section {
@@ -4324,11 +4324,11 @@
   --daily-glyph-skill-accent: #00c8ff;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   SEASONS SECTION — Theme support
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SEASONS SECTION â€” Theme support
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Fantasy: parchment glass ── */
+/* â”€â”€ Fantasy: parchment glass â”€â”€ */
 [data-theme="fantasy"] .seasons-section {
   background:
     linear-gradient(135deg,
@@ -4400,7 +4400,7 @@
   background: color-mix(in srgb, var(--gold) 10%, transparent);
 }
 
-/* ── Diablo: ember glass ── */
+/* â”€â”€ Diablo: ember glass â”€â”€ */
 [data-theme="diablo"] .seasons-section {
   background:
     linear-gradient(135deg,
@@ -4456,7 +4456,7 @@
   background: color-mix(in srgb, var(--red) 10%, transparent);
 }
 
-/* ── Unicorn: violet glass ── */
+/* â”€â”€ Unicorn: violet glass â”€â”€ */
 [data-theme="unicorn"] .seasons-section {
   background:
     linear-gradient(135deg,
@@ -4512,7 +4512,7 @@
   background: color-mix(in srgb, var(--purple) 10%, transparent);
 }
 
-/* ── Sci-Fi: neon teal glass ── */
+/* â”€â”€ Sci-Fi: neon teal glass â”€â”€ */
 [data-theme="scifi"] .seasons-section {
   background:
     linear-gradient(135deg,
@@ -4574,11 +4574,11 @@
     0 0 10px rgba(0,200,255,0.12);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   DAILY RUNES — Full theme support
-   ════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DAILY RUNES â€” Full theme support
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Fantasy: parchment/gold ── */
+/* â”€â”€ Fantasy: parchment/gold â”€â”€ */
 [data-theme="fantasy"] .gq-panel-header-box {
   border-color: color-mix(in srgb, var(--gold) 30%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 8%, transparent) 0%, color-mix(in srgb, var(--gold) 3%, transparent) 50%, color-mix(in srgb, var(--gold) 5%, transparent) 100%);
@@ -4678,7 +4678,7 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 20%, transparent);
 }
 
-/* ── Diablo: ember/blood ── */
+/* â”€â”€ Diablo: ember/blood â”€â”€ */
 [data-theme="diablo"] .gq-panel-header-box {
   border-color: color-mix(in srgb, var(--gold) 30%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, var(--gold) 8%, transparent) 0%, color-mix(in srgb, var(--gold) 3%, transparent) 50%, color-mix(in srgb, var(--gold) 5%, transparent) 100%);
@@ -4766,7 +4766,7 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 20%, transparent);
 }
 
-/* ── Unicorn: violet/prismatic ── */
+/* â”€â”€ Unicorn: violet/prismatic â”€â”€ */
 [data-theme="unicorn"] .gq-panel-header-box {
   border-color: color-mix(in srgb, var(--purple) 30%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, var(--purple) 8%, transparent) 0%, color-mix(in srgb, var(--purple) 3%, transparent) 50%, color-mix(in srgb, var(--purple) 5%, transparent) 100%);
@@ -4860,7 +4860,7 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--purple) 20%, transparent);
 }
 
-/* ── Sci-Fi: neon teal ── */
+/* â”€â”€ Sci-Fi: neon teal â”€â”€ */
 [data-theme="scifi"] .gq-panel-header-box {
   border-color: color-mix(in srgb, #00c8ff 30%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, #00c8ff 8%, transparent) 0%, color-mix(in srgb, #00c8ff 3%, transparent) 50%, color-mix(in srgb, #00c8ff 5%, transparent) 100%);
@@ -4954,10 +4954,10 @@
   box-shadow: 0 0 12px color-mix(in srgb, #00c8ff 20%, transparent);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   FANTASY VISIBILITY PASS — Source Code: Life app
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   FANTASY VISIBILITY PASS â€” Source Code: Life app
    Keeps the parchment look, but prioritizes readable contrast.
-   ════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="fantasy"] {
   --bg-deep:      #ead8b8;
   --bg-panel:     #fbf2df;
@@ -5405,4 +5405,297 @@
 
 
 
+
+
+
+/* PORTED FROM scl-react_2 — journal + dossier theme overrides */
+/* Fantasy: parchment page, brown ink, leather spine */
+[data-theme="fantasy"] .home-today-section {
+  background: transparent;
+  border: 0;
+}
+[data-theme="fantasy"] .qj-book {
+  --qj-rule: color-mix(in srgb, var(--gold) 35%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  background:
+    linear-gradient(90deg, rgba(90, 55, 20, 0.22) 0%, transparent 14px),
+    linear-gradient(165deg, #f4ead2 0%, #e8d7b0 55%, #dfc99a 100%);
+  box-shadow: 0 14px 32px rgba(60, 40, 15, 0.28), inset 0 1px 0 rgba(255,255,255,0.35);
+  color: #3a2e1c;
+}
+[data-theme="fantasy"] .qj-book-spine {
+  background: linear-gradient(180deg, #6c3c08 0%, #4a2a08 50%, #6c3c08 100%);
+}
+[data-theme="fantasy"] .qj-book-grain {
+  opacity: 0.16;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(90, 55, 20, 0.08) 24px),
+    radial-gradient(ellipse at 30% 10%, rgba(255,255,255,0.25), transparent 50%);
+}
+[data-theme="fantasy"] .qj-plate-title,
+[data-theme="fantasy"] .qj-plate-reroll,
+[data-theme="fantasy"] .qj-align-theme,
+[data-theme="fantasy"] .qj-chapter-label,
+[data-theme="fantasy"] .qj-align-complete,
+[data-theme="fantasy"] .qj-carve-submit {
+  color: #6c3c08;
+  text-shadow: none;
+}
+[data-theme="fantasy"] .qj-plate-date,
+[data-theme="fantasy"] .qj-plate-meta,
+[data-theme="fantasy"] .qj-align-kicker,
+[data-theme="fantasy"] .qj-align-summary,
+[data-theme="fantasy"] .qj-align-objs li,
+[data-theme="fantasy"] .qj-book .qj-entry-title,
+[data-theme="fantasy"] .qj-carve-prompt,
+[data-theme="fantasy"] .qj-entry-meta {
+  color: #4a3820;
+}
+[data-theme="fantasy"] .qj-plate-reroll,
+[data-theme="fantasy"] .qj-align-complete,
+[data-theme="fantasy"] .qj-carve-submit {
+  border-color: color-mix(in srgb, #6c3c08 45%, transparent);
+  background: color-mix(in srgb, #6c3c08 8%, transparent);
+}
+[data-theme="fantasy"] .qj-carve-input {
+  color: #3a2e1c;
+  background:
+    repeating-linear-gradient(
+      transparent,
+      transparent 21px,
+      rgba(108, 60, 8, 0.12) 22px
+    );
+  border-bottom-color: rgba(108, 60, 8, 0.35);
+}
+
+/* Diablo: dark ledger, ember rules, gold ink */
+[data-theme="diablo"] .home-today-section {
+  background: transparent;
+  border: 0;
+}
+[data-theme="diablo"] .qj-book {
+  --qj-rule: color-mix(in srgb, var(--gold) 30%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 34%, transparent);
+  background:
+    linear-gradient(90deg, rgba(80, 20, 10, 0.45) 0%, transparent 14px),
+    linear-gradient(165deg, #1c1410 0%, #140e0c 55%, #0e0a08 100%);
+}
+[data-theme="diablo"] .qj-book-spine {
+  background: linear-gradient(180deg, #8a3a12 0%, #3a1808 50%, #8a3a12 100%);
+}
+[data-theme="diablo"] .qj-plate-title,
+[data-theme="diablo"] .qj-align-theme,
+[data-theme="diablo"] .qj-chapter-label {
+  color: var(--gold);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 35%, transparent);
+}
+[data-theme="diablo"] .qj-plate-reroll,
+[data-theme="diablo"] .qj-align-complete,
+[data-theme="diablo"] .qj-carve-submit {
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  color: var(--gold);
+}
+
+/* Unicorn: violet folio */
+[data-theme="unicorn"] .home-today-section {
+  background: transparent;
+  border: 0;
+}
+[data-theme="unicorn"] .qj-book {
+  --qj-rule: color-mix(in srgb, var(--purple) 32%, transparent);
+  border-color: color-mix(in srgb, var(--purple) 36%, transparent);
+  background:
+    linear-gradient(90deg, rgba(90, 30, 120, 0.35) 0%, transparent 14px),
+    linear-gradient(165deg, #1a1028 0%, #120820 55%, #0e0618 100%);
+}
+[data-theme="unicorn"] .qj-book-spine {
+  background: linear-gradient(180deg, #a050d0 0%, #4a1870 50%, #a050d0 100%);
+}
+[data-theme="unicorn"] .qj-book-corner {
+  border-color: color-mix(in srgb, var(--purple) 55%, transparent);
+}
+[data-theme="unicorn"] .qj-plate-title,
+[data-theme="unicorn"] .qj-align-theme,
+[data-theme="unicorn"] .qj-chapter-label {
+  color: var(--purple);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--purple) 40%, transparent);
+}
+[data-theme="unicorn"] .qj-plate-reroll,
+[data-theme="unicorn"] .qj-align-complete,
+[data-theme="unicorn"] .qj-carve-submit {
+  border-color: color-mix(in srgb, var(--purple) 45%, transparent);
+  background: color-mix(in srgb, var(--purple) 10%, transparent);
+  color: var(--purple);
+}
+
+/* Sci-Fi / default: slate codex, teal rules */
+[data-theme="scifi"] .home-today-section {
+  background: transparent;
+  border: 0;
+}
+[data-theme="scifi"] .qj-book {
+  --qj-rule: color-mix(in srgb, #00c8ff 28%, transparent);
+  border-color: color-mix(in srgb, #00c8ff 34%, transparent);
+  background:
+    linear-gradient(90deg, rgba(0, 80, 110, 0.35) 0%, transparent 14px),
+    linear-gradient(165deg, #101820 0%, #0a1018 55%, #070c12 100%);
+}
+[data-theme="scifi"] .qj-book-spine {
+  background: linear-gradient(180deg, #00c8ff 0%, #005070 50%, #00c8ff 100%);
+}
+[data-theme="scifi"] .qj-book-corner {
+  border-color: color-mix(in srgb, #00c8ff 55%, transparent);
+}
+[data-theme="scifi"] .qj-plate-title,
+[data-theme="scifi"] .qj-align-theme,
+[data-theme="scifi"] .qj-chapter-label {
+  color: #00c8ff;
+  text-shadow: 0 0 12px color-mix(in srgb, #00c8ff 40%, transparent);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.14em;
+}
+[data-theme="scifi"] .qj-plate-reroll,
+[data-theme="scifi"] .qj-align-complete,
+[data-theme="scifi"] .qj-carve-submit {
+  border-color: color-mix(in srgb, #00c8ff 45%, transparent);
+  background: color-mix(in srgb, #00c8ff 10%, transparent);
+  color: #00c8ff;
+}
+[data-theme="scifi"] .qj-book .qj-entry-title,
+[data-theme="scifi"] .qj-align-summary,
+[data-theme="scifi"] .qj-align-objs li,
+[data-theme="scifi"] .qj-carve-input {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CHARACTER DOSSIER â€” plaque accents (not journal page clones)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+[data-theme="fantasy"] .char-card {
+  border-color: color-mix(in srgb, var(--gold) 50%, transparent);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.14) 16px, transparent 28px),
+    linear-gradient(165deg, #1a1c28 0%, #12141c 55%, #0d0f16 100%);
+  color: inherit;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--gold) 18%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--gold) 22%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme="fantasy"] .char-card-spine {
+  background: linear-gradient(180deg, #8a5410 0%, #4a2a08 50%, #8a5410 100%);
+  border-right-color: color-mix(in srgb, #c9a84c 55%, transparent);
+}
+[data-theme="fantasy"] .char-card-seal,
+[data-theme="fantasy"] .char-card-seal-label,
+[data-theme="fantasy"] .char-card-rep-label,
+[data-theme="fantasy"] .char-card-rep-stars {
+  color: #c9a84c;
+}
+[data-theme="fantasy"] .char-card-seal {
+  border: 0;
+  background: transparent;
+}
+[data-theme="fantasy"] .char-card-xp-bars,
+[data-theme="fantasy"] .char-card-xp-mirror,
+[data-theme="fantasy"] .char-card-rep {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+}
+[data-theme="fantasy"] .char-ach-panel {
+  background: linear-gradient(180deg, #f4ead2 0%, #e8d7b0 100%);
+  border-color: color-mix(in srgb, #6c3c08 35%, transparent);
+  color: #3a2e1c;
+}
+[data-theme="fantasy"] .char-ach-panel-title {
+  color: #6c3c08;
+}
+
+[data-theme="diablo"] .char-card {
+  border-color: color-mix(in srgb, var(--gold) 48%, transparent);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.14) 16px, transparent 28px),
+    linear-gradient(165deg, #1a1614 0%, #12100e 55%, #0d0b0a 100%);
+}
+[data-theme="diablo"] .char-card-spine {
+  background: linear-gradient(180deg, #8a3a12 0%, #3a1808 50%, #8a3a12 100%);
+}
+[data-theme="diablo"] .char-card-seal {
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+}
+[data-theme="diablo"] .char-card-rep {
+  border: 0;
+  background: transparent;
+}
+
+[data-theme="unicorn"] .char-card {
+  border-color: color-mix(in srgb, var(--purple) 42%, transparent);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.14) 16px, transparent 28px),
+    linear-gradient(165deg, #1a1c28 0%, #12141c 55%, #0d0f16 100%);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--purple) 16%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--purple) 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme="unicorn"] .char-card-spine {
+  background: linear-gradient(180deg, #a050d0 0%, #4a1870 50%, #a050d0 100%);
+}
+[data-theme="unicorn"] .char-card-seal {
+  border: 0;
+  background: transparent;
+  color: var(--purple);
+}
+[data-theme="unicorn"] .char-card-rail {
+  border-top-color: color-mix(in srgb, var(--purple) 22%, transparent);
+}
+[data-theme="unicorn"] .char-card-rep {
+  border: 0;
+  background: transparent;
+}
+[data-theme="unicorn"] .char-card-rep-label {
+  color: var(--purple);
+}
+
+[data-theme="scifi"] .char-card {
+  border-color: color-mix(in srgb, #00c8ff 42%, transparent);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.14) 16px, transparent 28px),
+    linear-gradient(165deg, #1a1c28 0%, #12141c 55%, #0d0f16 100%);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, #00c8ff 16%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, #00c8ff 20%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+[data-theme="scifi"] .char-card-spine {
+  background: linear-gradient(180deg, #00c8ff 0%, #005070 50%, #00c8ff 100%);
+}
+[data-theme="scifi"] .char-card-seal {
+  border: 0;
+  background: transparent;
+  color: #00c8ff;
+}
+[data-theme="scifi"] .char-card-rail {
+  border-top-color: color-mix(in srgb, #00c8ff 22%, transparent);
+}
+[data-theme="scifi"] .char-card-rep {
+  border: 0;
+  background: transparent;
+}
+[data-theme="scifi"] .char-card-rep-label {
+  color: #00c8ff;
+}
+[data-theme="scifi"] .char-card-seal-label {
+  font-family: 'Share Tech Mono', monospace;
+}
 

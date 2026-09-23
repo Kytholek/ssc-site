@@ -1,34 +1,57 @@
 /**
- * DailySection — Flowchart Layout
+ * DailySection — Bound quest journal
  *
- * Square nodes in a grid with connecting lines.
- * Clicking a node opens a side panel for info & journal.
+ * One book surface for today's alignment and daily quests.
+ * Titles stay visible; the carve field expands on the entry being completed.
  */
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
-import { XP_AWARDS, QuestEngine_isDailyGated } from '../../lib/questEngine'
+import { XP_AWARDS } from '../../lib/questEngine'
 import {
-  getActiveMultiDayQuests, getUncheckedMultiDayQuests,
-
+  generateDailyQuests, getGeneratedQuests, completeGeneratedQuest,
+  getUncheckedMultiDayQuests,
+  QUEST_TYPE_META,
+  getJournalPrompt,
+  detectMultiDay,
+  rerollGeneratedQuests, getRerollsRemaining, hasCompletedQuests,
+  getDifficultyMeta,
 } from '../../lib/numerologyQuests'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
-import { resolveDailyBlueprint } from '../../lib/questBlueprint'
 import {
-  calcPersonalDay, reduceToSimple, todayStr,
+  calcPersonalDay, calcPersonalYear, reduceToSimple,
 } from '../../lib/numerology'
-import { getPersonalDayGlyphs } from '../../lib/objectives'
-import { useQuestEngine as useQE } from '../../hooks/useQuestEngine'
 import { showFloatingXP, showParticleBurst } from '../effects/FloatingXP'
-import { showQuestRewardToast } from '../effects/QuestRewardToast'
 import { markDayCompleted } from '../effects/StreakCalendar'
+import DailyProgressRing from '../effects/DailyProgressRing'
 import DailyCountdown from '../effects/DailyCountdown'
-import { useFocusTrap } from '../../hooks/useFocusTrap'
-import FlowDetailPanel from '../flow/FlowDetailPanel'
+import StreakCalendar from '../effects/StreakCalendar'
 
+function consumeDailySummary() {
+  try {
+    const raw = localStorage.getItem('scl_daily_summary')
+    if (!raw) return null
+    const s = JSON.parse(raw)
+    if (!s.date) return null
+    localStorage.removeItem('scl_daily_summary')
+    return s
+  } catch { return null }
+}
 
-// ─── Constants ───────────────────────────────────────────────────
+function getResonanceChain() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('scl_resonance_chain') || 'null')
+    if (!raw) return 0
+    const today = new Date()
+    const todayStr = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+    const parts = raw.lastDate.split('-').map(Number)
+    const last = new Date(parts[0], parts[1] - 1, parts[2])
+    const diff = Math.floor((today - last) / 86400000)
+    return (diff <= 1 && raw.lastDate === todayStr) || diff === 1 ? raw.streak : diff === 0 ? raw.streak : 0
+  } catch { return 0 }
+}
+
 const GQ_COLORS = {
   primary:   { color: 'var(--teal)',  dim: 'rgba(0,229,180,0.15)',   icon: '◈' },
   growth:    { color: 'var(--gold)',  dim: 'rgba(200,160,40,0.15)',  icon: '◇' },
@@ -37,9 +60,8 @@ const GQ_COLORS = {
   objective: { color: 'var(--gold)',  dim: 'rgba(200,160,40,0.12)',  icon: '★' },
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────
-function getCycleObjs(type, root, freqLevel = 1) {
-  const objs = getCycleObjectives(type, root, freqLevel)
+function getCycleObjs(type, root) {
+  const objs = getCycleObjectives(type, root)
   if (objs.length) return objs.map(o => o.text)
   return [
     'Stay present to the energy of this cycle.',
@@ -56,12 +78,13 @@ function buildUserProfile(player, statXP = {}) {
   const counts = {}
   for (let i = 1; i <= 9; i++) counts[i] = 0
   coreRoots.forEach(n => counts[n]++)
-  const sorted = [1,2,3,4,5,6,7,8,9].sort((a, b) => counts[b] - counts[a])
+  const sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort((a, b) => counts[b] - counts[a])
   return {
     dominantNumbers: sorted.filter(n => counts[n] >= 2).length
       ? sorted.filter(n => counts[n] >= 2) : sorted.slice(0, 2),
     weakerNumbers: sorted.filter(n => counts[n] === 0).length
       ? sorted.filter(n => counts[n] === 0) : sorted.slice(-2),
+    cycleNumber: reduceToSimple(calcPersonalYear(m, d).root),
     outerNumber: reduceToSimple(ou.root),
     statXP,
     dayRoot: reduceToSimple(calcPersonalDay(m, d).root),
@@ -80,18 +103,88 @@ function buildUserProfile(player, statXP = {}) {
   }
 }
 
+const JOURNAL_SOURCES = [
+  { id: 'skill', label: 'SKILL', icon: '◈', color: 'var(--teal)' },
+  { id: 'life',  label: 'LIFE',  icon: '★', color: 'var(--gold)' },
+  { id: 'cycle', label: 'CYCLE', icon: '↺', color: 'var(--rose)' },
+]
+
+function journalSource(quest) {
+  if (quest.source === 'skill' || quest.type === 'skilltree') return JOURNAL_SOURCES[0]
+  if (quest.source === 'life' || quest.type === 'objective') return JOURNAL_SOURCES[1]
+  if (quest.source === 'current' || quest.type === 'cycle') return JOURNAL_SOURCES[2]
+  const clr = GQ_COLORS[quest.type] || GQ_COLORS.wildcard
+  const meta = QUEST_TYPE_META[quest.type]
+  return {
+    id: quest.type || 'other',
+    label: meta?.label || 'QUEST',
+    icon: clr.icon,
+    color: clr.color,
+  }
+}
+
+function isKnownSource(source) {
+  return JOURNAL_SOURCES.some(s => s.id === source.id)
+}
+
+function formatJournalDate() {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function questMultiDay(quest) {
+  if (quest?.multiDay?.totalDays) return quest.multiDay
+  return detectMultiDay(quest?.title || '')
+}
+
+function MultiDayPips({ totalDays }) {
+  const days = Math.max(0, Number(totalDays) || 0)
+  if (!days) return null
+
+  // Cap raw pips so 30-day stays readable; denser weeks for longer runs
+  const maxPips = days <= 7 ? days : days <= 14 ? days : 10
+  const pips = Array.from({ length: maxPips }, (_, i) => i)
+
+  return (
+    <span
+      className="qj-entry-multiday"
+      title={`${days}-day multi-day commitment`}
+      aria-label={`${days}-day multi-day quest`}
+    >
+      <span className="qj-multiday-pips" aria-hidden="true">
+        {pips.map(i => (
+          <span key={i} className="qj-multiday-pip" />
+        ))}
+        {days > maxPips && <span className="qj-multiday-pip qj-multiday-pip--more" />}
+      </span>
+      <span className="qj-multiday-label">{days}-DAY</span>
+    </span>
+  )
+}
+
 // ═══════════════════════════════════════════════════════════════
-//  SIDE PANEL — Detail & Journal
+//  RULED ENTRY — title visible, carve expands in place
 // ═══════════════════════════════════════════════════════════════
 
-function QuestSidePanel({ quest, onClose, onComplete }) {
+function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
-  const panelRef = useFocusTrap({ open: true, onClose })
-  const clr = GQ_COLORS[quest.type] || GQ_COLORS.primary
-  const meta = QUEST_TYPE_META[quest.type] || {}
+  const rowRef = useRef(null)
+  const inputRef = useRef(null)
   const diffMeta = getDifficultyMeta(quest.difficulty)
   const prompt = getJournalPrompt(quest.number, quest.type, quest.id)
+  const count = (text || '').trim().length
+  const multiDay = questMultiDay(quest)
+  const multiDays = multiDay?.totalDays || 0
+
+  useEffect(() => {
+    if (!expanded) return
+    const id = requestAnimationFrame(() => inputRef.current?.focus())
+    return () => cancelAnimationFrame(id)
+  }, [expanded])
 
   function handleSubmit() {
     const trimmed = (text || '').trim()
@@ -100,602 +193,276 @@ function QuestSidePanel({ quest, onClose, onComplete }) {
       return
     }
 
-    // Capture values BEFORE completion mutates state
     const xpAmount = quest.rewardXP
     const isResonant = quest.isResonant
-    const questColor = clr.color
-
-    // Get position for floating XP
-    const rect = panelRef.current?.getBoundingClientRect()
+    const questColor = source.color
+    const rect = rowRef.current?.getBoundingClientRect()
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
-    const y = rect ? rect.top + 100 : window.innerHeight / 2
+    const y = rect ? rect.top + 40 : window.innerHeight / 2
 
     const result = onComplete(quest.id, trimmed)
-
-    // completeGeneratedQuest returns undefined on success, { ok: false, error } on failure
     if (result && result.ok === false) {
       setError(result.error)
       return
     }
 
     try {
-      // Trigger visual feedback
       showFloatingXP({ xp: xpAmount, color: questColor, x, y })
       showParticleBurst({ color: questColor, x, y, count: 16 })
-
-      // Mark streak history
       markDayCompleted(isResonant)
       window.dispatchEvent(new CustomEvent('scl:streak_updated'))
     } catch (e) {
       console.warn('Visual feedback error:', e)
     }
-
-    onClose() // Close panel to show sparks
-  }
-
-  return (
-    <div
-      className="quest-panel-overlay"
-      ref={panelRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${quest.title} — Quest Details`}
-      aria-describedby="quest-panel-prompt-text"
-    >
-      <div className="quest-panel" style={{ '--qp-color': clr.color }}>
-        <button
-          className="quest-panel-close"
-          onClick={onClose}
-          aria-label="Close quest panel"
-        >
-          ✕
-        </button>
-
-        {/* Header */}
-        <div className="quest-panel-header">
-          <span className="quest-panel-num" style={{ color: clr.color }} aria-hidden="true">
-            {quest.number}
-          </span>
-          <div className="quest-panel-info">
-            <span className="quest-panel-label" style={{ color: clr.color }}>
-              {quest.type === 'objective' ? '★ ' : ''}{meta.label}
-            </span>
-            {/* Real difficulty badge with color */}
-            <span
-              className="quest-panel-diff quest-difficulty-badge"
-              style={{ color: diffMeta.color, borderColor: `${diffMeta.color}44` }}
-              aria-label={`Difficulty: ${diffMeta.label}`}
-            >
-              {diffMeta.icon} {diffMeta.label}
-            </span>
-          </div>
-        </div>
-
-        {/* Quest Text */}
-        <div className="quest-panel-text">{quest.title}</div>
-
-        {/* Blueprint Match Indicator */}
-        {quest.isResonant && quest.matchesBlueprint && (
-          <div
-            className="bp-match-indicator"
-            style={{ color: clr.color, borderColor: clr.color }}
-            role="status"
-            aria-label="Blueprint match bonus: double stat XP"
-          >
-            ⚡ BP MATCH · ×2 XP
-          </div>
-        )}
-
-        {/* Journal Section */}
-        {!quest.completed && (
-          <div className="quest-panel-journal">
-            <div className="quest-panel-prompt" id="quest-panel-prompt-text">{prompt}</div>
-            <textarea
-              className="quest-panel-input"
-              placeholder="Carve your reflection..."
-              value={text}
-              onChange={e => { setText(e.target.value); setError('') }}
-              rows={4}
-              aria-label="Journal reflection text"
-              aria-required="true"
-              aria-describedby="quest-panel-error"
-            />
-            {error && (
-              <div className="quest-panel-error" id="quest-panel-error" role="alert">
-                {error}
-              </div>
-            )}
-            <div className="quest-panel-foot">
-              {/* XP preview with difficulty indicator */}
-              <span className="quest-panel-xp" style={{ color: diffMeta.color }}>
-                +{quest.rewardXP} XP
-              </span>
-              <button className="quest-panel-submit" onClick={handleSubmit}>
-                ▶ CARVE & COMPLETE
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Completed State */}
-        {quest.completed && (
-          <div
-            className="quest-panel-done"
-            style={{ color: clr.color }}
-            role="status"
-            aria-label={`Quest completed. Earned ${quest.rewardXP} XP.`}
-          >
-            ✦ IGNITED · +{quest.rewardXP} XP EARNED
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  RUNE NODE — Square Grid Item
-// ═══════════════════════════════════════════════════════════════
-
-function RuneNode({ quest, isActive, onClick, onJustCompleted }) {
-  const clr = GQ_COLORS[quest.type] || GQ_COLORS.primary
-  const meta = QUEST_TYPE_META[quest.type] || {}
-  const diffMeta = getDifficultyMeta(quest.difficulty)
-  const [justIgnited, setJustIgnited] = useState(false)
-
-  function handleClick() {
-    if (quest.completed && !justIgnited) {
-      onClick()
-      return
-    }
-    onClick()
   }
 
   if (quest.completed) {
     return (
-      <button
-        type="button"
-        className={`rune-node rune-node--done${justIgnited ? ' rune-node--igniting' : ''}`}
-        style={{ '--node-color': clr.color }}
-        onClick={handleClick}
-        aria-label={`Quest ${quest.number} completed — ${meta?.label || 'quest'}`}
+      <div
+        className={`qj-entry qj-entry--done${multiDays ? ' qj-entry--multiday' : ''}`}
+        style={{ '--qj-ink': source.color }}
       >
-        <div className="rune-node-done-fill" aria-hidden="true" />
-        <div className="rune-node-type-icon" style={{ color: clr.color }} aria-hidden="true">{clr.icon}</div>
-        <div className="rune-node-num" style={{ color: clr.color }} aria-hidden="true">✦</div>
-        <div className="rune-node-label" style={{ color: clr.color }}>IGNITED</div>
-      </button>
+        <span className="qj-entry-margin" aria-hidden="true">
+          <span className="qj-entry-seal">✦</span>
+        </span>
+        <div className="qj-entry-body">
+          <span className="qj-entry-title">{quest.title}</span>
+          <span className="qj-entry-done-meta">
+            {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
+            <span className="qj-entry-stamp">IGNITED</span>
+          </span>
+        </div>
+      </div>
     )
   }
 
   return (
-    <button
-      type="button"
-      className={`rune-node${quest.isResonant ? ' rune-node--resonant' : ''}${isActive ? ' rune-node--active' : ''} quest-state-transition`}
-      style={{ '--node-color': clr.color }}
-      onClick={handleClick}
-      aria-label={`Quest ${quest.number}${quest.isResonant ? ', resonant' : ''} — ${meta?.label || 'quest'}`}
+    <div
+      ref={rowRef}
+      className={`qj-entry${expanded ? ' qj-entry--open' : ''}${quest.isResonant ? ' qj-entry--resonant' : ''}${multiDays ? ' qj-entry--multiday' : ''}`}
+      style={{ '--qj-ink': source.color }}
     >
-      {quest.isResonant && <div className="rune-node-pulse" style={{ background: clr.color }} aria-hidden="true" />}
-      <div className="rune-node-type-icon" style={{ color: clr.color }} aria-hidden="true">{clr.icon}</div>
-      <div className="rune-node-num" style={{ color: clr.color }}>{quest.number}</div>
-      <div className="rune-node-label" style={{ color: clr.color }}>{meta?.label || 'QUEST'}</div>
-      {quest.isResonant && <div className="rune-node-tag" style={{ color: clr.color }} aria-hidden="true">⚡</div>}
-    </button>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  GLYPH JOURNAL PANEL — Journal prompt modal for each glyph
-// ═══════════════════════════════════════════════════════════════
-
-// Journal prompts for daily objectives
-const GLYPH_JOURNAL_PROMPTS = [
-  'How does this objective show up in your life right now? What is it asking you to practice, release, or embody? Write honestly — this is for your eyes only.',
-  'What resistance or ease do you feel when you read this? Where in your life is this theme currently active? Explore the texture of it.',
-  'If you fully embraced this objective today, what would change? What is one concrete action you could take? What is stopping you?',
-]
-
-function GlyphJournalPanel({ open, glyph, index, color, onClose, onComplete }) {
-  const [text, setText] = useState('')
-  const [error, setError] = useState('')
-  const panelRef = useFocusTrap({ open: open && !!glyph, onClose })
-  const prevOpenRef = useRef(false)
-
-  // Reset form when panel opens (using ref to detect transition)
-  if (open && !prevOpenRef.current) {
-    setText('')
-    setError('')
-  }
-  prevOpenRef.current = open
-
-  if (!open || !glyph) return null
-
-  const prompt = GLYPH_JOURNAL_PROMPTS[index] || GLYPH_JOURNAL_PROMPTS[0]
-
-  function handleSubmit() {
-    const trimmed = text.trim()
-    if (trimmed.length < 20) {
-      setError(`Minimum 20 characters (${trimmed.length}/20)`)
-      return
-    }
-
-    const result = onComplete(index, trimmed)
-    if (result && result.ok === false) {
-      setError(result.error)
-      return
-    }
-
-    onClose()
-  }
-
-  return createPortal(
-    <>
-      {/* Backdrop */}
-      <div
-        className="quest-panel-overlay"
-        onClick={onClose}
-        role="presentation"
-        style={{ '--qp-color': color }}
+      <button
+        type="button"
+        className="qj-entry-trigger"
+        aria-expanded={expanded}
+        onClick={onToggle}
       >
-        {/* Panel */}
-        <div
-          ref={panelRef}
-          className="quest-panel"
-          style={{ '--qp-color': color }}
-          onClick={(e) => e.stopPropagation()}
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Glyph ${index + 1} — Journal Reflection`}
-        >
-          <button
-            className="quest-panel-close"
-            onClick={onClose}
-            aria-label="Close journal panel"
-          >
-            ✕
-          </button>
-
-          {/* Header */}
-          <div className="quest-panel-header">
-            <span className="quest-panel-num" style={{ color }}>
-              {index + 1}
-            </span>
-            <div className="quest-panel-info">
-              <span className="quest-panel-label" style={{ color }}>
-                ★ GLYPH OBJECTIVE
-              </span>
-            </div>
-          </div>
-
-          {/* Objective Text */}
-          <div className="quest-panel-text">{glyph.text}</div>
-
-          {/* Journal Section */}
-          <div className="quest-panel-journal">
-            <div className="quest-panel-prompt">{prompt}</div>
-            <textarea
-              className="quest-panel-input"
-              placeholder="Carve your reflection..."
-              value={text}
-              onChange={(e) => { setText(e.target.value); setError('') }}
-              rows={5}
-              aria-label="Journal reflection text"
-              aria-required="true"
-            />
-            {error && (
-              <div className="quest-panel-error" role="alert">
-                {error}
-              </div>
-            )}
-            <div className="quest-panel-foot">
-              <span className="quest-panel-xp" style={{ color }}>
-                +2 FREQ XP · +1 STAT XP
-              </span>
-              <button className="quest-panel-submit" onClick={handleSubmit}>
-                ▶ CARVE & COMPLETE
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>,
-    document.body
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  DAY OBJECTIVES PANEL — 3 Personal Day Objectives as Glyphs
-// ═══════════════════════════════════════════════════════════════
-
-const DHR_COLOR_HEX = {
-  'var(--teal)':   '#00e5cc',
-  'var(--gold)':   '#c9a84c',
-  'var(--rose)':   '#f472b6',
-  'var(--sage)':   '#4ade80',
-  'var(--purple)': '#a78bfa',
-}
-
-const DAY_RUNE_MARKS = ['I', 'II', 'III']
-
-function DayObjectiveGlyph({ index, glyph, colorVar, onClick, completed }) {
-  const colorHex = DHR_COLOR_HEX[colorVar] || '#c9a84c'
-  const isSkill = glyph?.slot === 'skill'
-  const mark = completed ? '✦' : (isSkill ? '◈' : DAY_RUNE_MARKS[index] || String(index + 1))
-  const label = completed ? 'SEALED' : (isSkill ? 'SKILL' : 'DAY')
-
-  return (
-    <button
-      type="button"
-      className={`day-obj-rune quest-state-transition${completed ? ' day-obj-rune--done' : ''}${isSkill ? ' day-obj-rune--skill' : ''}`}
-      style={{ '--node-color': colorHex }}
-      onClick={onClick}
-      aria-label={`${isSkill ? 'Skill' : 'Day'} objective ${index + 1}${completed ? ' — sealed' : ''}`}
-    >
-      <span className="day-obj-rune-corner day-obj-rune-corner--tl" aria-hidden="true" />
-      <span className="day-obj-rune-corner day-obj-rune-corner--tr" aria-hidden="true" />
-      <span className="day-obj-rune-corner day-obj-rune-corner--bl" aria-hidden="true" />
-      <span className="day-obj-rune-corner day-obj-rune-corner--br" aria-hidden="true" />
-      <span className="day-obj-rune-mark" aria-hidden="true">{mark}</span>
-      <span className="day-obj-rune-label">{label}</span>
-    </button>
-  )
-}
-
-function DayObjectivesPanel({ objectives, completed, colorVar, pd, onOpenObjective }) {
-  if (!objectives || objectives.length === 0) return null
-
-  const allCompleted = completed && completed.every(Boolean)
-
-  return (
-    <div className="gq-panel gq-panel--day-objs rune-panel-enter">
-      <div className="rune-connector rune-connector--day-objs" />
-
-      {/* Header */}
-      <div className="gq-panel-header">
-        <span className="gq-panel-title">
-          ◈ PERSONAL DAY {reduceToSimple(pd.root)} OBJECTIVES
+        <span className={`qj-entry-margin${expanded ? ' qj-entry-margin--pulse' : ''}`} aria-hidden="true">
+          <span className="qj-entry-seal">{source.icon}</span>
+          {quest.number != null && <span className="qj-entry-folio">{quest.number}</span>}
         </span>
-      </div>
+        <span className="qj-entry-body">
+          <span className="qj-entry-title">{quest.title}</span>
+          <span className="qj-entry-meta">
+            {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
+            <span className="qj-entry-diff" style={{ color: diffMeta.color }}>
+              {diffMeta.icon} {diffMeta.label}
+            </span>
+            <span className="qj-entry-xp">+{quest.rewardXP} XP</span>
+            {quest.isResonant && quest.matchesBlueprint && (
+              <span className="qj-entry-bp">×2</span>
+            )}
+          </span>
+        </span>
+        <span className="qj-entry-mark" aria-hidden="true">{expanded ? '▾' : '▸'}</span>
+      </button>
 
-      <div className="rune-grid rune-grid--day-objs">
-        {objectives.map((obj, i) => (
-          <DayObjectiveGlyph
-            key={i}
-            index={i}
-            glyph={obj}
-            colorVar={colorVar}
-            completed={completed?.[i]}
-            onClick={() => onOpenObjective(obj, i)}
+      {expanded && (
+        <div className="qj-carve">
+          {multiDays > 0 && (
+            <p className="qj-carve-multiday-note">
+              Multi-day commitment · {multiDays} consecutive days
+            </p>
+          )}
+          <p className="qj-carve-prompt" id={`qj-prompt-${quest.id}`}>{prompt}</p>
+          <textarea
+            ref={inputRef}
+            className="qj-carve-input"
+            placeholder="Write down your experience..."
+            value={text}
+            onChange={e => { setText(e.target.value); setError('') }}
+            rows={4}
+            aria-label="Journal reflection text"
+            aria-required="true"
+            aria-describedby={error ? `qj-error-${quest.id}` : `qj-prompt-${quest.id}`}
+            onKeyDown={e => { if (e.key === 'Escape') onToggle() }}
           />
-        ))}
-      </div>
+          <div className="qj-carve-foot">
+            <span className={`qj-carve-count${count >= 30 ? ' qj-carve-count--ready' : ''}`}>
+              {count}/30
+            </span>
+            <span className="qj-carve-xp" style={{ color: diffMeta.color }}>+{quest.rewardXP} XP</span>
+            <button type="button" className="qj-carve-submit" onClick={handleSubmit}>
+              ▶ CARVE & COMPLETE
+            </button>
+          </div>
+          {error && (
+            <div className="qj-carve-error" id={`qj-error-${quest.id}`} role="alert">{error}</div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  DAILY HERO QUEST BOX — Diablo 2-style square glyph
+//  CHAPTERS — Skill / Life / Cycle
 // ═══════════════════════════════════════════════════════════════
 
-function DailyHeroQuestBox({
-  color,
-  dayRoot,
-  subtitle,
-  icon = '◈',
-  state = 'active',
-  isFocusMatch = false,
-  isSelected = false,
-  onClick,
-}) {
-  const isSealed = state === 'sealed'
-  const isIgniting = state === 'igniting'
+function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
+  if (!genQuests) return null
+
+  const active = genQuests.filter(q => !q.completed)
+  const done = genQuests.filter(q => q.completed)
+
+  const grouped = new Map()
+  const extras = []
+  for (const quest of [...active, ...done]) {
+    const source = journalSource(quest)
+    if (isKnownSource(source)) {
+      if (!grouped.has(source.id)) grouped.set(source.id, [])
+      grouped.get(source.id).push(quest)
+    } else {
+      extras.push({ quest, source })
+    }
+  }
+
+  function renderRow(quest, source) {
+    return (
+      <JournalQuestRow
+        key={quest.id}
+        quest={quest}
+        source={source}
+        expanded={expandedId === quest.id}
+        onToggle={() => onExpand(quest.id)}
+        onComplete={onComplete}
+      />
+    )
+  }
 
   return (
-    <button
-      type="button"
-      className={[
-        'daily-hero-quest-box',
-        isSealed && 'daily-hero-quest-box--sealed',
-        isIgniting && 'daily-hero-quest-box--igniting',
-        isFocusMatch && !isSealed && 'daily-hero-quest-box--resonant',
-        isSelected && !isSealed && 'daily-hero-quest-box--selected',
-      ].filter(Boolean).join(' ')}
-      style={{ '--dq-color': color }}
-      onClick={onClick}
-      disabled={isSealed || isIgniting}
-      aria-label={
-        isSealed
-          ? `Daily quest sealed — Personal Day ${dayRoot}`
-          : `Daily quest — Personal Day ${dayRoot}. Tap to view.`
-      }
-    >
-      <span className="daily-hero-quest-box-frame" aria-hidden="true" />
-      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--tl" aria-hidden="true" />
-      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--tr" aria-hidden="true" />
-      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--bl" aria-hidden="true" />
-      <span className="daily-hero-quest-box-corner daily-hero-quest-box-corner--br" aria-hidden="true" />
-      <span className="daily-hero-quest-box-glow" aria-hidden="true" />
+    <div className="qj-chapters">
+      <div className="qj-section-break" role="presentation">
+        <h3 className="qj-section-break-label">DAILY QUESTS</h3>
+        <span className="qj-section-break-line" aria-hidden="true" />
+      </div>
 
-      <span className="daily-hero-quest-box-icon" aria-hidden="true">
-        {isSealed ? '✦' : icon}
-      </span>
-      <span className="daily-hero-quest-box-num" aria-hidden="true">
-        {isSealed ? '✓' : dayRoot}
-      </span>
-      <span className="daily-hero-quest-box-label">
-        {isSealed ? 'SEALED' : subtitle}
-      </span>
-    </button>
+      {JOURNAL_SOURCES.map(source => {
+        const quests = grouped.get(source.id)
+        if (!quests?.length) return null
+        return (
+          <section key={source.id} className="qj-chapter" aria-labelledby={`qj-chapter-${source.id}`}>
+            <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
+              <span aria-hidden="true">{source.icon}</span>
+              <span>{source.label}</span>
+            </h3>
+            <div className="qj-chapter-entries">
+              {quests.map(quest => renderRow(quest, source))}
+            </div>
+          </section>
+        )
+      })}
+
+      {extras.length > 0 && (
+        <section className="qj-chapter" aria-label="Other quests">
+          <div className="qj-chapter-entries">
+            {extras.map(({ quest, source }) => renderRow(quest, source))}
+          </div>
+        </section>
+      )}
+    </div>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  DAILY QUEST HERO CARD
+//  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, glyphsCompleted=true, isGated=false, bpRoots=[], onComplete, lpRoot, freqLevel=1 }) {
-  const [panelOpen, setPanelOpen] = useState(false)
+function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots }) {
   const [justCompleted, setJustCompleted] = useState(false)
-  const [igniting, setIgniting] = useState(false)
-  const nodeRef = useRef(null)
+  const cardRef = useRef(null)
   const { completeDailyQuest: eqComplete } = useQuestEngine()
   const doComplete = onComplete || eqComplete
 
   const dayRoot = reduceToSimple(pd.root)
-  const monthRoot = pd.monthRoot
-  const isFocusMatch = daily?.dayRootMatch ?? !!(bpRoots?.filter(r => r === dayRoot).length)
-  const panelColorHex = DHR_COLOR_HEX[colorVar] || '#00e5cc'
+  const isFocusMatch = !!(bpRoots?.filter(r => r === dayRoot).length)
+  const theme = meaning.theme || 'Daily Alignment'
+  const summary = meaning.summary || daily.body
+  const objectives = getCycleObjs('personalDay', pd.root)
+  const icon = CYCLE_QUEST_COLORS.personalDay?.icon || '◈'
 
   function handleComplete() {
-    const rect = nodeRef.current?.getBoundingClientRect()
+    const rect = cardRef.current?.getBoundingClientRect()
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
 
-    // T=0ms: doComplete, close panel, ignition begins
-    doComplete(lpRoot)
-    setPanelOpen(false)
-    setIgniting(true)
+    doComplete()
+    setJustCompleted(true)
 
     try {
-      // Burst immediately
-      showParticleBurst({ color: colorVar, x, y, count: 28 })
-
-      // T=350ms: XP pop + toast breakdown
-      setTimeout(() => {
-        showFloatingXP({ xp: XP_AWARDS.daily, color: colorVar, x, y })
-        showQuestRewardToast({
-          questNumber: dayRoot,
-          questTitle: meaning.theme || 'Daily Alignment',
-          charXP: XP_AWARDS.daily,
-          statXP: 5,
-          isResonant: isFocusMatch,
-          difficulty: 'medium',
-          statNum: dayRoot,
-        })
-      }, 350)
-
-      // T=750ms: ignition ends, done state enters
-      setTimeout(() => {
-        setIgniting(false)
-        setJustCompleted(true)
-        markDayCompleted(isFocusMatch)
-        window.dispatchEvent(new CustomEvent('scl:streak_updated'))
-      }, 750)
-
-      // T=3750ms: reset
-      setTimeout(() => setJustCompleted(false), 3750)
+      showFloatingXP({ xp: XP_AWARDS.daily, color: colorVar, x, y })
+      showParticleBurst({ color: colorVar, x, y, count: 14 })
+      markDayCompleted(isFocusMatch)
+      window.dispatchEvent(new CustomEvent('scl:streak_updated'))
     } catch (e) {
       console.warn('Visual feedback error:', e)
-      setIgniting(false)
     }
+
+    setTimeout(() => setJustCompleted(false), 3000)
   }
 
   if (justCompleted || daily.completed) {
     return (
-      <div className="daily-hero-rune-wrap">
-        <DailyHeroQuestBox
-          color={panelColorHex}
-          dayRoot={dayRoot}
-          subtitle="PERSONAL DAY"
-          icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
-          state="sealed"
-        />
+      <div className="qj-align qj-align--done" style={{ '--align-color': colorVar }} role="status">
+        <span className="qj-align-margin" aria-hidden="true">
+          <span className="qj-align-seal">✓</span>
+        </span>
+        <div className="qj-align-body">
+          <span className="qj-align-kicker">TODAY&apos;S ALIGNMENT</span>
+          <span className="qj-align-theme">{theme}</span>
+        </div>
+        <span className="qj-align-stamp">COMPLETE</span>
       </div>
     )
   }
 
   return (
-    <div className="daily-hero-rune-wrap">
-      {igniting && <div className="daily-complete-flash" style={{ '--dq-color': colorVar }} />}
-      <div ref={nodeRef} className="daily-hero-node">
-        <DailyHeroQuestBox
-          color={panelColorHex}
-          dayRoot={dayRoot}
-          subtitle="PERSONAL DAY"
-          icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
-          state={igniting ? 'igniting' : 'active'}
-          isFocusMatch={isFocusMatch}
-          isSelected={panelOpen}
-          onClick={() => setPanelOpen(true)}
-        />
-        {isFocusMatch && !igniting && (
-          <div className="daily-hero-node-tag" style={{ color: colorVar }}>⚡</div>
-        )}
+    <article ref={cardRef} className="qj-align" style={{ '--align-color': colorVar }}>
+      <div className="qj-align-head">
+        <span className="qj-align-margin" aria-hidden="true">
+          <span className="qj-align-seal">{icon}</span>
+          <span className="qj-align-folio">{dayRoot}</span>
+          <span className="qj-align-day">DAY {pd.dayNum}</span>
+        </span>
+        <div className="qj-align-copy">
+          <span className="qj-align-kicker">TODAY&apos;S ALIGNMENT</span>
+          <h3 className="qj-align-theme">{theme}</h3>
+          {isFocusMatch && (
+            <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
+          )}
+        </div>
       </div>
 
-      <FlowDetailPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        color={panelColorHex}
-        title={meaning.theme || 'Daily Alignment'}
-        subtitle={`Personal Day ${dayRoot} · Cycle day ${pd.dayNum}`}
-        icon={CYCLE_QUEST_COLORS.personalDay?.icon || '◈'}
-      >
-        <div className="dhr-panel-focus">
-          <span className="dhr-panel-focus-num">{dayRoot}</span>
-          <div>
-            <span className="dhr-panel-focus-label">TODAY'S FOCUS</span>
-            {isFocusMatch && (
-              <span className="dhr-panel-focus-match">⚡ BLUEPRINT MATCH · ×2 XP</span>
-            )}
-          </div>
+      {summary && <p className="qj-align-summary">{summary}</p>}
+
+      <div className="qj-align-section">OBJECTIVES</div>
+      <ul className="qj-align-objs">
+        {objectives.map((o, i) => <li key={i}>{o}</li>)}
+      </ul>
+
+      {daily.dayObj && (
+        <div className="qj-align-life">
+          <span aria-hidden="true">★ </span><span>{daily.dayObj}</span>
         </div>
+      )}
 
-        <div className="dhr-panel-formula">
-          Personal Month <strong>{monthRoot}</strong>
-          {' + Cycle day '}
-          <strong>{pd.dayNum}</strong>
-          {' = '}
-          <strong>{monthRoot + pd.dayNum}</strong>
-          {' → Personal Day '}
-          <strong>{pd.root}</strong>
-        </div>
-
-        {(meaning.summary || daily.body) && (
-          <div className="dhr-panel-summary">{meaning.summary || daily.body}</div>
-        )}
-
-        {daily.blueprintLabel && (
-          <div className="dhr-panel-blueprint" style={{ fontSize: '0.75rem', letterSpacing: '0.1em', color: colorVar, opacity: 0.75, marginBottom: 12 }}>
-            ◈ {daily.blueprintLabel}
-          </div>
-        )}
-
-        {daily.dayObj && (
-          <div className="dhr-panel-hero-obj" style={{ fontFamily: "'Crimson Text', serif", fontSize: '14px', lineHeight: 1.5, marginBottom: 12, color: 'var(--text-mid)' }}>
-            {daily.dayObj}
-          </div>
-        )}
-
-        <div className="dhr-panel-section-label">◈ OBJECTIVES</div>
-        <ul className="dhr-panel-obj-list">
-          {getCycleObjs('personalDay', pd.root, freqLevel).map((o, i) => <li key={i}>{o}</li>)}
-        </ul>
-
-        {daily.dayObj && (
-          <div className="dhr-panel-life-obj">
-            <span>★ </span><span>{daily.dayObj}</span>
-          </div>
-        )}
-
-        <button
-          className="dhr-panel-complete-btn"
-          style={{ '--dq-btn-color': colorVar }}
-          onClick={handleComplete}
-          disabled={isGated}
-          title={isGated ? 'Complete all 3 daily glyph objectives first' : ''}
-        >
-          {isGated ? '◉ COMPLETE 3 GLYPHS FIRST' : glyphsCompleted ? '▶ COMPLETE DAILY QUEST' : '◉ COMPLETE 3 GLYPHS FIRST'}
-        </button>
-      </FlowDetailPanel>
-    </div>
+      <button type="button" className="qj-align-complete" onClick={handleComplete}>
+        ▶ COMPLETE DAILY QUEST
+      </button>
+    </article>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  REMINDER BANNER
-// ═══════════════════════════════════════════════════════════════
 
 function ReminderBanner() {
   const unchecked = getUncheckedMultiDayQuests()
@@ -705,17 +472,13 @@ function ReminderBanner() {
       <span>◉</span>
       <span>
         {unchecked.length === 1
-          ? `Active commitment — check in today`
+          ? 'Active commitment — check in today'
           : `${unchecked.length} commitments — check in to keep streaks`
         }
       </span>
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  END-OF-DAY SUMMARY NOTIFICATION
-// ═══════════════════════════════════════════════════════════════
 
 function DailySummaryCard({ summary, onDismiss }) {
   return (
@@ -748,10 +511,6 @@ function DailySummaryCard({ summary, onDismiss }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  STREAK BADGE
-// ═══════════════════════════════════════════════════════════════
-
 function StreakTooltip({ lines, onClose }) {
   return createPortal(
     <div className="streak-tooltip" role="tooltip" onClick={e => { e.stopPropagation(); onClose() }}>
@@ -767,9 +526,9 @@ function StreakTooltip({ lines, onClose }) {
 
 export function StreakBadge({ streak, compact = false }) {
   const [tipVisible, setTipVisible] = useState(false)
-  const isChain   = streak >= 3
+  const isChain = streak >= 3
   const hasStreak = streak > 0
-  const tipLines  = [
+  const tipLines = [
     streak === 0
       ? 'Complete quests daily to build your streak.'
       : `${streak} day${streak > 1 ? 's' : ''} in a row — keep going!`,
@@ -814,152 +573,133 @@ export function StreakBadge({ streak, compact = false }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  BOUND JOURNAL ROOT
+// ═══════════════════════════════════════════════════════════════
 
-export default function DailySection({ playerData, daily, completeDailyQuest, lpRoot }) {
-  const qe = useQE()
-  const { xp, completeDailyGlyph, getDailyGlyphsState } = qe
-  const [glyphsState, setGlyphsState] = useState(null)
-  const [journalModal, setJournalModal] = useState({ open: false, glyphIdx: -1 })
+export default function DailySection({ playerData, daily, completeDailyQuest }) {
+  const { xp } = useQuestEngine()
+  const [genState, setGenState] = useState(() => getGeneratedQuests())
+  const [summary, setSummary] = useState(() => consumeDailySummary())
+  const [expandedId, setExpandedId] = useState(null)
+  const [rerollError, setRerollError] = useState(null)
+  const genProfile = playerData ? buildUserProfile(playerData, xp?.statXP) : null
+  const chainStreak = getResonanceChain()
+  const profileReady = Boolean(playerData)
+  const rerollsRemaining = getRerollsRemaining()
+  const anyCompleted = hasCompletedQuests()
 
-  // Build profile for bpRoots (simple, no memo needed)
-  const profile = playerData ? buildUserProfile(playerData, xp || {}) : null
-  const bpRoots = profile?.bpRoots || []
+  useEffect(() => {
+    const onUpdate = () => setGenState(getGeneratedQuests())
+    window.addEventListener('scl:gen_quests_updated', onUpdate)
+    return () => window.removeEventListener('scl:gen_quests_updated', onUpdate)
+  }, [])
+
+  useEffect(() => {
+    if (!profileReady || !playerData) return
+    if (!getGeneratedQuests()) generateDailyQuests(buildUserProfile(playerData, xp?.statXP))
+  }, [profileReady, playerData, xp?.statXP])
 
   if (!playerData) return null
   const { m, d } = playerData
-  const [summary, setSummary] = useState(null)
-  const [selectedObjective, setSelectedObjective] = useState(null)
 
-    // Load/populate glyphs
-  useEffect(() => {
-    if (!lpRoot || !playerData) return
-    const state = getDailyGlyphsState(lpRoot)
-    // Always refresh glyph content from blueprint (2 day + 1 skill); repair if < 3.
-    const blueprint = resolveDailyBlueprint(playerData, xp?.freqLevel ?? 1)
-    if (blueprint?.glyphs?.length) {
-      state.glyphs = blueprint.glyphs
-      state.completed = [false, false, false].map((_, i) => !!state.completed?.[i])
-      state.journals = ['', '', ''].map((_, i) => state.journals?.[i] || '')
-    }
-    try {
-      localStorage.setItem('scl_daily_glyphs', JSON.stringify(state))
-    } catch {}
-    setGlyphsState(state)
-  }, [lpRoot, playerData, xp?.freqLevel])
-
-  // Listen for engine updates
-  useEffect(() => {
-    const handleGlyphsUpdate = (e) => {
-      if (e.detail && lpRoot) {
-        setGlyphsState(getDailyGlyphsState(lpRoot))
-      }
-    }
-    window.addEventListener('scl:daily_glyphs_updated', handleGlyphsUpdate)
-    return () => window.removeEventListener('scl:daily_glyphs_updated', handleGlyphsUpdate)
-  }, [lpRoot])
-
-
+  const genQuests = genState?.quests ?? null
+  const genCompleted = genQuests ? genQuests.filter(q => q.completed).length : 0
+  const genActive = genQuests ? genQuests.filter(q => !q.completed).length : 0
+  const dailyCompleted = daily?.completed ? 1 : 0
+  const totalCompleted = dailyCompleted + genCompleted
+  const totalQuests = 1 + (genQuests ? genQuests.length : 0)
 
   const pd = calcPersonalDay(m, d)
   const cfg = CYCLE_QUEST_COLORS.personalDay
-  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root]
-    || CYCLE_MEANINGS.personalDay?.[reduceToSimple(pd.root)]
-    || {}
+  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
   const colorVar = `var(${cfg.color})`
-  const blueprintGlyphs = useMemo(
-    () => resolveDailyBlueprint(playerData, xp?.freqLevel ?? 1)?.glyphs || [],
-    [playerData, xp?.freqLevel]
-  )
-  const panelColorHex = DHR_COLOR_HEX[colorVar] || '#00e5cc'
+  const plateMeta = genQuests
+    ? `${genActive} open · ${genCompleted} ignited`
+    : '—'
 
-  const handleOpenObjective = useCallback((text, index) => {
-    setSelectedObjective({ text, index })
-  }, [])
+  function handleCompleteGen(questId, text) {
+    return completeGeneratedQuest(questId, text)
+  }
 
-  const handleGlyphClick = useCallback((glyph, index) => {
-    if (glyphsState?.completed?.[index]) {
-      // View-only if done
-      handleOpenObjective(glyph.text, index)
-    } else {
-      // Open journal
-      setJournalModal({ open: true, glyphIdx: index })
-    }
-  }, [glyphsState, handleOpenObjective])
+  function handleExpand(questId) {
+    setExpandedId(current => (current === questId ? null : questId))
+  }
 
-  const handleJournalSubmit = useCallback((index, journal) => {
-    if (!lpRoot || glyphsState?.completed?.[index]) return { ok: false, error: 'Already completed' }
-    const result = completeDailyGlyph(lpRoot, index, journal)
-    if (result.ok !== false) {
-      setJournalModal({ open: false, glyphIdx: -1 })
-      // Refetch state
-      const newState = getDailyGlyphsState(lpRoot)
-      setGlyphsState(newState)
-    }
-    return result
-  }, [lpRoot, glyphsState, completeDailyGlyph])
+  function handleReroll() {
+    setRerollError(null)
+    const result = rerollGeneratedQuests(playerData)
+    if (!result.ok) setRerollError(result.error)
+  }
 
   return (
     <div className="daily-section">
       {summary && <DailySummaryCard summary={summary} onDismiss={() => setSummary(null)} />}
 
-      {/* Countdown Timer */}
-      <DailyCountdown />
+      <div className="qj-book" aria-label="Quest journal">
+        <span className="qj-book-spine" aria-hidden="true" />
+        <span className="qj-book-corner qj-book-corner--tl" aria-hidden="true" />
+        <span className="qj-book-corner qj-book-corner--tr" aria-hidden="true" />
+        <span className="qj-book-corner qj-book-corner--bl" aria-hidden="true" />
+        <span className="qj-book-corner qj-book-corner--br" aria-hidden="true" />
+        <span className="qj-book-grain" aria-hidden="true" />
 
-      {/* Hero */}
-      <DailyQuestCard
-        daily={daily}
-        colorVar={colorVar}
-        meaning={meaning}
-        pd={pd}
-        glyphsCompleted={glyphsState?.completed?.every(Boolean) || false}
-        isGated={!glyphsState || QuestEngine_isDailyGated(lpRoot)}
-        bpRoots={bpRoots}
-        onComplete={completeDailyQuest}
-        lpRoot={lpRoot}
-        freqLevel={xp?.freqLevel ?? 1}
-      />
-
-      <ReminderBanner />
-
-      {/* Day Objectives — 2 personal day + 1 skill glyph */}
-      <DayObjectivesPanel
-        objectives={
-          glyphsState?.glyphs?.length >= 3 ? glyphsState.glyphs : blueprintGlyphs
-        }
-        completed={glyphsState?.completed}
-        colorVar={colorVar}
-        pd={pd}
-        onOpenObjective={handleGlyphClick}
-      />
-
-      {/* Glyph Journal Modal */}
-      <GlyphJournalPanel
-        open={journalModal.open}
-        glyph={glyphsState?.glyphs?.[journalModal.glyphIdx]}
-        index={journalModal.glyphIdx}
-        color={DHR_COLOR_HEX[colorVar] || '#00e5cc'}
-        onClose={() => setJournalModal({ open: false, glyphIdx: -1 })}
-        onComplete={handleJournalSubmit}
-      />
-
-      {/* Objective Detail Panel */}
-      {selectedObjective && (
-        <FlowDetailPanel
-          open={!!selectedObjective}
-          onClose={() => setSelectedObjective(null)}
-          color={panelColorHex}
-          title={`Objective ${selectedObjective.index + 1}`}
-          subtitle={`Personal Day ${reduceToSimple(pd.root)}`}
-          icon="✦"
-        >
-          <div className="objective-detail-panel">
-            <div className="objective-detail-text">{selectedObjective.text}</div>
-            <p style={{ margin: 0, fontStyle: 'italic', color: 'var(--text-dim)', fontFamily: "'Crimson Text', serif", fontSize: '14px', lineHeight: 1.55 }}>
-              Complete this objective as part of your daily practice.
-            </p>
+        <header className="qj-plate">
+          <div className="qj-plate-copy">
+            <h2 className="qj-plate-title">QUEST JOURNAL</h2>
+            <p className="qj-plate-date">{formatJournalDate()}</p>
+            <p className="qj-plate-meta">{plateMeta}</p>
           </div>
-        </FlowDetailPanel>
-      )}
+          <div className="qj-plate-actions">
+            <button
+              type="button"
+              className={`qj-plate-reroll${rerollsRemaining <= 0 || anyCompleted ? ' qj-plate-reroll--disabled' : ''}`}
+              onClick={handleReroll}
+              disabled={rerollsRemaining <= 0 || anyCompleted || !genQuests}
+              title={
+                anyCompleted
+                  ? 'Complete quests before re-rolling'
+                  : rerollsRemaining <= 0
+                    ? 'Daily re-roll limit reached'
+                    : `Re-roll quests (${rerollsRemaining} remaining)`
+              }
+            >
+              ↻ RE-ROLL{rerollsRemaining > 0 ? ` (${rerollsRemaining})` : ''}
+            </button>
+          </div>
+        </header>
+
+        {rerollError && <div className="qj-reroll-error">{rerollError}</div>}
+
+        <div className="qj-status">
+          <div className="daily-progress-row">
+            <DailyProgressRing completed={totalCompleted} total={totalQuests} />
+            <StreakBadge streak={chainStreak} />
+          </div>
+          <DailyCountdown />
+        </div>
+
+        <div className="qj-pages">
+          <DailyQuestCard
+            daily={daily}
+            colorVar={colorVar}
+            meaning={meaning}
+            pd={pd}
+            onComplete={completeDailyQuest}
+            bpRoots={genProfile?.bpRoots || null}
+          />
+
+          <ReminderBanner />
+
+          <QuestChapters
+            genQuests={genQuests}
+            onComplete={handleCompleteGen}
+            expandedId={expandedId}
+            onExpand={handleExpand}
+          />
+        </div>
+      </div>
+
+      <StreakCalendar />
     </div>
   )
 }

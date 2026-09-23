@@ -21,7 +21,7 @@ export default function RealmTabBar({
       {/* ── Sub-tabs (top) ─────────────────────────────────── */}
       {mainTab === 'hub' && (
         <div className="sm-sub-toggle" role="tablist" aria-label="Hub sub-tabs">
-          {['world', 'side', 'digital'].map(key => (
+          {['side', 'world', 'digital'].map(key => (
             <button
               key={key}
               className={`sm-sub-btn${hubSub === key ? ' active' : ''}`}
@@ -30,7 +30,7 @@ export default function RealmTabBar({
               tabIndex={hubSub === key ? 0 : -1}
               onClick={() => setHubSub(key)}
             >
-              {{ world: 'World Map', side: 'Side Quests', digital: 'Digital Map' }[key]}
+              {{ side: 'Side Quests', world: 'World Map', digital: 'Digital Map' }[key]}
             </button>
           ))}
         </div>

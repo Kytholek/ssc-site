@@ -1,8 +1,9 @@
 /**
  * SimulationMatrix — the full-screen realm experience.
  * Entered from the portal in MapTab.
- * HUB tab: World Map + Side Quests + Digital Map (fantasy overworld)
+ * HUB tab: Side Quests (default) + World Map + Digital Map
  * SOCIAL tab: Ranks + Allies + Chat
+ * Quest creation lives on the World Map (Make Quest tab removed).
  */
 import { useState, useCallback, useEffect } from 'react'
 import { useAppState } from '../../context/AppContext'
@@ -226,7 +227,7 @@ function ChatView({ onGoToAllies }) {
 export default function SimulationMatrix({ onExit, inline = false }) {
   const { playerData } = useAppState()
   const [mainTab, setMainTab]   = useState('hub')
-  const [hubSub, setHubSub]     = useState('world')
+  const [hubSub, setHubSub]     = useState('side')
   const [socialSub, setSocialSub] = useState('leaderboard')
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [showRealmCoach, setShowRealmCoach] = useState(() => {
@@ -266,8 +267,15 @@ export default function SimulationMatrix({ onExit, inline = false }) {
       {/* Content area */}
       <div className="sm-content">
         {mainTab === 'hub' && hubSub === 'digital' && <DigitalMapView playerData={playerData} />}
-        {mainTab === 'hub' && hubSub === 'world' && <WorldMapView playerData={playerData} />}
-        {mainTab === 'hub' && hubSub === 'side' && <SideQuestsView />}
+        {mainTab === 'hub' && hubSub === 'world' && (
+          <WorldMapView
+            playerData={playerData}
+            onOpenSideQuests={() => setHubSub('side')}
+          />
+        )}
+        {mainTab === 'hub' && hubSub === 'side' && (
+          <SideQuestsView onOpenWorldMap={() => setHubSub('world')} />
+        )}
         {mainTab === 'social' && socialSub === 'allies' && <AlliesView playerData={playerData} onSelectPlayer={setSelectedPlayer} />}
         {mainTab === 'social' && socialSub === 'leaderboard' && <LeaderboardView playerData={playerData} onSelectPlayer={setSelectedPlayer} />}
         {mainTab === 'social' && socialSub === 'chat' && (

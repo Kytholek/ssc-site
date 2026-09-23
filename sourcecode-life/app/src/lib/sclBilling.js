@@ -53,7 +53,13 @@ export async function fetchSclCheckoutSession(sessionId) {
 
 export async function fetchSclSubscription({ subscriptionId, idToken }) {
   const res = await fetch(
-    `${SCL_API_BASE}/api/scl/subscription?subscription_id=${encodeURIComponent(subscriptionId)}&idToken=${encodeURIComponent(idToken)}`
+    `${SCL_API_BASE}/api/scl/subscription?subscription_id=${encodeURIComponent(subscriptionId)}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    }
   )
   return parseJson(res)
 }

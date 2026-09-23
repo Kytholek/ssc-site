@@ -47,7 +47,7 @@ export default function RealmTabBar({
               tabIndex={socialSub === key ? 0 : -1}
               onClick={() => setSocialSub(key)}
             >
-              {{ allies: 'Allies', leaderboard: 'Leaderboard', chat: 'Chat' }[key]}
+              {{ allies: 'Allies', leaderboard: 'Leaderboard', chat: 'Chat · Soon' }[key]}
             </button>
           ))}
         </div>
@@ -68,11 +68,11 @@ export default function RealmTabBar({
         </button>
         <button
           className="sm-tab-btn center-btn"
-          aria-label="Exit to Map"
+          aria-label="Exit Realm"
           onClick={onExit}
         >
           <span className="sm-tab-icon" aria-hidden>◈</span>
-          <span className="sm-tab-exit-label">Exit to Map</span>
+          <span className="sm-tab-exit-label">Exit Realm</span>
         </button>
         <button
           className={`sm-tab-btn${mainTab === 'social' ? ' active' : ''}`}

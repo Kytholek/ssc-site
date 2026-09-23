@@ -1,0 +1,63 @@
+rules_version = '2';
+// Deploy via Firebase Console / CLI when ready.
+// NOTE: Entitlement writes still allowed for self until Stripe webhook owns grants.
+//       After webhook ships, remove 'entitlements' / stripe* from client-writable paths.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /players/{uid} {
+      allow read: if signedIn();
+      allow create: if isSelf(uid);
+      // Self may update own doc. Cross-user reputation updates are still open —
+      // tighten with Cloud Functions when ratings move server-side.
+      allow update: if signedIn() && (
+        isSelf(uid)
+        || request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['reputation', 'takerReputation', 'pendingTakerRatings'])
+      );
+      allow delete: if isSelf(uid);
+
+      match /allies/{allyId} {
+        allow read, write: if isSelf(uid);
+      }
+      match /pendingTakerRatings/{docId} {
+        allow read, write: if signedIn();
+      }
+    }
+
+    match /ally_requests/{id} {
+      allow read: if signedIn()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.from == request.auth.uid;
+      allow update: if signedIn()
+        && (resource.data.to == request.auth.uid || resource.data.from == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /worldQuests/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if signedIn()
+        && resource.data.uid == request.auth.uid;
+    }
+
+    match /giftCodes/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

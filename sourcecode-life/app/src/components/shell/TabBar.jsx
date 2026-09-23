@@ -1,18 +1,18 @@
 /**
- * TabBar — Home / Quests / [Portal Map] / Stats / Config
+ * TabBar — Home / Quests / [Portal Realm] / Character / Settings
  */
 import { useAppState } from '../../context/AppContext'
 
 const SIDE_LEFT = [
-  { id: 'home',   icon: '◈', label: 'HOME',   tourId: null },
-  { id: 'quests', icon: '⚔', label: 'QUESTS', tourId: 'tab-quests' },
+  { id: 'home',   icon: '◈', label: 'HOME',      tourId: null },
+  { id: 'quests', icon: '⚔', label: 'QUESTS',    tourId: 'tab-quests' },
 ]
 
-const MAP_TAB = { id: 'map', label: 'MAP', tourId: 'tab-map' }
+const MAP_TAB = { id: 'map', label: 'REALM', tourId: 'tab-map' }
 
 const SIDE_RIGHT = [
-  { id: 'profile', icon: '◇', label: 'STATS',  tourId: 'tab-stats' },
-  { id: 'config',  icon: '⚙', label: 'CONFIG', tourId: 'tab-config' },
+  { id: 'profile', icon: '◇', label: 'CHARACTER', tourId: 'tab-stats' },
+  { id: 'config',  icon: '⚙', label: 'SETTINGS',  tourId: 'tab-config' },
 ]
 
 function SideTab({ tab, activeTab, onTabChange }) {

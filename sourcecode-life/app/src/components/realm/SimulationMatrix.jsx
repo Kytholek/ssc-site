@@ -211,9 +211,9 @@ function ChatView({ onGoToAllies }) {
   return (
     <div className="rm-chat-view">
       <div className="rm-panel" style={{ margin: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
-        <div className="rm-panel-label">⚡ ALLY CHAT</div>
+        <div className="rm-panel-label">⚡ ALLY CHAT · SOON</div>
         <div className="rm-panel-body rm-empty" style={{ fontSize: 12, padding: '24px 16px', textAlign: 'center' }}>
-          <p>Coming soon — chat with your confirmed allies.</p>
+          <p>Ally chat is not live yet. Use Allies to invite and connect for now.</p>
           <button type="button" className="rm-chat-allies-link" onClick={onGoToAllies}>
             Find allies in the Allies tab →
           </button>
@@ -252,7 +252,7 @@ export default function SimulationMatrix({ onExit, inline = false }) {
     <div className={`simulation-matrix${inline ? ' simulation-matrix--inline' : ''}`}>
       {showRealmCoach && (
         <div className="realm-coach-mark" role="note">
-          <p><strong>Simulation Matrix</strong> — HUB has maps & quests; SOCIAL has allies & ranks. Tap <strong>Exit to Map</strong> below to return.</p>
+          <p><strong>Realm</strong> — HUB has maps &amp; side quests; SOCIAL has allies &amp; ranks. Tap <strong>Exit Realm</strong> below to return.</p>
           <button type="button" onClick={dismissRealmCoach} aria-label="Dismiss">✕</button>
         </div>
       )}

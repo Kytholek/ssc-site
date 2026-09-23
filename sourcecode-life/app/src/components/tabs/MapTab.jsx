@@ -151,9 +151,9 @@ export default function MapTab() {
               <div className="portal-ring portal-ring--mid" />
               <div className="portal-ring portal-ring--inner" />
               <div className="portal-content">
-                <div className="portal-title">SIMULATION MATRIX</div>
+                <div className="portal-title">REALM</div>
                 <div className="portal-divider" />
-                <div className="portal-sub">ENTER REALM</div>
+                <div className="portal-sub">ENTER WORLD MAP &amp; ALLIES</div>
               </div>
             </button>
           </div>
@@ -162,7 +162,7 @@ export default function MapTab() {
           <div className="portal-corner portal-corner--tr" />
           <div className="portal-corner portal-corner--bl" />
           <div className="portal-corner portal-corner--br" />
-          <div className="portal-footer">MAP · SOCIAL · QUESTS · LEADERBOARD</div>
+          <div className="portal-footer">HUB · WORLD · ALLIES · RANKS</div>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 /**
- * ProfileTab (now rendered as the CONFIG tab)
+ * ProfileTab (rendered as the SETTINGS tab)
  *
  * Navbar: INSIGHTS / SETTINGS
  */

@@ -16,7 +16,9 @@ export async function fetchLeaderboard() {
           cl: data.cl?.root || '?',
           lp: data.lp?.root || '?',
           ex: data.ex?.root || '?',
-          isPremium: data.isPremium || false,
+          isPremium: Array.isArray(data.entitlements)
+            ? data.entitlements.some(e => e === 'premium_lifetime' || /^premium_\d+d:/.test(e))
+            : !!data.isPremium,
           reputation: data.reputation,
           takerReputation: data.takerReputation,
         }

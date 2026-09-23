@@ -266,6 +266,43 @@ window.NativeAuth = {
   reloadApp() {
     window.location.reload()
   },
+
+  /** Load skill-tree progress from players/{uid}.skillTreeProgress */
+  loadSkillTreeProgress(cb) {
+    const user = auth.currentUser
+    if (!user) { cb?.('{}'); return }
+    _withFirestore(
+      () => getDoc(doc(db, 'players', user.uid)),
+      () => {
+        try {
+          const local = localStorage.getItem('scl_skilltree_progress_v2')
+          cb?.(local || '{}')
+        } catch { cb?.('{}') }
+        return null
+      }
+    )
+      .then(snap => {
+        if (!snap) return
+        const raw = snap.exists() ? snap.data().skillTreeProgress : null
+        cb?.(JSON.stringify(raw && typeof raw === 'object' ? raw : {}))
+      })
+      .catch(() => cb?.('{}'))
+  },
+
+  /** Persist skill-tree progress to players/{uid}.skillTreeProgress */
+  saveSkillTreeProgress(json) {
+    const user = auth.currentUser
+    if (!user) return
+    let parsed = {}
+    try { parsed = JSON.parse(json || '{}') } catch { return }
+    if (!parsed || typeof parsed !== 'object') return
+    _withFirestore(
+      () => setDoc(doc(db, 'players', user.uid), { skillTreeProgress: parsed, updated: Date.now() }, { merge: true }),
+      () => {
+        try { localStorage.setItem('scl_skilltree_progress_v2', JSON.stringify(parsed)) } catch { /* intentional */ }
+      }
+    ).catch(() => {})
+  },
 }
 
 // â”€â”€ NativeMap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -627,12 +664,16 @@ function _linkAllies(uidA, uidB) {
   ])
 }
 
-// ── NativePurchase (dev stub — Android uses Kotlin @JavascriptInterface) ───
+// ── NativePurchase (web uses Stripe via PremiumModal; this is a fail-closed stub)
 window.NativePurchase = {
   startPurchase(productId) {
-    console.log('[SCL/dev] NativePurchase.startPurchase:', productId)
+    console.warn('[SCL] NativePurchase.startPurchase is unavailable on web — use Stripe checkout.', productId)
     setTimeout(() => {
-      window.NativePurchase_onPurchaseResult?.(true, productId, '')
-    }, 1500)
+      window.NativePurchase_onPurchaseResult?.(
+        false,
+        productId,
+        'In-app purchase is not available here. Use the web checkout.'
+      )
+    }, 0)
   },
 }

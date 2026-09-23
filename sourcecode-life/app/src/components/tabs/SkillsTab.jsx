@@ -1,7 +1,7 @@
 /**
- * SkillsTab (rendered as the PROFILE tab)
+ * SkillsTab (rendered as the CHARACTER tab)
  *
- * Sub-tabs: STATS | SKILLS | BLUEPRINT | SPIRAL
+ * Sub-tabs: GIFTS | SKILLS | BLUEPRINT | SPIRAL
  */
 import { useState, useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
@@ -15,7 +15,7 @@ import LessonsFlow from '../flow/LessonsFlow'
 import { markChecklistItem } from '../../lib/tourStorage'
 
 const PROFILE_TABS = [
-  { id: 'stats',     label: '◈ STATS'     },
+  { id: 'stats',     label: '◈ GIFTS'     },
   { id: 'skills',    label: '◇ SKILLS'    },
   { id: 'blueprint', label: '◈ BLUEPRINT' },
   { id: 'spiral',    label: '◎ SPIRAL'    },

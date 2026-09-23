@@ -88,6 +88,9 @@ function NotificationsSection() {
   return (
     <section className="settings-section">
       <h3 className="settings-section-title">NOTIFICATIONS</h3>
+      <p className="notif-perm-warning" style={{ marginBottom: 10 }}>
+        Preferences save here. Scheduled daily alerts are not wired yet — toggles only store your intent for when scheduling ships.
+      </p>
 
       {permState === 'denied' && (
         <p className="notif-perm-warning">

@@ -41,17 +41,20 @@ function AppRoot() {
       const productId = params.get('product_id')
       const sessionId = params.get('session_id')
       window.history.replaceState({}, '', window.location.pathname)
-      if (!productId) {
+      if (!productId || !sessionId) {
         gameDispatch({
           type: ACTIONS.SET_TOAST,
-          payload: { msg: '⚠ Purchase could not be applied — missing product. Contact support.', color: 'var(--red)' },
+          payload: {
+            msg: '⚠ Purchase could not be verified — missing session. Contact support if you were charged.',
+            color: 'var(--red)',
+          },
         })
         return
       }
       // Persist before callback so a missing/early handler cannot drop the purchase
       try {
         sessionStorage.setItem('scl_pending_purchase', productId)
-        if (sessionId) sessionStorage.setItem('scl_pending_session', sessionId)
+        sessionStorage.setItem('scl_pending_session', sessionId)
       } catch { /* intentional */ }
       window.NativePurchase_onPurchaseResult?.(true, productId, '')
     }

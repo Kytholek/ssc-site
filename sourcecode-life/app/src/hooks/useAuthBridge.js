@@ -26,6 +26,12 @@ import {
   fetchSclCheckoutSession,
   fetchSclSubscription,
 } from '../lib/sclBilling'
+import {
+  getXPState,
+  getFreqLog,
+  getLQP,
+  getAcceptedQuests,
+} from '../lib/questEngine'
 
 // Helper: map Firebase error codes → human messages
 function friendlyError(raw) {
@@ -326,9 +332,22 @@ export function useAuthBridge() {
       dispatch({ type: 'SET_INVITE_BANNER', payload: name || 'An ally' })
     }
 
-    // ── NativeQuest.onXPLoaded — delegate to questEngine (cloud merge) ─────────
+    // ── NativeQuest.onXPLoaded — merge into questEngine + GameContext ─────────
     window.NativeQuest_onXPLoaded = (charXP, charLevel, freqXP, freqLevel, statXPJson, freqLogJson) => {
       window.__scl_qe_onXPLoaded?.(charXP, charLevel, freqXP, freqLevel, statXPJson, freqLogJson)
+      const xp = getXPState()
+      gameDispatch({
+        type: ACTIONS.SYNC_FROM_FIRESTORE,
+        payload: {
+          ...xp,
+          freqLog: getFreqLog(),
+          lqp: getLQP(),
+          sideQuests: getAcceptedQuests(),
+        },
+      })
+      gameDispatch({ type: ACTIONS.REFRESH_LQP, payload: getLQP() })
+      gameDispatch({ type: ACTIONS.REFRESH_FREQ_LOG, payload: getFreqLog() })
+      gameDispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
     }
 
     // ── NativePurchase.startPurchase() result (Google Play + Stripe) ──────────
@@ -369,12 +388,24 @@ export function useAuthBridge() {
       if (sessionId) {
         try {
           const session = await fetchSclCheckoutSession(sessionId)
+          if (!session?.paid && session?.paymentStatus && session.paymentStatus !== 'paid') {
+            window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+              detail: 'Checkout was not completed. Please try again.',
+            }))
+            gameDispatch({
+              type: ACTIONS.SET_TOAST,
+              payload: { msg: '⚠ Checkout was not completed. Please try again.', color: 'var(--red)' },
+            })
+            return
+          }
           if (session.productId && session.productId !== productId) {
             productId = session.productId
           }
           if (session.currentPeriodEnd) {
             entitlement = entitlementForPeriodEnd(productId, session.currentPeriodEnd)
             periodEndIso = new Date(session.currentPeriodEnd * 1000).toISOString()
+          } else if (productId === 'premium_lifetime' && (session.paid || session.paymentStatus === 'paid' || session.status === 'complete')) {
+            entitlement = 'premium_lifetime'
           }
           stripeFields = {
             stripeCustomerId: session.customerId || null,
@@ -382,12 +413,40 @@ export function useAuthBridge() {
             stripeProductId: productId,
             subscriptionCancelAtPeriodEnd: !!session.cancelAtPeriodEnd,
           }
+          if (!entitlement && productId === 'premium_lifetime' && (session.customerId || session.status === 'complete')) {
+            entitlement = 'premium_lifetime'
+          }
         } catch (e) {
-          console.warn('[SCL] checkout session sync failed, falling back to local grant:', e.message)
+          console.warn('[SCL] checkout session sync failed:', e.message)
+          window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+            detail: 'Could not verify payment. Please reopen the app or contact support.',
+          }))
+          gameDispatch({
+            type: ACTIONS.SET_TOAST,
+            payload: { msg: '⚠ Could not verify payment. Try again or contact support.', color: 'var(--red)' },
+          })
+          return
         }
+      } else if (window.__SCL_WEB) {
+        // Web must verify via Stripe session — never grant from URL/productId alone
+        window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+          detail: 'Missing checkout session. Please try purchasing again.',
+        }))
+        gameDispatch({
+          type: ACTIONS.SET_TOAST,
+          payload: { msg: '⚠ Missing checkout session. Please try again.', color: 'var(--red)' },
+        })
+        return
       }
 
       if (!entitlement) {
+        // Native / Play Billing path only (no Stripe session)
+        if (window.__SCL_WEB) {
+          window.dispatchEvent(new CustomEvent('scl:purchase_error', {
+            detail: 'Could not verify premium purchase.',
+          }))
+          return
+        }
         if (productId === 'premium_lifetime') {
           entitlement = 'premium_lifetime'
         } else if (productId === 'premium_annual') {
@@ -450,7 +509,7 @@ export function useAuthBridge() {
       dispatch({ type: 'CLOSE_PREMIUM_MODAL' })
       gameDispatch({
         type: ACTIONS.SET_TOAST,
-        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Stats → Blueprint.', color: 'var(--gold)' },
+        payload: { msg: '✦ Premium unlocked! Explore Character → Spiral and Character → Blueprint.', color: 'var(--gold)' },
       })
     }
 

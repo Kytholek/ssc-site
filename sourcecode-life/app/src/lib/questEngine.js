@@ -916,7 +916,7 @@ export function completeSideQuest(questId) {
     // IRL achievement tracking
     try {
       if (typeof window.Achievements_check === 'function') window.Achievements_check();
-      window.NativeBridge?.saveAchievements?.();
+      window.NativeMap?.saveAchievements?.();
     } catch { /* intentional */ }
 
     _dispatch('scl:sidequests_updated', { quests: getAcceptedQuests() });

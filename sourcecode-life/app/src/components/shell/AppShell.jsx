@@ -19,9 +19,9 @@ const TABS = ['home', 'quests', 'map', 'profile', 'config']
 const TAB_TITLES = {
   home: 'Home',
   quests: 'Quests',
-  map: 'Map',
-  profile: 'Stats',
-  config: 'Config',
+  map: 'Realm',
+  profile: 'Character',
+  config: 'Settings',
 }
 
 export default function AppShell() {

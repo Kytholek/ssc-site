@@ -188,11 +188,23 @@ export function gameReducer(state, action) {
 
     /* ── Firestore sync ─────────────────────────────────────── */
     case ACTIONS.SYNC_FROM_FIRESTORE: {
-      const { charXP, charLevel, freqXP, freqLevel, statXP, freqLog } = action.payload
+      const { charXP, charLevel, freqXP, freqLevel, statXP, freqLog, lqp, sideQuests } = action.payload
       return {
         ...state,
-        user: { charXP, charLevel, freqXP, freqLevel, statXP },
-        quests: { ...state.quests, freqLog: freqLog ?? state.quests.freqLog },
+        user: {
+          ...state.user,
+          charXP:    charXP    ?? state.user.charXP,
+          charLevel: charLevel ?? state.user.charLevel,
+          freqXP:    freqXP    ?? state.user.freqXP,
+          freqLevel: freqLevel ?? state.user.freqLevel,
+          statXP:    statXP    ?? state.user.statXP,
+        },
+        quests: {
+          ...state.quests,
+          freqLog:    freqLog    ?? state.quests.freqLog,
+          lqp:        lqp        ?? state.quests.lqp,
+          sideQuests: sideQuests ?? state.quests.sideQuests,
+        },
       }
     }
 

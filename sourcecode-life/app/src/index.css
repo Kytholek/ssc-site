@@ -44,6 +44,39 @@ body {
   font-family: 'EB Garamond', 'Georgia', serif;
 }
 
+/* ── Scrollbars (theme-aware via CSS vars) ─────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--gold, #c9a84c) 45%, transparent)
+    color-mix(in srgb, var(--bg-panel2, #110f1f) 80%, transparent);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--bg-panel2, #110f1f) 70%, transparent);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--gold, #c9a84c) 38%, transparent);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--gold-bright, #e8c96b) 55%, transparent);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 #root {
   height: 100svh;
   max-height: 100svh;

@@ -207,7 +207,7 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 	].filter(Boolean).join(" ");
 
 	return (
-		<div className="skills-stage" role="main" aria-label="Numerology Skill Tree">
+		<div className="skills-stage" aria-label="Numerology Skill Tree">
 			<style>{`
 				.quest-item:hover, .quest-item:focus-visible, .quest-item:active {
 					background: rgba(255,255,255,0.08) !important;

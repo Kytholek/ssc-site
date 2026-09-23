@@ -368,7 +368,7 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
 //  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots }) {
+function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpRoot }) {
   const [justCompleted, setJustCompleted] = useState(false)
   const cardRef = useRef(null)
   const { completeDailyQuest: eqComplete } = useQuestEngine()
@@ -386,7 +386,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots }) {
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
 
-    doComplete()
+    doComplete(lpRoot)
     setJustCompleted(true)
 
     try {
@@ -649,6 +649,7 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
             pd={pd}
             onComplete={completeDailyQuest}
             bpRoots={genProfile?.bpRoots || null}
+            lpRoot={playerData.lp?.root}
           />
 
           <ReminderBanner />

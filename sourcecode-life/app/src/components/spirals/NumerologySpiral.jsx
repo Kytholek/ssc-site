@@ -1,14 +1,13 @@
 /**
- * NumerologySpiral - Premium interactive life path spiral.
+ * NumerologySpiral — interactive life-path Time Spiral (Profile → SPIRAL).
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { useAppState } from '../../context/AppContext'
+import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { calcPinnacles, calcFourMonthCycle, calcPersonalYear, reduceToSimple, dateAtAge } from '../../lib/numerology'
 import { CYCLE_MEANINGS } from '../../lib/data'
 
 const MAX_AGE = 90, MIN_ZOOM = 0.35, MAX_ZOOM = 4.0
-const INFO_BAR_H = 52
 
 function cycleHue(colors, root) {
   const key = reduceToSimple(root) || 1
@@ -54,13 +53,15 @@ const THEMES = {
 
 export default function NumerologySpiral() {
   const { playerData } = useAppState()
+  const dispatch = useAppDispatch()
   const canvasRef = useRef(null)
   const bgRef = useRef(null)
   const wrapRef = useRef(null)
   const [pinnedAge, setPinnedAge] = useState(null)
   const [hoverAge, setHoverAge] = useState(null)
   const [scrubberVal, setScrubberVal] = useState(null)
-  const [canvasH, setCanvasH] = useState(600)
+  const scrubberValRef = useRef(null)
+  const scrubbingRef = useRef(false)
 
   const panRef = useRef({ x: 0, y: 0 })
   const zoomRef = useRef(1)
@@ -79,20 +80,27 @@ export default function NumerologySpiral() {
   const nowFracRef = useRef(0)
   const pinnaclesRef = useRef([])
   const colorsRef = useRef(THEMES.scifi)
-  const canvasHRef = useRef(600)
-  const radiusRef = useRef(250)
+  const sizeRef = useRef({ W: 640, H: 600, radius: 250 })
+  const pinnedAgeRef = useRef(null)
+  const hoverAgeRef = useRef(null)
+  const pauseAnimRef = useRef(false)
+  const canvasSizeDrawnRef = useRef({ W: 0, H: 0 })
 
-  if (!playerData || !playerData.m || !playerData.d || !playerData.y) {
-    return <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', fontStyle: 'italic' }}>Birth date not available</div>
-  }
+  pinnedAgeRef.current = pinnedAge
+  hoverAgeRef.current = hoverAge
+  pauseAnimRef.current = pinnedAge !== null
 
-  const m = playerData.m, d = playerData.d, y = playerData.y
-  const lp = playerData.lp?.root || 9
-  const theme = playerData.theme || 'scifi'
+  const m = playerData?.m
+  const d = playerData?.d
+  const y = playerData?.y
+  const hasBirth = !!(m && d && y)
+  const lp = playerData?.lp?.root || 9
+  const theme = playerData?.theme || 'scifi'
   const colors = THEMES[theme] || THEMES.scifi
   colorsRef.current = colors
 
   const nowFrac = useMemo(() => {
+    if (!hasBirth) return 0
     const bd = new Date(y, m - 1, d), now = new Date()
     let age = now.getFullYear() - bd.getFullYear()
     const md = now.getMonth() - bd.getMonth()
@@ -100,13 +108,17 @@ export default function NumerologySpiral() {
     const last = new Date(now.getFullYear() - (md < 0 || (md === 0 && now.getDate() < bd.getDate()) ? 1 : 0), m - 1, d)
     const next = new Date(last.getFullYear() + 1, m - 1, d)
     return Math.max(0, age + (now - last) / (next - last))
-  }, [m, d, y])
+  }, [hasBirth, m, d, y])
   nowFracRef.current = nowFrac
 
-  const pinnacles = useMemo(() => calcPinnacles(m, d, y, { root: lp }), [m, d, y, lp])
+  const pinnacles = useMemo(
+    () => (hasBirth ? calcPinnacles(m, d, y, { root: lp }) : []),
+    [hasBirth, m, d, y, lp]
+  )
   pinnaclesRef.current = pinnacles
 
   const yearCycles = useMemo(() => {
+    if (!hasBirth) return []
     const years = []
     for (let yr = 0; yr < MAX_AGE; yr++) {
       const py = calcPersonalYear(m, d, dateAtAge(m, d, y, yr + 0.5)).root
@@ -116,39 +128,47 @@ export default function NumerologySpiral() {
       years.push({ py, segs })
     }
     return years
-  }, [m, d, y])
+  }, [hasBirth, m, d, y])
   const yearCyclesRef = useRef(yearCycles)
   yearCyclesRef.current = yearCycles
 
   useEffect(() => {
     const wrap = wrapRef.current
-    if (!wrap) return
-    const updateH = (el) => {
-      const tabH = document.querySelector('.tab-bar')?.getBoundingClientRect().height || 60
-      const h = Math.max(400, window.innerHeight - el.getBoundingClientRect().top - tabH - 8)
-      setCanvasH(h)
-      canvasHRef.current = h
-      radiusRef.current = Math.min(wrap.offsetWidth || 640, h) * 0.46
+    if (!wrap || !hasBirth) return
+    const updateH = () => {
+      const W = wrap.clientWidth || 640
+      const H = Math.max(320, wrap.clientHeight || 600)
+      sizeRef.current = { W, H, radius: Math.min(W, H) * 0.46 }
     }
-    const ro = new ResizeObserver(entries => {
-      for (const entry of entries) updateH(entry.target)
-    })
+    const ro = new ResizeObserver(() => updateH())
     ro.observe(wrap)
-    updateH(wrap)
+    updateH()
     return () => ro.disconnect()
+  }, [hasBirth])
+
+  useEffect(() => {
+    const onVis = () => {
+      if (document.hidden) pauseAnimRef.current = true
+      else pauseAnimRef.current = pinnedAgeRef.current !== null
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
   useEffect(() => {
+    if (!hasBirth) return
+    zoomTargetRef.current = 1.35
+    const t = setTimeout(() => { zoomTargetRef.current = 1 }, 900)
+    return () => clearTimeout(t)
+  }, [hasBirth])
+
+  useEffect(() => {
+    if (!hasBirth) return
     const canvas = canvasRef.current
     const bg = bgRef.current
     const wrap = wrapRef.current
     if (!canvas || !bg || !wrap) return
 
-    const W = wrap.offsetWidth || 640
-    const H = canvasHRef.current || 600
-    const radius = radiusRef.current
-
-    // Init
     starsRef.current = []
     particlesRef.current = []
     for (let i = 0; i < 200; i++) starsRef.current.push({
@@ -166,43 +186,52 @@ export default function NumerologySpiral() {
     }
     drawStartRef.current = Date.now()
 
-    function spiralOrigin() { return { cx: W / 2 + panRef.current.x, cy: H / 2 + panRef.current.y } }
+    function ensureCanvasSize(c, W, H) {
+      if (c.width !== W || c.height !== H) {
+        c.width = W
+        c.height = H
+      }
+    }
 
-    function ageAtPoint(sx, sy, hitNow, hitMax) {
-      const { cx, cy } = spiralOrigin()
+    function spiralOrigin(W, H) {
+      return { cx: W / 2 + panRef.current.x, cy: H / 2 + panRef.current.y }
+    }
+
+    function ageAtPoint(sx, sy, hitNow, hitMax, W, H, radius) {
+      const { cx, cy } = spiralOrigin(W, H)
       const z = zoomRef.current
       const nowAge = nowFracRef.current
       const np = ageToSpiral(nowAge, z, cx, cy, radius)
       const nowDist = Math.hypot(np.x - sx, np.y - sy)
+      // Only snap to NOW when the pointer is on the marker itself
       if (nowAge >= 0 && nowAge <= MAX_AGE && nowDist < hitNow) return nowAge
 
       let best = null, bestD = 99999
-      let nearNow = null, nearNowD = 99999
       for (let a = 0; a <= MAX_AGE; a += 0.25) {
         const p = ageToSpiral(a, z, cx, cy, radius)
         const dist = Math.hypot(p.x - sx, p.y - sy)
         if (dist < bestD) { bestD = dist; best = a }
-        if (Math.abs(a - nowAge) <= 2 && dist < nearNowD) { nearNowD = dist; nearNow = a }
       }
-      if (nearNow !== null && nearNowD < hitMax && nearNowD <= bestD + 18) return nowAge
       return bestD < hitMax ? best : null
     }
 
-    function drawBg() {
+    function drawBg(W, H, animateBg) {
       if (!bg || !bg.getContext) return
-      bgTRef.current += 0.012
-      bg.width = W; bg.height = H
+      if (animateBg) bgTRef.current += 0.012
+      ensureCanvasSize(bg, W, H)
       const ctx = bg.getContext('2d')
       ctx.clearRect(0, 0, W, H)
       const grad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7)
       grad.addColorStop(0, '#0d0a1e'); grad.addColorStop(0.5, '#080616'); grad.addColorStop(1, '#030210')
       ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H)
-      const nebBase = [{ bx: W * 0.2, by: H * 0.3, r: W * 0.3, c: 'rgba(80,40,160,0.12)' },
-                       { bx: W * 0.75, by: H * 0.6, r: W * 0.25, c: 'rgba(20,80,180,0.10)' },
-                       { bx: W * 0.15, by: H * 0.8, r: W * 0.22, c: 'rgba(200,120,40,0.08)' }]
+      const nebBase = [
+        { bx: W * 0.2, by: H * 0.3, r: W * 0.3, c: 'rgba(80,40,160,0.12)' },
+        { bx: W * 0.75, by: H * 0.6, r: W * 0.25, c: 'rgba(20,80,180,0.10)' },
+        { bx: W * 0.15, by: H * 0.8, r: W * 0.22, c: 'rgba(200,120,40,0.08)' },
+      ]
       for (let i = 0; i < nebBase.length; i++) {
         const b = nebBase[i]
-        const drift = Math.sin(bgTRef.current * 0.01 + i) * 15
+        const drift = animateBg ? Math.sin(bgTRef.current * 0.01 + i) * 15 : 0
         const b_x = b.bx + drift
         const g = ctx.createRadialGradient(b_x, b.by, 0, b_x, b.by, b.r)
         g.addColorStop(0, b.c); g.addColorStop(1, 'rgba(0,0,0,0)')
@@ -213,13 +242,13 @@ export default function NumerologySpiral() {
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i]
         if (!s) continue
-        const tw = Math.sin(bgTRef.current * s.sp + s.tw) * 0.3 + 0.7
+        const tw = animateBg ? Math.sin(bgTRef.current * s.sp + s.tw) * 0.3 + 0.7 : 0.85
         ctx.beginPath(); ctx.arc(s.x % W, s.y % H, s.r, 0, 2 * Math.PI)
         ctx.fillStyle = `rgba(255,255,255,${s.a * tw})`; ctx.fill()
       }
     }
 
-    function draw() {
+    function draw(W, H, radius, animateParts) {
       if (!canvas || !canvas.getContext) return
       const zDiff = zoomTargetRef.current - zoomRef.current
       if (Math.abs(zDiff) > 0.001) zoomRef.current += zDiff * 0.12
@@ -227,10 +256,10 @@ export default function NumerologySpiral() {
       const elapsed = (Date.now() - drawStartRef.current) / 1800
       const prog = Math.min(elapsed, 1)
 
+      ensureCanvasSize(canvas, W, H)
       const ctx = canvas.getContext('2d')
-      canvas.width = W; canvas.height = H
       ctx.clearRect(0, 0, W, H)
-      const { cx, cy } = spiralOrigin()
+      const { cx, cy } = spiralOrigin(W, H)
 
       function drawBand(as, ae, color, innerF, outerF) {
         const steps = Math.max(4, Math.ceil((ae - as) * 30))
@@ -296,8 +325,10 @@ export default function NumerologySpiral() {
       if (parts) {
         for (let i = 0; i < parts.length; i++) {
           const pt = parts[i]
-          pt.age += pt.speed
-          if (pt.age > MAX_AGE) { pt.age = 0; pt.alpha = 0.2 + Math.random() * 0.3 }
+          if (animateParts) {
+            pt.age += pt.speed
+            if (pt.age > MAX_AGE) { pt.age = 0; pt.alpha = 0.2 + Math.random() * 0.3 }
+          }
           if (pt.age > MAX_AGE * prog) continue
           const pp = ageToSpiral(pt.age, z, cx, cy, radius)
           const sizeOsc = pt.size * (0.7 + 0.3 * Math.sin(Date.now() * 0.002 + i))
@@ -332,8 +363,9 @@ export default function NumerologySpiral() {
         ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, 2 * Math.PI); ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fill()
       }
 
-      const ha = hoverAge
-      if (ha !== null && ha !== pinnedAge && ha < MAX_AGE * prog) {
+      const ha = hoverAgeRef.current
+      const pin = pinnedAgeRef.current
+      if (ha !== null && ha !== pin && ha < MAX_AGE * prog) {
         const hp = ageToSpiral(ha, z, cx, cy, radius)
         ctx.beginPath(); ctx.arc(hp.x, hp.y, 10, 0, 2 * Math.PI)
         ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5; ctx.stroke()
@@ -342,38 +374,51 @@ export default function NumerologySpiral() {
         ctx.fillText(Math.floor(ha), hp.x, hp.y - 16)
       }
 
-      if (pinnedAge !== null && pinnedAge < MAX_AGE * prog) {
-        const pp = ageToSpiral(pinnedAge, z, cx, cy, radius)
+      if (pin !== null && pin < MAX_AGE * prog) {
+        const pp = ageToSpiral(pin, z, cx, cy, radius)
         const pulse = Math.sin(Date.now() * 0.004) * 0.3 + 0.7
         ctx.beginPath(); ctx.arc(pp.x, pp.y, 12, 0, 2 * Math.PI); ctx.strokeStyle = `rgba(212,83,126,${pulse})`; ctx.lineWidth = 2; ctx.stroke()
         ctx.beginPath(); ctx.arc(pp.x, pp.y, 5, 0, 2 * Math.PI); ctx.fillStyle = '#D4537E'; ctx.fill()
       }
 
+      // Stronger YOU ARE HERE
       const nf = nowFracRef.current
       if (nf < MAX_AGE * prog) {
         const nowP = ageToSpiral(nf, z, cx, cy, radius)
         const t = Date.now()
         const pulse = Math.sin(t * 0.003) * 0.2 + 0.8
-        ctx.shadowBlur = 20 + pulse * 12; ctx.shadowColor = '#EF9F27'
+        ctx.shadowBlur = 28 + pulse * 14; ctx.shadowColor = '#EF9F27'
         const sonarRings = [
-          { r: 14, phase: 0 },
-          { r: 22, phase: 2.1 },
-          { r: 32, phase: 4.2 }
+          { r: 16, phase: 0 },
+          { r: 26, phase: 2.1 },
+          { r: 38, phase: 4.2 },
         ]
         for (const ring of sonarRings) {
-          const alpha = Math.sin(t * 0.003 + ring.phase) * 0.35 + 0.45
+          const alpha = Math.sin(t * 0.003 + ring.phase) * 0.4 + 0.5
           ctx.beginPath(); ctx.arc(nowP.x, nowP.y, ring.r, 0, 2 * Math.PI)
-          ctx.strokeStyle = `rgba(239,159,39,${alpha})`; ctx.lineWidth = 1.5; ctx.stroke()
+          ctx.strokeStyle = `rgba(239,159,39,${alpha})`; ctx.lineWidth = 2; ctx.stroke()
         }
-        const grad = ctx.createRadialGradient(nowP.x, nowP.y, 0, nowP.x, nowP.y, 8)
+        const halo = ctx.createRadialGradient(nowP.x, nowP.y, 0, nowP.x, nowP.y, 22)
+        halo.addColorStop(0, 'rgba(239,159,39,0.35)')
+        halo.addColorStop(1, 'rgba(239,159,39,0)')
+        ctx.beginPath(); ctx.arc(nowP.x, nowP.y, 22, 0, 2 * Math.PI); ctx.fillStyle = halo; ctx.fill()
+        const grad = ctx.createRadialGradient(nowP.x, nowP.y, 0, nowP.x, nowP.y, 10)
         grad.addColorStop(0, '#fff')
-        grad.addColorStop(0.3, '#FFD580')
+        grad.addColorStop(0.35, '#FFD580')
         grad.addColorStop(1, '#EF9F27')
-        ctx.beginPath(); ctx.arc(nowP.x, nowP.y, 8, 0, 2 * Math.PI); ctx.fillStyle = grad; ctx.fill()
-        ctx.beginPath(); ctx.arc(nowP.x, nowP.y, 3, 0, 2 * Math.PI); ctx.fillStyle = '#fff'; ctx.fill()
+        ctx.beginPath(); ctx.arc(nowP.x, nowP.y, 10, 0, 2 * Math.PI); ctx.fillStyle = grad; ctx.fill()
+        ctx.beginPath(); ctx.arc(nowP.x, nowP.y, 3.5, 0, 2 * Math.PI); ctx.fillStyle = '#fff'; ctx.fill()
         ctx.shadowBlur = 0
-        ctx.fillStyle = '#EF9F27'; ctx.font = '600 9px sans-serif'
-        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.globalAlpha = 0.7; ctx.fillText('NOW', nowP.x, nowP.y - 16); ctx.globalAlpha = 1
+        ctx.fillStyle = '#EF9F27'
+        ctx.font = '700 11px Cinzel, serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'bottom'
+        ctx.globalAlpha = 0.95
+        ctx.fillText('NOW', nowP.x, nowP.y - 20)
+        ctx.font = '600 10px sans-serif'
+        ctx.fillStyle = 'rgba(255,213,128,0.9)'
+        ctx.fillText(String(Math.floor(nf)), nowP.x, nowP.y - 32)
+        ctx.globalAlpha = 1
       }
 
       const glowR = 14 + Math.sin(Date.now() * 0.002) * 4
@@ -384,30 +429,56 @@ export default function NumerologySpiral() {
       cg.addColorStop(1, 'rgba(0,0,0,0)')
       ctx.beginPath(); ctx.arc(cx, cy, glowR, 0, 2 * Math.PI); ctx.fillStyle = cg; ctx.fill()
       ctx.shadowBlur = 0
+      canvasSizeDrawnRef.current = { W, H }
     }
 
     animStateRef.current = true
     function animate() {
       if (!animStateRef.current) return
+      const { W, H, radius } = sizeRef.current
       if (!canvas || !bg || W < 100 || H < 100) {
         animFrameRef.current = requestAnimationFrame(animate)
         return
       }
-      drawBg(); draw()
+      const paused = pauseAnimRef.current || document.hidden
+      // Always redraw spiral (zoom easing / pin); pause only ambient motion when hidden/popup
+      drawBg(W, H, !paused)
+      draw(W, H, radius, !paused)
       animFrameRef.current = requestAnimationFrame(animate)
     }
     animate()
 
     let dragDist = 0
     let clickPos = { x: 0, y: 0 }
-    canvas.onmousedown = (e) => { dragRef.current = true; dragStartRef.current = { x: e.clientX, y: e.clientY }; dragDist = 0; clickPos = { x: e.clientX, y: e.clientY } }
+    let canvasGesture = false
+
+    canvas.onmousedown = (e) => {
+      if (scrubbingRef.current) return
+      canvasGesture = true
+      dragRef.current = true
+      dragStartRef.current = { x: e.clientX, y: e.clientY }
+      dragDist = 0
+      clickPos = { x: e.clientX, y: e.clientY }
+    }
     window.onmousemove = (e) => {
+      if (scrubbingRef.current) return
+      const { W, H, radius } = sizeRef.current
       if (!dragRef.current) {
         if (!canvas) return
         const rect = canvas.getBoundingClientRect()
         const mx = e.clientX - rect.left, my = e.clientY - rect.top
+        if (mx < 0 || my < 0 || mx > rect.width || my > rect.height) {
+          setHoverAge(null)
+          return
+        }
+        // Ignore hover while pointer is over the scrubber chrome
+        const scrubber = wrap.querySelector('.spiral-ctrl-scrubber')
+        if (scrubber) {
+          const sr = scrubber.getBoundingClientRect()
+          if (e.clientX >= sr.left && e.clientX <= sr.right && e.clientY >= sr.top && e.clientY <= sr.bottom) return
+        }
         const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
-        setHoverAge(ageAtPoint(mx * scaleX, my * scaleY, 36, 40))
+        setHoverAge(ageAtPoint(mx * scaleX, my * scaleY, 14, 48, W, H, radius))
         return
       }
       const dx = e.clientX - dragStartRef.current.x, dy = e.clientY - dragStartRef.current.y
@@ -416,20 +487,28 @@ export default function NumerologySpiral() {
       dragStartRef.current = { x: e.clientX, y: e.clientY }
     }
     window.onmouseup = (e) => {
+      const wasCanvas = canvasGesture
+      canvasGesture = false
       dragRef.current = false
+      if (scrubbingRef.current || !wasCanvas) return
+      const { W, H, radius } = sizeRef.current
       clickPos = { x: e.clientX, y: e.clientY }
       if (dragDist < 15) {
         const rect = canvas.getBoundingClientRect()
         const mx = clickPos.x - rect.left, my = clickPos.y - rect.top
+        if (mx < 0 || my < 0 || mx > rect.width || my > rect.height) return
         const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
-        setPinnedAge(ageAtPoint(mx * scaleX, my * scaleY, 48, 80))
+        const age = ageAtPoint(mx * scaleX, my * scaleY, 16, 56, W, H, radius)
+        if (age != null) setPinnedAge(age)
       }
     }
     canvas.onwheel = (e) => { e.preventDefault(); zoomTargetRef.current = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomTargetRef.current * (e.deltaY < 0 ? 1.08 : 0.93))) }
-    canvas.onmouseleave = () => setHoverAge(null)
+    canvas.onmouseleave = () => { if (!scrubbingRef.current) setHoverAge(null) }
 
     canvas.ontouchstart = (e) => {
+      if (scrubbingRef.current) return
       e.preventDefault()
+      canvasGesture = true
       if (e.touches.length === 2) {
         const t = e.touches
         pinchRef.current = { dist: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY), zoom: zoomTargetRef.current }
@@ -443,6 +522,7 @@ export default function NumerologySpiral() {
       }
     }
     canvas.ontouchmove = (e) => {
+      if (scrubbingRef.current) return
       e.preventDefault()
       if (e.touches.length === 2 && pinchRef.current) {
         const t = e.touches
@@ -455,9 +535,14 @@ export default function NumerologySpiral() {
       }
     }
     canvas.ontouchend = (e) => {
+      if (scrubbingRef.current) return
+      const { W, H, radius } = sizeRef.current
       if (e.touches.length < 2) pinchRef.current = null
       if (e.touches.length === 0) {
+        const wasCanvas = canvasGesture
+        canvasGesture = false
         dragRef.current = false
+        if (!wasCanvas) return
         const touch0 = e.changedTouches[0]
         const dx = touch0 ? Math.abs(touch0.clientX - tapStartRef.current.x) : 999
         const dy = touch0 ? Math.abs(touch0.clientY - tapStartRef.current.y) : 999
@@ -466,7 +551,8 @@ export default function NumerologySpiral() {
           const rect = canvas.getBoundingClientRect()
           const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
           const mx = touch.clientX - rect.left, my = touch.clientY - rect.top
-          setPinnedAge(ageAtPoint(mx * scaleX, my * scaleY, 52, 80))
+          const age = ageAtPoint(mx * scaleX, my * scaleY, 18, 60, W, H, radius)
+          if (age != null) setPinnedAge(age)
         }
       }
     }
@@ -478,10 +564,17 @@ export default function NumerologySpiral() {
       canvas.onmousedown = null; canvas.onwheel = null; canvas.onmouseleave = null
       canvas.ontouchstart = null; canvas.ontouchmove = null; canvas.ontouchend = null
     }
-  }, [m, d, y])
+  }, [hasBirth, m, d, y])
+
+  if (!hasBirth) {
+    return <div className="spiral-empty">Birth date not available</div>
+  }
 
   const currentPY = calcPersonalYear(m, d).root
   const livePin = pinnacleAtAge(pinnacles, nowFrac)
+  const displayAge = scrubberVal !== null ? scrubberVal : nowFrac
+  const isScrubbingNow = scrubberVal === null || Math.abs(scrubberVal - nowFrac) < 0.75
+
   const popupDateStr = pinnedAge !== null
     ? (() => {
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -490,86 +583,128 @@ export default function NumerologySpiral() {
       })()
     : ''
 
-  function handleReset() { panRef.current = { x: 0, y: 0 }; zoomTargetRef.current = 1; setPinnedAge(null); drawStartRef.current = Date.now() }
+  function handleReset() {
+    panRef.current = { x: 0, y: 0 }
+    zoomTargetRef.current = 1
+    setPinnedAge(null)
+    setScrubberVal(null)
+    drawStartRef.current = Date.now()
+  }
+
+  function openCurrent() {
+    setPinnedAge(null)
+    dispatch({ type: 'SET_TAB', payload: 'quests', section: 'current' })
+  }
 
   return (
     <div className="spiral-wrap">
-      <div className="spiral-canvas-wrap" ref={wrapRef}>
-        <canvas ref={bgRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: canvasH, pointerEvents: 'none' }} />
-        <canvas ref={canvasRef} style={{ position: 'relative', width: '100%', height: canvasH, cursor: 'grab' }} />
+      <p className="spiral-thesis">Your life&apos;s cycles from birth to 90 — tap an age to read it.</p>
 
-        {/* Legend overlay — top left */}
+      <div className="spiral-canvas-wrap" ref={wrapRef}>
+        <canvas ref={bgRef} className="spiral-canvas spiral-canvas--bg" />
+        <canvas ref={canvasRef} className="spiral-canvas spiral-canvas--fg" />
+
         <div className="spiral-ctrl-legend">
-          <span style={{ color: '#EF9F27' }}>●</span> PY
-          <span style={{ color: colors.fm }}>●</span> 4M
-          <span style={{ color: colors.n9 }}>●</span> 9Y
-          <span style={{ color: colors.pin }}>●</span> PIN
+          <span className="spiral-leg-item"><i style={{ background: '#EF9F27' }} /> Personal Year</span>
+          <span className="spiral-leg-item"><i style={{ background: colors.fm }} /> 4-Month</span>
+          <span className="spiral-leg-item"><i style={{ background: colors.n9 }} /> 9-Year epoch</span>
+          <span className="spiral-leg-item"><i style={{ background: colors.pin }} /> Pinnacle</span>
         </div>
 
-        {/* Info overlay — top right */}
         <div className="spiral-ctrl-info">
           <span className="spiral-info-label">LP</span><span className="spiral-info-value">{lp}</span>
           <span className="spiral-info-label">Age</span><span className="spiral-info-value">{Math.floor(nowFrac)}</span>
-          <span className="spiral-info-label">PY</span><span className="spiral-info-value">{currentPY}</span>
-          <span className="spiral-info-label">PIN</span>
+          <span className="spiral-info-label">Year</span><span className="spiral-info-value">{currentPY}</span>
+          <span className="spiral-info-label">Pin</span>
           <span className="spiral-info-value">
             {livePin.root} · {livePin.endAge == null ? `${livePin.startAge}+` : `${livePin.startAge}–${livePin.endAge}`}
           </span>
-          <button className="spiral-reset" onClick={handleReset}>↺</button>
+          <button type="button" className="spiral-reset" onClick={handleReset} aria-label="Reset view">Reset</button>
         </div>
 
-        {/* Scrubber overlay — bottom */}
+        {pinnedAge === null && (
+          <p className="spiral-idle-hint" aria-hidden="true">
+            Drag the age scrubber or tap the spiral.
+          </p>
+        )}
+
         <div className="spiral-ctrl-scrubber">
+          <div className="spiral-scrubber-meta">
+            <span className="spiral-scrubber-now-label">{isScrubbingNow ? 'Now' : 'Age'}</span>
+            <span className="spiral-scrubber-val">{Math.floor(displayAge)}</span>
+          </div>
           <span className="spiral-scrubber-label">0</span>
-          <input type="range" min="0" max="90" step="0.5"
-            value={scrubberVal ?? nowFrac}
+          <input
+            type="range"
+            min="0"
+            max="90"
+            step="1"
+            aria-label="Age scrubber"
+            value={Math.round(displayAge)}
+            onPointerDown={() => { scrubbingRef.current = true }}
             onChange={e => {
               const v = parseFloat(e.target.value)
+              scrubberValRef.current = v
               setScrubberVal(v)
               setHoverAge(v)
             }}
-            onMouseUp={() => {
-              if (scrubberVal !== null) {
-                setPinnedAge(scrubberVal)
-                setScrubberVal(null)
+            onPointerUp={e => {
+              e.stopPropagation()
+              const raw = scrubberValRef.current ?? parseFloat(e.currentTarget.value)
+              const v = Number.isFinite(raw) ? Math.round(raw) : null
+              scrubbingRef.current = false
+              if (v != null) {
+                scrubberValRef.current = v
+                setScrubberVal(v)
+                setPinnedAge(v)
                 setHoverAge(null)
               }
             }}
-            onTouchEnd={() => {
-              if (scrubberVal !== null) {
-                setPinnedAge(scrubberVal)
-                setScrubberVal(null)
-                setHoverAge(null)
+            onPointerCancel={() => { scrubbingRef.current = false }}
+            onKeyUp={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                const raw = scrubberValRef.current ?? parseFloat(e.currentTarget.value)
+                const v = Number.isFinite(raw) ? Math.round(raw) : null
+                if (v != null) setPinnedAge(v)
               }
             }}
           />
           <span className="spiral-scrubber-label">90</span>
-          <span className="spiral-scrubber-val">{scrubberVal !== null ? Math.floor(scrubberVal) : Math.floor(nowFrac)}</span>
         </div>
       </div>
 
       {pinnedAge !== null && createPortal(
         <>
-          <div className="spiral-popup-bg" style={{ zIndex: 99998 }} onClick={() => setPinnedAge(null)} />
-          <div className="spiral-popup" style={{ zIndex: 99999, maxHeight: '70vh', color: '#e2e8f0' }} onClick={e => e.stopPropagation()}>
+          <div className="spiral-popup-bg" onClick={() => setPinnedAge(null)} />
+          <div className="spiral-popup spiral-popup--reading" role="dialog" aria-modal="true" aria-label={`Age ${Math.floor(pinnedAge)} reading`} onClick={e => e.stopPropagation()}>
             <div className="spiral-popup-head">
-              <div>
-                <div className="spiral-popup-title">Age {Math.floor(pinnedAge)}</div>
-                <div className="spiral-popup-date">{popupDateStr}</div>
+              <div className="spiral-popup-hero">
+                <div className="spiral-popup-age">{Math.floor(pinnedAge)}</div>
+                <div>
+                  <div className="spiral-popup-title">Age {Math.floor(pinnedAge)}</div>
+                  <div className="spiral-popup-date">{popupDateStr}</div>
+                </div>
               </div>
               <div className="spiral-popup-actions">
-                <button className="spiral-popup-action"
+                <button
+                  type="button"
+                  className="spiral-popup-action"
                   onClick={() => {
                     panRef.current = { x: 0, y: 0 }
                     zoomTargetRef.current = 1
                     setPinnedAge(nowFrac)
-                  }}>
-                  ↺ Now
+                    setScrubberVal(null)
+                  }}
+                >
+                  Now
                 </button>
-                <button className="spiral-popup-close" onClick={() => setPinnedAge(null)}>✕</button>
+                <button type="button" className="spiral-popup-close" onClick={() => setPinnedAge(null)} aria-label="Close">✕</button>
               </div>
             </div>
             <CyclePopup age={pinnedAge} m={m} d={d} y={y} lp={lp} />
+            <button type="button" className="spiral-popup-cta" onClick={openCurrent}>
+              Open in Current
+            </button>
           </div>
         </>,
         document.body
@@ -592,19 +727,20 @@ function CyclePopup({ age, m, d, y, lp }) {
   const pinMeaning = (CYCLE_MEANINGS.pinnacle && CYCLE_MEANINGS.pinnacle[pin?.root]) || {}
   const n9Meaning = N9[n9.index] || {}
 
+  // Personal Year → 4-Month → Pinnacle → 9-Year epoch
   const sections = [
     { color: '#EF9F27', label: `Personal Year ${py}`, meaning: pyMeaning },
-    { color: '#3B8BD4', label: `4-Month Segment ${fmc.cycleNum} · Root ${fmc.root}`, meaning: fmcMeaning },
-    { color: '#1D9E75', label: `9-Year Cycle ${n9.index} · Ages ${n9.start}–${n9.end}`, meaning: n9Meaning },
+    { color: '#3B8BD4', label: `4-Month · Segment ${fmc.cycleNum} · Root ${fmc.root}`, meaning: fmcMeaning },
     { color: '#D4537E', label: `Pinnacle ${pin?.root} (${pinRange})`, meaning: pinMeaning },
+    { color: '#1D9E75', label: `9-Year Epoch ${n9.index} · Ages ${n9.start}–${n9.end}`, meaning: n9Meaning },
   ]
 
   return (
-    <div>
+    <div className="spiral-popup-body">
       {sections.map((s, i) => {
         if (!s.meaning || !s.meaning.theme) return null
         return (
-          <div key={i} className="spiral-popup-section">
+          <div key={i} className="spiral-popup-section spiral-popup-section--reading">
             <div className="spiral-popup-section-label" style={{ color: s.color }}>{s.label}</div>
             <div className="spiral-popup-section-title">{s.meaning.theme}</div>
             {s.meaning.summary && <div className="spiral-popup-section-desc">{s.meaning.summary}</div>}

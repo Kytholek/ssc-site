@@ -114,9 +114,10 @@ export default function SkillsTab() {
   }
 
   const isBlueprint = tab === 'blueprint'
+  const isSpiral = tab === 'spiral'
 
   return (
-    <div className={`tab-panel-content${isBlueprint ? ' tab-panel-content--blueprint' : ''}`}>
+    <div className={`tab-panel-content${isBlueprint ? ' tab-panel-content--blueprint' : ''}${isSpiral ? ' tab-panel-content--spiral' : ''}`}>
       <div className="profile-navbar" role="tablist">
         {PROFILE_TABS.map(t => (
           <button
@@ -134,10 +135,12 @@ export default function SkillsTab() {
       {tab === 'stats'     && <StatsTab playerData={playerData} />}
       {tab === 'skills'    && <InnateSkills playerData={playerData} />}
       {isBlueprint         && <div className="blueprint-panel-slot"><BlueprintSection /></div>}
-      {tab === 'spiral' && (
-        <PremiumLockOverlay feature="Numerology Spiral — Time Spiral visualization">
-          <NumerologySpiral playerData={playerData} />
-        </PremiumLockOverlay>
+      {isSpiral && (
+        <div className="spiral-panel-slot">
+          <PremiumLockOverlay feature="Numerology Spiral — Time Spiral visualization">
+            <NumerologySpiral />
+          </PremiumLockOverlay>
+        </div>
       )}
     </div>
   )

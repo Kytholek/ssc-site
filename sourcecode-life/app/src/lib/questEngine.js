@@ -221,13 +221,8 @@ export function QuestEngine_completeDailyGlyph(lpRoot, idx, journal) {
 }
 
 export function QuestEngine_isDailyGated() {
-  try {
-    const glyphsState = JSON.parse(localStorage.getItem(LS_DAILY_GLYPHS) || 'null');
-    if (!glyphsState || glyphsState.date !== todayStr()) return false;
-    return !glyphsState.completed.every(Boolean);
-  } catch {
-    return true; // Assume gated if LS error
-  }
+  // Glyph gate retired with home glyph UI — daily quests are always completable.
+  return false
 }
 
 function _loadFromStorage() {
@@ -548,11 +543,6 @@ export function getDailyQuestState() {
 }
 
 export function QuestEngine_completeDailyQuest(lpRoot) {
-  // Check glyphs gating
-  if (QuestEngine_isDailyGated()) {
-    _dispatch('scl:xp_toast', { msg: 'Complete 3 glyphs first', color: 'var(--rose)' });
-    return;
-  }
   const today = todayStr();
   let d = null;
   try { d = JSON.parse(localStorage.getItem(LS_DAILY_Q)); } catch { /* intentional */ }
@@ -595,7 +585,7 @@ export function QuestEngine_completeDailyQuest(lpRoot) {
   } catch { /* intentional */ }
 
   _dispatch('scl:daily_updated', getDailyQuestState());
-  _dispatch('scl:xp_toast', { msg: resonant ? 'Daily Complete · Blueprint ×2!' : 'Daily Complete · Glyph Bonus!', color: 'var(--gold)' });
+  _dispatch('scl:xp_toast', { msg: resonant ? 'Daily Complete · Blueprint ×2!' : 'Daily Complete!', color: 'var(--gold)' });
 }
 
 /* Lazy-import achievements to avoid circular deps */

@@ -12,6 +12,7 @@ import PremiumLockOverlay from '../ui/PremiumLockOverlay'
 import PurposeFlow from '../flow/PurposeFlow'
 import IdentityFlow from '../flow/IdentityFlow'
 import LessonsFlow from '../flow/LessonsFlow'
+import { markChecklistItem } from '../../lib/tourStorage'
 
 const PROFILE_TABS = [
   { id: 'stats',     label: '◈ STATS'     },
@@ -84,6 +85,10 @@ export default function SkillsTab() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+  }, [tab])
+
+  useEffect(() => {
+    if (tab === 'blueprint') markChecklistItem('blueprint')
   }, [tab])
 
   // Listen for sub-tab deep links (legacy custom events)

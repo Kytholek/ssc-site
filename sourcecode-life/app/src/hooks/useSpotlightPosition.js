@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 
 const PADDING = 8
-const MAX_RETRIES = 3
+const MAX_RETRIES = 12
+const RETRY_MS = 150
 
 function measureTarget(selector) {
   if (!selector) return null
@@ -59,13 +60,16 @@ export function useSpotlightPosition(targetSelector, activeTab, stepTab, enabled
 
     let retries = 0
     let rafId = 0
+    let retryTimer = 0
 
     const tryMeasure = () => {
       update()
       const el = targetSelector ? document.querySelector(targetSelector) : null
       if (!el && targetSelector && retries < MAX_RETRIES) {
         retries++
-        rafId = requestAnimationFrame(tryMeasure)
+        retryTimer = window.setTimeout(() => {
+          rafId = requestAnimationFrame(tryMeasure)
+        }, RETRY_MS)
       } else if (el) {
         el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
         rafId = requestAnimationFrame(update)
@@ -84,6 +88,7 @@ export function useSpotlightPosition(targetSelector, activeTab, stepTab, enabled
 
     return () => {
       cancelAnimationFrame(rafId)
+      clearTimeout(retryTimer)
       window.removeEventListener('resize', update)
       window.removeEventListener('scroll', update, true)
     }

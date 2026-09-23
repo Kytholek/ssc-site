@@ -450,7 +450,7 @@ export function useAuthBridge() {
       dispatch({ type: 'CLOSE_PREMIUM_MODAL' })
       gameDispatch({
         type: ACTIONS.SET_TOAST,
-        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Decode → Blueprint.', color: 'var(--gold)' },
+        payload: { msg: '✦ Premium unlocked! Explore Stats → Spiral and Stats → Blueprint.', color: 'var(--gold)' },
       })
     }
 

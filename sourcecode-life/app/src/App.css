@@ -9416,6 +9416,12 @@ body.scl-realm-open .tab-bar {
 .rm-submit-btn { width: 100%; background: rgba(0,229,180,0.1); border: 1px solid rgba(0,229,180,0.45); color: #00e5cc; font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 12px; cursor: pointer; letter-spacing: 2px; }
 .rm-cq-label { display: block; font-family: 'Press Start 2P', monospace; font-size: 7px; color: rgba(0,229,180,0.7); letter-spacing: 1.5px; margin: 12px 0 6px; }
 .rm-cq-count { color: rgba(255,255,255,0.3); margin-left: 8px; }
+.rm-cq-optional {
+  color: rgba(255,255,255,0.28);
+  font-size: 6px;
+  letter-spacing: 0.08em;
+  margin-left: 4px;
+}
 .rm-cq-input, .rm-cq-textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: #fff; font-size: 13px; padding: 8px 10px; box-sizing: border-box; outline: none; margin-bottom: 4px; font-family: 'Share Tech Mono', monospace; }
 .rm-cq-input:focus, .rm-cq-textarea:focus { border-color: rgba(0,229,180,0.4); }
 .rm-cq-textarea { resize: vertical; min-height: 64px; }
@@ -23457,6 +23463,17 @@ body.scl-realm-open .tab-bar {
 }
 .home-today-section--journal {
   padding: 0;
+}
+.home-today-loading {
+  padding: 28px 18px;
+  text-align: center;
+}
+.home-today-loading-label {
+  margin: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(180, 180, 200, 0.55);
 }
 .home-today-section .daily-section {
   padding-left: 0;

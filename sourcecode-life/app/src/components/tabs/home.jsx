@@ -424,15 +424,19 @@ export default function HomeTab() {
         <GettingStartedChecklist />
         <CharCard />
 
-        {playerData && daily && (
-          <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
+        <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
+          {playerData && daily ? (
             <DailySection
               playerData={playerData}
               daily={daily}
               completeDailyQuest={completeDailyQuest}
             />
-          </section>
-        )}
+          ) : (
+            <div className="home-today-loading" aria-busy="true">
+              <p className="home-today-loading-label">Loading today&apos;s quest journal…</p>
+            </div>
+          )}
+        </section>
 
         {playerData && (
           <SeasonsSection playerData={playerData} />

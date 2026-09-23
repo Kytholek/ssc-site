@@ -241,11 +241,15 @@ function QuestPopup({ quest, myUid, onAccept }) {
 }
 
 function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) {
+  const defaultReward = (() => {
+    const lp = Number(playerData?.lp?.root)
+    return lp >= 1 && lp <= 9 ? lp : 1
+  })()
   const [name, setName]   = useState('')
   const [desc, setDesc]   = useState('')
   const [type, setType]   = useState('exploration')
   const [seeker, setSeeker] = useState('solo')
-  const [reward, setReward] = useState(1)
+  const [reward, setReward] = useState(defaultReward)
   const [objs, setObjs]   = useState(['', '', ''])
   const [error, setError] = useState('')
   const [moreOpen, setMoreOpen] = useState(false)
@@ -282,19 +286,20 @@ function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) 
       <div className="rm-cq-form rm-cq-form--sheet">
         <div className="rm-cq-header">
           <div className="rm-cq-title">◈ NEW QUEST MARKER</div>
-          <div className="rm-cq-coords">{latlng.lat.toFixed(4)}, {latlng.lng.toFixed(4)}</div>
           <button type="button" className="rm-cq-close" onClick={onCancel} aria-label="Cancel">✕</button>
         </div>
 
         <label className="rm-cq-label">QUEST NAME <span className="rm-cq-count">{name.length}/60</span></label>
         <input className="rm-cq-input" maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="Name your quest…" />
 
-        <label className="rm-cq-label">SEEKER TYPE</label>
-        <div className="rm-cq-seeker-row">
-          {SEEKER_TYPES.map(s => (
-            <button key={s} type="button" className={`rm-cq-seeker-btn${seeker === s ? ' active' : ''}`} onClick={() => setSeeker(s)}>{s.toUpperCase()}</button>
-          ))}
-        </div>
+        <label className="rm-cq-label">DESCRIPTION <span className="rm-cq-optional">optional</span> <span className="rm-cq-count">{desc.length}/120</span></label>
+        <input
+          className="rm-cq-input"
+          maxLength={120}
+          value={desc}
+          onChange={e => setDesc(e.target.value)}
+          placeholder="One line for seekers…"
+        />
 
         <button type="button" className="rm-cq-more-toggle" onClick={() => setMoreOpen(v => !v)}>
           {moreOpen ? '▾ LESS' : '▸ MORE DETAILS'}
@@ -302,14 +307,18 @@ function CreateQuestForm({ latlng, playerData, creatorTier, onSave, onCancel }) 
 
         {moreOpen && (
           <div className="rm-cq-more">
+            <label className="rm-cq-label">SEEKER TYPE</label>
+            <div className="rm-cq-seeker-row">
+              {SEEKER_TYPES.map(s => (
+                <button key={s} type="button" className={`rm-cq-seeker-btn${seeker === s ? ' active' : ''}`} onClick={() => setSeeker(s)}>{s.toUpperCase()}</button>
+              ))}
+            </div>
             <label className="rm-cq-label">QUEST TYPE</label>
             <div className="rm-cq-type-grid">
               {QUEST_TYPES.map(t => (
                 <button key={t.key} type="button" className={`rm-cq-type-btn${type === t.key ? ' active' : ''}`} onClick={() => setType(t.key)}>{t.label}</button>
               ))}
             </div>
-            <label className="rm-cq-label">DESCRIPTION <span className="rm-cq-count">{desc.length}/200</span></label>
-            <textarea className="rm-cq-textarea" maxLength={200} rows={3} value={desc} onChange={e => setDesc(e.target.value)} placeholder="What is this quest about?" />
             <label className="rm-cq-label">OBJECTIVES</label>
             {objs.map((o, i) => (
               <input key={i} className="rm-cq-input rm-cq-obj" maxLength={120} value={o}
@@ -459,10 +468,6 @@ export default function WorldMapView({ playerData, onOpenSideQuests }) {
               }})
               return
             }
-            const msg = creatorTier >= 3
-              ? '◈ Premium: Place quests with higher limits & featured visibility'
-              : '◈ Tier 2: Tap the map to place your quest'
-            gameDispatch({ type: ACTIONS.SET_TOAST, payload: { msg, color: 'teal' } })
             setPlacingMode(true)
           }}
         >

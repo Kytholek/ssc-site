@@ -1,36 +1,37 @@
 /**
- * GettingStartedChecklist — collapsible first-time user guide on Home tab
+ * GettingStartedChecklist — collapsible first-time user guide on Home tab.
+ * Items complete from real signals (daily quest done, Life Quests visited, Blueprint opened).
  */
 import { useState, useEffect } from 'react'
 import { useAppDispatch } from '../../context/AppContext'
-import { isSpotlightTourComplete } from '../../lib/tourStorage'
+import { useQuestEngine } from '../../hooks/useQuestEngine'
+import {
+  isSpotlightTourComplete,
+  loadChecklistDone,
+  markChecklistItem,
+} from '../../lib/tourStorage'
 
 const LS_KEY = 'scl_getting_started_dismissed'
 const LS_COLLAPSED = 'scl_getting_started_collapsed'
 
 const ITEMS = [
-  { id: 'quest', label: 'Complete today\'s quest', tab: 'home' },
+  { id: 'quest', label: "Complete today's quest", tab: 'home' },
   { id: 'life', label: 'Explore Life Quest', tab: 'quests', section: 'life' },
-  { id: 'decode', label: 'View your Blueprint', tab: 'profile', section: 'blueprint' },
+  { id: 'blueprint', label: 'View your Blueprint', tab: 'profile', section: 'blueprint' },
 ]
 
 export default function GettingStartedChecklist() {
   const dispatch = useAppDispatch()
+  const { daily } = useQuestEngine()
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(LS_KEY) === '1' } catch { return false }
   })
-  const [done, setDone] = useState(() => {
-    try {
-      const raw = localStorage.getItem('scl_checklist_done')
-      return raw ? JSON.parse(raw) : {}
-    } catch { return {} }
-  })
+  const [done, setDone] = useState(() => loadChecklistDone())
   const doneCount = ITEMS.filter((i) => done[i.id]).length
   const [expanded, setExpanded] = useState(() => {
     try {
       if (localStorage.getItem(LS_COLLAPSED) === '1') return false
-      const raw = localStorage.getItem('scl_checklist_done')
-      const parsed = raw ? JSON.parse(raw) : {}
+      const parsed = loadChecklistDone()
       return !ITEMS.some((i) => parsed[i.id])
     } catch { return true }
   })
@@ -51,6 +52,19 @@ export default function GettingStartedChecklist() {
     }, 500)
     return () => clearInterval(id)
   }, [tourDone])
+
+  // Sync when other tabs mark checklist items
+  useEffect(() => {
+    const onUpdate = (e) => setDone(e.detail || loadChecklistDone())
+    window.addEventListener('scl:checklist_updated', onUpdate)
+    return () => window.removeEventListener('scl:checklist_updated', onUpdate)
+  }, [])
+
+  // Real signal: today's personal-day quest completed
+  useEffect(() => {
+    if (!daily?.completed || done.quest) return
+    setDone(markChecklistItem('quest'))
+  }, [daily?.completed, done.quest])
 
   if (dismissed || !tourDone) return null
 
@@ -73,9 +87,7 @@ export default function GettingStartedChecklist() {
     } else {
       dispatch({ type: 'SET_TAB', payload: item.tab })
     }
-    const next = { ...done, [item.id]: true }
-    setDone(next)
-    try { localStorage.setItem('scl_checklist_done', JSON.stringify(next)) } catch { /* ignore */ }
+    // Do not mark complete on navigate — wait for real signals
   }
 
   const allDone = ITEMS.every((i) => done[i.id])

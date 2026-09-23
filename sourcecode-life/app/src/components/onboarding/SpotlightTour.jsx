@@ -8,14 +8,14 @@ import { isSpotlightTourComplete, markSpotlightTourComplete } from '../../lib/to
 import { useSpotlightPosition, getTooltipStyle } from '../../hooks/useSpotlightPosition'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 
+const MISSING_FALLBACK_MS = 1800
+
 function DimPanels({ rect }) {
   if (!rect) return <div className="spotlight-tour-dim spotlight-tour-dim--full" aria-hidden="true" />
 
   const { top, left, width, height } = rect
   const bottom = top + height
   const right = left + width
-  const vw = window.innerWidth
-  const vh = window.innerHeight
 
   return (
     <>
@@ -51,13 +51,14 @@ function TourTooltip({
   onSkip,
   isFirst,
   isLast,
+  isCentered,
   tooltipStyle,
   tooltipRef,
 }) {
   return (
     <div
       ref={tooltipRef}
-      className={`spotlight-tour-tooltip${step.placement === 'center' ? ' spotlight-tour-tooltip--center' : ''}`}
+      className={`spotlight-tour-tooltip${isCentered ? ' spotlight-tour-tooltip--center' : ''}`}
       style={tooltipStyle}
       role="dialog"
       aria-modal="true"
@@ -99,14 +100,16 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
   const [active, setActive] = useState(() => !isSpotlightTourComplete())
   const [stepIndex, setStepIndex] = useState(0)
   const [announcement, setAnnouncement] = useState('')
+  const [useCenteredFallback, setUseCenteredFallback] = useState(false)
 
   const step = TOUR_STEPS[stepIndex]
-  const isCentered = !step?.target
+  const wantsTarget = Boolean(step?.target)
+  const isCentered = !step?.target || useCenteredFallback
   const { rect, missing } = useSpotlightPosition(
     step?.target,
     activeTab,
     step?.tab,
-    active && !isCentered
+    active && wantsTarget
   )
 
   const finish = useCallback(() => {
@@ -114,9 +117,10 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
     setActive(false)
   }, [])
 
+  // Escape must not finish the tour — only explicit Skip / Get Started
   const tooltipRef = useFocusTrap({
     open: active,
-    onClose: finish,
+    onClose: undefined,
   })
 
   useEffect(() => {
@@ -131,19 +135,31 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
     setAnnouncement(`Tour step ${stepIndex + 1} of ${TOUR_STEP_COUNT}: ${step.title}`)
   }, [active, step, stepIndex])
 
+  // Reset centered fallback when the step changes
   useEffect(() => {
-    if (!active || !missing || !step?.target) return
+    setUseCenteredFallback(false)
+  }, [stepIndex])
+
+  // If target stays missing, show the same copy centered — never auto-advance
+  useEffect(() => {
+    if (!active || !wantsTarget || !missing || useCenteredFallback) return undefined
     const t = setTimeout(() => {
-      setStepIndex((i) => Math.min(i + 1, TOUR_STEP_COUNT - 1))
-    }, 400)
+      setUseCenteredFallback(true)
+    }, MISSING_FALLBACK_MS)
     return () => clearTimeout(t)
-  }, [active, missing, step?.target])
+  }, [active, wantsTarget, missing, useCenteredFallback, stepIndex])
+
+  // Target appeared after fallback — restore hole spotlight
+  useEffect(() => {
+    if (!active || !useCenteredFallback || !wantsTarget) return
+    if (rect && !missing) setUseCenteredFallback(false)
+  }, [active, useCenteredFallback, wantsTarget, rect, missing])
 
   if (!active || !step) return null
 
   const isFirst = stepIndex === 0
   const isLast = stepIndex === TOUR_STEP_COUNT - 1
-  const tooltipStyle = getTooltipStyle(isCentered ? null : rect, step.placement)
+  const tooltipStyle = getTooltipStyle(isCentered ? null : rect, isCentered ? 'center' : step.placement)
 
   function handleBack() {
     setStepIndex((i) => Math.max(0, i - 1))
@@ -170,6 +186,7 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
         onSkip={finish}
         isFirst={isFirst}
         isLast={isLast}
+        isCentered={isCentered}
         tooltipStyle={tooltipStyle}
         tooltipRef={tooltipRef}
       />

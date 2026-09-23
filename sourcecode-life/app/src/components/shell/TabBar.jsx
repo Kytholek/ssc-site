@@ -1,5 +1,5 @@
 /**
- * TabBar — Home / Quests / [Portal Map] / Stats / Decode
+ * TabBar — Home / Quests / [Portal Map] / Stats / Config
  */
 import { useAppState } from '../../context/AppContext'
 
@@ -12,7 +12,7 @@ const MAP_TAB = { id: 'map', label: 'MAP', tourId: 'tab-map' }
 
 const SIDE_RIGHT = [
   { id: 'profile', icon: '◇', label: 'STATS',  tourId: 'tab-stats' },
-  { id: 'config',  icon: '⚙', label: 'DECODE', tourId: 'tab-decode' },
+  { id: 'config',  icon: '⚙', label: 'CONFIG', tourId: 'tab-config' },
 ]
 
 function SideTab({ tab, activeTab, onTabChange }) {

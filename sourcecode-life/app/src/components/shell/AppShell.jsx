@@ -21,7 +21,7 @@ const TAB_TITLES = {
   quests: 'Quests',
   map: 'Map',
   profile: 'Stats',
-  config: 'Decode',
+  config: 'Config',
 }
 
 export default function AppShell() {

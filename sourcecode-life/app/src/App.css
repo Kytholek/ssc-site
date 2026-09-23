@@ -21208,3 +21208,54 @@ body.scl-realm-open .tab-bar {
 [data-theme="fantasy"] .spiral-info-value {
   color: #1f1004;
 }
+
+/* Quiet text seals on CharCard */
+.char-card-rail {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
+}
+.char-card-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 8px 4px;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  cursor: pointer;
+  transition: color 0.15s, opacity 0.15s, transform 0.15s;
+  box-shadow: none;
+  opacity: 0.88;
+}
+.char-card-seal:hover {
+  background: transparent;
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.char-card-seal:active {
+  transform: translateY(0) scale(0.98);
+}
+.char-card-seal:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--teal) 70%, transparent);
+  outline-offset: 2px;
+}
+.char-card-seal-glyph {
+  font-size: 14px;
+  line-height: 1;
+}
+.char-card-seal-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+}

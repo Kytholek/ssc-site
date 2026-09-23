@@ -20,7 +20,6 @@ import SeasonsSection from '../datachunks/Seasons'
 import DailySection from '../datachunks/dailyquests'
 import { useFloatingXP, useParticleBurst } from '../effects/FloatingXP'
 import { useQuestRewardToast } from '../effects/QuestRewardToast'
-import CharCardButton from '../ui/CharCardButton.jsx'
 import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
 import InlineHint from '../ui/InlineHint'
@@ -179,6 +178,14 @@ function CharCard({ dailyProgress }) {
   const prevCharLevel = useRef(xp.charLevel)
 
   const openCharacterCard = useCallback(() => setCardOpen(true), [])
+  const openBlueprint = useCallback(() => {
+    dispatch({ type: 'SET_TAB', payload: 'profile' })
+    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'blueprint' } }))
+  }, [dispatch])
+  const openStats = useCallback(() => {
+    dispatch({ type: 'SET_TAB', payload: 'profile' })
+    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'stats' } }))
+  }, [dispatch])
 
   useEffect(() => {
     if (xp.freqLevel > prevFreqLevel.current) {
@@ -428,17 +435,20 @@ function CharCard({ dailyProgress }) {
         )}
       </div>
 
-      <div className="char-card-actions" role="group" aria-label="Character actions">
-        <button type="button" className="char-card-action-btn" onClick={openCharacterCard}>
-          Character Card
+      <nav className="char-card-rail" aria-label="Character shortcuts">
+        <button type="button" className="char-card-seal" onClick={openBlueprint}>
+          <span className="char-card-seal-glyph" aria-hidden="true">◈</span>
+          <span className="char-card-seal-label">BLUEPRINT</span>
         </button>
-        <CharCardButton compact>Open Decode</CharCardButton>
-        {showCustomize && (
-          <button type="button" className="char-card-action-btn" onClick={openCharacterCard}>
-            Customize
-          </button>
-        )}
-      </div>
+        <button type="button" className="char-card-seal" onClick={openStats}>
+          <span className="char-card-seal-glyph" aria-hidden="true">◇</span>
+          <span className="char-card-seal-label">STATS</span>
+        </button>
+        <button type="button" className="char-card-seal" onClick={openCharacterCard}>
+          <span className="char-card-seal-glyph" aria-hidden="true">✦</span>
+          <span className="char-card-seal-label">EQUIPMENT</span>
+        </button>
+      </nav>
 
       <DisplayNameModal
         open={nameEditOpen}

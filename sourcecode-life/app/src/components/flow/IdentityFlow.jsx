@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import ReactFlow, { Background } from 'reactflow'
+import { useState, useMemo, useCallback } from 'react'
+import ReactFlow from 'reactflow'
 import 'reactflow/dist/style.css'
 import { fmt, reduceToSimple } from '../../lib/numerology'
 import { ROOT, COMPOUND_DESC, STRIPS, FIRST_NAME_MEANINGS } from '../../lib/data'
@@ -7,7 +7,6 @@ import { getFirstNameValue } from '../../lib/numerologyProfile'
 import FlowNode, { flowNodeTypes } from './FlowNode'
 import FlowDetailPanel from './FlowDetailPanel'
 
-// ── Node sizing & layout ────────────────────────────────────────────────────
 const NODE_SIZE = 90
 const IDENTITY_LAYOUT = {
   so: { x: 280, y: 100 },
@@ -23,10 +22,10 @@ const IDENTITY_EDGES = [
 ]
 
 const NODE_META = {
-  so: { label: 'SOUL',       subtitle: 'Your inner desire',      icon: '💎' },
-  ou: { label: 'OUTER',      subtitle: 'The mask you wear',       icon: '🎭' },
-  fn: { label: '1ST NAME',   subtitle: 'The frequency you carry', icon: '✦'  },
-  ex: { label: 'EXPRESSION', subtitle: 'Your outward signal',     icon: '🔮' },
+  so: { label: 'SOUL',       subtitle: 'Your inner desire',      icon: '◈' },
+  ou: { label: 'OUTER',      subtitle: 'The mask you wear',       icon: '◇' },
+  fn: { label: '1ST NAME',   subtitle: 'The frequency you carry', icon: '✦' },
+  ex: { label: 'EXPRESSION', subtitle: 'Your outward signal',     icon: '▣' },
 }
 
 const NODE_COLORS = {
@@ -38,23 +37,23 @@ const NODE_COLORS = {
 
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
-// ── Strip content ─────────────────────────────────────────────────────────────
 function StripContent({ nodeKey, playerData, fnData }) {
   const colorHex = NODE_COLORS[nodeKey] || '#c9a84c'
 
-  // First Name node — special rendering
   if (nodeKey === 'fn') {
     const { firstName, compound, root } = fnData
     const meaning = FIRST_NAME_MEANINGS[root]
     if (!meaning) return null
     return (
-      <div className="purpose-strip-content" style={{ '--flow-color': colorHex }}>
+      <div className="purpose-strip-content purpose-strip-content--reading" style={{ '--flow-color': colorHex }}>
         <div className="purpose-strip-header">
           <span className="purpose-strip-number">{root}</span>
-          <span className="purpose-strip-label">1ST NAME</span>
+          <div className="purpose-strip-meta">
+            <span className="purpose-strip-label">1ST NAME</span>
+            <div className="purpose-strip-role">{firstName} · sum {compound} → root {root}</div>
+          </div>
         </div>
-        <div className="purpose-strip-role">{firstName} · sum {compound} → root {root}</div>
-        <div className="journal-section">
+        <div className="journal-section journal-section--reading">
           <div className="journal-section-label">◈ {meaning.title.toUpperCase()}</div>
           <div className="journal-section-text">
             {meaning.text.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
@@ -86,25 +85,27 @@ function StripContent({ nodeKey, playerData, fnData }) {
   const strip = STRIPS.find(s => s.id === nodeKey)
 
   return (
-    <div className="purpose-strip-content" style={{ '--flow-color': colorHex }}>
+    <div className="purpose-strip-content purpose-strip-content--reading" style={{ '--flow-color': colorHex }}>
       <div className="purpose-strip-header">
         <span className="purpose-strip-number">{displayNum}</span>
-        <span className="purpose-strip-label">
-          {(strip?.label || nodeKey).toUpperCase()}
-          {isMaster && <span className="strip-master-badge">MASTER</span>}
-        </span>
+        <div className="purpose-strip-meta">
+          <span className="purpose-strip-label">
+            {(strip?.label || nodeKey).toUpperCase()}
+            {isMaster && <span className="strip-master-badge">MASTER</span>}
+          </span>
+          {strip?.role && <div className="purpose-strip-role">{strip.role}</div>}
+        </div>
       </div>
-      {strip?.role && <div className="purpose-strip-role">{strip.role}</div>}
 
       {hasCompound && (
-        <div className="journal-section">
+        <div className="journal-section journal-section--reading">
           <div className="journal-section-label">◈ COMPOUND — {compound}/{root}</div>
           <div className="journal-section-text">{COMPOUND_DESC[compound]}</div>
         </div>
       )}
 
       {coreText && (
-        <div className="journal-section">
+        <div className="journal-section journal-section--reading">
           <div className="journal-section-label">◈ {(strip?.label || nodeKey).toUpperCase()}</div>
           <div className="journal-section-text">
             {coreText.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
@@ -113,14 +114,14 @@ function StripContent({ nodeKey, playerData, fnData }) {
       )}
 
       {rData.shadow && (
-        <div className="journal-section journal-section-shadow">
+        <div className="journal-section journal-section-shadow journal-section--reading">
           <div className="journal-section-label">◈ SHADOW</div>
           <div className="journal-section-text">{rData.shadow}</div>
         </div>
       )}
 
       {rData.integration && (
-        <div className="journal-section">
+        <div className="journal-section journal-section--reading">
           <div className="journal-section-label">◈ INTEGRATION</div>
           <div className="journal-section-text">{rData.integration}</div>
         </div>
@@ -133,14 +134,22 @@ function StripContent({ nodeKey, playerData, fnData }) {
   )
 }
 
-// ── IdentityFlow ──────────────────────────────────────────────────────────────
 export default function IdentityFlow({ playerData }) {
   const [selected, setSelected] = useState(null)
+  const [zoomLock, setZoomLock] = useState(null)
 
   const fnData = useMemo(() => {
     const firstName = (playerData.name || '').trim().split(/\s+/)[0] || ''
     return { firstName, ...getFirstNameValue(firstName) }
   }, [playerData.name])
+
+  const onInit = useCallback((rf) => {
+    rf.fitView({ padding: 0.16, duration: 0 })
+    const z = rf.getZoom()
+    setZoomLock(z)
+    rf.setMinZoom(z)
+    rf.setMaxZoom(z)
+  }, [])
 
   const nodes = useMemo(() => {
     return Object.keys(IDENTITY_LAYOUT).map((nodeKey) => {
@@ -178,8 +187,8 @@ export default function IdentityFlow({ playerData }) {
     id: `${source}-${target}`,
     source, target,
     type: 'default',
-    style: { stroke: 'rgba(201,168,76,0.3)', strokeWidth: 2, strokeDasharray: '6 4' },
-    animated: true,
+    style: { stroke: 'rgba(201,168,76,0.42)', strokeWidth: 2.25 },
+    animated: false,
   })), [])
 
   const selMeta  = selected ? NODE_META[selected]   : null
@@ -187,28 +196,31 @@ export default function IdentityFlow({ playerData }) {
 
   return (
     <>
-      <div className="lqt-flow-wrap">
+      <div className="lqt-flow-wrap blueprint-stage">
+        {!selected && (
+          <p className="blueprint-idle-prompt" aria-hidden="true">
+            Select a seal to reveal its reading.
+          </p>
+        )}
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={flowNodeTypes}
-          onInit={(rf) => { setTimeout(() => { rf.fitView({ padding: 0.25, duration: 0 }); setTimeout(() => { const v = rf.getViewport(); rf.setViewport({ x: v.x, y: v.y - 95, zoom: v.zoom }) }, 50) }, 0) }}
+          onInit={onInit}
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={false}
           zoomOnDoubleClick={false}
-          zoomOnScroll
-          zoomOnPinch
-          panOnDrag
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          panOnDrag={false}
           panOnScroll={false}
-          preventScrolling={false}
-          minZoom={0.3}
-          maxZoom={3}
+          preventScrolling
+          minZoom={zoomLock ?? 0.3}
+          maxZoom={zoomLock ?? 3}
           proOptions={{ hideAttribution: true }}
           onNodeClick={(_, node) => setSelected(prev => prev === node.id ? null : node.id)}
-        >
-          <Background color="#ffffff08" gap={28} size={1} />
-        </ReactFlow>
+        />
       </div>
 
       <FlowDetailPanel

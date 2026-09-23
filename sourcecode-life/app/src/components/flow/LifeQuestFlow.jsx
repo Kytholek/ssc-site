@@ -1,22 +1,28 @@
-import { useState, useMemo, useCallback } from 'react'
-import ReactFlow, { Background } from 'reactflow'
+/**
+ * LifeQuestFlow — static frequency tree (fit viewport, no zoom/pan).
+ */
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import ReactFlow from 'reactflow'
 import 'reactflow/dist/style.css'
 import { fmt } from '../../lib/numerology'
 import FlowDetailPanel from './FlowDetailPanel'
 import FlowProgressNode from './FlowProgressNode'
-import { FLOW_NODE_HALF, FLOW_NODE_SIZE } from './flowNodeConstants'
 
-const CENTER_X = 320
-const CENTER_Y = 220
+const LIFE_NODE_SIZE = 72
+const LIFE_NODE_HALF = LIFE_NODE_SIZE / 2
 
+const CENTER_X = 200
+const CENTER_Y = 190
+
+/** Tighter vertical span so the tree fits at zoom ≈ 1. */
 const LIFE_LAYOUT = {
-  so: { x: CENTER_X - 150, y: CENTER_Y - 240 },
-  ou: { x: CENTER_X + 150, y: CENTER_Y - 240 },
-  ex: { x: CENTER_X,       y: CENTER_Y - 120 },
+  so: { x: CENTER_X - 105, y: CENTER_Y - 155 },
+  ou: { x: CENTER_X + 105, y: CENTER_Y - 155 },
+  ex: { x: CENTER_X,       y: CENTER_Y - 78 },
   cl: { x: CENTER_X,       y: CENTER_Y },
-  lp: { x: CENTER_X,       y: CENTER_Y + 120 },
-  ac: { x: CENTER_X - 150, y: CENTER_Y + 240 },
-  th: { x: CENTER_X + 150, y: CENTER_Y + 240 },
+  lp: { x: CENTER_X,       y: CENTER_Y + 78 },
+  ac: { x: CENTER_X - 105, y: CENTER_Y + 155 },
+  th: { x: CENTER_X + 105, y: CENTER_Y + 155 },
 }
 
 const LIFE_EDGES = [
@@ -29,13 +35,13 @@ const LIFE_EDGES = [
 ]
 
 const NODE_ICONS = {
-  so: '💎',
-  ou: '🎭',
-  ex: '🔧',
-  cl: '⭐',
-  lp: '🛤️',
-  ac: '🏆',
-  th: '📜',
+  so: '◈',
+  ou: '◇',
+  ex: '▣',
+  cl: '★',
+  lp: '⟶',
+  ac: '▲',
+  th: '◎',
 }
 
 const COLOR_HEX = {
@@ -48,6 +54,8 @@ const COLOR_HEX = {
   '--silver': '#c0c0c0',
 }
 
+const TIER_LABELS = { 1: 'APPRENTICE', 2: 'ADEPT', 3: 'MASTER' }
+
 function resolveColor(colorToken) {
   if (!colorToken) return { hex: '#c9a84c' }
   if (colorToken.startsWith('#')) return { hex: colorToken }
@@ -57,24 +65,32 @@ function resolveColor(colorToken) {
 function LifeNode({ data }) {
   const stagesDone = data.completedCount || 0
   const progressPct = (stagesDone / 3) * 100
+  const label = data.locked ? '' : (data.meta?.label || data.nodeKey)
+  const ariaName = data.locked
+    ? `${data.meta?.label || data.nodeKey}, locked until frequency level ${data.unlockLv}`
+    : `${data.meta?.label || data.nodeKey}${data.isSelected ? ', selected' : ''}`
 
   return (
     <FlowProgressNode
       color={data.colorHex}
       icon={NODE_ICONS[data.nodeKey] || '✦'}
       displayNum={data.locked ? fmt(data.numObj.root, data.numObj.compound) : String(data.numObj?.root || '')}
-      label={data.locked ? '' : (data.meta?.label || data.nodeKey)}
-      subtitle={data.locked ? '' : (data.meta?.sub || '')}
+      label={label}
+      subtitle=""
       isSelected={data.isSelected}
       locked={data.locked}
       unlockLv={data.unlockLv}
       progressPct={data.locked ? 0 : progressPct}
       stagesDone={data.locked ? 0 : stagesDone}
-      innateGlow={data.locked}
+      innateGlow={false}
       showPips={!data.locked}
       showBadge={!data.locked}
+      size={LIFE_NODE_SIZE}
+      shape="square"
       onClick={data.onClick}
       withHandles
+      ariaLabel={ariaName}
+      ariaPressed={data.isSelected && !data.locked}
     />
   )
 }
@@ -89,8 +105,20 @@ export default function LifeQuestFlow({
   lqp,
   onLocked,
   renderPanel,
+  getQuestDescription,
 }) {
   const [selected, setSelected] = useState(null)
+  const [selectedObjective, setSelectedObjective] = useState(null)
+  const [zoomLock, setZoomLock] = useState(null)
+
+  useEffect(() => {
+    setSelectedObjective(null)
+  }, [selected])
+
+  const clearSelection = useCallback(() => {
+    setSelected(null)
+    setSelectedObjective(null)
+  }, [])
 
   const selData = selected
     ? {
@@ -128,6 +156,14 @@ export default function LifeQuestFlow({
     }
   }, [nodeLookup, onLocked])
 
+  const onInit = useCallback((rf) => {
+    rf.fitView({ padding: 0.12, duration: 0 })
+    const z = rf.getZoom()
+    setZoomLock(z)
+    rf.setMinZoom(z)
+    rf.setMaxZoom(z)
+  }, [])
+
   const nodes = useMemo(() => {
     return Object.keys(LIFE_LAYOUT).map((nodeKey) => {
       const pos = LIFE_LAYOUT[nodeKey]
@@ -154,12 +190,13 @@ export default function LifeQuestFlow({
       return {
         id: nodeKey,
         type: 'lifeNode',
-        position: { x: pos.x - FLOW_NODE_HALF, y: pos.y - FLOW_NODE_HALF },
+        position: { x: pos.x - LIFE_NODE_HALF, y: pos.y - LIFE_NODE_HALF },
         draggable: false,
+        selectable: false,
         data: {
           numObj,
           nodeKey,
-          meta: { label: meta.label, sub: meta.sub },
+          meta: { label: meta.label, sub: meta.sub, title: meta.title },
           unlockLv,
           locked,
           colorHex,
@@ -192,42 +229,78 @@ export default function LifeQuestFlow({
     }))
   ), [])
 
+  const panelOpen = !!selected
+  const panelTitle = selectedObjective
+    ? (nodeMeta[selectedObjective.questKey]?.label || 'Quest Objective')
+    : (selData?.meta?.title || '')
+  const panelSubtitle = selectedObjective
+    ? `${TIER_LABELS[selectedObjective.tier]} · Objective ${Number(selectedObjective.objIdx) + 1}`
+    : (selData?.meta?.sub || '')
+  const panelIcon = selectedObjective
+    ? (NODE_ICONS[selectedObjective.questKey] || '✦')
+    : (NODE_ICONS[selected] || '✦')
+  const panelColor = selectedObjective
+    ? resolveColor(getQuestData(numMap[selectedObjective.questKey]?.root)?.color).hex
+    : (selData?.hex || '#c9a84c')
+
   return (
     <>
-      <div className="lqt-flow-wrap lqt-flow-wrap--compact">
+      <div className="lqt-flow-wrap">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
           onNodeClick={onNodeClick}
-          fitView
-          fitViewOptions={{ padding: 0.2 }}
+          onInit={onInit}
           nodesDraggable={false}
           nodesConnectable={false}
-          elementsSelectable
+          elementsSelectable={false}
           zoomOnDoubleClick={false}
-          zoomOnScroll
-          zoomOnPinch
-          panOnDrag
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          panOnDrag={false}
           panOnScroll={false}
-          preventScrolling={false}
-          minZoom={0.4}
-          maxZoom={2}
+          preventScrolling
+          minZoom={zoomLock ?? 0.25}
+          maxZoom={zoomLock ?? 2}
           proOptions={{ hideAttribution: true }}
-        >
-          <Background color="#ffffff08" gap={24} size={1} />
-        </ReactFlow>
+        />
       </div>
 
       <FlowDetailPanel
-        open={!!selected}
-        onClose={() => setSelected(null)}
-        color={selData?.hex || '#c9a84c'}
-        title={selData?.meta?.title || ''}
-        subtitle={selData?.meta?.sub || ''}
-        icon={NODE_ICONS[selected] || '✦'}
+        open={panelOpen}
+        onClose={clearSelection}
+        color={panelColor}
+        title={panelTitle}
+        subtitle={panelSubtitle}
+        icon={panelIcon}
       >
-        {selData && renderPanel?.(selected)}
+        {selectedObjective ? (
+          <div className="objective-detail-panel">
+            <button
+              type="button"
+              className="objective-detail-back"
+              onClick={() => setSelectedObjective(null)}
+            >
+              ← Back to objectives
+            </button>
+            <div className={`objective-detail-status objective-detail-status--${selectedObjective.done ? 'done' : 'pending'}`}>
+              {selectedObjective.done ? '✓ Complete' : 'In Progress'}
+            </div>
+            <div className="objective-detail-text">{selectedObjective.text}</div>
+            <div className="objective-detail-context">
+              <div className="objective-detail-context-label">Quest Context</div>
+              <div className="objective-detail-context-value">
+                {getQuestDescription?.(selectedObjective.questKey) || 'Quest objective'}
+              </div>
+            </div>
+          </div>
+        ) : (
+          selData && renderPanel?.(selected, {
+            onClose: clearSelection,
+            onObjectiveClick: setSelectedObjective,
+          })
+        )}
       </FlowDetailPanel>
     </>
   )

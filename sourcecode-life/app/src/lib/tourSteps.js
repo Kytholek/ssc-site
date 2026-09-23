@@ -16,7 +16,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: '[data-tour="char-card"]',
     title: 'Your Character Card',
-    body: 'Your identity, XP bars, and daily progress live here. Tap the portrait to open your full character card.',
+    body: 'Your identity, calling, XP bars, and shortcuts live here. Tap the portrait to open equipment.',
     placement: 'below',
   },
   {
@@ -32,7 +32,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: '[data-tour="tab-quests"]',
     title: 'Quests',
-    body: 'Side quests, Life Quest arcs, and the Quest Hub — where commitments and multi-day challenges live.',
+    body: 'Life arcs, Current cycles, and Journals — your longer quests and season check-ins live here.',
     placement: 'above',
   },
   {
@@ -40,7 +40,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: '[data-tour="tab-decode"]',
     title: 'Decode',
-    body: 'Your numerology blueprint: Life Path, Expression, Soul, and the frequencies that shape your quests.',
+    body: 'Settings and insights. Open STATS from Home seals for Blueprint and character numbers.',
     placement: 'above',
   },
   {

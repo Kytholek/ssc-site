@@ -37,7 +37,6 @@ function CycleNode({ node, selected, onSelect }) {
         color={node.color.hex}
         icon={node.icon || '◎'}
         displayNum={node.isMaster ? '' : String(reduceToSimple(node.root))}
-        subtitle={node.label}
         isSelected={isSelected}
         isMaster={node.isMaster}
         progressPct={progressPct}
@@ -45,7 +44,11 @@ function CycleNode({ node, selected, onSelect }) {
         pipStates={pipStates}
         fullyAligned={stagesDone >= maxProgress}
         showBadge={!node.isMaster}
+        size={76}
+        shape="square"
         onClick={() => onSelect(node.key)}
+        ariaLabel={`${node.label}${isSelected ? ', selected' : ''}`}
+        ariaPressed={isSelected}
       />
       <div className={`tf-node-caption${isSelected ? ' tf-node-caption--active' : ''}`}>
         {node.label}
@@ -62,12 +65,12 @@ function getQuestData(root) {
 
 // ── Zone rows (2 nodes each) — CSS grid centers these ─────────────────────
 const NODE_META = [
-  { key: 'theme',          label: 'THEME',    icon: '🎯' },
-  { key: 'pinnacle',       label: 'PINNACLE', icon: '🏔️' },
-  { key: 'personalYear',   label: 'YEAR',     icon: '📅' },
-  { key: 'fourMonthCycle', label: '4-MONTH',  icon: '🔄' },
-  { key: 'personalMonth',  label: 'MONTH',    icon: '🌙' },
-  { key: 'personalDay',    label: 'DAY',      icon: '☀️' },
+  { key: 'theme',          label: 'THEME',    icon: '◈' },
+  { key: 'pinnacle',       label: 'PINNACLE', icon: '▲' },
+  { key: 'personalYear',   label: 'YEAR',     icon: '◎' },
+  { key: 'fourMonthCycle', label: '4-MONTH',  icon: '◇' },
+  { key: 'personalMonth',  label: 'MONTH',    icon: '✦' },
+  { key: 'personalDay',    label: 'DAY',      icon: '·' },
 ]
 
 const ZONE_ROWS = [
@@ -117,7 +120,6 @@ function getDailyGlyphsDone() {
 // ── TimeFlow ────────────────────────────────────────────────────────────────
 export default function TimeFlow({ playerData, sideQuests: sqProp }) {
   const [selected, setSelected] = useState(null)
-  const [chartReady, setChartReady] = useState(false)
   const [dailyGlyphsDone, setDailyGlyphsDone] = useState(getDailyGlyphsDone)
   const [seasonRefreshTick, setSeasonRefreshTick] = useState(0)
   const [checkinPanelOpen, setCheckinPanelOpen] = useState(false)
@@ -126,11 +128,6 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
   const sideQuests = sqProp && typeof sqProp === 'object' ? sqProp : {}
 
   const { lp, th, ex, cl, so, ou, ac, m, d, y } = playerData || {}
-
-  useEffect(() => {
-    const timer = setTimeout(() => setChartReady(true), 100)
-    return () => clearTimeout(timer)
-  }, [])
 
   // Listen for daily glyph completions
   useEffect(() => {
@@ -278,13 +275,12 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
         Six time horizons: Theme & Pinnacle (long-term), Year & 4-Month (medium), Month & Day (now). Tap a node to see objectives.
       </CoachMark>
       {/* ── Cycle grid (CSS-centered, no ReactFlow viewport offset) ── */}
-      <div className={`tf-chart-area tf-chart-area--flow${chartReady ? ' tf-chart-area--ready' : ''}`}>
+      <div className="tf-chart-area tf-chart-area--flow tf-chart-area--ready">
         <div className="tf-cycle-grid">
           {ZONE_ROWS.map((row, i) => (
             <div
               key={row.label}
               className={`tf-cycle-row tf-cycle-row--${i + 1}`}
-              style={{ opacity: chartReady ? 1 : 0, transition: `opacity 0.8s ease ${0.1 + i * 0.15}s` }}
             >
               <span className="tf-cycle-row-label">{row.label}</span>
               <div className="tf-cycle-row-nodes">
@@ -361,13 +357,13 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
                 )}
               </>
             )}
-            {selNode.key === 'personalMonth' && PINNACLE_MONTH_LENS[currentPinn?.root] && (
+            {selNode.key === 'personalMonth' && PINNACLE_MONTH_LENS[pm.root] && (
               <div style={{
                 fontSize: '0.72rem', color: 'var(--gold)', opacity: 0.65,
                 borderLeft: '2px solid var(--gold-dim)', paddingLeft: 8, marginBottom: 12,
                 fontStyle: 'italic'
               }}>
-                {PINNACLE_MONTH_LENS[currentPinn.root]}
+                {PINNACLE_MONTH_LENS[pm.root]}
               </div>
             )}
             {selNode.key === 'personalMonth' && (() => {
@@ -445,15 +441,13 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
             {selNode.key === 'fourMonthCycle' && (
               <div className="journal-section" style={{ marginBottom: 12 }}>
                 <button
+                  type="button"
+                  className="tf-complete-season-btn"
                   onClick={() => {
+                    if (!window.confirm('Complete this 4-month season? This cannot be undone.')) return
                     const now = new Date()
                     const res = completeFourMonthSeason(lp.root, now.getMonth() + 1, now.getDate(), pinnIndex, currentPinn.root)
                     if (res.ok) setSelected(null)
-                  }}
-                  style={{
-                    padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer',
-                    background: 'var(--gold)', color: '#0a0a12', border: 'none', borderRadius: '2px',
-                    fontWeight: 600, opacity: 0.9
                   }}
                 >
                   Complete Season

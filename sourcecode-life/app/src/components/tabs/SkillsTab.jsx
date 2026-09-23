@@ -21,14 +21,15 @@ const PROFILE_TABS = [
 ]
 
 const BLUEPRINT_TABS = [
-  { id: 'lessons',  label: '◇ LESSONS'  },
-  { id: 'identity', label: '◈ IDENTITY' },
-  { id: 'purpose',  label: '✦ PURPOSE'  },
+  { id: 'lessons',  label: '◇ LESSONS',  thesis: 'What this life is here to learn and leave.' },
+  { id: 'identity', label: '◈ IDENTITY', thesis: 'The frequencies that shape how you move through the world.' },
+  { id: 'purpose',  label: '✦ PURPOSE',  thesis: 'The road, the signal, and the call.' },
 ]
 
 function BlueprintSection() {
   const { playerData } = useAppState()
   const [subTab, setSubTab] = useState('lessons')
+  const activeTab = BLUEPRINT_TABS.find((t) => t.id === subTab) || BLUEPRINT_TABS[0]
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -49,9 +50,12 @@ function BlueprintSection() {
             </button>
           ))}
         </div>
-        {subTab === 'lessons'  && <LessonsFlow  playerData={playerData} />}
-        {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
-        {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
+        <p className="blueprint-thesis">{activeTab.thesis}</p>
+        <div className="blueprint-stage-body">
+          {subTab === 'lessons'  && <LessonsFlow  playerData={playerData} />}
+          {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
+          {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
+        </div>
       </div>
     </PremiumLockOverlay>
   )
@@ -129,7 +133,7 @@ export default function SkillsTab() {
 
       {tab === 'stats'     && <StatsTab playerData={playerData} />}
       {tab === 'skills'    && <InnateSkills playerData={playerData} />}
-      {isBlueprint         && <BlueprintSection />}
+      {isBlueprint         && <div className="blueprint-panel-slot"><BlueprintSection /></div>}
       {tab === 'spiral' && (
         <PremiumLockOverlay feature="Numerology Spiral — Time Spiral visualization">
           <NumerologySpiral playerData={playerData} />

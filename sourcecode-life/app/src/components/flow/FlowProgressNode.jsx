@@ -1,6 +1,6 @@
 /**
- * FlowProgressNode — unified circular quest node for the whole app.
- * Blueprint size (90px) with optional progress arc, pips, and lock states.
+ * FlowProgressNode — unified quest node (circle or square).
+ * Blueprint size (90px) with optional progress arc/bar, pips, and lock states.
  */
 import { Handle, Position } from 'reactflow'
 import {
@@ -17,28 +17,7 @@ const DEFAULT_HANDLES = [
 ]
 
 /**
- * @param {object} props
- * @param {string} props.color — hex color
- * @param {string} [props.icon]
- * @param {string} [props.displayNum] — center or badge number
- * @param {string} [props.label] — short label inside node
- * @param {string} [props.subtitle] — subtitle inside node
- * @param {boolean} [props.isSelected]
- * @param {boolean} [props.isMaster]
- * @param {boolean} [props.locked]
- * @param {number} [props.unlockLv]
- * @param {number} [props.progressPct] — 0-100 for arc
- * @param {number} [props.stagesDone] — completed pip count
- * @param {Array<boolean>} [props.pipStates] — explicit pip done/eligible
- * @param {boolean} [props.innateGlow]
- * @param {boolean} [props.fullyAligned]
- * @param {boolean} [props.showProgressArc]
- * @param {boolean} [props.showPips]
- * @param {boolean} [props.showBadge]
- * @param {number} [props.size] — override size (e.g. skill tree zoom)
- * @param {Function} [props.onClick]
- * @param {boolean} [props.withHandles]
- * @param {Array} [props.handles]
+ * @param {'circle' | 'square'} [props.shape]
  */
 export default function FlowProgressNode({
   color = '#c9a84c',
@@ -59,11 +38,15 @@ export default function FlowProgressNode({
   showPips = true,
   showBadge = true,
   size = FLOW_NODE_SIZE,
+  shape = 'circle',
   onClick,
   withHandles = false,
   handles = DEFAULT_HANDLES,
+  ariaLabel,
+  ariaPressed,
 }) {
   const cssVars = flowColorVars(color)
+  const isSquare = shape === 'square'
   const isActive = isSelected && !locked
   const baseState = locked
     ? 'locked'
@@ -79,14 +62,24 @@ export default function FlowProgressNode({
     innate: false,
   }))
 
+  const pct = Math.max(0, Math.min(100, progressPct || 0))
+  const showArc = showProgressArc && !locked && pct > 0 && !isSquare
+  const showBar = showProgressArc && !locked && pct > 0 && isSquare
+
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onClick?.() }}
       onMouseDown={(e) => e.stopPropagation()}
-      className="flow-node-interactive"
+      className={[
+        'flow-node-interactive',
+        isActive ? 'flow-node-interactive--static-select' : '',
+        isSquare ? 'flow-node-interactive--square' : '',
+      ].filter(Boolean).join(' ')}
       style={{ ...cssVars, width: size, height: size, position: 'relative' }}
       role="button"
       tabIndex={0}
+      aria-label={ariaLabel || undefined}
+      aria-pressed={ariaPressed != null ? ariaPressed : undefined}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
     >
       {withHandles && handles.map((h) => (
@@ -94,15 +87,16 @@ export default function FlowProgressNode({
       ))}
 
       {fullyAligned && <div className="flow-node-glow--complete" />}
-      {!fullyAligned && isActive && <div className="flow-node-glow--complete" />}
+      {!fullyAligned && isActive && <div className="flow-node-glow--active-static" aria-hidden="true" />}
       {!fullyAligned && !isActive && !locked && stagesDone > 0 && <div className="flow-node-glow--partial" />}
       {innateGlow && !fullyAligned && !isActive && stagesDone === 0 && <div className="flow-node-glow--innate" />}
 
       <div className={`flow-node-base flow-node-base--${baseState}`}>
-        {isActive && <div className="flow-node-ring-spin" />}
-        <div className="flow-node-ring-outer" />
+        {isActive && !isSquare && <div className="flow-node-ring-static" aria-hidden="true" />}
+        {isActive && isSquare && <div className="flow-node-frame-static" aria-hidden="true" />}
+        {!isSquare && <div className="flow-node-ring-outer" />}
 
-        {showProgressArc && !locked && progressPct > 0 && (
+        {showArc && (
           <svg className="flow-node-progress" viewBox={`0 0 ${FLOW_PROGRESS_VIEW} ${FLOW_PROGRESS_VIEW}`}>
             <circle
               cx={FLOW_PROGRESS_VIEW / 2}
@@ -117,6 +111,12 @@ export default function FlowProgressNode({
               opacity="0.7"
             />
           </svg>
+        )}
+
+        {showBar && (
+          <div className="flow-node-bar-track" aria-hidden="true">
+            <div className="flow-node-bar-fill" style={{ width: `${pct}%` }} />
+          </div>
         )}
 
         {locked && (
@@ -148,11 +148,13 @@ export default function FlowProgressNode({
           </div>
         )}
 
-        {showBadge && !locked && displayNum && label && (
+        {showBadge && !locked && displayNum && label && !isMaster && (
           <div className="flow-node-badge">{displayNum}</div>
         )}
 
-        {isMaster && <div className="flow-node-badge">MASTER</div>}
+        {isMaster && !locked && (
+          <div className="flow-node-master">MASTER</div>
+        )}
 
         {locked && unlockLv > 0 && (
           <div className="flow-node-lock-badge">LV {unlockLv}</div>

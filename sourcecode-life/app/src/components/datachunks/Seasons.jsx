@@ -2,6 +2,7 @@
  * Seasons — Home energy rundown for current pinnacle / year / month.
  * Quest check-ins and commitments live under Quests → Current (TimeFlow).
  */
+import { useAppDispatch } from '../../context/AppContext'
 import { calcPersonalYear, calcPersonalMonth, calcPinnacles } from '../../lib/numerology'
 import { PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { CYCLE_MEANINGS, CYCLE_QUEST_COLORS } from '../../lib/data'
@@ -39,6 +40,7 @@ function EnergyRow({
 }
 
 export default function SeasonsSection({ playerData }) {
+  const dispatch = useAppDispatch()
   if (!playerData) return null
   const { m, d, y, lp } = playerData
 
@@ -60,6 +62,7 @@ export default function SeasonsSection({ playerData }) {
   const monthMeaning = CYCLE_MEANINGS.personalMonth?.[pm.root] || {}
   const yearColor = `var(${CYCLE_QUEST_COLORS.personalYear?.color || '--teal'})`
   const monthColor = `var(${CYCLE_QUEST_COLORS.personalMonth?.color || '--rose'})`
+  /* Month lens keyed by personal month root (same as TimeFlow Current). */
   const monthLens = PINNACLE_MONTH_LENS[pm.root] || null
 
   const pinnMeta = currentPinn
@@ -72,7 +75,7 @@ export default function SeasonsSection({ playerData }) {
         <h2 id="seasons-heading" className="home-section-heading seasons-heading">
           <span className="seasons-heading-line home-section-heading-line" aria-hidden="true" />
           <span className="seasons-heading-glyph home-section-heading-glyph" aria-hidden="true">◇</span>
-          SEASONS
+          CURRENT TIME CYCLE
           <span className="seasons-heading-glyph home-section-heading-glyph" aria-hidden="true">◇</span>
           <span className="seasons-heading-line home-section-heading-line" aria-hidden="true" />
         </h2>
@@ -110,6 +113,14 @@ export default function SeasonsSection({ playerData }) {
           lens={monthLens}
           color={monthColor}
         />
+
+        <button
+          type="button"
+          className="seasons-energy-cta"
+          onClick={() => dispatch({ type: 'SET_TAB', payload: 'quests', section: 'current' })}
+        >
+          Act on this in Current →
+        </button>
       </div>
     </section>
   )

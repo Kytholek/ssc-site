@@ -28,17 +28,6 @@ import DailyProgressRing from '../effects/DailyProgressRing'
 import DailyCountdown from '../effects/DailyCountdown'
 import StreakCalendar from '../effects/StreakCalendar'
 
-function consumeDailySummary() {
-  try {
-    const raw = localStorage.getItem('scl_daily_summary')
-    if (!raw) return null
-    const s = JSON.parse(raw)
-    if (!s.date) return null
-    localStorage.removeItem('scl_daily_summary')
-    return s
-  } catch { return null }
-}
-
 function getResonanceChain() {
   try {
     const raw = JSON.parse(localStorage.getItem('scl_resonance_chain') || 'null')
@@ -480,37 +469,6 @@ function ReminderBanner() {
   )
 }
 
-function DailySummaryCard({ summary, onDismiss }) {
-  return (
-    <div className="daily-summary">
-      <button className="daily-summary-close" onClick={onDismiss}>✕</button>
-      <div className="daily-summary-title">◈ QUEST RECAP</div>
-      <div className="daily-summary-stats">
-        <div className="daily-summary-row">
-          <span className="daily-summary-label">Quests</span>
-          <span className="daily-summary-value">{summary.questsCompleted} completed</span>
-        </div>
-        <div className="daily-summary-row">
-          <span className="daily-summary-label">XP Earned</span>
-          <span className="daily-summary-value" style={{ color: 'var(--teal)' }}>+{summary.xpEarned} XP</span>
-        </div>
-        {summary.resonantCompletions > 0 && (
-          <div className="daily-summary-row">
-            <span className="daily-summary-label">⚡ Resonant</span>
-            <span className="daily-summary-value" style={{ color: 'var(--gold)' }}>{summary.resonantCompletions}</span>
-          </div>
-        )}
-        {summary.pipsFilled > 0 && (
-          <div className="daily-summary-row">
-            <span className="daily-summary-label">Pips Filled</span>
-            <span className="daily-summary-value">{summary.pipsFilled}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 function StreakTooltip({ lines, onClose }) {
   return createPortal(
     <div className="streak-tooltip" role="tooltip" onClick={e => { e.stopPropagation(); onClose() }}>
@@ -579,7 +537,6 @@ export function StreakBadge({ streak, compact = false }) {
 export default function DailySection({ playerData, daily, completeDailyQuest }) {
   const { xp } = useQuestEngine()
   const [genState, setGenState] = useState(() => getGeneratedQuests())
-  const [summary, setSummary] = useState(() => consumeDailySummary())
   const [expandedId, setExpandedId] = useState(null)
   const [rerollError, setRerollError] = useState(null)
   const genProfile = playerData ? buildUserProfile(playerData, xp?.statXP) : null
@@ -633,8 +590,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
 
   return (
     <div className="daily-section">
-      {summary && <DailySummaryCard summary={summary} onDismiss={() => setSummary(null)} />}
-
       <div className="qj-book" aria-label="Quest journal">
         <span className="qj-book-spine" aria-hidden="true" />
         <span className="qj-book-corner qj-book-corner--tl" aria-hidden="true" />

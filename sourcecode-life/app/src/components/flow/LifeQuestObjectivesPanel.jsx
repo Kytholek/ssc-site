@@ -135,12 +135,14 @@ export default function LifeQuestObjectivesPanel({
             className={`lqop-tier${isActive ? ' lqop-tier-active' : isPast ? ' lqop-tier-past' : ' lqop-tier-locked'}`}
           >
             {/* Tier Header (always visible) */}
-            <button
-              className="lqop-tier-header"
-              onClick={() => !isLocked && toggleTier(tier)}
-              disabled={isLocked}
-              aria-expanded={isExpanded}
-            >
+              <button
+                type="button"
+                className="lqop-tier-header"
+                onClick={() => !isLocked && toggleTier(tier)}
+                disabled={isLocked}
+                aria-expanded={isExpanded}
+                aria-label={`${label} tier, ${completed} of ${total} complete${isLocked ? ', locked' : ''}`}
+              >
               <div className="lqop-tier-header-left">
                 <span className="lqop-tier-icon">{icon}</span>
                 <span className="lqop-tier-label">{label}</span>
@@ -180,17 +182,19 @@ export default function LifeQuestObjectivesPanel({
                     {objs.map((o, i) => {
                       const isDone = !!prog[i]
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={i}
                           className={`lqop-objective${isDone ? ' lqop-objective--done' : ''}`}
                           onClick={() => handleObjectiveClick(tier, i, o, isDone)}
                           title={o}
+                          aria-label={`${isDone ? 'Complete' : 'Pending'} objective: ${o}`}
                         >
-                          <div className="lqop-objective-icon">
+                          <div className="lqop-objective-icon" aria-hidden="true">
                             {isDone ? '✓' : '◈'}
                           </div>
                           <div className="lqop-objective-text">{o}</div>
-                        </div>
+                        </button>
                       )
                     })}
                   </div>

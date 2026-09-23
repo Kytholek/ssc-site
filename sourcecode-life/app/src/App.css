@@ -1453,12 +1453,56 @@ body.scl-realm-open .tab-bar {
 /* Blueprint mode: strip padding so chart sits flush */
 .tab-panel-content--blueprint {
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 .tab-panel-content--blueprint .profile-navbar {
   margin: 8px 10px 0;
+  flex-shrink: 0;
 }
 .tab-panel-content--blueprint .char-guidebook-cta-wrap {
   padding: 10px 10px 4px;
+}
+.tab-panel-content--blueprint .blueprint-panel-slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tab-panel-content--blueprint .blueprint-panel-slot > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tab-panel-content--blueprint .premium-lock-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tab-panel-content--blueprint .premium-lock-preview {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main:has(.tab-panel-content--blueprint) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.app-main:has(.tab-panel-content--blueprint) .sm-tab-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tab-placeholder {
@@ -3160,18 +3204,108 @@ body.scl-realm-open .tab-bar {
 /* â”€â”€ Blueprint section sub-tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .blueprint-section {
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 .blueprint-sub-tabs {
   display: flex;
   gap: 4px;
   margin: 0;
-  padding: 8px 14px 6px;
+  padding: 8px 14px 4px;
   justify-content: center;
+  flex-shrink: 0;
 }
-
-/* Flow canvas: account for profile navbar (~44px) + sub-tabs (~46px) overhead */
-.blueprint-section .lqt-flow-wrap {
-  height: calc(100vh - 110px);
+.blueprint-thesis {
+  margin: 0;
+  padding: 2px 20px 10px;
+  text-align: center;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--gold, #c9a84c) 55%, #8a8aa8);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.blueprint-stage-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.blueprint-stage-body > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.blueprint-section .lqt-flow-wrap,
+.blueprint-section .blueprint-stage {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  position: relative;
+}
+.blueprint-stage {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 42%,
+      color-mix(in srgb, var(--gold, #c9a84c) 10%, transparent) 0%,
+      transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 100%,
+      rgba(0, 0, 0, 0.45) 0%,
+      transparent 55%),
+    linear-gradient(180deg, #0a0a12 0%, #06060c 100%);
+}
+.blueprint-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 48%, transparent 35%, rgba(0, 0, 0, 0.35) 100%);
+}
+.blueprint-idle-prompt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  margin: 0;
+  max-width: 90%;
+  pointer-events: none;
+  text-align: center;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  color: rgba(180, 180, 200, 0.55);
+  animation: blueprint-idle-fade 1.2s ease 0.35s both;
+}
+@keyframes blueprint-idle-fade {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 6px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+.blueprint-section .react-flow__edge-path {
+  stroke: rgba(201, 168, 76, 0.45) !important;
+  stroke-width: 2.25px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(201, 168, 76, 0.25));
+}
+.blueprint-section .flow-node-base {
+  animation: blueprint-node-enter 0.45s ease both;
+}
+.blueprint-section .react-flow__node:nth-child(1) .flow-node-base { animation-delay: 0.05s; }
+.blueprint-section .react-flow__node:nth-child(2) .flow-node-base { animation-delay: 0.12s; }
+.blueprint-section .react-flow__node:nth-child(3) .flow-node-base { animation-delay: 0.18s; }
+.blueprint-section .react-flow__node:nth-child(4) .flow-node-base { animation-delay: 0.24s; }
+@keyframes blueprint-node-enter {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .blueprint-sub-tab {
   padding: 6px 14px;
@@ -3804,12 +3938,52 @@ body.scl-realm-open .tab-bar {
 
 .quest-section-body { padding: 0; }
 
-/* â”€â”€ Life Quest Skill Tree â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.tab-panel-content--quests {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+.tab-panel-content--quests .profile-navbar {
+  flex-shrink: 0;
+  margin: 8px 10px 0;
+}
+.tab-panel-content--quests .quest-section-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tab-panel-content--quests .quest-section-body > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Quests fills the main pane — no page scroll under the tree */
+.app-main:has(.tab-panel-content--quests) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.app-main:has(.tab-panel-content--quests) .sm-tab-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Life Quest Skill Tree */
 .lqt-section {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 48px);
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -3847,7 +4021,6 @@ body.scl-realm-open .tab-bar {
 }
 
 .lqt-flow-wrap {
-  height: calc(100vh - 80px);
   margin: 0;
   border: none;
   border-radius: 0;
@@ -3855,6 +4028,7 @@ body.scl-realm-open .tab-bar {
   overflow: hidden;
   flex: 1;
   min-height: 0;
+  height: auto;
 }
 
 .cursor-pointer { cursor: pointer; }
@@ -3866,11 +4040,6 @@ body.scl-realm-open .tab-bar {
     left: 0 !important;
     right: 0 !important;
     border-radius: 18px 18px 0 0 !important;
-  }
-  
-  /* Bring Life quest grid up higher on mobile */
-  .lqt-section .lqt-flow-wrap {
-    height: calc(100vh - 60px);
   }
 }
 
@@ -4301,7 +4470,80 @@ body.scl-realm-open .tab-bar {
   border-radius: 50%;
 }
 
-/* â”€â”€ Glow layers (outer aura) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.flow-node-interactive--square:focus-visible {
+  border-radius: 8px;
+}
+
+/* Square quest nodes (Life / Current) */
+.flow-node-interactive--square .flow-node-base {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.flow-node-interactive--square .flow-node-glow--complete,
+.flow-node-interactive--square .flow-node-glow--partial,
+.flow-node-interactive--square .flow-node-glow--innate,
+.flow-node-interactive--square .flow-node-glow--active-static {
+  border-radius: 10px;
+  background: none;
+  animation: none;
+}
+.flow-node-interactive--square .flow-node-glow--complete {
+  box-shadow: 0 0 20px 4px var(--flow-color-glow-dim, rgba(201,168,76,0.28));
+}
+.flow-node-interactive--square .flow-node-glow--partial,
+.flow-node-interactive--square .flow-node-glow--active-static {
+  box-shadow: 0 0 14px 2px var(--flow-color-glow-dim, rgba(201,168,76,0.22));
+}
+.flow-node-interactive--square .flow-node-base--active,
+.flow-node-interactive--square .flow-node-base--default,
+.flow-node-interactive--square .flow-node-base--innate {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--flow-color, #c9a84c) 14%, #12121c) 0%,
+    #0a0a12 100%
+  );
+}
+.flow-node-frame-static {
+  position: absolute;
+  inset: -3px;
+  border-radius: 10px;
+  border: 1px solid var(--flow-color-muted, rgba(255,255,255,0.28));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--flow-color, #c9a84c) 30%, transparent);
+  pointer-events: none;
+}
+.flow-node-bar-track {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 5px;
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--flow-color, #c9a84c) 18%, transparent);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+.flow-node-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--flow-color, #c9a84c);
+  box-shadow: 0 0 6px var(--flow-color-glow, rgba(201,168,76,0.45));
+}
+.flow-node-interactive--square .flow-node-pips {
+  bottom: 10px;
+}
+.flow-node-interactive--square .flow-node-badge,
+.flow-node-interactive--square .flow-node-lock-badge {
+  border-radius: 4px;
+}
+.flow-node-interactive--square .flow-node-label {
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Glow layers (outer aura) */
 
 /* Tier 1: Fully aligned / completed â€” large pulsing glow */
 .flow-node-glow--complete {
@@ -4391,18 +4633,43 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Rotating ring (active state) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.flow-node-ring-spin {
+/* Static selection ring (no spin) */
+.flow-node-ring-spin,
+.flow-node-ring-static {
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  border: 1px solid var(--flow-color-dim, rgba(255,255,255,0.15));
+  border: 1px solid var(--flow-color-muted, rgba(255,255,255,0.25));
+  pointer-events: none;
+}
+.flow-node-ring-spin {
   animation: flow-spin 8s linear infinite;
+}
+.flow-node-ring-static {
+  animation: none;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--flow-color, #c9a84c) 35%, transparent);
+}
+.flow-node-glow--active-static {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--flow-color-glow-dim, rgba(201,168,76,0.25));
   pointer-events: none;
 }
 
 @keyframes flow-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-node-ring-spin,
+  .flow-pulse-aura,
+  .flow-node-glow--complete,
+  .lqt-flow-wrap .flow-node-base,
+  .flow-canvas-wrap .flow-node-base {
+    animation: none !important;
+  }
 }
 
 /* â”€â”€ Outer dashed ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -4532,7 +4799,63 @@ body.scl-realm-open .tab-bar {
   z-index: 3;
 }
 
-/* â”€â”€ Lock overlay (for gated nodes) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.flow-node-master {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--flow-color, #c9a84c);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--flow-color, #c9a84c) 40%, transparent);
+  pointer-events: none;
+}
+.flow-node-base:has(.flow-node-master) {
+  padding-top: 14px;
+  box-sizing: border-box;
+}
+.flow-node-base:has(.flow-node-master) .flow-node-icon {
+  margin-bottom: 0.15rem;
+  font-size: 1.65rem;
+}
+.flow-node-interactive--square .flow-node-master {
+  top: 5px;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+
+/* Blueprint seal + caption under the circle */
+.flow-node-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.flow-node-seal-caption {
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(180, 180, 200, 0.72);
+  white-space: nowrap;
+  line-height: 1.2;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.flow-node-seal--selected .flow-node-seal-caption {
+  color: var(--flow-color, #c9a84c);
+}
+
+/* Lock overlay (for gated nodes) */
 .flow-node-lock-overlay {
   position: absolute;
   inset: 0;
@@ -4720,12 +5043,51 @@ body.scl-realm-open .tab-bar {
   gap: 16px;
 }
 
+.purpose-strip-content--reading {
+  gap: 18px;
+  max-width: 36rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .purpose-strip-header {
   display: flex;
   align-items: center;
   gap: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.purpose-strip-content--reading .purpose-strip-header {
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: none;
+  position: relative;
+}
+.purpose-strip-content--reading .purpose-strip-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--flow-color, #c9a84c) 0%,
+    color-mix(in srgb, var(--flow-color, #c9a84c) 25%, transparent) 55%,
+    transparent 100%
+  );
+  opacity: 0.7;
+}
+
+.purpose-strip-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  padding-top: 4px;
 }
 
 .purpose-strip-number {
@@ -4738,6 +5100,15 @@ body.scl-realm-open .tab-bar {
   flex-shrink: 0;
 }
 
+.purpose-strip-content--reading .purpose-strip-number {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 18px color-mix(in srgb, var(--flow-color, #c9a84c) 55%, transparent);
+  line-height: 0.95;
+  min-width: 1.2em;
+}
+
 .purpose-strip-label {
   font-family: 'Cinzel', serif;
   font-size: 11px;
@@ -4746,6 +5117,12 @@ body.scl-realm-open .tab-bar {
   text-transform: uppercase;
   color: var(--flow-color, #c9a84c);
   flex: 1;
+}
+
+.purpose-strip-content--reading .purpose-strip-label {
+  flex: none;
+  font-size: 12px;
+  letter-spacing: 0.14em;
 }
 
 .purpose-strip-role {
@@ -4759,6 +5136,52 @@ body.scl-realm-open .tab-bar {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   line-height: 1.5;
+}
+
+.purpose-strip-content--reading .purpose-strip-role {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(180, 180, 200, 0.72);
+  line-height: 1.4;
+}
+
+.journal-section--reading {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  gap: 8px;
+  max-width: 34rem;
+}
+.journal-section--reading .journal-section-label {
+  opacity: 0.85;
+  letter-spacing: 0.12em;
+}
+.journal-section--reading .journal-section-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(210, 210, 225, 0.88);
+}
+.journal-section--reading .journal-section-text p {
+  margin: 0 0 0.75em;
+}
+.journal-section--reading .journal-section-text p:last-child {
+  margin-bottom: 0;
+}
+.flow-side-panel--blueprint .flow-panel-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--flow-color, #c9a84c) 28%, transparent);
+}
+.flow-side-panel--blueprint .flow-panel-icon {
+  font-size: 1.1rem;
+  opacity: 0.85;
 }
 
 .strip-master-badge {
@@ -4858,13 +5281,20 @@ body.scl-realm-open .tab-bar {
 
 .lqt-flow-wrap,
 .flow-canvas-wrap {
+  animation: none;
+}
+
+.flow-canvas-wrap {
   animation: flow-canvas-appear 0.35s ease 0.16s both;
 }
 
-.lqt-flow-wrap .flow-node-base,
 .flow-canvas-wrap .flow-node-base,
 .flow-canvas-wrap .skill-node-interactive-inner {
   animation: flow-node-glow-in 0.5s ease-out 0.25s both;
+}
+
+.lqt-flow-wrap .flow-node-base {
+  animation: none;
 }
 
 /* â”€â”€ Skill-tree edge glow + flowing animation â”€â”€ */
@@ -4897,7 +5327,6 @@ body.scl-realm-open .tab-bar {
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .lqt-flow-wrap {
-  height: calc(100vh - 80px);
   margin: 0;
   border: none;
   border-radius: 0;
@@ -5198,10 +5627,14 @@ body.scl-realm-open .tab-bar {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
   background: rgba(255,255,255,0.02);
+  color: inherit;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -9644,6 +10077,8 @@ body.scl-realm-open .tab-bar {
   gap: 0;
   position: relative;
   width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tf-wrap > .tf-chart-area,
@@ -9769,16 +10204,15 @@ body.scl-realm-open .tab-bar {
   box-shadow: 0 0 6px var(--dot-color, var(--teal));
 }
 
-/* â”€â”€ Chart area â”€â”€ */
+/* Chart area */
 .tf-chart-area {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.8s ease 0.2s;
-  min-height: 500px;
+  opacity: 1;
   background: radial-gradient(ellipse at 50% 30%, rgba(0,229,204,0.03) 0%, transparent 70%),
               radial-gradient(ellipse at 50% 80%, rgba(124,58,237,0.03) 0%, transparent 60%);
   border-radius: 12px;
@@ -9788,12 +10222,10 @@ body.scl-realm-open .tab-bar {
   opacity: 1;
 }
 
-.tf-svg,
-.tf-chart-area .react-flow {
+.tf-svg {
   width: 100%;
   max-width: 600px;
   height: 100%;
-  min-height: 500px;
   margin-inline: auto;
 }
 
@@ -9922,11 +10354,11 @@ body.scl-realm-open .tab-bar {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  padding: 4px 16px 8px;
+  padding: 4px 12px 4px;
   box-sizing: border-box;
 }
 
@@ -9934,9 +10366,9 @@ body.scl-realm-open .tab-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  padding: 16px 12px 18px;
+  padding: 10px 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
@@ -9995,9 +10427,10 @@ body.scl-realm-open .tab-bar {
 }
 
 .lqt-flow-wrap--compact {
-  height: 500px;
-  min-height: 420px;
-  max-height: 580px;
+  /* Compact height band removed — flex-fill under Quests chrome */
+  height: auto;
+  min-height: 0;
+  max-height: none;
   flex: 1;
 }
 
@@ -17519,6 +17952,29 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Objective Detail Panel â”€â”€ */
 .objective-detail-panel { display: flex; flex-direction: column; gap: 1rem; padding: 0.75rem 0.25rem; }
+.objective-detail-back {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--gold) 80%, #fff);
+  cursor: pointer;
+}
+.objective-detail-back:hover { color: var(--gold); }
+.tf-complete-season-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--gold);
+  color: #0a0a12;
+  border: none;
+  border-radius: 2px;
+  opacity: 0.9;
+}
 .objective-detail-status {
   display: inline-block; font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem;
   border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; width: fit-content;
@@ -17952,6 +18408,25 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.04em;
   line-height: 1.4;
   color: color-mix(in srgb, var(--season-color, var(--gold)) 55%, var(--text-dim, #7a8a9a));
+}
+.seasons-energy-cta {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 4px 2px;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 14%, transparent);
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: color-mix(in srgb, var(--gold) 75%, var(--text, #ece8f4));
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.seasons-energy-cta:hover {
+  color: var(--gold);
 }
 
 .seasons-heading {

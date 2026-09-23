@@ -393,7 +393,7 @@ function CharCard() {
         </button>
         <button type="button" className="char-card-seal" onClick={openCurrent}>
           <span className="char-card-seal-glyph" aria-hidden="true">✦</span>
-          <span className="char-card-seal-label">CURRENT</span>
+          <span className="char-card-seal-label">TIMELINE</span>
         </button>
       </nav>
 

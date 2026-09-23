@@ -9,9 +9,9 @@ const LS_KEY = 'scl_getting_started_dismissed'
 const LS_COLLAPSED = 'scl_getting_started_collapsed'
 
 const ITEMS = [
-  { id: 'quest', label: 'Complete today\'s quest', tab: 'quests', sub: 'hub' },
-  { id: 'life', label: 'Explore Life Quest', tab: 'quests', sub: 'life' },
-  { id: 'decode', label: 'View your Blueprint', tab: 'config', sub: 'blueprint' },
+  { id: 'quest', label: 'Complete today\'s quest', tab: 'home' },
+  { id: 'life', label: 'Explore Life Quest', tab: 'quests', section: 'life' },
+  { id: 'decode', label: 'View your Blueprint', tab: 'profile', section: 'blueprint' },
 ]
 
 export default function GettingStartedChecklist() {
@@ -68,13 +68,10 @@ export default function GettingStartedChecklist() {
   }
 
   function navigate(item) {
-    dispatch({ type: 'SET_TAB', payload: item.tab })
-    if (item.sub) {
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('scl:open-sub-tab', {
-          detail: { main: item.tab, sub: item.sub },
-        }))
-      }, 50)
+    if (item.section) {
+      dispatch({ type: 'SET_TAB', payload: item.tab, section: item.section })
+    } else {
+      dispatch({ type: 'SET_TAB', payload: item.tab })
     }
     const next = { ...done, [item.id]: true }
     setDone(next)

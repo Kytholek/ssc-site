@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFocusTrap } from '../../hooks/useFocusTrap'
 import SkillTree from './SkillTree.jsx'
-import CoachMark from '../ui/CoachMark'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { reduceToSimple } from '../../lib/numerology'
 import { GIFTS, POLARITY_CONFIGS, FIRST_NAME_MEANINGS } from '../../lib/data'
@@ -441,7 +440,7 @@ export function GiftCards({ playerData }) {
 // ── Skill tree wrapper ────────────────────────────────────────────────────────
 function SkillTreeSection({ playerData }) {
   const { xp } = useQuestEngine()
-  const seeds      = getInnateSeeds(playerData)
+  const seeds = useMemo(() => getInnateSeeds(playerData), [playerData])
   const statValues = useMemo(() => {
     const sv = {}
     const raw = xp?.statXP || {}
@@ -487,7 +486,7 @@ function SkillTreeSection({ playerData }) {
   }, [seeds]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <SkillTree
         completed={completed}
         activeNode={activeNode}
@@ -505,10 +504,7 @@ function SkillTreeSection({ playerData }) {
 // ── Default export ────────────────────────────────────────────────────────────
 export default function InnateSkills({ playerData }) {
   return (
-    <div>
-      <CoachMark storageKey="scl_coach_skill_tree" title="Skill Tree" afterTour>
-        Tap a node to see objectives. Locked nodes show unlock requirements when you hover or tap.
-      </CoachMark>
+    <div className="innate-skills-root">
       <SkillTreeSection playerData={playerData} />
     </div>
   )

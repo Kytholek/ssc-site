@@ -115,9 +115,10 @@ export default function SkillsTab() {
 
   const isBlueprint = tab === 'blueprint'
   const isSpiral = tab === 'spiral'
+  const isSkills = tab === 'skills'
 
   return (
-    <div className={`tab-panel-content${isBlueprint ? ' tab-panel-content--blueprint' : ''}${isSpiral ? ' tab-panel-content--spiral' : ''}`}>
+    <div className={`tab-panel-content${isBlueprint ? ' tab-panel-content--blueprint' : ''}${isSpiral ? ' tab-panel-content--spiral' : ''}${isSkills ? ' tab-panel-content--skills' : ''}`}>
       <div className="profile-navbar" role="tablist">
         {PROFILE_TABS.map(t => (
           <button
@@ -133,7 +134,11 @@ export default function SkillsTab() {
       </div>
 
       {tab === 'stats'     && <StatsTab playerData={playerData} />}
-      {tab === 'skills'    && <InnateSkills playerData={playerData} />}
+      {isSkills && (
+        <div className="skills-panel-slot">
+          <InnateSkills playerData={playerData} />
+        </div>
+      )}
       {isBlueprint         && <div className="blueprint-panel-slot"><BlueprintSection /></div>}
       {isSpiral && (
         <div className="spiral-panel-slot">

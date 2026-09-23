@@ -68,8 +68,8 @@ export default function FlowProgressNode({
 
   return (
     <div
-      onClick={(e) => { e.stopPropagation(); onClick?.() }}
-      onMouseDown={(e) => e.stopPropagation()}
+      onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
+      onMouseDown={onClick ? (e) => e.stopPropagation() : undefined}
       className={[
         'flow-node-interactive',
         isActive ? 'flow-node-interactive--static-select' : '',
@@ -83,7 +83,13 @@ export default function FlowProgressNode({
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.() } }}
     >
       {withHandles && handles.map((h) => (
-        <Handle key={h.id || `${h.type}-${h.position}`} type={h.type} position={h.position} id={h.id} style={{ opacity: 0 }} />
+        <Handle
+          key={h.id || `${h.type}-${h.position}`}
+          type={h.type}
+          position={h.position}
+          id={h.id}
+          style={{ opacity: 0, pointerEvents: 'none', ...(h.style || {}) }}
+        />
       ))}
 
       {fullyAligned && <div className="flow-node-glow--complete" />}

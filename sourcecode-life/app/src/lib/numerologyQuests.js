@@ -14,7 +14,7 @@
    ============================================================ */
 
 
-import { earnCharXP, earnStatXP, getLQP, QuestEngine_markLQPObjective } from './questEngine.js'
+import { earnFreqXP, earnStatXP, getLQP, QuestEngine_markLQPObjective } from './questEngine.js'
 import {
   applyQuestSkillReward,
   resolveSkillMeta,
@@ -1028,7 +1028,8 @@ export function getOuterTierProgress(outerNumber) {
 
 // ── Stat XP helpers ───────────────────────────────────────────────────────────
 function _statXPForDifficulty(difficulty) {
-  return { easy: 1, medium: 2, hard: 4 }[difficulty] || 1
+  // Keep personal-stat growth slower than quest cadence (4+/day).
+  return { easy: 1, medium: 1, hard: 2 }[difficulty] || 1
 }
 
 function _updateCategoryAffinity(history, number, category) {
@@ -1061,12 +1062,12 @@ function _checkDailySweep(raw) {
   if (!raw.quests.every(q => q.completed)) return
   raw.sweepAwarded = true
   try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw)) } catch { /* intentional */ }
-  earnCharXP(25)
+  earnFreqXP(25)
   const cn = raw.cycleNumber
   if (cn >= 1 && cn <= 9) {
     applyQuestSkillReward({ root: cn, questKind: 'cycle', difficulty: 'easy' }, earnStatXP, dispatch)
   }
-  dispatch('scl:xp_toast', { msg: '◈ DAILY SWEEP · +25 XP', color: 'var(--teal)' })
+  dispatch('scl:xp_toast', { msg: '◈ DAILY SWEEP · +25 FREQ XP', color: 'var(--teal)' })
 }
 
 /** Generate an outer quest based on the outer frequency number.
@@ -1442,7 +1443,7 @@ export function completeGeneratedQuest(questId, journalText) {
     quest.completedAt = Date.now()
     localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw))
 
-    earnCharXP(quest.rewardXP)
+    earnFreqXP(quest.rewardXP)
 
     // Load history once for all tracking below
     const history = loadQuestHistory()
@@ -1454,8 +1455,8 @@ export function completeGeneratedQuest(questId, journalText) {
     if (quest.type === 'primary' && raw.cycleNumber !== 5) {
       const streak = _updateFocusStreak(history, quest.number)
       if (streak >= 3) {
-        statXPAmount = Math.round(statXPAmount * 1.5)
-        dispatch('scl:xp_toast', { msg: `◉ FOCUS STREAK ${streak}d · ×1.5 STAT XP`, color: 'var(--teal)' })
+        statXPAmount = Math.round(statXPAmount * 1.25)
+        dispatch('scl:xp_toast', { msg: `◉ FOCUS STREAK ${streak}d · ×1.25 STAT XP`, color: 'var(--teal)' })
       }
     }
 
@@ -1614,7 +1615,7 @@ export function checkinMultiDayQuest(questId) {
   const daysLeft  = quest.multiDay.totalDays - quest.multiDay.checkins.length
   const isComplete = daysLeft <= 0
 
-  earnCharXP(10) // small daily check-in reward
+  earnFreqXP(10) // small daily check-in reward
 
   _saveMultiDay(map)
   dispatch('scl:gen_quests_updated', {})
@@ -1641,12 +1642,12 @@ export function completeMultiDayQuest(questId, journalText) {
   quest.completedAt = Date.now()
   _saveMultiDay(map)
 
-  earnCharXP(finalXP)
+  earnFreqXP(finalXP)
 
-  // ── Streak-scaled stat XP: base by difficulty + 1 per 7 clean days + 1 multi-day bonus ──
+  // ── Streak-scaled stat XP: base by difficulty + 1 per 7 clean days ──
   const baseStatXP  = _statXPForDifficulty(quest.difficulty)
   const streakBonus = Math.floor(maxStreak / 7)
-  const finalStatXP = baseStatXP + streakBonus + 1
+  const finalStatXP = baseStatXP + streakBonus
 
   applyQuestSkillReward({
     skillMeta: quest.skillMeta || resolveSkillMeta({ root: quest.number, tier: 3, questKind: 'multi' }),

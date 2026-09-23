@@ -1,10 +1,9 @@
 /**
  * ProfileTab (now rendered as the CONFIG tab)
  *
- * Navbar: BLUEPRINT / INSIGHTS / SETTINGS
+ * Navbar: INSIGHTS / SETTINGS
  */
 import { useState, useEffect } from 'react'
-import { useAppState } from '../../context/AppContext'
 import SettingsTab from '../datachunks/SettingsTab'
 import QuestCompletionChart from '../charts/QuestCompletionChart'
 import InsightsSummary from '../charts/InsightsSummary'
@@ -12,48 +11,6 @@ import PolarityStatCard from '../charts/PolarityStatCard'
 import LifeQuestRoadmap from '../charts/LifeQuestRoadmap'
 import PremiumLockOverlay from '../ui/PremiumLockOverlay'
 import CharacterGuidebookCta from '../ui/CharacterGuidebookCta'
-
-// ── Blueprint section ────────────────────────────────────────────────────────
-import PurposeFlow from '../flow/PurposeFlow'
-import IdentityFlow from '../flow/IdentityFlow'
-import LessonsFlow from '../flow/LessonsFlow'
-
-const BLUEPRINT_TABS = [
-  { id: 'lessons',  label: '◇ LESSONS'  },
-  { id: 'identity', label: '◈ IDENTITY' },
-  { id: 'purpose',  label: '✦ PURPOSE'  },
-]
-
-function BlueprintSection() {
-  const { playerData } = useAppState()
-  const [subTab, setSubTab] = useState('lessons')
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [subTab])
-
-  return (
-    <PremiumLockOverlay feature="Full Blueprint — complete shadow + integration readings">
-      <div className="blueprint-section">
-        <div className="blueprint-sub-tabs">
-          {BLUEPRINT_TABS.map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`blueprint-sub-tab${subTab === tab.id ? ' active' : ''}`}
-              onClick={() => setSubTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        {subTab === 'lessons'  && <LessonsFlow  playerData={playerData} />}
-        {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
-        {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
-      </div>
-    </PremiumLockOverlay>
-  )
-}
 
 function InsightsSection() {
   return (
@@ -68,23 +25,13 @@ function InsightsSection() {
   )
 }
 
-// ── Config navbar ────────────────────────────────────────────────────────────
 const CONFIG_SECTIONS = [
-  { id: 'blueprint', label: '◈ BLUEPRINT' },
-  { id: 'insights',  label: '◈ INSIGHTS'  },
-  { id: 'settings',  label: '⚙ SETTINGS'  },
+  { id: 'insights', label: '◈ INSIGHTS' },
+  { id: 'settings', label: '⚙ SETTINGS' },
 ]
 
 export default function ProfileTab() {
-  const [section, setSection] = useState('blueprint')
-
-  // Deep link to blueprint from other tabs
-  useEffect(() => {
-    if (window.location.hash === '#blueprint') {
-      setSection('blueprint')
-      window.history.replaceState(null, '', window.location.pathname)
-    }
-  }, [])
+  const [section, setSection] = useState('insights')
 
   useEffect(() => {
     function handleOpenSubTab(e) {
@@ -101,10 +48,8 @@ export default function ProfileTab() {
     window.scrollTo(0, 0)
   }, [section])
 
-  const isBlueprint = section === 'blueprint'
   return (
-    <div className={`tab-panel-content${isBlueprint ? ' tab-panel-content--blueprint' : ''}`}>
-      {/* Segmented control navbar */}
+    <div className="tab-panel-content">
       <div className="profile-navbar" role="tablist">
         {CONFIG_SECTIONS.map(s => (
           <button
@@ -119,14 +64,12 @@ export default function ProfileTab() {
         ))}
       </div>
 
-      {/* Always visible — not behind premium lock */}
       <div className="char-guidebook-cta-wrap">
         <CharacterGuidebookCta />
       </div>
 
-      {isBlueprint         && <BlueprintSection />}
-      {section === 'insights'  && <InsightsSection />}
-      {section === 'settings'  && <SettingsTab />}
+      {section === 'insights' && <InsightsSection />}
+      {section === 'settings' && <SettingsTab />}
     </div>
   )
 }

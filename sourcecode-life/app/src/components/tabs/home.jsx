@@ -38,8 +38,8 @@ const HEADGEAR_MAP = {
 }
 
 const XP_HINTS = {
-  freq: 'Personal rhythm and resonance — grows as you complete daily-aligned quests.',
-  social: 'Character presence and social progression — grows with ally-facing play.',
+  freq: 'Personal frequency — grows from daily and life quests.',
+  social: 'World-map / ally quests — grows from side quests on the map.',
 }
 
 const CORE_CHIPS = [
@@ -61,8 +61,8 @@ function AvatarPreview({ config }) {
 function FrequencyChip({ label, root, compound }) {
   const dispatch = useAppDispatch()
   const openDecode = () => {
-    dispatch({ type: 'SET_TAB', payload: 'config' })
-    window.location.hash = '#blueprint'
+    dispatch({ type: 'SET_TAB', payload: 'profile' })
+    window.dispatchEvent(new CustomEvent('scl:open-sub-tab', { detail: { main: 'profile', sub: 'blueprint' } }))
   }
   return (
     <button

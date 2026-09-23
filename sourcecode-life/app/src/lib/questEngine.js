@@ -912,7 +912,7 @@ export function completeSideQuest(questId) {
     const rn       = parseInt(all[questId].rewardNum || 1);
     const xpAmount = XP_AWARDS['map_' + rn] || XP_AWARDS.map_1;
     const socialXp = Math.max(1, rn || 1);
-    const statXp   = Math.max(STAT_XP_PER_QUEST[rn] || 1, rn || 1);
+    const statXp   = STAT_XP_PER_QUEST[rn] || 1;
     earnCharXP(xpAmount);
     earnSocialXP(socialXp);
 

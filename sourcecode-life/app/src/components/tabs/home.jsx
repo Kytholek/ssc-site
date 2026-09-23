@@ -3,7 +3,7 @@
  *
  * Daily dashboard: dossier CharCard, quest journal TODAY, Seasons cycles.
  */
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { useGameState } from '../../state/GameContext'
@@ -28,7 +28,6 @@ import { useQuestRewardToast } from '../effects/QuestRewardToast'
 import { MedalsRow } from '../Achievements.jsx'
 import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
-import TodayProgressChips from '../ui/TodayProgressChips'
 
 const HEADGEAR_MAP = {
   'Crown':   1,
@@ -140,7 +139,7 @@ function DisplayNameModal({ open, draft, onDraftChange, onClose, onSave }) {
   )
 }
 
-function CharCard({ dailyProgress }) {
+function CharCard() {
   const dispatch = useAppDispatch()
   const { playerData, currentUser } = useAppState()
   const { user } = useGameState()
@@ -163,6 +162,9 @@ function CharCard({ dailyProgress }) {
   }, [dispatch])
   const openStats = useCallback(() => {
     dispatch({ type: 'SET_TAB', payload: 'profile', section: 'stats' })
+  }, [dispatch])
+  const openCurrent = useCallback(() => {
+    dispatch({ type: 'SET_TAB', payload: 'quests', section: 'current' })
   }, [dispatch])
 
   useEffect(() => {
@@ -282,6 +284,13 @@ function CharCard({ dailyProgress }) {
           </div>
 
           <div className="char-card-name-row">
+            <span
+              className="char-card-calling"
+              title={callingTitle}
+              aria-label={callingTitle}
+            >
+              <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
+            </span>
             <button
               type="button"
               className="char-card-name char-card-name--editable"
@@ -296,41 +305,36 @@ function CharCard({ dailyProgress }) {
               {displayNameUpper || 'SET NAME'}
             </button>
             {user?.isPremium && <PremiumBadge size="sm" />}
-            <span
-              className="char-card-calling"
-              title={callingTitle}
-              aria-label={callingTitle}
-            >
-              <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
-            </span>
           </div>
         </div>
       </div>
 
-      <div className="char-card-rep-section" aria-label="Maker and seeker reputation">
-        <div className={`char-card-rep${makerEmpty ? ' char-card-rep--empty' : ''}`}>
-          <span className="char-card-rep-label">MAKER</span>
-          {!makerEmpty ? (
-            <div className="char-card-rep-body">
-              <span className="char-card-rep-stars">⭐ {makerAvg}</span>
-              <span className="char-card-rep-sub">{makerPct}% · {ownRep.ratingCount} quests</span>
-            </div>
-          ) : (
-            <span className="char-card-rep-none">No ratings yet</span>
-          )}
+      {(makerEmpty && seekerEmpty) ? null : (
+        <div className="char-card-rep-section" aria-label="Maker and seeker reputation">
+          <div className={`char-card-rep${makerEmpty ? ' char-card-rep--empty' : ''}`}>
+            <span className="char-card-rep-label">MAKER</span>
+            {!makerEmpty ? (
+              <div className="char-card-rep-body">
+                <span className="char-card-rep-stars">⭐ {makerAvg}</span>
+                <span className="char-card-rep-sub">{makerPct}% · {ownRep.ratingCount} quests</span>
+              </div>
+            ) : (
+              <span className="char-card-rep-none">No ratings yet</span>
+            )}
+          </div>
+          <div className={`char-card-rep${seekerEmpty ? ' char-card-rep--empty' : ''}`}>
+            <span className="char-card-rep-label">SEEKER</span>
+            {!seekerEmpty ? (
+              <div className="char-card-rep-body">
+                <span className="char-card-rep-stars">⭐ {(takerRep.totalRating / takerRep.ratingCount).toFixed(1)}</span>
+                <span className="char-card-rep-sub">{takerRep.ratingCount} rated</span>
+              </div>
+            ) : (
+              <span className="char-card-rep-none">No ratings yet</span>
+            )}
+          </div>
         </div>
-        <div className={`char-card-rep${seekerEmpty ? ' char-card-rep--empty' : ''}`}>
-          <span className="char-card-rep-label">SEEKER</span>
-          {!seekerEmpty ? (
-            <div className="char-card-rep-body">
-              <span className="char-card-rep-stars">⭐ {(takerRep.totalRating / takerRep.ratingCount).toFixed(1)}</span>
-              <span className="char-card-rep-sub">{takerRep.ratingCount} rated</span>
-            </div>
-          ) : (
-            <span className="char-card-rep-none">No ratings yet</span>
-          )}
-        </div>
-      </div>
+      )}
 
       <div className="char-card-meta char-card-meta--medals" aria-label="Earned medals">
         <MedalsRow />
@@ -368,13 +372,14 @@ function CharCard({ dailyProgress }) {
         </div>
       </div>
 
-      {dailyProgress && (
-        <TodayProgressChips
-          className="char-card-daily-pulse"
-          glyphsDone={dailyProgress.glyphsDone}
-          glyphsTotal={dailyProgress.glyphsTotal}
-          dailyComplete={dailyProgress.dailyComplete}
-        />
+      {(makerEmpty && seekerEmpty) && (
+        <button
+          type="button"
+          className="char-card-rep-empty-link"
+          onClick={() => dispatch({ type: 'SET_TAB', payload: 'map' })}
+        >
+          Maker · Seeker — build reputation in Realm
+        </button>
       )}
 
       <nav className="char-card-rail" aria-label="Character shortcuts">
@@ -386,9 +391,9 @@ function CharCard({ dailyProgress }) {
           <span className="char-card-seal-glyph" aria-hidden="true">◇</span>
           <span className="char-card-seal-label">STATS</span>
         </button>
-        <button type="button" className="char-card-seal" onClick={openCharacterCard}>
+        <button type="button" className="char-card-seal" onClick={openCurrent}>
           <span className="char-card-seal-glyph" aria-hidden="true">✦</span>
-          <span className="char-card-seal-label">EQUIPMENT</span>
+          <span className="char-card-seal-label">CURRENT</span>
         </button>
       </nav>
 
@@ -407,25 +412,7 @@ function CharCard({ dailyProgress }) {
 
 export default function HomeTab() {
   const { playerData } = useAppState()
-  const { daily, completeDailyQuest, getDailyGlyphsState } = useQuestEngine()
-  const [glyphTick, setGlyphTick] = useState(0)
-
-  useEffect(() => {
-    const onGlyphs = () => setGlyphTick((n) => n + 1)
-    window.addEventListener('scl:daily_glyphs_updated', onGlyphs)
-    return () => window.removeEventListener('scl:daily_glyphs_updated', onGlyphs)
-  }, [])
-
-  const dailyProgress = useMemo(() => {
-    if (!playerData) return null
-    const glyphsState = getDailyGlyphsState(playerData.lp.root)
-    const glyphsDone = glyphsState?.completed?.filter(Boolean).length ?? 0
-    return {
-      glyphsDone,
-      glyphsTotal: 3,
-      dailyComplete: Boolean(daily?.completed),
-    }
-  }, [playerData, daily?.completed, getDailyGlyphsState, glyphTick])
+  const { daily, completeDailyQuest } = useQuestEngine()
 
   return (
     <>
@@ -435,7 +422,7 @@ export default function HomeTab() {
 
       <div className="tab-panel-content home-dashboard">
         <GettingStartedChecklist />
-        <CharCard dailyProgress={dailyProgress} />
+        <CharCard />
 
         {playerData && daily && (
           <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
@@ -448,7 +435,7 @@ export default function HomeTab() {
         )}
 
         {playerData && (
-          <SeasonsSection playerData={playerData} lpRoot={playerData.lp.root} />
+          <SeasonsSection playerData={playerData} />
         )}
       </div>
     </>

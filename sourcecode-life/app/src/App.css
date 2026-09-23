@@ -17856,6 +17856,104 @@ body.scl-realm-open .tab-bar {
   margin: 0;
 }
 
+/* Home energy rundown — informational only, no quest chrome */
+.seasons-section--energy .seasons-header {
+  padding-bottom: 4px;
+  gap: 0;
+}
+.seasons-energy {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 14px 16px;
+}
+.seasons-energy-row {
+  padding: 12px 4px 14px;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 14%, transparent);
+}
+.seasons-energy-row:first-child {
+  border-top: 0;
+  padding-top: 6px;
+}
+.seasons-energy-row--accent {
+  padding-top: 10px;
+}
+.seasons-energy-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.seasons-energy-glyph {
+  font-size: 12px;
+  color: var(--season-color, var(--gold));
+  opacity: 0.85;
+  line-height: 1;
+}
+.seasons-energy-id {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.seasons-energy-num {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--season-color, var(--gold));
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.seasons-energy-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--season-color, var(--gold)) 70%, var(--text-dim, #7a8a9a));
+  opacity: 0.85;
+}
+.seasons-energy-meta {
+  margin-left: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text, #ece8f4) 42%, transparent);
+  max-width: 55%;
+  text-align: right;
+  line-height: 1.35;
+}
+.seasons-energy-theme {
+  margin: 8px 0 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  color: color-mix(in srgb, var(--season-color, var(--gold)) 75%, var(--text, #ece8f4));
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+.seasons-energy-summary {
+  margin: 6px 0 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--text, #ece8f4) 68%, transparent);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.seasons-energy-row:last-child .seasons-energy-summary {
+  -webkit-line-clamp: 3;
+}
+.seasons-energy-lens {
+  margin: 8px 0 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--season-color, var(--gold)) 55%, var(--text-dim, #7a8a9a));
+}
+
 .seasons-heading {
   display: flex;
   align-items: center;
@@ -21962,8 +22060,10 @@ body.scl-realm-open .tab-bar {
 }
 
 .char-card-name-row {
+  display: flex;
   align-items: baseline;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px 8px;
 }
 .char-card-name {
   font-size: 17px;
@@ -21971,15 +22071,47 @@ body.scl-realm-open .tab-bar {
   font-weight: 700;
 }
 .char-card-calling {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  flex-shrink: 0;
   min-width: 0;
   margin-right: 0;
-  opacity: 0.5;
+  opacity: 0.55;
+  order: 0;
 }
 .char-card-calling-num {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-shadow: none;
+}
+
+/* Quiet empty Maker/Seeker CTA — one line under XP when both empty */
+.char-card-rep-empty-link {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text, #ece8f4) 42%, transparent);
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s;
+}
+.char-card-rep-empty-link:hover {
+  color: var(--gold);
+  border-color: transparent;
+}
+.char-card-rep-empty-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--teal) 70%, transparent);
+  outline-offset: 2px;
 }
 
 /* Maker / Seeker — hairline split row, no mini-cards */
@@ -21989,8 +22121,8 @@ body.scl-realm-open .tab-bar {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  margin-top: 12px;
-  padding: 8px 0;
+  margin-top: 8px;
+  padding: 6px 0;
   border-top: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
 }
@@ -22053,9 +22185,9 @@ body.scl-realm-open .tab-bar {
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 6px;
   padding-top: 0;
   border-top: 0;
 }
@@ -22064,7 +22196,8 @@ body.scl-realm-open .tab-bar {
   border-top: 0;
   min-height: 0;
   gap: 4px;
-  justify-content: flex-end;
+  justify-content: center;
+  width: 100%;
 }
 .char-card-meta--medals .ach-medals-empty {
   color: color-mix(in srgb, var(--text, #ece8f4) 38%, transparent);
@@ -22090,8 +22223,8 @@ body.scl-realm-open .tab-bar {
   grid-template-columns: 1fr auto 1fr;
   align-items: end;
   gap: 10px;
-  margin-top: 8px;
-  padding: 6px 0 2px;
+  margin-top: 6px;
+  padding: 4px 0 0;
   border-radius: 0;
   border: 0;
   background: transparent;
@@ -22170,8 +22303,8 @@ body.scl-realm-open .tab-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
 }
 .char-card-seal {
@@ -22181,7 +22314,7 @@ body.scl-realm-open .tab-bar {
   justify-content: center;
   gap: 4px;
   min-height: 44px;
-  padding: 8px 4px;
+  padding: 8px 2px;
   border-radius: 0;
   border: 0;
   background: transparent;
@@ -22212,9 +22345,10 @@ body.scl-realm-open .tab-bar {
 }
 .char-card-seal-label {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 9px;
+  letter-spacing: 0.1em;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .char-ach-overlay {
@@ -22437,11 +22571,11 @@ body.scl-realm-open .tab-bar {
   font-size: 12px; color: var(--text-dim, #3d3b52);
   letter-spacing: 0.18em; margin-top: 3px;
 }
-/* calling number — quiet secondary beside name */
+/* calling number — quiet secondary left of name */
 .char-card-calling {
   display: inline-flex;
   align-items: baseline;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex-shrink: 0;
   min-width: 0;
   cursor: help;
@@ -22726,9 +22860,30 @@ body.scl-realm-open .tab-bar {
 .qj-status {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
+}
+.qj-status-cue {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.qj-daily-state {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--text, #ece8f4) 48%, transparent);
+}
+.qj-daily-state--complete {
+  color: var(--teal, #00e5cc);
 }
 .qj-pages {
   position: relative;

@@ -60,7 +60,9 @@ function BlueprintSection() {
 export default function SkillsTab() {
   const { playerData, tabSection } = useAppState()
   const dispatch = useAppDispatch()
-  const [tab, setTab] = useState('stats')
+  const [tab, setTab] = useState(() =>
+    PROFILE_TABS.some((t) => t.id === tabSection) ? tabSection : 'stats'
+  )
   const [prevTabSection, setPrevTabSection] = useState(tabSection)
 
   if (tabSection !== prevTabSection) {

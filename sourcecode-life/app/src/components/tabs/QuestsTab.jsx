@@ -7,7 +7,7 @@
  *   Flow cards are expandable summaries
  */
 import { useState, useEffect, useMemo } from 'react'
-import { useAppState } from '../../context/AppContext'
+import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import LifeQuestFlow from '../flow/LifeQuestFlow'
 import LifeQuestObjectivesPanel from '../flow/LifeQuestObjectivesPanel'
@@ -723,11 +723,29 @@ function LifeSection({ playerData, lqp, freqLevel }) {
 // ─── Root component ──────────────────────────────────────────────
 
 export default function QuestsTab() {
-  const state    = useAppState()
-  const player   = state.playerData
-  const [section, setSection] = useState('life')
+  const state = useAppState()
+  const dispatch = useAppDispatch()
+  const player = state.playerData
+  const { tabSection } = state
+  const [section, setSection] = useState(() =>
+    SECTIONS.some((s) => s.id === tabSection) ? tabSection : 'life'
+  )
+  const [prevTabSection, setPrevTabSection] = useState(tabSection)
   const { lqp, sideQuests, xp } = useQuestEngine()
   const freqLevel = xp?.freqLevel ?? 1
+
+  if (tabSection !== prevTabSection) {
+    setPrevTabSection(tabSection)
+    if (SECTIONS.some((s) => s.id === tabSection)) {
+      setSection(tabSection)
+    }
+  }
+
+  useEffect(() => {
+    if (SECTIONS.some((s) => s.id === tabSection)) {
+      dispatch({ type: 'CLEAR_TAB_SECTION' })
+    }
+  }, [tabSection, dispatch])
 
   useEffect(() => {
     if (player) ensureDailyQuests(player)

@@ -675,7 +675,15 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
             <DailyProgressRing completed={totalCompleted} total={totalQuests} />
             <StreakBadge streak={chainStreak} />
           </div>
-          <DailyCountdown />
+          <div className="qj-status-cue">
+            <span
+              className={`qj-daily-state${daily?.completed ? ' qj-daily-state--complete' : ''}`}
+              aria-label={daily?.completed ? 'Daily complete' : 'Daily pending'}
+            >
+              {daily?.completed ? 'COMPLETE' : 'PENDING'}
+            </span>
+            <DailyCountdown />
+          </div>
         </div>
 
         <div className="qj-pages">

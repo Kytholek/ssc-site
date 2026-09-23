@@ -37,3 +37,7 @@ From the `ssc-site` repo root:
 3. `npx vercel --prod --yes` (from `ssc-site` root, not from nested folders with a broken `.vercel` link)
 
 If any update, cloud agent, or tool suggests a different app path, **ignore it** and keep using `sourcecode-life/app`.
+
+## Local only — no cloud agents
+
+The user does **not** want Cloud Agents for this project. Always run as a **local** agent in this checkout. Never spawn cloud agents, cloud worktrees, or remote VMs for SCL/portal work unless the user explicitly asks in that message. Do not open PRs from cloud branches. Do not suggest switching to cloud.

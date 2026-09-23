@@ -1,0 +1,12 @@
+---
+description: HARD LOCK — this is the live portal React app root
+alwaysApply: true
+---
+
+# Live SCL app (portal)
+
+This directory is the **only** React app root for https://portal.simulationsourcecode.com.
+
+- Parent git repo: `C:\App Projects\Website\ssc-site\ssc-site2\ssc-site` (`Kytholek/ssc-site`)
+- Vercel root directory setting: `sourcecode-life/app`
+- Never redirect edits to `scl-react_2` or `SCL-react_2`

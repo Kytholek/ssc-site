@@ -1515,7 +1515,7 @@ export function completeGeneratedQuest(questId, journalText) {
     // ── Detailed reward summary toast ──────────────────────────────────────
     try {
       dispatch('scl:quest_reward', {
-        charXP: quest.rewardXP,
+        freqXP: quest.rewardXP,
         statXP: statXPAmount,
         statNum: skillResult.meta?.number || skillTreeNumber(quest.number) || quest.number,
         difficulty: quest.difficulty,

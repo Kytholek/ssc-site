@@ -79,7 +79,6 @@ export default function SideQuestsView() {
         const qid        = q.questId || q.id || ''
         const rn         = q.rewardNum || ''
         const xpAmt      = rn ? 10 * parseInt(rn) : 10
-        const socialXp   = rn ? parseInt(rn) : 1
         const statTarget = rn ? parseInt(rn) : 1
         const questColor = QUEST_COLORS[q.type] || '#00e5cc'
         return (
@@ -93,7 +92,7 @@ export default function SideQuestsView() {
               </ul>
             )}
             {q.seekerType && <div className="rm-sq-seeker" style={{ color: questColor }}>{SQ_SEEKER_LABEL[q.seekerType] || q.seekerType}</div>}
-            <div className="rm-sq-xp-info">+{xpAmt} CHAR XP · +{socialXp} SOCIAL XP · +{socialXp} STAT XP TO {statTarget}</div>
+            <div className="rm-sq-xp-info">+{xpAmt} SOCIAL XP · STAT {statTarget}</div>
             <div className="rm-sq-actions">
               <button className="rm-sq-complete-btn" style={{ '--quest-color': questColor }} onClick={() => handleComplete(qid)}>▶ COMPLETE</button>
               <button className="rm-sq-abandon-btn" onClick={() => handleCancel(q)}>✕ ABANDON</button>

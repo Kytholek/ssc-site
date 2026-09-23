@@ -86,14 +86,13 @@ export function useQuestRewardToast() {
 
       {/* XP Breakdown */}
       <div className="quest-reward-breakdown">
-        {/* Character XP */}
         <div className="quest-reward-row">
           <span className="quest-reward-label">
-            <span className="quest-reward-icon" style={{ color: '#c9a84c' }}>⚔</span>
-            Character XP
+            <span className="quest-reward-icon" style={{ color: '#00c8b4' }}>◈</span>
+            Freq XP
           </span>
-          <span className="quest-reward-value" style={{ color: '#c9a84c' }}>
-            +{toast.charXP}
+          <span className="quest-reward-value" style={{ color: '#00c8b4' }}>
+            +{toast.freqXP ?? toast.charXP ?? 0}
           </span>
         </div>
 
@@ -138,7 +137,7 @@ export function useQuestRewardToast() {
 
       {/* Total */}
       <div className="quest-reward-total">
-        TOTAL: {toast.charXP + toast.statXP} XP
+        TOTAL: {(toast.freqXP ?? toast.charXP ?? 0) + (toast.statXP || 0)} XP
       </div>
     </div>
   )

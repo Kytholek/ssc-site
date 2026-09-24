@@ -8,9 +8,11 @@ import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { calcPersonalYear, calcPersonalMonth, calcPinnacles, todayStr } from '../../lib/numerology'
 import { PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { CYCLE_MEANINGS, CYCLE_QUEST_COLORS } from '../../lib/data'
-import { addMonthCheckin, getMonthSeasonState } from '../../lib/seasonEngine'
+import { addMonthCheckin, getMonthSeasonState, completeMonthSeason } from '../../lib/seasonEngine'
 import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 import MonthCheckinPanel from './MonthCheckinPanel'
+import { useGameDispatch } from '../../state/GameContext'
+import { ACTIONS } from '../../state/actions'
 
 function EnergyRow({
   glyph,
@@ -48,6 +50,7 @@ function EnergyRow({
 
 export default function SeasonsSection({ playerData }) {
   const dispatch = useAppDispatch()
+  const gameDispatch = useGameDispatch()
   const { xp } = useQuestEngine()
   const freqLevel = xp?.freqLevel || 1
   const [checkinOpen, setCheckinOpen] = useState(false)
@@ -99,6 +102,10 @@ export default function SeasonsSection({ playerData }) {
     && !monthSeasonState.completed
     && !checkedInToday
     && checkinCount < tierDays
+  const canCompleteMonth = !!monthSeasonState
+    && !monthSeasonState.completed
+    && checkinCount >= tierDays
+    && streak >= tierDays
 
   const handleCheckinSubmit = (journal, objectiveIdx) => {
     const result = addMonthCheckin(lp.root, m, d, journal, objectiveIdx)
@@ -108,6 +115,23 @@ export default function SeasonsSection({ playerData }) {
       return { ok: true }
     }
     return result
+  }
+
+  const handleCompleteMonth = () => {
+    if (!window.confirm('Complete this month season? This cannot be undone.')) return
+    const res = completeMonthSeason(lp.root, m, d)
+    if (res.ok) {
+      setSeasonTick((t) => t + 1)
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: '✦ Month season complete', color: 'var(--rose)' },
+      })
+    } else if (res.error) {
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: res.error, color: 'var(--gold)' },
+      })
+    }
   }
 
   return (
@@ -170,7 +194,16 @@ export default function SeasonsSection({ playerData }) {
                   ▶ CHECK IN TODAY
                 </button>
               )}
-              {checkedInToday && !monthSeasonState.completed && (
+              {canCompleteMonth && (
+                <button
+                  type="button"
+                  className="tf-complete-season-btn seasons-complete-month-btn"
+                  onClick={handleCompleteMonth}
+                >
+                  Complete Month
+                </button>
+              )}
+              {checkedInToday && !monthSeasonState.completed && !canCompleteMonth && (
                 <div className="seasons-checkin-status seasons-checkin-status--done">
                   ✦ Checked in today
                 </div>

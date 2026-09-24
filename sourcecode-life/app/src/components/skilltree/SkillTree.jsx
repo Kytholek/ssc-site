@@ -674,9 +674,6 @@ export default function SkillTree({
         icon: equipped ? '\u265A' : '\u25C8',
         body: (
           <>
-            {route.placeholder && (
-              <p className="skills-detail-note">Foundation path - full quests coming.</p>
-            )}
             <p className="skills-detail-lead">
               {equipped
                 ? `Equipped class path · ${stages.filter(Boolean).length}/3 tiers`

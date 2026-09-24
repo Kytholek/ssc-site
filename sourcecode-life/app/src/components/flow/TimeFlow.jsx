@@ -15,8 +15,10 @@ import {
 import { getCycleObjectives, PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { LS_DAILY_GLYPHS, getPinnacleProgress, getActiveTier } from '../../lib/questEngine'
 import { resolveBlueprintNode } from '../../lib/questBlueprint'
-import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, addMonthCheckin } from '../../lib/seasonEngine'
+import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, addMonthCheckin, completeMonthSeason } from '../../lib/seasonEngine'
 import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
+import { useGameDispatch } from '../../state/GameContext'
+import { ACTIONS } from '../../state/actions'
 
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
@@ -126,6 +128,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
   const { xp } = useQuestEngine()
   const freqLevel = xp?.freqLevel || 1
   const sideQuests = sqProp && typeof sqProp === 'object' ? sqProp : {}
+  const gameDispatch = useGameDispatch()
 
   const { lp, th, ex, cl, so, ou, ac, m, d, y } = playerData || {}
 
@@ -179,6 +182,23 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
       return { ok: true }
     }
     return result
+  }
+
+  const handleCompleteMonth = () => {
+    if (!window.confirm('Complete this month season? This cannot be undone.')) return
+    const res = completeMonthSeason(lp.root, m, d)
+    if (res.ok) {
+      setSeasonRefreshTick(t => t + 1)
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: '✦ Month season complete', color: 'var(--rose)' },
+      })
+    } else if (res.error) {
+      gameDispatch({
+        type: ACTIONS.SET_TOAST,
+        payload: { msg: res.error, color: 'var(--gold)' },
+      })
+    }
   }
 
   const blueprintRoots = [
@@ -389,6 +409,9 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
                 : null
               const streak = multiDay?.multiDay?.streak || checkinCount
               const canCheckin = !monthSeasonState.completed && !checkedInToday && checkinCount < tierDays
+              const canCompleteMonth = !monthSeasonState.completed
+                && checkinCount >= tierDays
+                && streak >= tierDays
               return (
               <div className="journal-section">
                 <div className="journal-section-label">◈ MONTHLY MISSION</div>
@@ -427,7 +450,17 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
                     ▶ CHECK IN TODAY
                   </button>
                 )}
-                {checkedInToday && !monthSeasonState.completed && (
+                {canCompleteMonth && (
+                  <button
+                    type="button"
+                    className="tf-complete-season-btn"
+                    onClick={handleCompleteMonth}
+                    style={{ marginTop: 10 }}
+                  >
+                    Complete Month
+                  </button>
+                )}
+                {checkedInToday && !monthSeasonState.completed && !canCompleteMonth && (
                   <div className="seasons-checkin-status seasons-checkin-status--done" style={{ marginTop: 8 }}>
                     ✦ Checked in today
                   </div>

@@ -17,7 +17,6 @@ import {
   rerollGeneratedQuests, getRerollsRemaining, hasCompletedQuests,
   getDifficultyMeta,
   buildQuestUserProfile,
-  hydrateGenQuestsFromCloud,
 } from '../../lib/numerologyQuests'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
@@ -616,10 +615,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
     const onUpdate = () => setGenState(getGeneratedQuests())
     window.addEventListener('scl:gen_quests_updated', onUpdate)
     return () => window.removeEventListener('scl:gen_quests_updated', onUpdate)
-  }, [])
-
-  useEffect(() => {
-    hydrateGenQuestsFromCloud(() => setGenState(getGeneratedQuests()))
   }, [])
 
   useEffect(() => {

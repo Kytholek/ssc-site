@@ -1013,18 +1013,11 @@ export function QuestEngine_markLQPObjective(questKey, tier, objIdx, options = {
       color: result.newTier === 3 ? 'var(--gold)' : 'var(--teal)',
     });
   }
+  if (_gameDispatch) {
+    _gameDispatch({ type: ACTIONS.REFRESH_LQP, payload: getLQP() });
+  }
   _dispatch('scl:freqlog_updated', { log: getFreqLog() });
   return result;
-}
-
-/** @deprecated Use applyQuestSkillReward from skillQuestBridge */
-export function QuestEngine_markSkillProgress(root, lqpTier) {
-  applyQuestSkillReward({
-    root,
-    tier: lqpTier,
-    questKind: 'season',
-    difficulty: 'medium',
-  }, earnStatXP, _dispatch);
 }
 
 window.QuestEngine_reset        = QuestEngine_reset;

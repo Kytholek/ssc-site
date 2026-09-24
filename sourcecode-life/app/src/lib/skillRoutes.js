@@ -4,7 +4,6 @@
  *   { "3": { activeRoutes: ["art"], routes: { art: [t1,t2,t3], voice: [...], ... } } }
  */
 
-import { SKILL_OBJECTIVES, getSkillTreeTierObjectives } from './objectives'
 
 export const SKILLTREE_LS_KEY_V2 = 'scl_skilltree_progress_v2'
 export const SKILLTREE_LS_KEY = 'scl_skilltree_progress_v3'
@@ -17,50 +16,43 @@ export const TIER_LABELS = {
 
 export const THRESHOLDS = { stage2: 5, stage3: 10 }
 
-const TIER_KEYS = ['initiate', 'consistency', 'mastery']
-
-function questsFromObjectives(numId, difficulty) {
-  const tier = TIER_KEYS[difficulty - 1]
-  if (tier) {
-    const objs = getSkillTreeTierObjectives(Number(numId), tier)
-    if (objs.length) return objs.map((o) => o.text)
-  }
-  const obj = SKILL_OBJECTIVES[Number(numId)]?.find((o) => o.difficulty === difficulty)
-  return obj ? [obj.text] : ['(No objective defined)']
-}
-
-function stagesFromLegacy(numId, names) {
-  return names.map((name, i) => ({
-    stage: i + 1,
-    name,
-    quests: questsFromObjectives(numId, i + 1),
-  }))
-}
-
-function stubRoute(id, name, thesis, numId, stageNames, { placeholder = false, classNoun = null } = {}) {
-  const stages = stagesFromLegacy(numId, stageNames).map((s) => ({
-    ...s,
-    quests: placeholder
-      ? [`${name} path - full quests coming. For now: ${s.quests[0] || 'Train this frequency through daily quests.'}`]
-      : s.quests,
-  }))
-  return {
-    id,
-    name,
-    classNoun: classNoun || name.split(/\s+/)[0],
-    thesis,
-    stages,
-    placeholder: !!placeholder,
-  }
-}
-
 /** Seal chrome + routes for each number 1-9 */
 export const SKILL_TREE = {
   1: {
     id: '1', label: 'POWER', subtitle: 'Action / Initiative', icon: '\u25B2', color: '#FF4D00', glow: '#FF4D0066',
     routes: [
-      stubRoute('leadership', 'Leadership', 'Presence -> Direction -> Leadership', '1',
-        ['Presence', 'Direction', 'Leadership'], { classNoun: 'Leader' }),
+      {
+        id: 'leadership',
+        name: 'Leadership',
+        classNoun: 'Leader',
+        thesis: 'Presence -> Direction -> Leadership',
+        stages: [
+          {
+            stage: 1, name: 'Presence',
+            quests: [
+              'Show up on time to one commitment and stay fully present.',
+              'Speak first in a meeting or group once this week.',
+              'Hold eye contact and finish one request without hedging.',
+            ],
+          },
+          {
+            stage: 2, name: 'Direction',
+            quests: [
+              'Set a clear goal for a shared project and say it out loud.',
+              'Assign one task with a deadline and follow up once.',
+              'Choose a direction when the group stalls — then own it.',
+            ],
+          },
+          {
+            stage: 3, name: 'Leadership',
+            quests: [
+              'Lead a session or project from start to handoff.',
+              'Give feedback that raises the standard for the team.',
+              'Develop one person until they can run a piece without you.',
+            ],
+          },
+        ],
+      },
       {
         id: 'entrepreneurship',
         name: 'Entrepreneurship',
@@ -130,8 +122,38 @@ export const SKILL_TREE = {
   2: {
     id: '2', label: 'SENSITIVITY', subtitle: 'Relationships / Connection', icon: '\u25CE', color: '#00C9FF', glow: '#00C9FF66',
     routes: [
-      stubRoute('relationships', 'Relationships', 'Connection -> Intimacy -> Partnership', '2',
-        ['Connection', 'Intimacy', 'Partnership'], { classNoun: 'Partner' }),
+      {
+        id: 'relationships',
+        name: 'Relationships',
+        classNoun: 'Partner',
+        thesis: 'Connection -> Intimacy -> Partnership',
+        stages: [
+          {
+            stage: 1, name: 'Connection',
+            quests: [
+              'Reach out to someone you care about with no agenda.',
+              'Ask one genuine question and listen without planning your reply.',
+              'Share one true thing about your week with someone safe.',
+            ],
+          },
+          {
+            stage: 2, name: 'Intimacy',
+            quests: [
+              'Name a need clearly instead of hinting.',
+              'Repair a small tension with honesty and care.',
+              'Spend undistracted time with someone who matters.',
+            ],
+          },
+          {
+            stage: 3, name: 'Partnership',
+            quests: [
+              'Make a shared agreement and keep it for two weeks.',
+              'Plan something together and carry your half without reminders.',
+              'Celebrate a partner’s win without centering yourself.',
+            ],
+          },
+        ],
+      },
       {
         id: 'empathy',
         name: 'Empathy',
@@ -207,9 +229,30 @@ export const SKILL_TREE = {
         classNoun: 'Orator',
         thesis: 'Speak -> Present -> Influence',
         stages: [
-          { stage: 1, name: 'Find Your Voice', quests: ['Speak your opinion once without rehearsing.'] },
-          { stage: 2, name: 'Command Attention', quests: ['Give a 3-5 minute talk to at least one other person.'] },
-          { stage: 3, name: 'Move Others', quests: ['Deliver a presentation to an audience.'] },
+          {
+            stage: 1, name: 'Find Your Voice',
+            quests: [
+              'Speak your opinion once without rehearsing.',
+              'Record yourself talking for two minutes and listen back once.',
+              'Say no clearly to one request that does not fit.',
+            ],
+          },
+          {
+            stage: 2, name: 'Command Attention',
+            quests: [
+              'Give a 3-5 minute talk to at least one other person.',
+              'Open a meeting or circle with a clear spoken frame.',
+              'Tell a short story that lands a point without notes.',
+            ],
+          },
+          {
+            stage: 3, name: 'Move Others',
+            quests: [
+              'Deliver a presentation to an audience.',
+              'Persuade a group toward a decision with spoken clarity.',
+              'Coach someone else through speaking up once.',
+            ],
+          },
         ],
       },
       {
@@ -218,9 +261,30 @@ export const SKILL_TREE = {
         classNoun: 'Maker',
         thesis: 'Create -> Develop Style -> Create Meaning',
         stages: [
-          { stage: 1, name: 'Create Freely', quests: ['Make something without judging it.'] },
-          { stage: 2, name: 'Develop Style', quests: ['Produce 10 pieces using a consistent aesthetic.'] },
-          { stage: 3, name: 'Create Meaning', quests: ['Produce a finished body of work you are willing to share.'] },
+          {
+            stage: 1, name: 'Create Freely',
+            quests: [
+              'Make something without judging it.',
+              'Finish a rough draft or sketch in one sitting.',
+              'Create daily for three days — quantity over polish.',
+            ],
+          },
+          {
+            stage: 2, name: 'Develop Style',
+            quests: [
+              'Produce 10 pieces using a consistent aesthetic.',
+              'Name three traits of your style in writing.',
+              'Redo one piece applying those traits deliberately.',
+            ],
+          },
+          {
+            stage: 3, name: 'Create Meaning',
+            quests: [
+              'Produce a finished body of work you are willing to share.',
+              'Explain what the work is trying to say in one paragraph.',
+              'Show the work to three people and note what lands.',
+            ],
+          },
         ],
       },
       {
@@ -229,9 +293,30 @@ export const SKILL_TREE = {
         classNoun: 'Scribe',
         thesis: 'Write -> Storytelling -> Publishing',
         stages: [
-          { stage: 1, name: 'Write Honestly', quests: ['Write 500 words without editing.'] },
-          { stage: 2, name: 'Develop Voice', quests: ['Publish 10 pieces (blog, journal, or social - your call).'] },
-          { stage: 3, name: 'Move Through Words', quests: ['Complete an essay, story, or short book draft.'] },
+          {
+            stage: 1, name: 'Write Honestly',
+            quests: [
+              'Write 500 words without editing.',
+              'Journal one true page about today.',
+              'Rewrite a blunt thought until it is clear and kind.',
+            ],
+          },
+          {
+            stage: 2, name: 'Develop Voice',
+            quests: [
+              'Publish 10 pieces (blog, journal, or social - your call).',
+              'Write the same idea three ways and keep the strongest.',
+              'Cut 20% from a draft without losing the point.',
+            ],
+          },
+          {
+            stage: 3, name: 'Move Through Words',
+            quests: [
+              'Complete an essay, story, or short book draft.',
+              'Edit until you would put your name on it publicly.',
+              'Help someone else improve a piece of their writing.',
+            ],
+          },
         ],
       },
     ],
@@ -239,8 +324,38 @@ export const SKILL_TREE = {
   4: {
     id: '4', label: 'STRUCTURE', subtitle: 'Discipline / Systems', icon: '\u25A3', color: '#00FF94', glow: '#00FF9466',
     routes: [
-      stubRoute('discipline', 'Discipline', 'Routine -> Consistency -> Self-Mastery', '4',
-        ['Routine', 'Consistency', 'Self-Mastery'], { classNoun: 'Disciple' }),
+      {
+        id: 'discipline',
+        name: 'Discipline',
+        classNoun: 'Disciple',
+        thesis: 'Routine -> Consistency -> Self-Mastery',
+        stages: [
+          {
+            stage: 1, name: 'Routine',
+            quests: [
+              'Do one non-negotiable habit at the same time for three days.',
+              'Prepare tomorrow tonight — clothes, tools, or first task.',
+              'Finish a small chore you have been avoiding.',
+            ],
+          },
+          {
+            stage: 2, name: 'Consistency',
+            quests: [
+              'Keep a streak of seven days on one chosen practice.',
+              'Track your habit in writing and review it once this week.',
+              'Do the work on a low-motivation day without bargaining.',
+            ],
+          },
+          {
+            stage: 3, name: 'Self-Mastery',
+            quests: [
+              'Hold a 30-day practice without missing more than one day.',
+              'Remove one temptation that breaks your routine.',
+              'Teach someone else the system that keeps you consistent.',
+            ],
+          },
+        ],
+      },
       {
         id: 'organization',
         name: 'Organization',
@@ -310,8 +425,38 @@ export const SKILL_TREE = {
   5: {
     id: '5', label: 'ADAPTABILITY', subtitle: 'Change / Exploration', icon: '\u25C8', color: '#FF61D8', glow: '#FF61D866',
     routes: [
-      stubRoute('exploration', 'Exploration', 'Curiosity -> Experimentation -> Discovery', '5',
-        ['Curiosity', 'Experimentation', 'Discovery'], { classNoun: 'Explorer' }),
+      {
+        id: 'exploration',
+        name: 'Exploration',
+        classNoun: 'Explorer',
+        thesis: 'Curiosity -> Experimentation -> Discovery',
+        stages: [
+          {
+            stage: 1, name: 'Curiosity',
+            quests: [
+              'Ask three questions about a topic you usually skip.',
+              'Visit a place, page, or field you have never tried.',
+              'Follow one curiosity for 30 focused minutes.',
+            ],
+          },
+          {
+            stage: 2, name: 'Experimentation',
+            quests: [
+              'Run a one-week experiment with a clear success metric.',
+              'Try a method that contradicts your usual approach.',
+              'Document what you learned — keep or kill the idea.',
+            ],
+          },
+          {
+            stage: 3, name: 'Discovery',
+            quests: [
+              'Share a discovery that changed how you see something.',
+              'Apply the finding to a real decision this month.',
+              'Map three open questions for your next exploration cycle.',
+            ],
+          },
+        ],
+      },
       {
         id: 'adventure',
         name: 'Adventure',
@@ -381,8 +526,38 @@ export const SKILL_TREE = {
   6: {
     id: '6', label: 'RESPONSIBILITY', subtitle: 'Care / Reliability', icon: '\u2B21', color: '#7B61FF', glow: '#7B61FF66',
     routes: [
-      stubRoute('care', 'Care', 'Support -> Nurture -> Stewardship', '6',
-        ['Support', 'Nurture', 'Stewardship'], { classNoun: 'Caregiver' }),
+      {
+        id: 'care',
+        name: 'Care',
+        classNoun: 'Caregiver',
+        thesis: 'Support -> Nurture -> Stewardship',
+        stages: [
+          {
+            stage: 1, name: 'Support',
+            quests: [
+              'Offer practical help to one person today.',
+              'Check in on someone who might be struggling.',
+              'Do a care task without being asked.',
+            ],
+          },
+          {
+            stage: 2, name: 'Nurture',
+            quests: [
+              'Keep a recurring care act for two weeks.',
+              'Listen fully before offering solutions.',
+              'Care for yourself with the same standard you give others.',
+            ],
+          },
+          {
+            stage: 3, name: 'Stewardship',
+            quests: [
+              'Take ongoing responsibility for someone’s wellbeing or a shared space.',
+              'Build a system so care continues when you are tired.',
+              'Hand off a care role with clear notes so it does not collapse.',
+            ],
+          },
+        ],
+      },
       {
         id: 'family',
         name: 'Family',
@@ -452,8 +627,38 @@ export const SKILL_TREE = {
   7: {
     id: '7', label: 'AWARENESS', subtitle: 'Reflection / Insight', icon: '\u25C9', color: '#00E5FF', glow: '#00E5FF66',
     routes: [
-      stubRoute('contemplation', 'Contemplation', 'Stillness -> Observation -> Insight', '7',
-        ['Stillness', 'Observation', 'Insight'], { classNoun: 'Seer' }),
+      {
+        id: 'contemplation',
+        name: 'Contemplation',
+        classNoun: 'Seer',
+        thesis: 'Stillness -> Observation -> Insight',
+        stages: [
+          {
+            stage: 1, name: 'Stillness',
+            quests: [
+              'Sit in silence for ten minutes with no media.',
+              'Take three conscious breaths before reacting once today.',
+              'End the day with five minutes of quiet reflection.',
+            ],
+          },
+          {
+            stage: 2, name: 'Observation',
+            quests: [
+              'Journal what you notice in body and mind for seven days.',
+              'Watch a pattern without fixing it for one full day.',
+              'Name the story you tell yourself when stressed.',
+            ],
+          },
+          {
+            stage: 3, name: 'Insight',
+            quests: [
+              'Write one clear insight and how you will live it this week.',
+              'Share the insight with a trusted person for reflection.',
+              'Change one habit based on what contemplation revealed.',
+            ],
+          },
+        ],
+      },
       {
         id: 'research',
         name: 'Research',
@@ -523,8 +728,38 @@ export const SKILL_TREE = {
   8: {
     id: '8', label: 'MASTERY', subtitle: 'Results / Performance', icon: '\u25C6', color: '#FF9500', glow: '#FF950066',
     routes: [
-      stubRoute('achievement', 'Achievement', 'Goal -> Performance -> Excellence', '8',
-        ['Goal', 'Performance', 'Excellence'], { classNoun: 'Achiever' }),
+      {
+        id: 'achievement',
+        name: 'Achievement',
+        classNoun: 'Achiever',
+        thesis: 'Goal -> Performance -> Excellence',
+        stages: [
+          {
+            stage: 1, name: 'Goal',
+            quests: [
+              'Write one measurable goal for this week.',
+              'Break it into three concrete actions and do the first today.',
+              'Tell one person the goal for accountability.',
+            ],
+          },
+          {
+            stage: 2, name: 'Performance',
+            quests: [
+              'Hit the weekly goal or honestly review why you missed.',
+              'Raise the bar on one deliverable and ship it.',
+              'Track a scoreboard for two weeks without skipping entries.',
+            ],
+          },
+          {
+            stage: 3, name: 'Excellence',
+            quests: [
+              'Complete a stretch goal that once felt ambitious.',
+              'Refine your craft until the result feels worthy of your name.',
+              'Help someone else set and hit a high standard.',
+            ],
+          },
+        ],
+      },
       {
         id: 'wealth',
         name: 'Wealth',
@@ -594,8 +829,38 @@ export const SKILL_TREE = {
   9: {
     id: '9', label: 'IMPACT', subtitle: 'Completion / Contribution', icon: '\u273A', color: '#FF2D55', glow: '#FF2D5566',
     routes: [
-      stubRoute('contribution', 'Contribution', 'Give -> Serve -> Legacy', '9',
-        ['Give', 'Serve', 'Legacy'], { classNoun: 'Giver' }),
+      {
+        id: 'contribution',
+        name: 'Contribution',
+        classNoun: 'Giver',
+        thesis: 'Give -> Serve -> Legacy',
+        stages: [
+          {
+            stage: 1, name: 'Give',
+            quests: [
+              'Give something useful with no expectation of return.',
+              'Share knowledge, time, or resources with someone who needs it.',
+              'Leave one place better than you found it today.',
+            ],
+          },
+          {
+            stage: 2, name: 'Serve',
+            quests: [
+              'Commit to a recurring act of service for four weeks.',
+              'Meet a need before it becomes a crisis.',
+              'Serve without announcing it — then note how it felt.',
+            ],
+          },
+          {
+            stage: 3, name: 'Legacy',
+            quests: [
+              'Build or finish something that outlasts this month.',
+              'Document how others can continue the contribution.',
+              'Pass ownership to someone who will keep it alive.',
+            ],
+          },
+        ],
+      },
       {
         id: 'teaching',
         name: 'Teaching',

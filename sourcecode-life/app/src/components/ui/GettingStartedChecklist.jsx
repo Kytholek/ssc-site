@@ -10,15 +10,24 @@ import {
   loadChecklistDone,
   markChecklistItem,
 } from '../../lib/tourStorage'
+import {
+  loadClassLoadout,
+  getFilledSlots,
+} from '../../lib/classLoadout'
 
 const LS_KEY = 'scl_getting_started_dismissed'
 const LS_COLLAPSED = 'scl_getting_started_collapsed'
 
 const ITEMS = [
   { id: 'quest', label: "Complete today's quest", tab: 'home' },
+  { id: 'class', label: 'Equip your class paths', tab: 'profile', section: 'skills' },
   { id: 'life', label: 'Explore Life Quest', tab: 'quests', section: 'life' },
   { id: 'blueprint', label: 'View your Blueprint', tab: 'profile', section: 'blueprint' },
 ]
+
+function loadoutMarksClassDone(loadout = loadClassLoadout()) {
+  return !!(loadout?.userChosen && getFilledSlots(loadout).length > 0)
+}
 
 export default function GettingStartedChecklist() {
   const dispatch = useAppDispatch()
@@ -59,6 +68,20 @@ export default function GettingStartedChecklist() {
     window.addEventListener('scl:checklist_updated', onUpdate)
     return () => window.removeEventListener('scl:checklist_updated', onUpdate)
   }, [])
+
+  // Real signal: class path equipped
+  useEffect(() => {
+    if (done.class) return undefined
+    if (loadoutMarksClassDone()) {
+      setDone(markChecklistItem('class'))
+      return undefined
+    }
+    const onLoadout = (e) => {
+      if (loadoutMarksClassDone(e.detail)) setDone(markChecklistItem('class'))
+    }
+    window.addEventListener('scl:class_loadout_updated', onLoadout)
+    return () => window.removeEventListener('scl:class_loadout_updated', onLoadout)
+  }, [done.class])
 
   // Real signal: today's personal-day quest completed
   useEffect(() => {

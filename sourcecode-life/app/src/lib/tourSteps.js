@@ -16,7 +16,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: '[data-tour="char-card"]',
     title: 'Your Character Card',
-    body: 'Your identity, calling, XP bars, and shortcuts live here. Tap the portrait to open equipment.',
+    body: 'Your name, calling, class paths, XP, and shortcuts live here. Equip up to two class paths under Character → Skills — tap the portrait for equipment.',
     placement: 'below',
   },
   {
@@ -64,7 +64,7 @@ export const TOUR_STEPS = [
     tab: 'home',
     target: null,
     title: "You're Ready",
-    body: "Start with today's quest on Home. A short checklist will appear there to guide your first steps.",
+    body: "Start with today's quest on Home. The Getting Started checklist will guide you — including equipping your class paths under Character → Skills.",
     placement: 'center',
   },
 ]

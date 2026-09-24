@@ -28,6 +28,12 @@ import { useQuestRewardToast } from '../effects/QuestRewardToast'
 import { MedalsRow } from '../Achievements.jsx'
 import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
+import {
+  loadClassLoadout,
+  getClassTitle,
+  getLoadoutPathChips,
+  getFilledSlots,
+} from '../../lib/classLoadout'
 
 const HEADGEAR_MAP = {
   'Crown':   1,
@@ -153,6 +159,7 @@ function CharCard() {
   const [charPulsing, setCharPulsing] = useState(false)
   const [ownRep, setOwnRep] = useState(null)
   const [takerRep, setTakerRep] = useState(null)
+  const [classLoadout, setClassLoadout] = useState(() => loadClassLoadout())
   const prevFreqLevel = useRef(xp.freqLevel)
   const prevCharLevel = useRef(xp.charLevel)
 
@@ -160,12 +167,21 @@ function CharCard() {
   const openBlueprint = useCallback(() => {
     dispatch({ type: 'SET_TAB', payload: 'profile', section: 'blueprint' })
   }, [dispatch])
+  const openSkills = useCallback(() => {
+    dispatch({ type: 'SET_TAB', payload: 'profile', section: 'skills' })
+  }, [dispatch])
   const openStats = useCallback(() => {
     dispatch({ type: 'SET_TAB', payload: 'profile', section: 'stats' })
   }, [dispatch])
   const openCurrent = useCallback(() => {
     dispatch({ type: 'SET_TAB', payload: 'quests', section: 'current' })
   }, [dispatch])
+
+  useEffect(() => {
+    const onLoadout = (e) => setClassLoadout(e.detail || loadClassLoadout())
+    window.addEventListener('scl:class_loadout_updated', onLoadout)
+    return () => window.removeEventListener('scl:class_loadout_updated', onLoadout)
+  }, [])
 
   useEffect(() => {
     if (xp.freqLevel > prevFreqLevel.current) {
@@ -243,6 +259,9 @@ function CharCard() {
   const displayNameUpper = formatDisplayName(displayName).toUpperCase()
   const callingName = (CALLING[cl.root]?.name || 'Unknown').toUpperCase()
   const callingTitle = CALLING[cl.root]?.essence || CALLING[cl.root]?.summary || 'Life calling'
+  const classTitle = getClassTitle(classLoadout)
+  const pathChips = getLoadoutPathChips(classLoadout)
+  const hasClassPaths = getFilledSlots(classLoadout).length > 0
 
   const makerEmpty = !ownRep || ownRep.ratingCount === 0
   const seekerEmpty = !takerRep || takerRep.ratingCount === 0
@@ -279,18 +298,7 @@ function CharCard() {
         </button>
 
         <div className="char-card-id-text">
-          <div className="char-card-calling-archetype" title={callingTitle}>
-            <div className="char-card-calling-archetype-name">{callingName}</div>
-          </div>
-
           <div className="char-card-name-row">
-            <span
-              className="char-card-calling"
-              title={callingTitle}
-              aria-label={callingTitle}
-            >
-              <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
-            </span>
             <button
               type="button"
               className="char-card-name char-card-name--editable"
@@ -305,6 +313,72 @@ function CharCard() {
               {displayNameUpper || 'SET NAME'}
             </button>
             {user?.isPremium && <PremiumBadge size="sm" />}
+            <span
+              className="char-card-calling"
+              title={callingTitle}
+              aria-label={callingTitle}
+            >
+              <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
+            </span>
+          </div>
+
+          <div className="char-card-calling-archetype" title={callingTitle}>
+            <span className="char-card-calling-archetype-name">{callingName}</span>
+          </div>
+
+          <div className="char-card-class" aria-label="Class specialization">
+            <div className="char-card-class-head">
+              <span className="char-card-class-kicker">CLASS</span>
+              {hasClassPaths ? (
+                <button
+                  type="button"
+                  className="char-card-class-title"
+                  onClick={openSkills}
+                  title="Open Skills to change class paths"
+                >
+                  {classTitle}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="char-card-class-empty"
+                  onClick={openSkills}
+                >
+                  Choose your paths in Skills
+                </button>
+              )}
+            </div>
+            {hasClassPaths && (
+              <div className="char-card-class-chips">
+                {pathChips.map((chip) => (
+                  <button
+                    key={`${chip.number}-${chip.routeId}`}
+                    type="button"
+                    className="char-card-class-chip"
+                    style={{ '--chip-color': chip.color }}
+                    onClick={openSkills}
+                  >
+                    <span className="char-card-class-chip-seal" aria-hidden="true">{chip.icon}</span>
+                    <span className="char-card-class-chip-label">
+                      {chip.sealLabel} · {chip.routeName}
+                    </span>
+                  </button>
+                ))}
+                {pathChips.length < 2 && (
+                  <button
+                    type="button"
+                    className="char-card-class-chip char-card-class-chip--add"
+                    onClick={openSkills}
+                  >
+                    + Second path
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="char-card-meta char-card-meta--medals" aria-label="Earned medals">
+            <MedalsRow />
           </div>
         </div>
       </div>
@@ -335,10 +409,6 @@ function CharCard() {
           </div>
         </div>
       )}
-
-      <div className="char-card-meta char-card-meta--medals" aria-label="Earned medals">
-        <MedalsRow />
-      </div>
 
       <div className="char-card-xp-mirror" aria-label="Experience">
         <div className="char-card-xp-side char-card-xp-side--freq" title={XP_HINTS.freq}>

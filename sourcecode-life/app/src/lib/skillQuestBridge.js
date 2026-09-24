@@ -3,9 +3,24 @@
  * Every quest credits Stat XP + skill-tree pips for its numerological root (1–9).
  */
 
-export const SKILLTREE_LS_KEY = 'scl_skilltree_progress_v2'
+import {
+  SKILLTREE_LS_KEY,
+  SKILLTREE_LS_KEY_V2,
+  loadSkillTreeProgressV3,
+  saveSkillTreeProgressV3,
+  fillSkillPipV3,
+  migrateProgressToV3,
+  TIER_LABELS,
+} from './skillRoutes'
+import { getEquippedRouteId } from './classLoadout'
 
-const STAGE_LABELS = ['Initiate', 'Consistency', 'Mastery']
+export { SKILLTREE_LS_KEY }
+
+const STAGE_LABELS = [
+  TIER_LABELS[1].label,
+  TIER_LABELS[2].label,
+  TIER_LABELS[3].label,
+]
 
 const NUMBER_LABELS = {
   1: 'POWER', 2: 'SENSITIVITY', 3: 'EXPRESSION', 4: 'STRUCTURE',
@@ -57,47 +72,49 @@ export function resolveSkillMeta({ root, tier = 1, questKind = 'cycle', stageIdx
   return { number, stageIdx: idx }
 }
 
-/** Returns true if a new pip was filled. */
+/** Returns true if a new pip was filled (equipped loadout route, else primary). */
 export function updateSkillTreeProgress(skillMeta) {
   if (!skillMeta) return false
   const { number, stageIdx } = skillMeta
   if (!number || stageIdx == null) return false
 
   try {
-    const raw = localStorage.getItem(SKILLTREE_LS_KEY)
-    const prog = raw ? JSON.parse(raw) : {}
-    const key = String(number)
-    const arr = Array.isArray(prog[key]) ? [...prog[key]] : [false, false, false]
-    while (arr.length < 3) arr.push(false)
-
-    if (stageIdx > 0 && !arr[stageIdx - 1]) return false
-    if (arr[stageIdx]) return false
-
-    arr[stageIdx] = true
-    prog[key] = arr
-    localStorage.setItem(SKILLTREE_LS_KEY, JSON.stringify(prog))
-    window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: prog }))
+    const preferred = skillMeta.preferredRouteId
+      || getEquippedRouteId(number)
+      || null
+    const prog = loadSkillTreeProgressV3()
+    const { progress, filled } = fillSkillPipV3(prog, number, stageIdx, preferred)
+    if (!filled) return false
+    saveSkillTreeProgressV3(progress)
+    window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: progress }))
     return true
   } catch {
     return false
   }
 }
 
-/** Remove legacy sk{N}_{tier} keys that corrupt boolean-array progress. */
+/** Remove legacy sk{N}_{tier} keys; preserve v3 route objects. */
 export function sanitizeSkillTreeProgress() {
   try {
-    const raw = localStorage.getItem(SKILLTREE_LS_KEY)
+    // Prefer v3; fall back to migrating v2
+    let raw = localStorage.getItem(SKILLTREE_LS_KEY)
+    let key = SKILLTREE_LS_KEY
+    if (!raw) {
+      raw = localStorage.getItem(SKILLTREE_LS_KEY_V2)
+      key = SKILLTREE_LS_KEY_V2
+    }
     if (!raw) return
     const prog = JSON.parse(raw)
     let changed = false
     Object.keys(prog).forEach((k) => {
-      if (k.startsWith('sk') || (!Array.isArray(prog[k]) && typeof prog[k] === 'object')) {
+      if (k.startsWith('sk')) {
         delete prog[k]
         changed = true
       }
     })
-    if (changed) {
-      localStorage.setItem(SKILLTREE_LS_KEY, JSON.stringify(prog))
+    if (changed || key === SKILLTREE_LS_KEY_V2) {
+      const migrated = migrateProgressToV3(prog)
+      saveSkillTreeProgressV3(migrated)
     }
   } catch { /* ignore */ }
 }

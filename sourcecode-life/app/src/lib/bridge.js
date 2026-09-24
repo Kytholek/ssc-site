@@ -275,7 +275,8 @@ window.NativeAuth = {
       () => getDoc(doc(db, 'players', user.uid)),
       () => {
         try {
-          const local = localStorage.getItem('scl_skilltree_progress_v2')
+          const local = localStorage.getItem('scl_skilltree_progress_v3')
+            || localStorage.getItem('scl_skilltree_progress_v2')
           cb?.(local || '{}')
         } catch { cb?.('{}') }
         return null
@@ -299,7 +300,44 @@ window.NativeAuth = {
     _withFirestore(
       () => setDoc(doc(db, 'players', user.uid), { skillTreeProgress: parsed, updated: Date.now() }, { merge: true }),
       () => {
-        try { localStorage.setItem('scl_skilltree_progress_v2', JSON.stringify(parsed)) } catch { /* intentional */ }
+        try { localStorage.setItem('scl_skilltree_progress_v3', JSON.stringify(parsed)) } catch { /* intentional */ }
+      }
+    ).catch(() => {})
+  },
+
+  /** Load class loadout from players/{uid}.classLoadout */
+  loadClassLoadout(cb) {
+    const user = auth.currentUser
+    if (!user) { cb?.('{}'); return }
+    _withFirestore(
+      () => getDoc(doc(db, 'players', user.uid)),
+      () => {
+        try {
+          const local = localStorage.getItem('scl_class_loadout_v1')
+          cb?.(local || '{}')
+        } catch { cb?.('{}') }
+        return null
+      }
+    )
+      .then(snap => {
+        if (!snap) return
+        const raw = snap.exists() ? snap.data().classLoadout : null
+        cb?.(JSON.stringify(raw && typeof raw === 'object' ? raw : {}))
+      })
+      .catch(() => cb?.('{}'))
+  },
+
+  /** Persist class loadout to players/{uid}.classLoadout */
+  saveClassLoadout(json) {
+    const user = auth.currentUser
+    if (!user) return
+    let parsed = {}
+    try { parsed = JSON.parse(json || '{}') } catch { return }
+    if (!parsed || typeof parsed !== 'object') return
+    _withFirestore(
+      () => setDoc(doc(db, 'players', user.uid), { classLoadout: parsed, updated: Date.now() }, { merge: true }),
+      () => {
+        try { localStorage.setItem('scl_class_loadout_v1', JSON.stringify(parsed)) } catch { /* intentional */ }
       }
     ).catch(() => {})
   },

@@ -27,6 +27,13 @@ import { markDayCompleted } from '../effects/StreakCalendar'
 import DailyProgressRing from '../effects/DailyProgressRing'
 import DailyCountdown from '../effects/DailyCountdown'
 import StreakCalendar from '../effects/StreakCalendar'
+import {
+  loadClassLoadout,
+  getClassTitle,
+  getLoadoutPathChips,
+  getFilledSlots,
+} from '../../lib/classLoadout'
+import { useAppDispatch } from '../../context/AppContext'
 
 function getResonanceChain() {
   try {
@@ -93,8 +100,8 @@ function buildUserProfile(player, statXP = {}) {
 }
 
 const JOURNAL_SOURCES = [
-  { id: 'skill', label: 'SKILL', icon: '◈', color: 'var(--teal)' },
-  { id: 'life',  label: 'LIFE',  icon: '★', color: 'var(--gold)' },
+  { id: 'skill', label: 'CLASS', icon: '◈', color: 'var(--teal)' },
+  { id: 'life',  label: 'BLUEPRINT', icon: '★', color: 'var(--gold)' },
   { id: 'cycle', label: 'CYCLE', icon: '↺', color: 'var(--rose)' },
 ]
 
@@ -243,6 +250,15 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
         </span>
         <span className="qj-entry-body">
           <span className="qj-entry-title">{quest.title}</span>
+          {(quest.routeName || quest.stageName) && (
+            <span className="qj-entry-route">
+              {quest.discovery ? 'Discovery' : (quest.routeName || 'Path')}
+              {quest.stageName ? ` · ${quest.stageName}` : ''}
+            </span>
+          )}
+          {quest.supportsClass && !quest.routeName && (
+            <span className="qj-entry-route">Supports class path</span>
+          )}
           <span className="qj-entry-meta">
             {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
             <span className="qj-entry-diff" style={{ color: diffMeta.color }}>
@@ -300,10 +316,23 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
 // ═══════════════════════════════════════════════════════════════
 
 function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
+  const dispatch = useAppDispatch()
+  const [loadout, setLoadout] = useState(() => loadClassLoadout())
+
+  useEffect(() => {
+    const onL = (e) => setLoadout(e.detail || loadClassLoadout())
+    window.addEventListener('scl:class_loadout_updated', onL)
+    return () => window.removeEventListener('scl:class_loadout_updated', onL)
+  }, [])
+
   if (!genQuests) return null
 
   const active = genQuests.filter(q => !q.completed)
   const done = genQuests.filter(q => q.completed)
+  const filled = getFilledSlots(loadout)
+  const loadoutEmpty = filled.length === 0
+  const classTitle = getClassTitle(loadout)
+  const pathChips = getLoadoutPathChips(loadout)
 
   const grouped = new Map()
   const extras = []
@@ -315,6 +344,10 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
     } else {
       extras.push({ quest, source })
     }
+  }
+
+  function openSkills() {
+    dispatch({ type: 'SET_TAB', payload: 'profile', section: 'skills' })
   }
 
   function renderRow(quest, source) {
@@ -338,14 +371,57 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
       </div>
 
       {JOURNAL_SOURCES.map(source => {
-        const quests = grouped.get(source.id)
-        if (!quests?.length) return null
+        const quests = grouped.get(source.id) || []
+        const isClass = source.id === 'skill'
+
+        // Empty loadout: CLASS chapter shows CTA instead of (or above) discovery rows
+        if (isClass && loadoutEmpty) {
+          return (
+            <section key={source.id} className="qj-chapter" aria-labelledby={`qj-chapter-${source.id}`}>
+              <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
+                <span aria-hidden="true">{source.icon}</span>
+                <span>{source.label}</span>
+              </h3>
+              <button type="button" className="qj-class-cta" onClick={openSkills}>
+                <span className="qj-class-cta-kicker">UNSPECIALIZED</span>
+                <span className="qj-class-cta-title">Equip your class paths in Skills</span>
+                <span className="qj-class-cta-sub">Daily training focuses on up to two equipped routes</span>
+              </button>
+              {quests.length > 0 && (
+                <div className="qj-chapter-entries">
+                  <p className="qj-discovery-note">Discovery training until you equip:</p>
+                  {quests.map(quest => renderRow(quest, source))}
+                </div>
+              )}
+            </section>
+          )
+        }
+
+        if (!quests.length && !isClass) return null
+        if (!quests.length) return null
+
         return (
           <section key={source.id} className="qj-chapter" aria-labelledby={`qj-chapter-${source.id}`}>
             <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
               <span aria-hidden="true">{source.icon}</span>
               <span>{source.label}</span>
+              {isClass && (
+                <span className="qj-chapter-class-meta">{classTitle}</span>
+              )}
             </h3>
+            {isClass && pathChips.length > 0 && (
+              <div className="qj-chapter-chips" aria-label="Class loadout">
+                {pathChips.map((chip) => (
+                  <span
+                    key={`${chip.number}-${chip.routeId}`}
+                    className="qj-chapter-chip"
+                    style={{ '--chip-color': chip.color }}
+                  >
+                    {chip.sealLabel} · {chip.routeName}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="qj-chapter-entries">
               {quests.map(quest => renderRow(quest, source))}
             </div>
@@ -368,7 +444,7 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
 //  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpRoot }) {
+function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpRoot, classSupportNote }) {
   const [justCompleted, setJustCompleted] = useState(false)
   const cardRef = useRef(null)
   const { completeDailyQuest: eqComplete } = useQuestEngine()
@@ -429,6 +505,9 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpR
           <h3 className="qj-align-theme">{theme}</h3>
           {isFocusMatch && (
             <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
+          )}
+          {classSupportNote && (
+            <span className="qj-align-class-note">{classSupportNote}</span>
           )}
         </div>
       </div>
@@ -574,6 +653,13 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
     ? `${genActive} open · ${genCompleted} ignited`
     : '—'
 
+  const daySeal = reduceToSimple(pd.root)
+  const loadoutNow = loadClassLoadout()
+  const classTitleNow = getClassTitle(loadoutNow)
+  const classSupportNote = getFilledSlots(loadoutNow).some((s) => s.number === daySeal)
+    ? `Today supports your ${classTitleNow} path`
+    : null
+
   function handleCompleteGen(questId, text) {
     return completeGeneratedQuest(questId, text)
   }
@@ -650,6 +736,7 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
             onComplete={completeDailyQuest}
             bpRoots={genProfile?.bpRoots || null}
             lpRoot={playerData.lp?.root}
+            classSupportNote={classSupportNote}
           />
 
           <ReminderBanner />

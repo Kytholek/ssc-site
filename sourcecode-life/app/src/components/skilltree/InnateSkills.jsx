@@ -7,11 +7,19 @@ import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { reduceToSimple } from '../../lib/numerology'
 import { GIFTS, POLARITY_CONFIGS, FIRST_NAME_MEANINGS } from '../../lib/data'
 import {
-  getInnateSeeds, mergeWithSeeds, getPolarity, getFirstNameValue,
+  getInnateSeeds, getPolarity, getFirstNameValue,
 } from '../../lib/numerologyProfile'
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const SKILLTREE_KEY = 'scl_skilltree_progress_v2'
+import {
+  loadSkillTreeProgressV3,
+  saveSkillTreeProgressV3,
+  mergeSeedsV3,
+  migrateProgressToV3,
+} from '../../lib/skillRoutes'
+import {
+  loadClassLoadout,
+  saveClassLoadout,
+  clearAutoSeededLoadout,
+} from '../../lib/classLoadout'
 
 const DIGIT_SKILL_TREE = {
   1: {
@@ -145,25 +153,6 @@ const MASTER_ENHANCED_SKILLS = {
   77: { name: 'ADAPTIVE FAITH',             desc: 'Enhanced root-5 adaptability: stay aligned while conditions mutate.' },
   88: { name: 'WISE COMMAND',               desc: 'Enhanced root-7 knowledge: apply insight with strategic authority.' },
   99: { name: 'COMPASSIONATE TRANSCENDENCE',desc: 'Enhanced root-9 release: resolve cycles without karmic residue.' },
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function getDefaultSkillTreeProgress() {
-  const init = {}
-  for (let i = 1; i <= 9; i++) init[i] = [false, false, false]
-  return init
-}
-
-function loadSkillTreeProgressLocal() {
-  try {
-    const raw = localStorage.getItem(SKILLTREE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch { /* ignore */ }
-  return getDefaultSkillTreeProgress()
-}
-
-function saveSkillTreeProgressLocal(progress) {
-  try { localStorage.setItem(SKILLTREE_KEY, JSON.stringify(progress)) } catch { /* ignore */ }
 }
 
 // ── Gift sidebar ──────────────────────────────────────────────────────────────
@@ -441,6 +430,7 @@ export function GiftCards({ playerData }) {
 function SkillTreeSection({ playerData }) {
   const { xp } = useQuestEngine()
   const seeds = useMemo(() => getInnateSeeds(playerData), [playerData])
+  const freqLevel = xp?.freqLevel || 1
   const statValues = useMemo(() => {
     const sv = {}
     const raw = xp?.statXP || {}
@@ -448,10 +438,16 @@ function SkillTreeSection({ playerData }) {
     return sv
   }, [xp?.statXP])
   const [completed, setCompleted] = useState(() =>
-    mergeWithSeeds(loadSkillTreeProgressLocal(), seeds)
+    mergeSeedsV3(loadSkillTreeProgressV3(), seeds)
   )
   const [activeNode, setActiveNode] = useState(null)
   const didLoadRemote = useRef(false)
+  const didLoadoutRemote = useRef(false)
+
+  // Clear auto-seeded class picks so the player chooses from their full chart
+  useEffect(() => {
+    clearAutoSeededLoadout()
+  }, [])
 
   useEffect(() => {
     if (window.NativeAuth?.loadSkillTreeProgress) {
@@ -459,8 +455,22 @@ function SkillTreeSection({ playerData }) {
         try {
           const progress = JSON.parse(progressJson)
           if (progress && typeof progress === 'object') {
-            setCompleted(mergeWithSeeds(progress, seeds))
+            const merged = mergeSeedsV3(migrateProgressToV3(progress), seeds)
+            setCompleted(merged)
             didLoadRemote.current = true
+          }
+        } catch { /* ignore */ }
+      })
+    }
+    if (window.NativeAuth?.loadClassLoadout) {
+      window.NativeAuth.loadClassLoadout((json) => {
+        try {
+          const raw = JSON.parse(json || '{}')
+          if (raw && typeof raw === 'object' && raw.userChosen && Array.isArray(raw.slots) && raw.slots.some(Boolean)) {
+            saveClassLoadout({ ...raw, userChosen: true })
+            didLoadoutRemote.current = true
+          } else {
+            clearAutoSeededLoadout()
           }
         } catch { /* ignore */ }
       })
@@ -468,17 +478,29 @@ function SkillTreeSection({ playerData }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    saveSkillTreeProgressLocal(completed)
+    saveSkillTreeProgressV3(completed)
     if (didLoadRemote.current && window.NativeAuth?.saveSkillTreeProgress) {
       window.NativeAuth.saveSkillTreeProgress(JSON.stringify(completed))
     }
   }, [completed])
 
+  // Persist loadout to Firestore when it changes locally
+  useEffect(() => {
+    const onLoadout = (e) => {
+      const next = e.detail || loadClassLoadout()
+      if (window.NativeAuth?.saveClassLoadout) {
+        window.NativeAuth.saveClassLoadout(JSON.stringify(next))
+      }
+    }
+    window.addEventListener('scl:class_loadout_updated', onLoadout)
+    return () => window.removeEventListener('scl:class_loadout_updated', onLoadout)
+  }, [])
+
   // Sync when a daily skill quest completes outside this component
   useEffect(() => {
     const onUpdate = (e) => {
       if (e.detail && typeof e.detail === 'object') {
-        setCompleted(prev => mergeWithSeeds({ ...prev, ...e.detail }, seeds))
+        setCompleted(mergeSeedsV3(migrateProgressToV3(e.detail), seeds))
       }
     }
     window.addEventListener('scl:skilltree_updated', onUpdate)
@@ -489,10 +511,13 @@ function SkillTreeSection({ playerData }) {
     <div style={{ width: '100%', height: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <SkillTree
         completed={completed}
+        setCompleted={setCompleted}
         activeNode={activeNode}
         setActiveNode={setActiveNode}
         seeds={seeds}
         statValues={statValues}
+        playerData={playerData}
+        freqLevel={freqLevel}
         digitSkillTree={DIGIT_SKILL_TREE}
         masterRootMap={MASTER_ROOT_MAP}
         masterEnhancedSkills={MASTER_ENHANCED_SKILLS}

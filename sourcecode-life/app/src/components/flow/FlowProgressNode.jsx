@@ -44,6 +44,7 @@ export default function FlowProgressNode({
   handles = DEFAULT_HANDLES,
   ariaLabel,
   ariaPressed,
+  className = '',
 }) {
   const cssVars = flowColorVars(color)
   const isSquare = shape === 'square'
@@ -73,6 +74,7 @@ export default function FlowProgressNode({
         'flow-node-interactive',
         isActive ? 'flow-node-interactive--static-select' : '',
         isSquare ? 'flow-node-interactive--square' : '',
+        className,
       ].filter(Boolean).join(' ')}
       style={{ ...cssVars, width: size, height: size, position: 'relative' }}
       role={onClick ? 'button' : undefined}

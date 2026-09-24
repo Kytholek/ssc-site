@@ -91,7 +91,7 @@ export const LS_PINNACLE_PROGRESS = 'scl_pinnacle_progress';
 export const LS_ACCEPTED  = 'scl_accepted_quests';
 export const LS_LQP       = 'scl_lqp';
 export const LS_DAILY_GLYPHS = 'scl_daily_glyphs';
-const LS_SKILL_PROGRESS   = 'scl_skilltree_progress_v2';
+const LS_SKILL_PROGRESS   = 'scl_skilltree_progress_v3';
 const LS_XP_BOOST         = 'scl_xp_boost_until';
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -460,6 +460,7 @@ export function QuestEngine_reset() {
      // Daily streak achievements
      'scl_daily_streak',
      // Skill tree progress
+     'scl_skilltree_progress_v3',
      'scl_skilltree_progress_v2',
      // Notification prefs (keep for now)
      // 'scl_notif_prefs',

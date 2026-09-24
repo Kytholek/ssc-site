@@ -1,429 +1,1013 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { getSkillTreeTierObjectives, SKILL_OBJECTIVES } from '../../lib/objectives';
-import FlowProgressNode from '../flow/FlowProgressNode';
-import { FLOW_NODE_SIZE } from '../flow/flowNodeConstants';
+/**
+ * SkillTree — progressive paths:
+ * 3x3 seals -> root + 3 routes -> expand one active route's tiers.
+ * Class loadout: equip up to 2 blueprint-eligible routes.
+ * Compact docked inspector. Equip / Start CTA.
+ */
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import ReactFlow, { MarkerType } from 'reactflow'
+import 'reactflow/dist/style.css'
+import FlowProgressNode from '../flow/FlowProgressNode'
+import { FLOW_NODE_SIZE } from '../flow/flowNodeConstants'
+import {
+  NUMBERS,
+  TIER_LABELS,
+  THRESHOLDS,
+  getSealProgress,
+  getRouteStages,
+  canStartRoute,
+  startRoute,
+  isRouteStageUnlocked,
+  getTrainingProgress,
+  getNextTierAction,
+  migrateProgressToV3,
+} from '../../lib/skillRoutes'
+import {
+  loadClassLoadout,
+  getClassTitle,
+  getLoadoutPathChips,
+  getFilledSlots,
+  getEligibleSeals,
+  isSealEligible,
+  isRouteEquipped,
+  findLoadoutSlotIndex,
+  equipRoute,
+  unequipSlot,
+} from '../../lib/classLoadout'
 
-const TIER_MAP = { 1: 'initiate', 2: 'consistency', 3: 'mastery' }
+export { NUMBERS }
 
-function _skillText(numId, difficulty) {
-	const tier = TIER_MAP[difficulty]
-	if (tier) {
-		const objs = getSkillTreeTierObjectives(Number(numId), tier)
-		if (objs.length) return objs.map(o => o.text)
-	}
-	const obj = SKILL_OBJECTIVES[Number(numId)]?.find(o => o.difficulty === difficulty)
-	return obj ? [obj.text] : ['(No objective defined)']
+const ROOT_SIZE = 78
+const ROUTE_SIZE = 68
+const TIER_SIZE = 52
+const ROOT_HALF = ROOT_SIZE / 2
+const ROUTE_HALF = ROUTE_SIZE / 2
+const TIER_HALF = TIER_SIZE / 2
+
+const TIER_COLORS = {
+  1: '#22c55e',
+  2: '#eab308',
+  3: '#ef4444',
 }
 
-export const NUMBERS = [
-	{
-		id: "1", label: "POWER", subtitle: "Action / Initiative", icon: "▲", color: "#FF4D00", glow: "#FF4D0066",
-		stages: [
-			{ stage: 1, name: "Act Without Delay",  quests: _skillText("1", 1), unlock: null },
-			{ stage: 2, name: "Act Consistently",    quests: _skillText("1", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Initiate Naturally",  quests: _skillText("1", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "2", label: "SENSITIVITY", subtitle: "Relationships / Connection", icon: "◎", color: "#00C9FF", glow: "#00C9FF66",
-		stages: [
-			{ stage: 1, name: "Reach Out",              quests: _skillText("2", 1), unlock: null },
-			{ stage: 2, name: "Stay Engaged",            quests: _skillText("2", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Maintain Relationships",  quests: _skillText("2", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "3", label: "EXPRESSION", subtitle: "Communication / Creativity", icon: "✦", color: "#FFB800", glow: "#FFB80066",
-		stages: [
-			{ stage: 1, name: "Express Freely",        quests: _skillText("3", 1), unlock: null },
-			{ stage: 2, name: "Express Consistently",   quests: _skillText("3", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Express Clearly",        quests: _skillText("3", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "4", label: "STRUCTURE", subtitle: "Discipline / Systems", icon: "▣", color: "#00FF94", glow: "#00FF9466",
-		stages: [
-			{ stage: 1, name: "Follow Structure",   quests: _skillText("4", 1), unlock: null },
-			{ stage: 2, name: "Maintain Structure",  quests: _skillText("4", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Build Systems",       quests: _skillText("4", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "5", label: "ADAPTABILITY", subtitle: "Change / Exploration", icon: "◈", color: "#FF61D8", glow: "#FF61D866",
-		stages: [
-			{ stage: 1, name: "Try New Things",              quests: _skillText("5", 1), unlock: null },
-			{ stage: 2, name: "Handle Change",                quests: _skillText("5", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Seek Growth Through Change",  quests: _skillText("5", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "6", label: "RESPONSIBILITY", subtitle: "Care / Reliability", icon: "⬡", color: "#7B61FF", glow: "#7B61FF66",
-		stages: [
-			{ stage: 1, name: "Take Responsibility",  quests: _skillText("6", 1), unlock: null },
-			{ stage: 2, name: "Follow Through",        quests: _skillText("6", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Be Relied Upon",        quests: _skillText("6", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "7", label: "AWARENESS", subtitle: "Reflection / Insight", icon: "◉", color: "#00E5FF", glow: "#00E5FF66",
-		stages: [
-			{ stage: 1, name: "Reflect",              quests: _skillText("7", 1), unlock: null },
-			{ stage: 2, name: "Understand Patterns",  quests: _skillText("7", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Act With Insight",      quests: _skillText("7", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "8", label: "MASTERY", subtitle: "Results / Performance", icon: "◆", color: "#FF9500", glow: "#FF950066",
-		stages: [
-			{ stage: 1, name: "Work With Focus",          quests: _skillText("8", 1), unlock: null },
-			{ stage: 2, name: "Improve Performance",      quests: _skillText("8", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Produce Results Reliably",  quests: _skillText("8", 3), unlock: { prevStage: true } },
-		],
-	},
-	{
-		id: "9", label: "IMPACT", subtitle: "Completion / Contribution", icon: "✺", color: "#FF2D55", glow: "#FF2D5566",
-		stages: [
-			{ stage: 1, name: "Complete Actions",          quests: _skillText("9", 1), unlock: null },
-			{ stage: 2, name: "Complete Meaningfully",      quests: _skillText("9", 2), unlock: { prevStage: true } },
-			{ stage: 3, name: "Contribute Beyond Self",    quests: _skillText("9", 3), unlock: { prevStage: true } },
-		],
-	},
-];
+const ROUTE_ICONS = ['\u25C7', '\u25C8', '\u2726']
 
-function isStageUnlocked(numberId, stageIdx, completed, statValues = {}, seeds = {}) {
-	if (stageIdx === 0) return true;
-	const prevDone = completed[numberId]?.[stageIdx - 1] === true;
-	if (!prevDone) return false;
-	const innate = seeds?.[numberId] || [false, false, false]
-	if (innate[stageIdx]) return true;
-	const statVal = statValues?.[numberId] || 0
-	const threshold = stageIdx === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3
-	return statVal >= threshold;
+/** Root + 3 routes; tiers only for expandedRouteId when provided */
+function buildBranchLayout(numDef, expandedRouteId) {
+  const routes = numDef.routes || []
+  const cx = 240
+  const rootY = 40
+  const routeY = 155
+  const tierStartY = 275
+  const tierGapY = 100
+  const routeSpread = 160
+  const startX = cx - ((routes.length - 1) * routeSpread) / 2
+
+  const positions = { root: { x: cx, y: rootY } }
+  routes.forEach((route, ri) => {
+    const x = startX + ri * routeSpread
+    positions[`route:${route.id}`] = { x, y: routeY }
+    if (expandedRouteId === route.id) {
+      route.stages.forEach((_, si) => {
+        positions[`tier:${route.id}:${si}`] = { x, y: tierStartY + si * tierGapY }
+      })
+    }
+  })
+  return positions
 }
 
-const STAGE_COLORS = {
-	1: { bg: "#1a2a1a", border: "#22c55e", text: "#86efac", label: "Initiation" },
-	2: { bg: "#2a2a0a", border: "#eab308", text: "#fde047", label: "Consistency" },
-	3: { bg: "#2a0a0a", border: "#ef4444", text: "#fca5a5", label: "Mastery" },
-};
+function SkillSeal({
+  number, completed, active, seeds, statValues, size, onSelect,
+  eligible = true, equipped = false, lockedReason = null,
+}) {
+  const stagesDone = completed.filter(Boolean).length
+  const progressPct = (stagesDone / 3) * 100
+  const innateStages = seeds?.[number.id] || [false, false, false]
+  const isInnate = innateStages[0]
+  const statVal = statValues?.[number.id] || 0
+  const fullyAligned = stagesDone === 3 && statVal >= THRESHOLDS.stage3
+  const locked = !eligible
 
-const THRESHOLDS = { stage2: 5, stage3: 10 }
+  const eligiblePips = [
+    true,
+    innateStages[1] || statVal >= THRESHOLDS.stage2,
+    innateStages[2] || statVal >= THRESHOLDS.stage3,
+  ]
 
-function SkillSeal({ number, completed, active, seeds, statValues, size, onSelect }) {
-	const stagesDone = completed.filter(Boolean).length;
-	const progress = (stagesDone / 3) * 100;
-	const innateStages = seeds?.[number.id] || [false, false, false]
-	const isInnate = innateStages[0]
-	const statVal = statValues?.[number.id] || 0
-	const fullyAligned = stagesDone === 3 && statVal >= THRESHOLDS.stage3
+  const pipStates = [0, 1, 2].map((i) => ({
+    done: completed[i],
+    eligible: eligiblePips[i],
+    innate: innateStages[i],
+  }))
 
-	const eligible = [
-		true,
-		innateStages[1] || statVal >= THRESHOLDS.stage2,
-		innateStages[2] || statVal >= THRESHOLDS.stage3,
-	]
-
-	const pipStates = [0, 1, 2].map((i) => ({
-		done: completed[i],
-		eligible: eligible[i],
-		innate: innateStages[i],
-	}))
-
-	return (
-		<div className="skills-grid-cell">
-			<FlowProgressNode
-				color={number.color}
-				icon={number.icon}
-				displayNum={number.id}
-				label={number.label}
-				subtitle={number.subtitle}
-				isSelected={active}
-				progressPct={progress}
-				stagesDone={stagesDone}
-				pipStates={pipStates}
-				innateGlow={isInnate}
-				fullyAligned={fullyAligned}
-				size={size}
-				onClick={() => onSelect(number)}
-				ariaLabel={`${number.label}${active ? ', selected' : ''}`}
-				ariaPressed={active}
-			/>
-		</div>
-	);
+  return (
+    <div className={`skills-grid-cell${equipped ? ' skills-grid-cell--equipped' : ''}${locked ? ' skills-grid-cell--locked' : ''}`}>
+      <FlowProgressNode
+        color={number.color}
+        icon={number.icon}
+        displayNum={number.id}
+        label={number.label}
+        subtitle={locked ? 'Blueprint' : number.subtitle}
+        isSelected={active || equipped}
+        locked={locked}
+        progressPct={locked ? 0 : progressPct}
+        stagesDone={locked ? 0 : stagesDone}
+        pipStates={pipStates}
+        innateGlow={!locked && isInnate}
+        fullyAligned={!locked && fullyAligned}
+        showPips={!locked}
+        showBadge={!locked}
+        size={size}
+        onClick={() => onSelect(number, { locked, lockedReason })}
+        ariaLabel={`${number.label}${equipped ? ', equipped' : ''}${locked ? ', not in blueprint' : ''}${active ? ', selected' : ''}`}
+        ariaPressed={active}
+      />
+      {equipped && !locked && (
+        <span className="skills-seal-equip-badge" aria-hidden="true">CLASS</span>
+      )}
+    </div>
+  )
 }
 
-function useIsMobile() {
-	const [isMobile, setIsMobile] = useState(window.innerWidth < 700);
-	useEffect(() => {
-		const onResize = () => setIsMobile(window.innerWidth < 700);
-		window.addEventListener("resize", onResize);
-		return () => window.removeEventListener("resize", onResize);
-	}, []);
-	return isMobile;
+function BranchFlowNode({ data }) {
+  return (
+    <div
+      className={`skills-branch-node${data.caption ? ' skills-branch-node--captioned' : ''}`}
+      style={{ width: data.size, height: data.size }}
+    >
+      <FlowProgressNode
+        color={data.color}
+        icon={data.icon}
+        displayNum={data.displayNum}
+        label={data.caption ? '' : data.label}
+        subtitle=""
+        isSelected={data.isSelected}
+        locked={data.locked}
+        progressPct={data.progressPct}
+        stagesDone={data.stagesDone}
+        pipStates={data.pipStates}
+        innateGlow={data.innateGlow || data.isNextAction}
+        fullyAligned={data.fullyAligned}
+        showPips={data.showPips}
+        showBadge={data.showBadge}
+        showProgressArc={data.showProgressArc}
+        size={data.size}
+        shape={data.shape || 'circle'}
+        onClick={data.onClick}
+        withHandles
+        className={data.isNextAction ? 'skills-node--next' : ''}
+        ariaLabel={data.ariaLabel}
+        ariaPressed={data.isSelected}
+      />
+      {data.caption && (
+        <span className="skills-route-caption" aria-hidden="true">
+          {data.caption}
+        </span>
+      )}
+    </div>
+  )
 }
 
-export default function SkillTree({ completed, activeNode, setActiveNode, seeds = {}, statValues = {} }) {
-	const isMobile = useIsMobile();
-	const wrapRef = useRef(null);
-	const [sealSize, setSealSize] = useState(FLOW_NODE_SIZE);
-	const measureRaf = useRef(0);
+const nodeTypes = { branch: BranchFlowNode }
 
-	const toggleNode = useCallback((number) => {
-		setActiveNode((prev) => (prev?.id === number.id ? null : number));
-	}, [setActiveNode]);
+function focusKey(focus) {
+  if (!focus) return null
+  if (focus.type === 'root') return 'root'
+  if (focus.type === 'route') return `route:${focus.routeId}`
+  if (focus.type === 'tier') return `tier:${focus.routeId}:${focus.stageIdx}`
+  return null
+}
 
-	// Scale seals from cell size — debounce + hysteresis so sheet open / scrollbars
-	// cannot thrash ResizeObserver into an infinite setState loop (UI freeze).
-	useEffect(() => {
-		const el = wrapRef.current;
-		if (!el || typeof ResizeObserver === "undefined") return undefined;
+function parseNodeId(id) {
+  if (!id || id === 'root') return { type: 'root' }
+  if (id.startsWith('route:')) return { type: 'route', routeId: id.slice(6) }
+  const tierMatch = /^tier:(.+):(\d+)$/.exec(id)
+  if (tierMatch) {
+    return { type: 'tier', routeId: tierMatch[1], stageIdx: Number(tierMatch[2]) }
+  }
+  return null
+}
 
-		const measure = () => {
-			const w = el.clientWidth || 0;
-			const h = el.clientHeight || 0;
-			if (w < 40 || h < 40) return;
-			const pad = 12;
-			const gap = 8;
-			const cellW = (w - pad * 2 - gap * 2) / 3;
-			const cellH = (h - pad * 2 - gap * 2) / 3;
-			const next = Math.max(48, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)));
-			setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next));
-		};
+function SkillsInspector({ open, color, title, subtitle, icon, onClose, children }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.aside
+          className="skills-inspector"
+          style={{ '--skill-color': color }}
+          initial={{ y: '100%', opacity: 0.6 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{ type: 'tween', duration: 0.22, ease: 'easeOut' }}
+          role="dialog"
+          aria-label={title}
+        >
+          <div className="skills-inspector-handle" aria-hidden="true" />
+          <div className="skills-inspector-header">
+            <span className="skills-inspector-icon" aria-hidden="true">{icon}</span>
+            <div className="skills-inspector-meta">
+              <div className="skills-inspector-title">{title}</div>
+              {subtitle && <div className="skills-inspector-sub">{subtitle}</div>}
+            </div>
+            <button type="button" className="skills-inspector-close" onClick={onClose} aria-label="Close">
+              {'\u2715'}
+            </button>
+          </div>
+          <div className="skills-inspector-body">{children}</div>
+        </motion.aside>
+      )}
+    </AnimatePresence>
+  )
+}
 
-		const schedule = () => {
-			if (measureRaf.current) cancelAnimationFrame(measureRaf.current);
-			measureRaf.current = requestAnimationFrame(measure);
-		};
+export default function SkillTree({
+  completed,
+  setCompleted,
+  activeNode,
+  setActiveNode,
+  seeds = {},
+  statValues = {},
+  playerData = null,
+  freqLevel = 1,
+}) {
+  const wrapRef = useRef(null)
+  const [sealSize, setSealSize] = useState(FLOW_NODE_SIZE)
+  const measureRaf = useRef(0)
+  const [expandedRouteId, setExpandedRouteId] = useState(null)
+  const [focus, setFocus] = useState(null)
+  const [gateMsg, setGateMsg] = useState(null)
+  const [zoomLock, setZoomLock] = useState(null)
+  const [loadout, setLoadout] = useState(() => loadClassLoadout())
+  const [replacePicker, setReplacePicker] = useState(null) // { number, routeId }
+  const rfRef = useRef(null)
 
-		measure();
-		const ro = new ResizeObserver(schedule);
-		ro.observe(el);
-		return () => {
-			ro.disconnect();
-			if (measureRaf.current) cancelAnimationFrame(measureRaf.current);
-		};
-	}, []);
+  const progress = migrateProgressToV3(completed || {})
+  const expanded = activeNode
+    ? NUMBERS.find((n) => n.id === activeNode.id) || null
+    : null
+  const numProgress = expanded
+    ? progress[expanded.id] || { activeRoutes: [], routes: {} }
+    : null
 
-	const activeData = activeNode ? NUMBERS.find((n) => n.id === activeNode.id) : null;
-	const activeStages = activeData
-		? (completed[activeData.id] || [false, false, false])
-		: [false, false, false];
-	const sheetOpen = !!activeData;
-	const totalCompleted = Object.values(completed).flat().filter(Boolean).length;
-	const totalQuests = NUMBERS.length * 3;
+  const training = getTrainingProgress(progress)
+  const eligibleSeals = useMemo(
+    () => getEligibleSeals(playerData, freqLevel),
+    [playerData, freqLevel],
+  )
+  const filledSlots = getFilledSlots(loadout)
+  const classTitle = getClassTitle(loadout)
+  const pathChips = getLoadoutPathChips(loadout)
+  const equippedSealIds = useMemo(
+    () => new Set((loadout.slots || []).filter(Boolean).map((s) => s.number)),
+    [loadout],
+  )
 
-	const gridClass = [
-		"skills-grid",
-		sheetOpen && !isMobile ? "skills-grid--sheet-desktop" : "",
-		sheetOpen && isMobile ? "skills-grid--sheet-mobile" : "",
-	].filter(Boolean).join(" ");
+  useEffect(() => {
+    const onLoadout = (e) => {
+      if (e.detail) setLoadout(e.detail)
+      else setLoadout(loadClassLoadout())
+    }
+    window.addEventListener('scl:class_loadout_updated', onLoadout)
+    return () => window.removeEventListener('scl:class_loadout_updated', onLoadout)
+  }, [])
 
-	return (
-		<div className="skills-stage" aria-label="Numerology Skill Tree">
-			<style>{`
-				.quest-item:hover, .quest-item:focus-visible, .quest-item:active {
-					background: rgba(255,255,255,0.08) !important;
-					outline: none;
-					box-shadow: 0 0 0 2px #fff2, 0 2px 8px #0002;
-				}
-				@media (max-width: 700px) {
-					.side-panel-mobile { width: 100vw !important; left: 0 !important; right: 0 !important; border-radius: 18px 18px 0 0 !important; }
-				}
-			`}</style>
+  const tiersRouteId = useMemo(() => {
+    if (!expandedRouteId || !numProgress) return null
+    if ((numProgress.activeRoutes || []).includes(expandedRouteId)) return expandedRouteId
+    return null
+  }, [expandedRouteId, numProgress])
 
-			<header className="skills-stage-header">
-				<p className="skills-thesis">Your nine frequencies — select a seal to train it.</p>
-				<div className="skills-progress" aria-label="Overall skill progress">
-					<span className="skills-progress-label">PROGRESS</span>
-					<div className="skills-progress-track">
-						<div
-							className="skills-progress-fill"
-							style={{ width: `${(totalCompleted / totalQuests) * 100}%` }}
-						/>
-					</div>
-					<span className="skills-progress-val">{totalCompleted}/{totalQuests}</span>
-				</div>
-			</header>
+  const nextAction = useMemo(() => {
+    if (!expanded || !numProgress) return null
+    if (tiersRouteId) {
+      const next = getNextTierAction(expanded.id, tiersRouteId, numProgress, statValues, seeds)
+      if (next) return { kind: 'tier', ...next }
+    }
+    for (const route of expanded.routes) {
+      const active = (numProgress.activeRoutes || []).includes(route.id)
+      if (!active) continue
+      const next = getNextTierAction(expanded.id, route.id, numProgress, statValues, seeds)
+      if (next) {
+        if (tiersRouteId === route.id) return { kind: 'tier', ...next }
+        return { kind: 'route', routeId: route.id }
+      }
+    }
+    for (const route of expanded.routes) {
+      const gate = canStartRoute(numProgress, expanded.id, route.id)
+      if (gate.ok && gate.reason !== 'active') {
+        return { kind: 'route', routeId: route.id }
+      }
+    }
+    return null
+  }, [expanded, numProgress, tiersRouteId, seeds, statValues])
 
-			<div className="skills-stage-body">
-				<div ref={wrapRef} className="skills-flow-wrap">
-					{!activeData && (
-						<p className="skills-idle-hint" aria-hidden="true">
-							Select a skill to view its path.
-						</p>
-					)}
-					<div className={gridClass} aria-label="Skill Tree">
-						{NUMBERS.map((num) => (
-							<SkillSeal
-								key={num.id}
-								number={num}
-								completed={completed[num.id] || [false, false, false]}
-								active={activeNode?.id === num.id}
-								seeds={seeds}
-								statValues={statValues}
-								size={sealSize}
-								onSelect={toggleNode}
-							/>
-						))}
-					</div>
-				</div>
+  const collapse = useCallback(() => {
+    setActiveNode(null)
+    setExpandedRouteId(null)
+    setFocus(null)
+    setGateMsg(null)
+    setReplacePicker(null)
+  }, [setActiveNode])
 
-				<AnimatePresence>
-				{activeData && (
-					<motion.div
-						key={`skill-sheet-root-${activeData.id}`}
-						className="skills-sheet-root"
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						transition={{ duration: 0.15 }}
-					>
-						{isMobile && (
-							<motion.div
-								key="skill-backdrop"
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								transition={{ duration: 0.2 }}
-								onClick={() => setActiveNode(null)}
-								className="skills-sheet-backdrop"
-							/>
-						)}
-						<motion.div
-							key={`skill-panel-${activeData.id}`}
-							className={`skills-sheet${isMobile ? " side-panel-mobile skills-sheet--mobile" : " skills-sheet--desktop"}`}
-							initial={isMobile ? { y: "100%" } : { x: "100%", opacity: 0 }}
-							animate={{ y: 0, x: 0, opacity: 1 }}
-							exit={isMobile ? { y: "100%" } : { x: "100%", opacity: 0 }}
-							transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
-							style={{ "--skill-color": activeData.color }}
-							role="dialog"
-							aria-modal="true"
-							aria-label={activeData.label + " details"}
-						>
-						<div className="skills-sheet-header">
-							<div className="skills-sheet-hero">
-								<span className="skills-sheet-num">{activeData.id}</span>
-								<div className="skills-sheet-meta">
-									<div className="skills-sheet-title">
-										<span className="skills-sheet-glyph" aria-hidden="true">{activeData.icon}</span>
-										{activeData.label}
-									</div>
-									<div className="skills-sheet-sub">{activeData.subtitle}</div>
-								</div>
-								<button
-									type="button"
-									aria-label="Close details panel"
-									className="skills-sheet-close"
-									onClick={() => setActiveNode(null)}
-								>✕</button>
-							</div>
+  const openSeal = useCallback((number, opts = {}) => {
+    if (opts.locked) {
+      setGateMsg(opts.lockedReason || 'Not in your blueprint')
+      setActiveNode(number)
+      setExpandedRouteId(null)
+      setFocus(null)
+      return
+    }
+    setGateMsg(null)
+    setFocus(null)
+    setExpandedRouteId(null)
+    setReplacePicker(null)
+    setActiveNode(number)
+  }, [setActiveNode])
 
-							<div className="skills-sheet-pips">
-								{[0, 1, 2].map((i) => (
-									<div key={i} className="skills-sheet-pip">
-										<div
-											className={`skills-sheet-pip-label${activeStages[i] ? " skills-sheet-pip-label--done" : ""}`}
-											style={activeStages[i] ? { color: STAGE_COLORS[i + 1].text } : undefined}
-										>
-											{STAGE_COLORS[i + 1].label.toUpperCase()}
-										</div>
-										<div
-											className="skills-sheet-pip-bar"
-											style={{
-												background: activeStages[i] ? STAGE_COLORS[i + 1].border : "#ffffff11",
-												boxShadow: activeStages[i] ? `0 0 6px ${STAGE_COLORS[i + 1].border}` : "none",
-											}}
-										/>
-									</div>
-								))}
-							</div>
-						</div>
+  const tryEquipRoute = useCallback((routeId, replaceSlotIndex = null) => {
+    if (!expanded || !setCompleted) return { ok: false, error: 'Unavailable' }
+    const sealOk = isSealEligible(expanded.id, playerData, freqLevel)
+    if (!sealOk) return { ok: false, error: 'Not in your blueprint.' }
 
-						<div className="skills-sheet-body">
-							{activeData.stages.map((stage, sIdx) => {
-								const sc = STAGE_COLORS[stage.stage];
-								const isDone = !!activeStages[sIdx];
-								const unlocked = isStageUnlocked(activeData.id, sIdx, completed, statValues, seeds);
-								const innateStages = seeds?.[activeData.id] || [false, false, false]
-								const statVal = statValues?.[activeData.id] || 0
-								const threshold = sIdx === 1 ? THRESHOLDS.stage2 : sIdx === 2 ? THRESHOLDS.stage3 : null
-								const needsPrev = sIdx > 0 && !activeStages[sIdx - 1]
-								const needsStat = threshold && !innateStages[sIdx] && statVal < threshold
-								const lockParts = []
-								if (needsPrev) lockParts.push(`Complete Stage ${sIdx}`)
-								if (needsStat) lockParts.push(`Stat ${statVal}/${threshold}`)
-								const lockReason = lockParts.join(' · ')
-								return (
-									<div key={stage.stage} className={`skills-stage-block${unlocked ? "" : " skills-stage-block--locked"}`}>
-										<div
-											className="quest-item skills-stage-row"
-											style={{
-												border: `1px solid ${isDone ? sc.border : sc.border + "44"}`,
-												background: isDone ? sc.bg : unlocked ? "transparent" : "#222233",
-												filter: unlocked ? "none" : "grayscale(0.7)",
-											}}
-											title={unlocked ? undefined : lockReason || "Complete previous stage via quests"}
-											aria-label={`Stage ${stage.stage}: ${stage.name}${isDone ? ' — complete' : ''}`}
-										>
-											<div
-												className="skills-stage-badge"
-												style={{
-													border: `2px solid ${sc.border}`,
-													background: isDone ? sc.border : "transparent",
-													boxShadow: isDone ? `0 0 8px ${sc.border}` : "none",
-												}}
-											>
-												{isDone ? "✓" : stage.stage}
-											</div>
-											<div>
-												<div className="skills-stage-kicker" style={{ color: sc.text }}>
-													STAGE {stage.stage} · {sc.label.toUpperCase()}
-												</div>
-												<div className={`skills-stage-name${isDone ? " skills-stage-name--done" : unlocked ? "" : " skills-stage-name--locked"}`}>
-													{stage.name}
-													{!unlocked && (
-														<span className="skills-stage-lock">◇ {lockReason || 'Locked'}</span>
-													)}
-												</div>
-											</div>
-										</div>
+    if (replaceSlotIndex != null) {
+      const existing = loadout.slots?.[replaceSlotIndex]
+      if (existing) {
+        const node = progress[String(existing.number)] || {}
+        const done = (node.routes?.[existing.routeId] || []).filter(Boolean).length
+        if (done < 3) {
+          const ok = window.confirm(
+            'Replace this class path? Progress on the old path is kept — only the daily focus changes.',
+          )
+          if (!ok) return { ok: false, cancelled: true }
+        }
+      }
+    }
 
-										<div className="skills-stage-quests">
-											{stage.quests.map((q, qi) => (
-												<div
-													key={qi}
-													className="quest-item skills-quest-row"
-													tabIndex={0}
-													aria-label={q}
-												>
-													<div
-														className="skills-quest-dot"
-														style={{
-															background: sc.border + (isDone ? "ff" : "66"),
-															boxShadow: isDone ? `0 0 4px ${sc.border}` : "none",
-														}}
-													/>
-													<span className={`skills-quest-text${isDone ? " skills-quest-text--done" : unlocked ? "" : " skills-quest-text--locked"}`}>
-														{q}
-													</span>
-												</div>
-											))}
-										</div>
-									</div>
-								);
-							})}
-						</div>
+    const res = equipRoute(expanded.id, routeId, {
+      playerData,
+      freqLevel,
+      replaceSlotIndex,
+      loadout,
+      progress,
+    })
+    if (res.needsReplace) {
+      setReplacePicker({ number: expanded.id, routeId })
+      setGateMsg(res.error)
+      return res
+    }
+    if (!res.ok) {
+      setGateMsg(res.error || 'Could not equip')
+      return res
+    }
+    if (res.progress) setCompleted(res.progress)
+    setLoadout(res.loadout)
+    setExpandedRouteId(routeId)
+    setReplacePicker(null)
+    setGateMsg(null)
+    return res
+  }, [expanded, playerData, freqLevel, loadout, progress, setCompleted])
 
-						<div className="skills-sheet-foot">
-							{isMobile ? "TAP OUTSIDE OR ✕ TO CLOSE" : "✕ OR CLICK SEAL TO CLOSE"}
-						</div>
-					</motion.div>
-					</motion.div>
-				)}
-				</AnimatePresence>
-			</div>
-		</div>
-	);
+  const tryUnequip = useCallback((slotIndex) => {
+    const res = unequipSlot(slotIndex, loadout)
+    if (res.ok) setLoadout(res.loadout)
+  }, [loadout])
+
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el || typeof ResizeObserver === 'undefined' || expanded) return undefined
+
+    const measure = () => {
+      const w = el.clientWidth || 0
+      const h = el.clientHeight || 0
+      if (w < 40 || h < 40) return
+      const pad = 12
+      const gap = 8
+      const cellW = (w - pad * 2 - gap * 2) / 3
+      const cellH = (h - pad * 2 - gap * 2) / 3
+      const next = Math.max(48, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)))
+      setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next))
+    }
+
+    const schedule = () => {
+      if (measureRaf.current) cancelAnimationFrame(measureRaf.current)
+      measureRaf.current = requestAnimationFrame(measure)
+    }
+
+    measure()
+    const ro = new ResizeObserver(schedule)
+    ro.observe(el)
+    return () => {
+      ro.disconnect()
+      if (measureRaf.current) cancelAnimationFrame(measureRaf.current)
+    }
+  }, [expanded])
+
+  const tryStartRoute = useCallback((routeId) => {
+    if (!expanded || !setCompleted) return { ok: false, error: 'Unavailable' }
+    const gate = canStartRoute(numProgress, expanded.id, routeId)
+    if (!gate.ok) return { ok: false, error: gate.reason }
+    if (gate.reason === 'active') {
+      setExpandedRouteId(routeId)
+      return { ok: true, already: true }
+    }
+    const { progress: next, error } = startRoute(progress, expanded.id, routeId)
+    if (error) return { ok: false, error }
+    setCompleted(next)
+    window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: next }))
+    setExpandedRouteId(routeId)
+    setGateMsg(null)
+    return { ok: true }
+  }, [expanded, numProgress, progress, setCompleted])
+
+  const onBranchNode = useCallback((payload) => {
+    if (!expanded) return
+    setGateMsg(null)
+
+    if (payload.type === 'root') {
+      setFocus(null)
+      return
+    }
+
+    if (payload.type === 'route') {
+      const gate = canStartRoute(numProgress, expanded.id, payload.routeId)
+      if (!gate.ok) setGateMsg(gate.reason)
+      setExpandedRouteId(payload.routeId)
+      setFocus({ type: 'route', routeId: payload.routeId, numId: expanded.id })
+      return
+    }
+
+    if (payload.type === 'tier') {
+      setExpandedRouteId(payload.routeId)
+      setFocus({
+        type: 'tier',
+        routeId: payload.routeId,
+        stageIdx: payload.stageIdx,
+        numId: expanded.id,
+      })
+    }
+  }, [expanded, numProgress])
+
+  const onRfNodeClick = useCallback((event, node) => {
+    event?.stopPropagation?.()
+    const parsed = parseNodeId(node?.id)
+    if (parsed) onBranchNode(parsed)
+  }, [onBranchNode])
+
+  const layout = useMemo(
+    () => (expanded ? buildBranchLayout(expanded, tiersRouteId) : null),
+    [expanded, tiersRouteId],
+  )
+
+  const selectedId = focusKey(focus)
+
+  const { nodes, edges } = useMemo(() => {
+    if (!expanded || !layout || !numProgress) return { nodes: [], edges: [] }
+
+    const sealDone = getSealProgress(numProgress, expanded.id)
+    const sealStages = sealDone.filter(Boolean).length
+    const innateStages = seeds?.[expanded.id] || [false, false, false]
+    const statVal = statValues?.[expanded.id] || 0
+    const nodesOut = []
+    const edgesOut = []
+
+    const rootPos = layout.root
+    nodesOut.push({
+      id: 'root',
+      type: 'branch',
+      position: { x: rootPos.x - ROOT_HALF, y: rootPos.y - ROOT_HALF },
+      draggable: false,
+      selectable: false,
+      data: {
+        color: expanded.color,
+        icon: expanded.icon,
+        displayNum: expanded.id,
+        label: expanded.label,
+        caption: '',
+        size: ROOT_SIZE,
+        isSelected: selectedId === 'root',
+        progressPct: (sealStages / 3) * 100,
+        stagesDone: sealStages,
+        pipStates: [0, 1, 2].map((i) => ({
+          done: sealDone[i],
+          eligible: i === 0 || innateStages[i] || statVal >= (i === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3),
+          innate: innateStages[i],
+        })),
+        innateGlow: !!innateStages[0],
+        fullyAligned: sealStages === 3 && statVal >= THRESHOLDS.stage3,
+        showPips: true,
+        showBadge: true,
+        showProgressArc: true,
+        ariaLabel: `${expanded.label} root`,
+        onClick: () => onBranchNode({ type: 'root' }),
+      },
+    })
+
+    expanded.routes.forEach((route, ri) => {
+      const routeId = route.id
+      const stages = getRouteStages(numProgress, expanded.id, routeId)
+      const done = stages.filter(Boolean).length
+      const isActive = (numProgress.activeRoutes || []).includes(routeId)
+      const gate = canStartRoute(numProgress, expanded.id, routeId)
+      const gated = !isActive && !gate.ok
+      const routePos = layout[`route:${routeId}`]
+      const nodeId = `route:${routeId}`
+      const isNextRoute = nextAction?.kind === 'route' && nextAction.routeId === routeId
+
+      nodesOut.push({
+        id: nodeId,
+        type: 'branch',
+        position: { x: routePos.x - ROUTE_HALF, y: routePos.y - ROUTE_HALF },
+        draggable: false,
+        selectable: false,
+        data: {
+          color: gated ? '#666680' : expanded.color,
+          icon: ROUTE_ICONS[ri % ROUTE_ICONS.length],
+          displayNum: '',
+          label: '',
+          caption: route.name,
+          size: ROUTE_SIZE,
+          shape: 'square',
+          isSelected: selectedId === nodeId || expandedRouteId === routeId,
+          locked: false,
+          progressPct: (done / 3) * 100,
+          stagesDone: done,
+          showPips: false,
+          showBadge: false,
+          showProgressArc: !gated && done > 0,
+          isNextAction: isNextRoute,
+          ariaLabel: gated ? `${route.name} route, locked` : `${route.name} route`,
+          onClick: () => onBranchNode({ type: 'route', routeId }),
+        },
+      })
+
+      edgesOut.push({
+        id: `e-root-${routeId}`,
+        source: 'root',
+        target: nodeId,
+        type: 'smoothstep',
+        animated: isActive,
+        style: {
+          stroke: isActive ? `${expanded.color}99` : 'rgba(255,255,255,0.18)',
+          strokeWidth: isActive ? 2 : 1.25,
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 14,
+          height: 14,
+          color: isActive ? expanded.color : 'rgba(255,255,255,0.25)',
+        },
+      })
+
+      if (tiersRouteId !== routeId) return
+
+      route.stages.forEach((stage, si) => {
+        const tierId = `tier:${routeId}:${si}`
+        const tierPos = layout[tierId]
+        if (!tierPos) return
+        const unlocked = isActive && isRouteStageUnlocked(
+          expanded.id, routeId, si, numProgress, statValues, seeds,
+        )
+        const isDone = !!stages[si]
+        const tierLocked = !unlocked
+        const tierColor = tierLocked ? '#555568' : TIER_COLORS[stage.stage]
+        const isNextTier = nextAction?.kind === 'tier'
+          && nextAction.routeId === routeId
+          && nextAction.stageIdx === si
+        const tierLabel = TIER_LABELS[stage.stage].label
+
+        nodesOut.push({
+          id: tierId,
+          type: 'branch',
+          position: { x: tierPos.x - TIER_HALF, y: tierPos.y - TIER_HALF },
+          draggable: false,
+          selectable: false,
+          data: {
+            color: isNextTier ? expanded.color : tierColor,
+            icon: isDone ? '\u2713' : String(stage.stage),
+            displayNum: '',
+            label: '',
+            caption: tierLabel,
+            size: TIER_SIZE,
+            isSelected: selectedId === tierId,
+            locked: tierLocked && !isNextTier,
+            progressPct: isDone ? 100 : 0,
+            stagesDone: isDone ? 1 : 0,
+            showPips: false,
+            showBadge: false,
+            showProgressArc: isDone,
+            isNextAction: isNextTier,
+            ariaLabel: `${route.name} ${tierLabel}`,
+            onClick: () => onBranchNode({ type: 'tier', routeId, stageIdx: si }),
+          },
+        })
+
+        const prevId = si === 0 ? nodeId : `tier:${routeId}:${si - 1}`
+        edgesOut.push({
+          id: `e-${prevId}-${tierId}`,
+          source: prevId,
+          target: tierId,
+          type: 'smoothstep',
+          animated: isDone || isNextTier,
+          style: {
+            stroke: isDone
+              ? `${tierColor}aa`
+              : isNextTier
+                ? `${expanded.color}88`
+                : (isActive ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.1)'),
+            strokeWidth: isDone || isNextTier ? 1.75 : 1.1,
+            strokeDasharray: unlocked || isDone ? undefined : '4 4',
+          },
+        })
+      })
+    })
+
+    return { nodes: nodesOut, edges: edgesOut }
+  }, [
+    expanded, layout, numProgress, selectedId, seeds, statValues,
+    onBranchNode, tiersRouteId, expandedRouteId, nextAction,
+  ])
+
+  const onInit = useCallback((rf) => {
+    rfRef.current = rf
+    rf.fitView({ padding: 0.2, duration: 200 })
+    const z = rf.getZoom()
+    setZoomLock(z)
+    rf.setMinZoom(Math.max(0.25, z * 0.7))
+    rf.setMaxZoom(Math.min(1.6, z * 1.25))
+  }, [])
+
+  useEffect(() => {
+    if (!expanded || !rfRef.current) return
+    const t = requestAnimationFrame(() => {
+      rfRef.current?.fitView?.({ padding: 0.22, duration: 280, includeHiddenNodes: false })
+    })
+    return () => cancelAnimationFrame(t)
+  }, [expanded?.id, tiersRouteId])
+
+  const inspector = useMemo(() => {
+    if (!expanded || !focus || !numProgress) return null
+    if (focus.type === 'root') return null
+
+    const sealEligible = isSealEligible(expanded.id, playerData, freqLevel)
+
+    if (focus.type === 'route') {
+      const route = expanded.routes.find((r) => r.id === focus.routeId)
+      if (!route) return null
+      const stages = getRouteStages(numProgress, expanded.id, route.id)
+      const active = (numProgress.activeRoutes || []).includes(route.id)
+      const gate = canStartRoute(numProgress, expanded.id, route.id)
+      const equipped = isRouteEquipped(expanded.id, route.id, loadout)
+      const equipSlotIdx = findLoadoutSlotIndex(expanded.id, route.id, loadout)
+      return {
+        color: expanded.color,
+        title: route.name,
+        subtitle: route.classNoun
+          ? `${route.classNoun} · ${route.thesis}`
+          : route.thesis,
+        icon: equipped ? '\u265A' : '\u25C8',
+        body: (
+          <>
+            {route.placeholder && (
+              <p className="skills-detail-note">Foundation path - full quests coming.</p>
+            )}
+            <p className="skills-detail-lead">
+              {equipped
+                ? `Equipped class path · ${stages.filter(Boolean).length}/3 tiers`
+                : active
+                  ? `Training · ${stages.filter(Boolean).length}/3 tiers — equip to focus dailies`
+                  : 'Preview the path, then equip it as a class specialization.'}
+            </p>
+            {!sealEligible && (
+              <p className="skills-detail-gate" role="status">Not in your blueprint</p>
+            )}
+            {sealEligible && !equipped && (
+              <button
+                type="button"
+                className="skills-detail-cta"
+                onClick={() => {
+                  const res = tryEquipRoute(route.id)
+                  if (!res.ok && !res.needsReplace) setGateMsg(res.error)
+                }}
+              >
+                Equip as class path
+              </button>
+            )}
+            {equipped && (
+              <button
+                type="button"
+                className="skills-detail-cta skills-detail-cta--ghost"
+                onClick={() => tryUnequip(equipSlotIdx)}
+              >
+                Unequip path
+              </button>
+            )}
+            {replacePicker?.routeId === route.id && (
+              <div className="skills-replace-picker" role="group" aria-label="Replace class slot">
+                <p className="skills-detail-kicker">Replace which path?</p>
+                {loadout.slots.map((slot, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="skills-replace-slot"
+                    onClick={() => tryEquipRoute(route.id, i)}
+                  >
+                    Slot {i === 0 ? 'A' : 'B'}
+                    {slot
+                      ? ` — ${NUMBERS.find((n) => Number(n.id) === slot.number)?.label || slot.number} · ${slot.routeId}`
+                      : ' (empty)'}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="skills-detail-cta skills-detail-cta--ghost"
+                  onClick={() => setReplacePicker(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+            {!active && gate.ok && sealEligible && (
+              <button
+                type="button"
+                className="skills-detail-cta skills-detail-cta--ghost"
+                onClick={() => {
+                  const res = tryStartRoute(route.id)
+                  if (!res.ok) setGateMsg(res.error)
+                }}
+              >
+                Start without equipping
+              </button>
+            )}
+            {!gate.ok && (
+              <p className="skills-detail-gate" role="status">{gate.reason}</p>
+            )}
+            <p className="skills-detail-kicker">Tiers &amp; quests</p>
+            {route.stages.map((s, i) => {
+              const done = !!stages[i]
+              const unlocked = active && isRouteStageUnlocked(
+                expanded.id, route.id, i, numProgress, statValues, seeds,
+              )
+              return (
+                <div key={s.stage} className="skills-route-tier-preview">
+                  <div className="skills-route-tier-preview-head">
+                    <strong>T{s.stage} {TIER_LABELS[s.stage].label}</strong>
+                    <span>
+                      {done ? 'done' : !active ? 'locked' : unlocked ? s.name : 'locked'}
+                    </span>
+                  </div>
+                  <ul className="skills-detail-quests">
+                    {(s.quests || []).map((q, qi) => (
+                      <li key={qi} className={done ? 'is-done' : ''}>{q}</li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </>
+        ),
+      }
+    }
+
+    if (focus.type === 'tier') {
+      const route = expanded.routes.find((r) => r.id === focus.routeId)
+      const stage = route?.stages?.[focus.stageIdx]
+      if (!route || !stage) return null
+      const stages = getRouteStages(numProgress, expanded.id, route.id)
+      const isDone = !!stages[focus.stageIdx]
+      const isActive = (numProgress.activeRoutes || []).includes(route.id)
+      const unlocked = isActive && isRouteStageUnlocked(
+        expanded.id, route.id, focus.stageIdx, numProgress, statValues, seeds,
+      )
+      const innateStages = seeds?.[expanded.id] || [false, false, false]
+      const statVal = statValues?.[expanded.id] || 0
+      const threshold = focus.stageIdx === 1
+        ? THRESHOLDS.stage2
+        : focus.stageIdx === 2
+          ? THRESHOLDS.stage3
+          : null
+      const lockParts = []
+      if (!isActive) lockParts.push('Start or equip this route first')
+      if (focus.stageIdx > 0 && !stages[focus.stageIdx - 1]) {
+        lockParts.push(`Complete ${TIER_LABELS[focus.stageIdx].label}`)
+      }
+      if (threshold && !innateStages[focus.stageIdx] && statVal < threshold) {
+        lockParts.push(`Stat ${statVal}/${threshold}`)
+      }
+      const tier = TIER_LABELS[stage.stage]
+      return {
+        color: unlocked || isDone ? TIER_COLORS[stage.stage] : expanded.color,
+        title: stage.name,
+        subtitle: `${route.name} · ${tier.label}`,
+        icon: isDone ? '\u2713' : String(stage.stage),
+        body: (
+          <>
+            {!unlocked && (
+              <p className="skills-detail-gate" role="status">
+                {lockParts.join(' · ') || 'Locked'}
+              </p>
+            )}
+            {isDone && <p className="skills-detail-lead">Tier complete.</p>}
+            {unlocked && !isDone && (
+              <p className="skills-detail-lead">Next up — complete these in the world.</p>
+            )}
+            <p className="skills-detail-kicker">Quests</p>
+            <ul className="skills-detail-quests">
+              {stage.quests.map((q, i) => (
+                <li key={i} className={isDone ? 'is-done' : ''}>{q}</li>
+              ))}
+            </ul>
+            <p className="skills-detail-note">
+              Matching class / daily quests fill this tier automatically.
+            </p>
+          </>
+        ),
+      }
+    }
+
+    return null
+  }, [
+    expanded, focus, numProgress, seeds, statValues, tryStartRoute,
+    tryEquipRoute, tryUnequip, loadout, replacePicker, playerData, freqLevel,
+  ])
+
+  const thesis = !expanded
+    ? (filledSlots.length
+      ? `Class: ${classTitle} — select a seal to train.`
+      : 'Equip up to two blueprint paths as your class.')
+    : !isSealEligible(expanded.id, playerData, freqLevel)
+      ? `${expanded.label} — not in your blueprint.`
+      : tiersRouteId
+        ? `${expanded.label} · ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'} tiers`
+        : `${expanded.label} — equip a route as your class path.`
+
+  return (
+    <div className="skills-stage" aria-label="Numerology Skill Tree">
+      <header className="skills-stage-header skills-stage-header--loadout">
+        <div className="skills-loadout-block">
+          <div className="skills-class-row">
+            <span className="skills-class-kicker">CLASS</span>
+            <span className="skills-class-title">{classTitle}</span>
+          </div>
+          <div className="skills-loadout-chips" aria-label="Equipped paths">
+            {[0, 1].map((i) => {
+              const chip = pathChips[i]
+              if (!chip) {
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className="skills-loadout-chip skills-loadout-chip--empty"
+                    onClick={collapse}
+                  >
+                    {i === 0 ? 'Choose a path' : 'Choose second path'}
+                  </button>
+                )
+              }
+              return (
+                <button
+                  key={`${chip.number}-${chip.routeId}`}
+                  type="button"
+                  className="skills-loadout-chip"
+                  style={{ '--chip-color': chip.color }}
+                  onClick={() => {
+                    const num = NUMBERS.find((n) => Number(n.id) === chip.number)
+                    if (num) {
+                      openSeal(num)
+                      setExpandedRouteId(chip.routeId)
+                      setFocus({ type: 'route', routeId: chip.routeId, numId: chip.number })
+                    }
+                  }}
+                >
+                  <span aria-hidden="true">{chip.icon}</span>
+                  {chip.sealLabel} · {chip.routeName}
+                </button>
+              )
+            })}
+          </div>
+          <p className="skills-thesis">{thesis}</p>
+        </div>
+        <div className="skills-progress" aria-label="Overall skill progress">
+          <span className="skills-progress-label">PROGRESS</span>
+          <div className="skills-progress-track">
+            <div
+              className="skills-progress-fill"
+              style={{ width: `${Math.min(100, (training.done / training.total) * 100)}%` }}
+            />
+          </div>
+          <span className="skills-progress-val">{training.done}/{training.total}</span>
+        </div>
+      </header>
+
+      <div className="skills-stage-body">
+        {!expanded && (
+          <div ref={wrapRef} className="skills-flow-wrap">
+            {filledSlots.length === 0 && (
+              <div className="skills-class-coach" role="note">
+                <p className="skills-class-coach-title">Choose your class</p>
+                <ol className="skills-class-coach-steps">
+                  <li>Open a <strong>blueprint</strong> seal (unlocked)</li>
+                  <li>Pick a route → <strong>Equip as class path</strong></li>
+                  <li>Optionally equip a <strong>second</strong> path — dailies train these two</li>
+                </ol>
+              </div>
+            )}
+            {filledSlots.length > 0 && (
+              <p className="skills-idle-hint" aria-hidden="true">
+                Blueprint seals open — locked seals are outside your destiny kit.
+              </p>
+            )}
+            <div className="skills-grid" aria-label="Skill Tree">
+              {NUMBERS.map((num) => {
+                const eligible = !playerData || eligibleSeals.has(Number(num.id))
+                return (
+                  <SkillSeal
+                    key={num.id}
+                    number={num}
+                    completed={getSealProgress(progress[num.id], num.id)}
+                    active={false}
+                    seeds={seeds}
+                    statValues={statValues}
+                    size={sealSize}
+                    onSelect={openSeal}
+                    eligible={eligible}
+                    equipped={equippedSealIds.has(Number(num.id))}
+                    lockedReason="Not in your blueprint"
+                  />
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {expanded && (
+          <div
+            className={`skills-branch-wrap${inspector ? ' skills-branch-wrap--inspect' : ''}`}
+            style={{ '--skill-color': expanded.color }}
+          >
+            <div className="skills-branch-toolbar">
+              <button type="button" className="skills-branch-back" onClick={collapse}>
+                {'\u2190'} All seals
+              </button>
+              <span className="skills-branch-title">
+                <span aria-hidden="true">{expanded.icon}</span> {expanded.label}
+                {equippedSealIds.has(Number(expanded.id)) && (
+                  <span className="skills-branch-equipped-tag">EQUIPPED</span>
+                )}
+              </span>
+              {tiersRouteId && (
+                <button
+                  type="button"
+                  className="skills-branch-collapse"
+                  onClick={() => {
+                    setExpandedRouteId(null)
+                    setFocus(null)
+                  }}
+                >
+                  Collapse route
+                </button>
+              )}
+            </div>
+            {gateMsg && (
+              <p className="skills-branch-gate" role="status">{gateMsg}</p>
+            )}
+            <div className="skills-branch-canvas">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                nodeTypes={nodeTypes}
+                onInit={onInit}
+                onNodeClick={onRfNodeClick}
+                nodesDraggable={false}
+                nodesConnectable={false}
+                elementsSelectable={false}
+                zoomOnDoubleClick={false}
+                panOnScroll
+                zoomOnScroll={false}
+                zoomOnPinch
+                panOnDrag
+                preventScrolling={false}
+                minZoom={zoomLock ? Math.max(0.25, zoomLock * 0.7) : 0.25}
+                maxZoom={zoomLock ? Math.min(1.6, zoomLock * 1.25) : 1.6}
+                proOptions={{ hideAttribution: true }}
+                fitView
+                fitViewOptions={{ padding: 0.2 }}
+              />
+            </div>
+
+            <SkillsInspector
+              open={!!inspector}
+              color={inspector?.color || expanded.color}
+              title={inspector?.title || ''}
+              subtitle={inspector?.subtitle || ''}
+              icon={inspector?.icon || '\u2726'}
+              onClose={() => { setFocus(null); setGateMsg(null); setReplacePicker(null) }}
+            >
+              {inspector?.body}
+            </SkillsInspector>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

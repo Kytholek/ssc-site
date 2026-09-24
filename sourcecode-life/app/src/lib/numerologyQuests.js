@@ -19,15 +19,26 @@ import {
   applyQuestSkillReward,
   resolveSkillMeta,
   skillTreeNumber,
-  SKILLTREE_LS_KEY,
 } from './skillQuestBridge.js'
+import {
+  NUMBERS,
+  loadSkillTreeProgressV3,
+  getPrimaryRouteId,
+  getRouteStages,
+  isRouteStageUnlocked,
+} from './skillRoutes.js'
+import {
+  loadClassLoadout,
+  getFilledSlots,
+  getEligibleSeals,
+  clearAutoSeededLoadout,
+} from './classLoadout.js'
 import { recordDailySnapshot, updateDailySummary } from './dataHistory.js'
 import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
 import { resolveBlueprintNode } from './questBlueprint.js'
 import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple } from './numerology.js'
 import { statState } from './achievements.js'
 import { todayStr } from './numerology.js'
-import { NUMBERS } from '../components/skilltree/SkillTree.jsx'
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 const LS_GEN_QUESTS  = 'scl_gen_quests'
@@ -1125,19 +1136,6 @@ function activeTierFor(questKey, lqp) {
  *   statXP?:         object     — { [1..9]: xp } from questEngine.getXPState()
  * }
  */
-// Stage unlock thresholds — must match SkillTree.jsx THRESHOLDS
-const SKILL_STAGE_THRESHOLDS = { stage2: 5, stage3: 10 }
-
-function isSkillStageUnlocked(numberId, stageIdx, skillProgress, statValues, seeds) {
-  if (stageIdx === 0) return true
-  const prevDone = skillProgress[numberId]?.[stageIdx - 1] === true
-  if (!prevDone) return false
-  const innate  = seeds?.[numberId] || [false, false, false]
-  if (innate[stageIdx]) return true
-  const statVal = statValues?.[String(numberId)] || 0
-  return statVal >= (stageIdx === 1 ? SKILL_STAGE_THRESHOLDS.stage2 : SKILL_STAGE_THRESHOLDS.stage3)
-}
-
 function _shuffle(array) {
   const a = [...array]
   for (let i = a.length - 1; i > 0; i--) {
@@ -1154,52 +1152,109 @@ export function generateDailyQuests(user) {
   const seeds       = user?.seeds       || {}
   const lifeNodes   = user?.lifeNodes   || []
   const cycleRoots  = user?.cycleRoots  || {}
+  const freqLevel   = user?.freqLevel || 1
 
-  // ── 2 SKILL quests (unlocked stages only) ────────────────────────────────
+  // ── Class loadout (seed from progress if empty) ────────────────────────────
   let skillProgress = {}
   try {
-    const raw = localStorage.getItem(SKILLTREE_LS_KEY)
-    if (raw) skillProgress = JSON.parse(raw)
-  } catch {}
+    skillProgress = loadSkillTreeProgressV3()
+  } catch {
+    skillProgress = {}
+  }
 
-  const skillPool = []
-  NUMBERS.forEach(numberObj => {
-    numberObj.stages.forEach((stageObj, stageIdx) => {
-      if (!isSkillStageUnlocked(numberObj.id, stageIdx, skillProgress, statValues, seeds)) return
+  // Soft-clear auto-seeded loadout (player picks class paths themselves)
+  try {
+    clearAutoSeededLoadout()
+  } catch { /* ignore */ }
+
+  const loadout = loadClassLoadout()
+  const filledSlots = getFilledSlots(loadout)
+  const loadoutEmpty = filledSlots.length === 0
+
+  const pushRouteQuests = (pool, numberObj, route, numProgress, { priority = 0 } = {}) => {
+    if (!route) return
+    route.stages.forEach((stageObj, stageIdx) => {
+      if (!isRouteStageUnlocked(numberObj.id, route.id, stageIdx, numProgress, statValues, seeds)) return
+      const stages = getRouteStages(numProgress, numberObj.id, route.id)
+      if (stages[stageIdx]) return // already done — skip for daily focus
+      const isNextTier = stages.findIndex((d) => !d) === stageIdx
       stageObj.quests.forEach((questText, questIdx) => {
-        skillPool.push({
+        pool.push({
           number:      Number(numberObj.id),
           numberLabel: numberObj.label,
           stage:       stageObj.stage,
           stageName:   stageObj.name,
+          routeId:     route.id,
+          routeName:   route.name,
+          classNoun:   route.classNoun || route.name,
           questText,
           questIdx,
           stageIdx,
+          priority:    priority + (isNextTier ? 10 : 0),
         })
       })
     })
-  })
+  }
 
-  const skillPicked = _shuffle(skillPool).slice(0, 2)
+  // ── 2 CLASS / SKILL quests from loadout (or blueprint Discovery) ───────────
+  const skillPool = []
+
+  if (filledSlots.length) {
+    filledSlots.forEach((slot, slotIdx) => {
+      const numberObj = NUMBERS.find((n) => Number(n.id) === slot.number)
+      if (!numberObj) return
+      const numProgress = skillProgress[numberObj.id] || { activeRoutes: [], routes: {} }
+      const route = numberObj.routes?.find((r) => r.id === slot.routeId)
+      pushRouteQuests(skillPool, numberObj, route, numProgress, { priority: 20 - slotIdx })
+    })
+  } else {
+    // Discovery: blueprint-eligible seals, primary routes
+    const pdLike = user?.lifeNodes?.length
+      ? Object.fromEntries(user.lifeNodes.map((n) => [n.key, { root: n.root }]))
+      : null
+    const eligible = pdLike ? getEligibleSeals(pdLike, freqLevel) : new Set()
+    NUMBERS.forEach((numberObj) => {
+      if (eligible.size && !eligible.has(Number(numberObj.id))) return
+      const numProgress = skillProgress[numberObj.id] || { activeRoutes: [], routes: {} }
+      const routeId = getPrimaryRouteId(numProgress, numberObj.id)
+      const route = numberObj.routes?.find((r) => r.id === routeId) || numberObj.routes?.[0]
+      pushRouteQuests(skillPool, numberObj, route, numProgress, { priority: 0 })
+    })
+  }
+
+  // Prefer high-priority (next unfinished tier on loadout), then shuffle within band
+  skillPool.sort((a, b) => b.priority - a.priority)
+  const topPri = skillPool[0]?.priority ?? 0
+  const high = skillPool.filter((q) => q.priority >= topPri - 5)
+  const low = skillPool.filter((q) => q.priority < topPri - 5)
+  const skillPicked = [..._shuffle(high), ..._shuffle(low)].slice(0, 2)
+
   const skillQuests = skillPicked.map(q => ({
-    id:          `skill-${q.number}-${q.stage}-${q.questIdx}-${today}`,
+    id:          `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`,
     title:       q.questText,
     number:      q.number,
     numberLabel: q.numberLabel,
     stage:       q.stage,
     stageIdx:    q.stageIdx,
     stageName:   q.stageName,
+    routeId:     q.routeId,
+    routeName:   q.routeName,
+    classNoun:   q.classNoun,
+    discovery:   loadoutEmpty,
     source:      'skill',
     type:        'skilltree',
     difficulty:  q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard',
     rewardXP:    (() => { const base = q.stage === 1 ? 5 : q.stage === 2 ? 10 : 20; const diff = q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard'; return Math.round(base * (DIFFICULTY_MULTIPLIER[diff] || 1.0)) })(),
-    skillMeta:   resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
+    skillMeta:   {
+      ...resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
+      preferredRouteId: q.routeId,
+    },
     completed:   false,
     isNew:       true,
     isRepeated:  false,
   }))
 
-  // ── 2 LIFE quests (active tier objectives from life quest nodes) ──────────
+  // ── 2 LIFE / BLUEPRINT quests — prefer loadout seal roots ──────────────────
   const lqp = getLQP()
   const lifePool = []
   for (const node of lifeNodes) {
@@ -1211,10 +1266,23 @@ export function generateDailyQuests(user) {
     })
   }
 
-  const lifePicked = _shuffle(lifePool).slice(0, 2)
+  const loadoutSealSet = new Set(filledSlots.map((s) => s.number))
+  const lifePreferred = loadoutSealSet.size
+    ? lifePool.filter((c) => loadoutSealSet.has(skillTreeNumber(c.root)))
+    : []
+  const lifeOther = loadoutSealSet.size
+    ? lifePool.filter((c) => !loadoutSealSet.has(skillTreeNumber(c.root)))
+    : lifePool
+  const lifePicked = [
+    ..._shuffle(lifePreferred),
+    ..._shuffle(lifeOther),
+  ].slice(0, 2)
+
   const multiDayStarts = []
   const lifeQuests = lifePicked.map(c => {
     const diff = c.tier === 3 ? 'hard' : c.tier === 2 ? 'medium' : 'easy'
+    const seal = skillTreeNumber(c.root)
+    const equippedRoute = filledSlots.find((s) => s.number === seal)
     const quest = {
       id:        `life-${c.questKey}-${c.tier}-${c.objIdx}-${today}`,
       title:     c.text,
@@ -1223,11 +1291,15 @@ export function generateDailyQuests(user) {
       type:      'objective',
       difficulty: diff,
       rewardXP:  Math.round(BASE_XP[diff] * (DIFFICULTY_MULTIPLIER[diff] || 1.0)),
-      skillMeta: resolveSkillMeta({ root: c.root, tier: c.tier, questKind: 'life' }),
+      skillMeta: {
+        ...resolveSkillMeta({ root: c.root, tier: c.tier, questKind: 'life' }),
+        preferredRouteId: equippedRoute?.routeId || null,
+      },
       completed: false,
       isNew:     false,
       isRepeated:false,
       lqpMeta:   { questKey: c.questKey, tier: c.tier, objIdx: c.objIdx },
+      supportsClass: !!equippedRoute,
     }
     const multi = detectMultiDay(c.text)
     if (multi) {
@@ -1254,37 +1326,51 @@ export function generateDailyQuests(user) {
   }
 
   const cyclePicked = _shuffle(cyclePool).slice(0, 2)
-  const cycleQuests = cyclePicked.map(c => ({
-    id:          `current-${c.type}-${c.root}-${c.idx}-${today}`,
-    title:       c.text,
-    number:      c.root,
-    cycleType:   c.type,
-    source:      'current',
-    type:        'cycle',
-    difficulty:  'easy',
-    rewardXP:    Math.round(BASE_XP.easy * (DIFFICULTY_MULTIPLIER['easy'] || 1.0)),
-    skillMeta:   resolveSkillMeta({ root: c.root, questKind: 'cycle' }),
-    completed:   false,
-    isNew:       false,
-    isRepeated:  false,
-  }))
+  const cycleQuests = cyclePicked.map(c => {
+    const seal = skillTreeNumber(c.root)
+    const equippedRoute = filledSlots.find((s) => s.number === seal)
+    return {
+      id:          `current-${c.type}-${c.root}-${c.idx}-${today}`,
+      title:       c.text,
+      number:      c.root,
+      cycleType:   c.type,
+      source:      'current',
+      type:        'cycle',
+      difficulty:  'easy',
+      rewardXP:    Math.round(BASE_XP.easy * (DIFFICULTY_MULTIPLIER['easy'] || 1.0)),
+      skillMeta:   {
+        ...resolveSkillMeta({ root: c.root, questKind: 'cycle' }),
+        preferredRouteId: equippedRoute?.routeId || null,
+      },
+      supportsClass: !!equippedRoute,
+      completed:   false,
+      isNew:       false,
+      isRepeated:  false,
+    }
+  })
 
   const quests = [...skillQuests, ...lifeQuests, ...cycleQuests]
 
   // Fallback: if pools were small and we got fewer than 6, fill from remaining skill quests
   if (quests.length < 6) {
     const remainingSkill = _shuffle(skillPool).filter(
-      sq => !skillPicked.some(sp => sp.questText === sq.questText)
+      sq => !skillPicked.some(sp =>
+        sp.questText === sq.questText && sp.routeId === sq.routeId && sp.number === sq.number
+      )
     )
     const needed = 6 - quests.length
     const fillers = remainingSkill.slice(0, needed).map(q => ({
-      id:          `skill-${q.number}-${q.stage}-${q.questIdx}-${today}`,
+      id:          `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`,
       title:       q.questText,
       number:      q.number,
       numberLabel: q.numberLabel,
       stage:       q.stage,
       stageIdx:    q.stageIdx,
       stageName:   q.stageName,
+      routeId:     q.routeId,
+      routeName:   q.routeName,
+      classNoun:   q.classNoun,
+      discovery:   loadoutEmpty,
       source:      'skill',
       type:        'skilltree',
       difficulty:  q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard',
@@ -1292,12 +1378,21 @@ export function generateDailyQuests(user) {
       completed:   false,
       isNew:       true,
       isRepeated:  false,
-      skillMeta:   resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
+      skillMeta:   {
+        ...resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
+        preferredRouteId: q.routeId,
+      },
     }))
     quests.push(...fillers)
   }
 
-  const record = { date: today, quests, cycleLabel: CYCLE_MODIFIERS?.[cycleNumber]?.label || '', cycleNumber }
+  const record = {
+    date: today,
+    quests,
+    cycleLabel: CYCLE_MODIFIERS?.[cycleNumber]?.label || '',
+    cycleNumber,
+    loadoutEmpty,
+  }
   try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(record)) } catch {}
   dispatch('scl:gen_quests_updated', { quests })
 

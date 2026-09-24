@@ -1736,6 +1736,16 @@ body.scl-realm-open .tab-bar {
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
 }
+.skills-sheet-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+.skills-sheet-root .skills-sheet,
+.skills-sheet-root .skills-sheet-backdrop {
+  pointer-events: auto;
+}
 .skills-sheet {
   display: flex;
   flex-direction: column;

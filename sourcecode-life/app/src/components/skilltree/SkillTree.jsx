@@ -167,12 +167,14 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 	const isMobile = useIsMobile();
 	const wrapRef = useRef(null);
 	const [sealSize, setSealSize] = useState(FLOW_NODE_SIZE);
+	const measureRaf = useRef(0);
 
 	const toggleNode = useCallback((number) => {
 		setActiveNode((prev) => (prev?.id === number.id ? null : number));
 	}, [setActiveNode]);
 
-	// Scale seals from cell size so the 3×3 fills the stage without clipping
+	// Scale seals from cell size — debounce + hysteresis so sheet open / scrollbars
+	// cannot thrash ResizeObserver into an infinite setState loop (UI freeze).
 	useEffect(() => {
 		const el = wrapRef.current;
 		if (!el || typeof ResizeObserver === "undefined") return undefined;
@@ -186,16 +188,27 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 			const cellW = (w - pad * 2 - gap * 2) / 3;
 			const cellH = (h - pad * 2 - gap * 2) / 3;
 			const next = Math.max(48, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)));
-			setSealSize((prev) => (prev === next ? prev : next));
+			setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next));
+		};
+
+		const schedule = () => {
+			if (measureRaf.current) cancelAnimationFrame(measureRaf.current);
+			measureRaf.current = requestAnimationFrame(measure);
 		};
 
 		measure();
-		const ro = new ResizeObserver(() => measure());
+		const ro = new ResizeObserver(schedule);
 		ro.observe(el);
-		return () => ro.disconnect();
+		return () => {
+			ro.disconnect();
+			if (measureRaf.current) cancelAnimationFrame(measureRaf.current);
+		};
 	}, []);
 
 	const activeData = activeNode ? NUMBERS.find((n) => n.id === activeNode.id) : null;
+	const activeStages = activeData
+		? (completed[activeData.id] || [false, false, false])
+		: [false, false, false];
 	const sheetOpen = !!activeData;
 	const totalCompleted = Object.values(completed).flat().filter(Boolean).length;
 	const totalQuests = NUMBERS.length * 3;
@@ -258,7 +271,14 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 
 				<AnimatePresence>
 				{activeData && (
-					<>
+					<motion.div
+						key={`skill-sheet-root-${activeData.id}`}
+						className="skills-sheet-root"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						transition={{ duration: 0.15 }}
+					>
 						{isMobile && (
 							<motion.div
 								key="skill-backdrop"
@@ -304,16 +324,16 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 								{[0, 1, 2].map((i) => (
 									<div key={i} className="skills-sheet-pip">
 										<div
-											className={`skills-sheet-pip-label${completed[activeData.id][i] ? " skills-sheet-pip-label--done" : ""}`}
-											style={completed[activeData.id][i] ? { color: STAGE_COLORS[i + 1].text } : undefined}
+											className={`skills-sheet-pip-label${activeStages[i] ? " skills-sheet-pip-label--done" : ""}`}
+											style={activeStages[i] ? { color: STAGE_COLORS[i + 1].text } : undefined}
 										>
 											{STAGE_COLORS[i + 1].label.toUpperCase()}
 										</div>
 										<div
 											className="skills-sheet-pip-bar"
 											style={{
-												background: completed[activeData.id][i] ? STAGE_COLORS[i + 1].border : "#ffffff11",
-												boxShadow: completed[activeData.id][i] ? `0 0 6px ${STAGE_COLORS[i + 1].border}` : "none",
+												background: activeStages[i] ? STAGE_COLORS[i + 1].border : "#ffffff11",
+												boxShadow: activeStages[i] ? `0 0 6px ${STAGE_COLORS[i + 1].border}` : "none",
 											}}
 										/>
 									</div>
@@ -324,12 +344,12 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 						<div className="skills-sheet-body">
 							{activeData.stages.map((stage, sIdx) => {
 								const sc = STAGE_COLORS[stage.stage];
-								const isDone = completed[activeData.id][sIdx];
+								const isDone = !!activeStages[sIdx];
 								const unlocked = isStageUnlocked(activeData.id, sIdx, completed, statValues, seeds);
 								const innateStages = seeds?.[activeData.id] || [false, false, false]
 								const statVal = statValues?.[activeData.id] || 0
 								const threshold = sIdx === 1 ? THRESHOLDS.stage2 : sIdx === 2 ? THRESHOLDS.stage3 : null
-								const needsPrev = sIdx > 0 && !completed[activeData.id][sIdx - 1]
+								const needsPrev = sIdx > 0 && !activeStages[sIdx - 1]
 								const needsStat = threshold && !innateStages[sIdx] && statVal < threshold
 								const lockParts = []
 								if (needsPrev) lockParts.push(`Complete Stage ${sIdx}`)
@@ -400,7 +420,7 @@ export default function SkillTree({ completed, activeNode, setActiveNode, seeds 
 							{isMobile ? "TAP OUTSIDE OR ✕ TO CLOSE" : "✕ OR CLICK SEAL TO CLOSE"}
 						</div>
 					</motion.div>
-					</>
+					</motion.div>
 				)}
 				</AnimatePresence>
 			</div>

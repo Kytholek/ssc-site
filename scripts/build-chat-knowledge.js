@@ -117,7 +117,7 @@ function buildCoreChunks() {
         'Blueprint Bundle — $29 USD one-time (save $10 vs $39 separately). Guidebook Report + Time Cycle, both PDFs emailed within minutes. Best value on /services/#bundle.',
         'Personal Consultation — $55 for a 1-hour live video session. Full 7-frequency reading live, compounds in real time, Q&A, session recording. Book a time on Setmore: https://ssc.setmore.com/services/7f96af84-b31f-427a-92c0-11ea42128eef',
         'TellTale Tarot Reading — $20 USD live reading. Book via WhatsApp to schedule: https://wa.me/50237343422?text=Hi%21%20I%20am%20contacting%20for%20the%20tarot%2C%20I%20would%20like%20to%20schedule%20a%20reading%20with%20you%20%E2%9C%A8 — see /services/#readings.',
-        'Source Decoder membership — free to join, some events or options paid. Weekly group calls, member chat, deep dives. See /services/#readings.',
+        'Source Decoder membership — $11/month. Weekly group calls, member chat, deep dives. See /services/#readings.',
         'Kytholek books on /services/#books: Reality/Lost and True Baptism available; Simulation Source Code and Forgetting to Remember Again coming soon. Also featured: Out of Place by Giada Ferrari. Recommended third-party titles remain at /books/.',
         'Do not invent other prices. Point visitors to /services/ for purchase and booking.',
       ].join(' '),

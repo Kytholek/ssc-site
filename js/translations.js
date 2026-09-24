@@ -257,7 +257,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.services.guidebook.price' : { en: '$22', es: '$22' },
   'home.revamp.services.link' : { en: 'Learn more →', es: 'Saber más →' },
   'home.revamp.services.membership' : { en: 'Learn the System', es: 'Aprende el Sistema' },
-  'home.revamp.services.membership.desc' : { en: 'Free community to decode patterns yourself — weekly calls and the full SSC framework.', es: 'Comunidad gratis para decodificar patrones por ti mismo — llamadas semanales y el marco completo de SSC.' },
+  'home.revamp.services.membership.desc' : { en: '$11/month community to decode patterns yourself — weekly calls and the full SSC framework.', es: 'Comunidad de $11/mes para decodificar patrones por ti mismo — llamadas semanales y el marco completo de SSC.' },
   'home.revamp.services.sub' : { en: 'The calculator names the seven. These are how you keep them, time them, or walk them with someone.', es: 'La calculadora nombra las siete. Así es como las conservas, las temporizas, o las recorres con alguien.' },
   'home.revamp.services.timecycle' : { en: 'Time Cycle', es: 'Ciclo de Tiempo' },
   'home.revamp.services.timecycle.cadence' : { en: 'one-time · instant delivery', es: 'pago único · entrega inmediata' },

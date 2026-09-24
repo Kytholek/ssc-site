@@ -31,6 +31,7 @@ import {
   getEligibleSeals,
   isSealEligible,
   isRouteEquipped,
+  getEquippedRouteId,
   findLoadoutSlotIndex,
   equipRoute,
   unequipSlot,
@@ -108,7 +109,7 @@ function SkillSeal({
         icon={number.icon}
         displayNum={number.id}
         label={number.label}
-        subtitle={locked ? 'Blueprint' : number.subtitle}
+        subtitle={locked ? 'Not in blueprint' : number.subtitle}
         isSelected={active || equipped}
         locked={locked}
         progressPct={locked ? 0 : progressPct}
@@ -189,13 +190,13 @@ function parseNodeId(id) {
   return null
 }
 
-function SkillsInspector({ open, color, title, subtitle, icon, onClose, children }) {
+function SkillsInspector({ open, color, title, subtitle, icon, onClose, children, slim = false }) {
   return (
     <AnimatePresence>
       {open && (
         <motion.aside
-          className="skills-inspector"
-          style={{ '--skill-color': color }}
+          className={`skills-inspector${slim ? ' skills-inspector--slim' : ''}`}
+          style={{ '--skill-color': color, '--flow-color': color }}
           initial={{ y: '100%', opacity: 0.6 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0 }}
@@ -240,6 +241,7 @@ export default function SkillTree({
   const [zoomLock, setZoomLock] = useState(null)
   const [loadout, setLoadout] = useState(() => loadClassLoadout())
   const [replacePicker, setReplacePicker] = useState(null) // { number, routeId }
+  const [lockSheet, setLockSheet] = useState(null) // { label, color, reason }
   const rfRef = useRef(null)
 
   const progress = migrateProgressToV3(completed || {})
@@ -302,27 +304,30 @@ export default function SkillTree({
     return null
   }, [expanded, numProgress, tiersRouteId, seeds, statValues])
 
+  const openSeal = useCallback((number, opts = {}) => {
+    if (opts.locked) {
+      setLockSheet({
+        label: number.label,
+        color: number.color,
+        reason: opts.lockedReason || 'Not in your blueprint',
+      })
+      return
+    }
+    setLockSheet(null)
+    setGateMsg(null)
+    setFocus(null)
+    setExpandedRouteId(null)
+    setReplacePicker(null)
+    setActiveNode(number)
+  }, [setActiveNode])
+
   const collapse = useCallback(() => {
     setActiveNode(null)
     setExpandedRouteId(null)
     setFocus(null)
     setGateMsg(null)
     setReplacePicker(null)
-  }, [setActiveNode])
-
-  const openSeal = useCallback((number, opts = {}) => {
-    if (opts.locked) {
-      setGateMsg(opts.lockedReason || 'Not in your blueprint')
-      setActiveNode(number)
-      setExpandedRouteId(null)
-      setFocus(null)
-      return
-    }
-    setGateMsg(null)
-    setFocus(null)
-    setExpandedRouteId(null)
-    setReplacePicker(null)
-    setActiveNode(number)
+    setLockSheet(null)
   }, [setActiveNode])
 
   const tryEquipRoute = useCallback((routeId, replaceSlotIndex = null) => {
@@ -385,7 +390,7 @@ export default function SkillTree({
       const gap = 8
       const cellW = (w - pad * 2 - gap * 2) / 3
       const cellH = (h - pad * 2 - gap * 2) / 3
-      const next = Math.max(48, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)))
+      const next = Math.max(64, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)))
       setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next))
     }
 
@@ -464,7 +469,8 @@ export default function SkillTree({
   const { nodes, edges } = useMemo(() => {
     if (!expanded || !layout || !numProgress) return { nodes: [], edges: [] }
 
-    const sealDone = getSealProgress(numProgress, expanded.id)
+    const equippedRoute = getEquippedRouteId(expanded.id, loadout)
+    const sealDone = getSealProgress(numProgress, expanded.id, equippedRoute)
     const sealStages = sealDone.filter(Boolean).length
     const innateStages = seeds?.[expanded.id] || [false, false, false]
     const statVal = statValues?.[expanded.id] || 0
@@ -625,7 +631,7 @@ export default function SkillTree({
     return { nodes: nodesOut, edges: edgesOut }
   }, [
     expanded, layout, numProgress, selectedId, seeds, statValues,
-    onBranchNode, tiersRouteId, expandedRouteId, nextAction,
+    onBranchNode, tiersRouteId, expandedRouteId, nextAction, loadout,
   ])
 
   const onInit = useCallback((rf) => {
@@ -690,7 +696,7 @@ export default function SkillTree({
                   if (!res.ok && !res.needsReplace) setGateMsg(res.error)
                 }}
               >
-                Equip as class path
+                Equip
               </button>
             )}
             {equipped && (
@@ -730,7 +736,7 @@ export default function SkillTree({
             {!active && gate.ok && sealEligible && (
               <button
                 type="button"
-                className="skills-detail-cta skills-detail-cta--ghost"
+                className="skills-detail-start-link"
                 onClick={() => {
                   const res = tryStartRoute(route.id)
                   if (!res.ok) setGateMsg(res.error)
@@ -841,6 +847,12 @@ export default function SkillTree({
         ? `${expanded.label} · ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'} tiers`
         : `${expanded.label} — equip a route as your class path.`
 
+  const nextStepHint = nextAction
+    ? nextAction.kind === 'tier'
+      ? `Next: ${TIER_LABELS[nextAction.stageIdx + 1]?.label || 'tier'} on this path`
+      : 'Next: open or equip a route'
+    : null
+
   return (
     <div className="skills-stage" aria-label="Numerology Skill Tree">
       <header className="skills-stage-header skills-stage-header--loadout">
@@ -854,14 +866,13 @@ export default function SkillTree({
               const chip = pathChips[i]
               if (!chip) {
                 return (
-                  <button
+                  <span
                     key={i}
-                    type="button"
                     className="skills-loadout-chip skills-loadout-chip--empty"
-                    onClick={collapse}
+                    aria-hidden="true"
                   >
-                    {i === 0 ? 'Choose a path' : 'Choose second path'}
-                  </button>
+                    {i === 0 ? 'Empty path' : 'Second path'}
+                  </span>
                 )
               }
               return (
@@ -885,6 +896,14 @@ export default function SkillTree({
               )
             })}
           </div>
+          {filledSlots.length === 0 && (
+            <div className="skills-class-coach skills-class-coach--header" role="note">
+              <p className="skills-class-coach-title">Choose your class</p>
+              <p className="skills-class-coach-line">
+                Open a blueprint seal → Equip a route. Optionally equip a second path.
+              </p>
+            </div>
+          )}
           <p className="skills-thesis">{thesis}</p>
         </div>
         <div className="skills-progress" aria-label="Overall skill progress">
@@ -902,16 +921,6 @@ export default function SkillTree({
       <div className="skills-stage-body">
         {!expanded && (
           <div ref={wrapRef} className="skills-flow-wrap">
-            {filledSlots.length === 0 && (
-              <div className="skills-class-coach" role="note">
-                <p className="skills-class-coach-title">Choose your class</p>
-                <ol className="skills-class-coach-steps">
-                  <li>Open a <strong>blueprint</strong> seal (unlocked)</li>
-                  <li>Pick a route → <strong>Equip as class path</strong></li>
-                  <li>Optionally equip a <strong>second</strong> path — dailies train these two</li>
-                </ol>
-              </div>
-            )}
             {filledSlots.length > 0 && (
               <p className="skills-idle-hint" aria-hidden="true">
                 Blueprint seals open — locked seals are outside your destiny kit.
@@ -920,11 +929,12 @@ export default function SkillTree({
             <div className="skills-grid" aria-label="Skill Tree">
               {NUMBERS.map((num) => {
                 const eligible = !playerData || eligibleSeals.has(Number(num.id))
+                const equippedRoute = getEquippedRouteId(num.id, loadout)
                 return (
                   <SkillSeal
                     key={num.id}
                     number={num}
-                    completed={getSealProgress(progress[num.id], num.id)}
+                    completed={getSealProgress(progress[num.id], num.id, equippedRoute)}
                     active={false}
                     seeds={seeds}
                     statValues={statValues}
@@ -937,13 +947,29 @@ export default function SkillTree({
                 )
               })}
             </div>
+            <SkillsInspector
+              open={!!lockSheet}
+              slim
+              color={lockSheet?.color || 'var(--gold)'}
+              title={lockSheet?.label || 'Seal'}
+              subtitle="Not in blueprint"
+              icon="◇"
+              onClose={() => setLockSheet(null)}
+            >
+              <p className="skills-detail-gate" role="status">
+                {lockSheet?.reason || 'Not in your blueprint'}
+              </p>
+              <p className="skills-detail-note">
+                Class paths equip only from seals on your destiny chart.
+              </p>
+            </SkillsInspector>
           </div>
         )}
 
         {expanded && (
           <div
             className={`skills-branch-wrap${inspector ? ' skills-branch-wrap--inspect' : ''}`}
-            style={{ '--skill-color': expanded.color }}
+            style={{ '--skill-color': expanded.color, '--flow-color': expanded.color }}
           >
             <div className="skills-branch-toolbar">
               <button type="button" className="skills-branch-back" onClick={collapse}>
@@ -955,6 +981,9 @@ export default function SkillTree({
                   <span className="skills-branch-equipped-tag">EQUIPPED</span>
                 )}
               </span>
+              {nextStepHint && (
+                <span className="skills-branch-next">{nextStepHint}</span>
+              )}
               {tiersRouteId && (
                 <button
                   type="button"

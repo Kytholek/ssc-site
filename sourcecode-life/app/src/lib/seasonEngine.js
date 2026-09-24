@@ -35,6 +35,94 @@ function getFourMonthStateKey(lpRoot, yearKey, cycleNum) {
   return `scl_fourmonth_season_${lpRoot}_${yearKey}_${cycleNum}`
 }
 
+function isSeasonStorageKey(k) {
+  return !!k && (
+    k.startsWith('scl_month_season_')
+    || k.startsWith('scl_year_season_')
+    || k.startsWith('scl_fourmonth_season_')
+  )
+}
+
+export function collectSeasonBundle() {
+  const out = {}
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (!isSeasonStorageKey(k)) continue
+      try {
+        out[k] = JSON.parse(localStorage.getItem(k))
+      } catch { /* skip */ }
+    }
+  } catch { /* intentional */ }
+  return out
+}
+
+function persistSeasonBundle(extra = null) {
+  const bundle = collectSeasonBundle()
+  if (extra && typeof extra === 'object') {
+    Object.assign(bundle, extra)
+  }
+  try { localStorage.setItem('scl_season_bundle_v1', JSON.stringify(bundle)) } catch { /* intentional */ }
+  try { window.NativeAuth?.saveSeasonState?.(JSON.stringify(bundle)) } catch { /* intentional */ }
+}
+
+function writeSeasonState(key, state) {
+  try { localStorage.setItem(key, JSON.stringify(state)) } catch { /* intentional */ }
+  persistSeasonBundle({ [key]: state })
+}
+
+/** Hydrate season LS keys from cloud — never empty over non-empty. */
+export function hydrateSeasonStateFromCloud(cb) {
+  const apply = (remoteRaw) => {
+    try {
+      const remote = typeof remoteRaw === 'string' ? JSON.parse(remoteRaw || '{}') : (remoteRaw || {})
+      const local = collectSeasonBundle()
+      const remoteEmpty = !remote || !Object.keys(remote).length
+      const localEmpty = !Object.keys(local).length
+      if (remoteEmpty && !localEmpty) {
+        persistSeasonBundle()
+        cb?.(local)
+        return
+      }
+      const merged = { ...local }
+      if (!remoteEmpty) {
+        for (const [k, v] of Object.entries(remote)) {
+          if (!isSeasonStorageKey(k) || !v || typeof v !== 'object') continue
+          const loc = local[k]
+          // Prefer completed local, else remote if missing/incomplete
+          if (loc?.completed && !v.completed) merged[k] = loc
+          else if (!loc) merged[k] = v
+          else if (v.completed && !loc.completed) merged[k] = v
+          else merged[k] = { ...loc, ...v, checkins: (v.checkins?.length || 0) >= (loc.checkins?.length || 0) ? v.checkins : loc.checkins }
+        }
+      }
+      for (const [k, v] of Object.entries(merged)) {
+        try { localStorage.setItem(k, JSON.stringify(v)) } catch { /* intentional */ }
+      }
+      try { localStorage.setItem('scl_season_bundle_v1', JSON.stringify(merged)) } catch { /* intentional */ }
+      cb?.(merged)
+    } catch { cb?.(collectSeasonBundle()) }
+  }
+  if (window.NativeAuth?.loadSeasonState) {
+    window.NativeAuth.loadSeasonState((json) => apply(json))
+  } else {
+    apply('{}')
+  }
+}
+
+/** Clear all season LS keys + cloud (for QuestEngine_reset). */
+export function clearAllSeasonState() {
+  try {
+    const keys = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (isSeasonStorageKey(k) || k === 'scl_season_bundle_v1') keys.push(k)
+    }
+    keys.forEach((k) => localStorage.removeItem(k))
+  } catch { /* intentional */ }
+  try { window.NativeAuth?.saveSeasonState?.('{}') } catch { /* intentional */ }
+}
+
 function getTierDays(tier) {
   return TIER_COMMITMENT_DAYS[tier] || 7
 }
@@ -125,11 +213,11 @@ export function getMonthSeasonState(lpRoot, m, d, freqLevel = 1, playerData = nu
       }
       state.tierDays = commitment.commitmentDays
       ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum)
-      localStorage.setItem(key, JSON.stringify(state))
+      writeSeasonState(key, state)
     }
   } else if (!state.multiDayStarted) {
     ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum)
-    localStorage.setItem(key, JSON.stringify(state))
+    writeSeasonState(key, state)
   }
 
   if (!state.tierDays) {
@@ -186,9 +274,7 @@ export function addMonthCheckin(lpRoot, m, d, journal, objectiveIdx) {
   }
 
   const key = getMonthStateKey(lpRoot, yearKey, monthNum)
-  try {
-    localStorage.setItem(key, JSON.stringify(state))
-  } catch {}
+  writeSeasonState(key, state)
 
   const daysActive = getDaysActive(state.startDate, today)
   const multiDay = state.multiDayId ? getActiveMultiDayQuests()[state.multiDayId] : null
@@ -211,7 +297,10 @@ export function completeMonthSeason(lpRoot, m, d) {
   const monthNum = pm.monthNum
 
   const state = getMonthSeasonState(lpRoot, m, d)
-  const today = new Date().toISOString().split('T')[0]
+  if (state.completed) {
+    return { ok: false, error: 'Already completed' }
+  }
+
   const tierDays = state.tierDays || getTierDays(state.lockedObj?.tierAtLock || 1)
 
   if (state.checkins.length < tierDays) {
@@ -228,17 +317,13 @@ export function completeMonthSeason(lpRoot, m, d) {
   state.completedAt = new Date().toISOString()
 
   const key = getMonthStateKey(lpRoot, yearKey, monthNum)
-  try {
-    localStorage.setItem(key, JSON.stringify(state))
-  } catch {}
+  writeSeasonState(key, state)
 
   const yearState = getYearSeasonState(lpRoot, m, d)
   if (!yearState.monthsCompleted.includes(monthNum)) {
     yearState.monthsCompleted.push(monthNum)
     const ykey = getYearStateKey(lpRoot, yearKey)
-    try {
-      localStorage.setItem(ykey, JSON.stringify(yearState))
-    } catch {}
+    writeSeasonState(ykey, yearState)
   }
 
   const root = reduceToSimple(pm.root)
@@ -249,7 +334,7 @@ export function completeMonthSeason(lpRoot, m, d) {
 
     // Only advance Life Quest when the season frequency matches a blueprint node
     if (questKey) {
-      QuestEngine_markLQPObjective(questKey, tierAtLock, objIdx ?? 2)
+      QuestEngine_markLQPObjective(questKey, tierAtLock, objIdx ?? 2, { skipSkillReward: true })
     }
     applyQuestSkillReward({
       root: pm.root,
@@ -304,9 +389,7 @@ export function completeFourMonthSeason(lpRoot, m, d, pinnacleChapterIndex, pinn
   state.completedAt = new Date().toISOString()
 
   const key = getFourMonthStateKey(lpRoot, yearKey, fmc.cycleNum)
-  try {
-    localStorage.setItem(key, JSON.stringify(state))
-  } catch {}
+  writeSeasonState(key, state)
 
   const fmcKey = `fourmonth_${yearKey}_${fmc.cycleNum}`
   const root = reduceToSimple(fmc.root)
@@ -356,9 +439,7 @@ export function completeYearSeason(lpRoot, m, d, journal) {
   state.completedAt = new Date().toISOString()
 
   const key = getYearStateKey(lpRoot, yearKey)
-  try {
-    localStorage.setItem(key, JSON.stringify(state))
-  } catch {}
+  writeSeasonState(key, state)
 
   const root = reduceToSimple(py.root)
   QuestEngine_completeFreqQuest(`year_${yearKey}`, XP_AWARDS.personal_year, root)

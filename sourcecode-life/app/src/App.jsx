@@ -14,7 +14,8 @@ import CharCreateOverlay from './components/charCreate/CharCreateOverlay'
 import PremiumReveal from './components/onboarding/PremiumReveal'
 import AvatarCreator     from './components/charCreate/AvatarCreator'
 import AppShell from './components/shell/AppShell'
-import { ensureDailyQuests } from './lib/numerologyQuests'
+import { ensureDailyQuests, hydrateGenQuestsFromCloud } from './lib/numerologyQuests'
+import { hydrateSeasonStateFromCloud } from './lib/seasonEngine'
 
 // ── Root component — registered bridges + screen router ──────────────────────
 function AppRoot() {
@@ -25,7 +26,10 @@ function AppRoot() {
   // Keep questEngine's window global in sync with playerData
   useEffect(() => {
     window.__scl_playerData__ = playerData || undefined
-    if (playerData) ensureDailyQuests(playerData)
+    if (playerData) {
+      hydrateGenQuestsFromCloud(() => ensureDailyQuests(playerData))
+      hydrateSeasonStateFromCloud(() => {})
+    }
   }, [playerData])
 
   // Register all NativeAuth_* window callbacks → AppContext dispatch

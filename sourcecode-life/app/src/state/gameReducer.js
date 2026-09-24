@@ -45,6 +45,10 @@ function saveFreqXP(xp, level) {
 
 function saveStatXP(statXP) {
   localStorage.setItem(LS_STAT_XP, JSON.stringify(statXP))
+  try {
+    const combined = JSON.parse(localStorage.getItem('scl_xp') || '{}')
+    localStorage.setItem('scl_xp', JSON.stringify({ ...combined, statXP }))
+  } catch { /* intentional */ }
 }
 
 /* ── reducer ─────────────────────────────────────────────────── */

@@ -1,8 +1,8 @@
 /* ============================================================
    numerologyQuests.js — Numerology-driven daily quest generator
 
-   Generates 4 personalized quests per day based on the user's
-   numerology profile (dominant numbers, weaker numbers, cycle).
+   Generates 6 personalized journal quests per day (2 skill +
+   2 life + 2 cycle) based on the user's numerology profile.
    Integrates with questEngine.js for XP awards.
 
    Events dispatched on window:
@@ -14,11 +14,12 @@
    ============================================================ */
 
 
-import { earnFreqXP, earnStatXP, getLQP, QuestEngine_markLQPObjective } from './questEngine.js'
+import { earnFreqXP, earnStatXP, getLQP, getActiveTier, QuestEngine_markLQPObjective } from './questEngine.js'
 import {
   applyQuestSkillReward,
   resolveSkillMeta,
   skillTreeNumber,
+  statXPForDifficulty,
 } from './skillQuestBridge.js'
 import {
   NUMBERS,
@@ -31,11 +32,10 @@ import {
   loadClassLoadout,
   getFilledSlots,
   getEligibleSeals,
-  clearAutoSeededLoadout,
 } from './classLoadout.js'
 import { recordDailySnapshot, updateDailySummary } from './dataHistory.js'
 import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
-import { resolveBlueprintNode } from './questBlueprint.js'
+import { resolveBlueprintNode, BLUEPRINT_UNLOCK_LV } from './questBlueprint.js'
 import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple } from './numerology.js'
 import { statState } from './achievements.js'
 import { todayStr } from './numerology.js'
@@ -54,226 +54,6 @@ export function getNotifPrefs() {
   } catch {
     return { dailyReminder: true, questOnMap: true, multiDayReminder: true }
   }
-}
-const LS_OUTER_PROGRESS = 'scl_outer_progress'
-
-// ── Action pools — number → category → action strings ────────────────────────
-export const ACTION_POOLS = {
-  1: { // Power / Will / Initiation
-    initiate: [
-      "Start a project you've been putting off",
-      "Write the first draft of something new",
-      "Take the first step on a goal today",
-      "Set a clear intention for the week",
-      "Begin one new habit from scratch",
-    ],
-    lead: [
-      "Make a decision without second-guessing it",
-      "Delegate one task you normally control",
-      "Speak up first in a conversation today",
-      "Take charge of a situation others are avoiding",
-      "Set a clear direction and commit to it",
-    ],
-    assert: [
-      "Communicate a boundary clearly and calmly",
-      "Express your opinion directly to someone",
-      "Say no to something that doesn't serve you",
-      "Ask for exactly what you need",
-      "Stand by a decision even under pressure",
-    ],
-  },
-
-  2: { // Connection / Harmony / Sensitivity
-    connect: [
-      "Reach out to someone you haven't spoken to in a while",
-      "Have a real, unguarded conversation",
-      "Listen fully without offering advice",
-      "Express appreciation to someone specific",
-      "Make plans with a person who matters to you",
-    ],
-    harmonize: [
-      "Resolve a minor tension before it grows",
-      "Find common ground in a disagreement",
-      "Create a calm, peaceful environment in your space",
-      "Practice patience in a frustrating situation",
-      "Compromise intentionally on something small",
-    ],
-    support: [
-      "Help someone without being asked",
-      "Check in on a friend or family member",
-      "Offer your skills freely to someone who needs them",
-      "Be a steady presence for someone going through difficulty",
-      "Do something kind without expecting anything back",
-    ],
-  },
-
-  3: { // Expression / Creativity / Joy
-    create: [
-      "Write 1 page of anything — fiction, thoughts, or plans",
-      "Design or sketch something from your imagination",
-      "Brainstorm 10 ideas on any topic",
-      "Start a small creative project",
-      "Express something you've been holding inside",
-    ],
-    communicate: [
-      "Have a meaningful conversation with someone new",
-      "Explain a concept you know well to someone else",
-      "Record yourself speaking for 2 minutes",
-      "Write a thoughtful message or letter",
-      "Share a story from your own life",
-    ],
-    perform: [
-      "Share something you created with at least one person",
-      "Post content that reflects who you actually are",
-      "Speak confidently in a group setting",
-      "Teach or demonstrate a skill you have",
-      "Do something expressive in public",
-    ],
-  },
-
-  4: { // Structure / Foundation / Discipline
-    organize: [
-      "Declutter and organize one area of your space",
-      "Create a schedule or plan for the week",
-      "Review and sort your notes, files, or tasks",
-      "Set up a system for a recurring task",
-      "Make a checklist and complete everything on it",
-    ],
-    build: [
-      "Work on a long-term project for at least 30 minutes",
-      "Lay the groundwork for a future goal",
-      "Establish or reinforce one daily routine",
-      "Research and plan a decision that will matter later",
-      "Finish something that has been left incomplete",
-    ],
-    discipline: [
-      "Follow through on a commitment you made to yourself",
-      "Do your most important task before anything optional",
-      "Practice a skill with full intention for 20 minutes",
-      "Keep a promise you made — no excuses",
-      "Block distraction for a full focused hour",
-    ],
-  },
-
-  5: { // Adaptability / Freedom / Change
-    explore: [
-      "Try something you have genuinely never done before",
-      "Visit a new place, even just in your neighborhood",
-      "Explore a topic you know nothing about",
-      "Take a completely different approach to a familiar task",
-      "Introduce one element of variety into your routine",
-    ],
-    adapt: [
-      "Change your plan when something unexpected happens",
-      "Reframe a setback as information, not failure",
-      "Let go of a fixed expectation",
-      "Embrace a change you've been quietly resisting",
-      "Adjust your strategy mid-task based on feedback",
-    ],
-    learn: [
-      "Spend 20 minutes learning a skill you don't have yet",
-      "Read or listen to something outside your comfort zone",
-      "Watch a tutorial on something completely unfamiliar",
-      "Ask an expert something you've always wondered",
-      "Learn one thing today that surprises you",
-    ],
-  },
-
-  6: { // Responsibility / Care / Service
-    nurture: [
-      "Cook or prepare a nourishing meal for yourself or others",
-      "Do something intentional for your physical wellbeing",
-      "Care for a plant, pet, or living thing",
-      "Create a moment of comfort in your environment",
-      "Rest properly without guilt",
-    ],
-    serve: [
-      "Help someone in a practical, tangible way",
-      "Contribute time or effort to a cause",
-      "Offer your expertise freely to someone who needs it",
-      "Clean or improve a shared space",
-      "Do a task that benefits others without recognition",
-    ],
-    beautify: [
-      "Improve the look or feel of your workspace or home",
-      "Create something with aesthetic intention",
-      "Wear something that makes you feel good",
-      "Bring beauty into an otherwise ordinary moment",
-      "Arrange your environment with real care",
-    ],
-  },
-
-  7: { // Introspection / Wisdom / Truth
-    study: [
-      "Read 20 pages of a nonfiction book",
-      "Research a subject you're genuinely curious about",
-      "Study something that challenges your current worldview",
-      "Review your notes from past learning sessions",
-      "Understand one concept so deeply you could teach it",
-    ],
-    reflect: [
-      "Write in a journal for 10 uninterrupted minutes",
-      "Sit in silence for 5 minutes with no phone",
-      "Review your week — what worked, what didn't",
-      "Ask yourself a hard question and answer it honestly",
-      "Identify one belief you hold and examine where it came from",
-    ],
-    analyze: [
-      "Break down a complex problem into its root parts",
-      "Identify a pattern in your own behavior or results",
-      "Evaluate a decision you made recently — what would you do differently?",
-      "Research the root cause of a recurring challenge",
-      "Map out a system or process you use and improve it",
-    ],
-  },
-
-  8: { // Manifestation / Abundance / Authority
-    achieve: [
-      "Complete your highest-value task before anything else",
-      "Hit one measurable target today",
-      "Push through resistance on a key project",
-      "Finish something significant that has real impact",
-      "Accomplish something you'll still be proud of tomorrow",
-    ],
-    manage: [
-      "Review your finances and identify one improvement",
-      "Audit how you've spent your time this week",
-      "Organize a project or shared effort clearly",
-      "Set unambiguous expectations with someone",
-      "Track a metric that actually matters to your goals",
-    ],
-    invest: [
-      "Put serious time into a skill with long-term payoff",
-      "Make a decision that builds future value, not comfort",
-      "Save or invest even a small amount today",
-      "Have a meaningful conversation with someone influential",
-      "Learn something that increases your impact or leverage",
-    ],
-  },
-
-  9: { // Completion / Impact / Contribution
-    contribute: [
-      "Do something that helps a complete stranger",
-      "Give without expecting anything back",
-      "Share useful knowledge with people beyond your circle",
-      "Contribute meaningfully to a community or cause",
-      "Support someone else's vision or project",
-    ],
-    complete: [
-      "Finish something you started a long time ago",
-      "Clear one item that's been on your list too long",
-      "Bring closure to a lingering open loop",
-      "End something that no longer serves you",
-      "Follow through to the very end — no stopping short",
-    ],
-    release: [
-      "Let go of a grudge or lingering resentment",
-      "Declutter something you've been holding onto unnecessarily",
-      "Forgive yourself for a past mistake — actually mean it",
-      "Accept an outcome you cannot change",
-      "Release your attachment to a specific result",
-    ],
-  },
 }
 
 // ── Quest type display metadata ───────────────────────────────────────────────
@@ -299,8 +79,6 @@ export const NUMBER_INFO = {
 }
 
 // ── Category → branch index mapping (exported for StatsTab) ─────────────────
-// Index 0-2 match ACTION_POOLS category order; index 3 is the synergy branch
-// (powered by total completions across all 3 categories for that number).
 export const CATEGORY_BRANCH_MAP = {
   1: ['initiate', 'lead', 'assert'],
   2: ['connect', 'harmonize', 'support'],
@@ -313,735 +91,22 @@ export const CATEGORY_BRANCH_MAP = {
   9: ['contribute', 'complete', 'release'],
 }
 
-// ── Advanced action pools — unlocked when statXP[number] ≥ 15 ─────────────────
-// Deeper, more demanding versions of the base actions. Same category structure.
-export const ADVANCED_ACTION_POOLS = {
-  1: {
-    initiate: [
-      "Begin the thing you've been avoiding for weeks — today, before anything else",
-      "Start a project with zero preparation — trust your instinct to find the way",
-      "Take a first step so uncomfortable that your comfort zone is clearly behind you",
-      "Initiate a difficult conversation you've been postponing for too long",
-      "Begin something with the clear intention of finishing it before next week",
-    ],
-    lead: [
-      "Make a decision that affects others without seeking consensus first",
-      "Step into a vacuum of leadership that no one else has filled",
-      "Call out a direction clearly, even if you're uncertain of the outcome",
-      "Own a mistake publicly and redirect without explanation or defensiveness",
-      "Hold a position under sustained pushback without caving or over-explaining",
-    ],
-    assert: [
-      "Hold a boundary that someone will test — and hold it again when they do",
-      "Say exactly what you mean with no softening, no hedging, no apology",
-      "Disagree openly with someone whose approval you normally seek",
-      "Stand by a decision you made, even when pressured to reconsider",
-      "Ask for what you want directly, once, without qualifiers",
-    ],
-  },
-  2: {
-    connect: [
-      "Have a conversation where you ask nothing about yourself",
-      "Reach out to someone you've been avoiding — and genuinely mean it",
-      "Tell someone specifically and precisely why they matter to you",
-      "Sit with someone in difficulty without offering a single solution",
-      "Reconnect with a relationship that has gone quiet without explanation",
-    ],
-    harmonize: [
-      "Repair something you damaged with your words or absence — today",
-      "Stay regulated in a conversation that normally dysregulates you",
-      "Find the truth in someone's opposing perspective before responding",
-      "Create peace in a situation where you have every right to escalate",
-      "Hold space for someone's process without rushing them toward resolution",
-    ],
-    support: [
-      "Give support in the exact form someone needs, not the form you prefer to give",
-      "Show up for someone without being asked and without expecting acknowledgment",
-      "Offer something of real personal cost — time, attention, skill — freely",
-      "Be present with someone through an uncomfortable emotion without fixing it",
-      "Advocate for someone who isn't in the room",
-    ],
-  },
-  3: {
-    create: [
-      "Produce something complete in one sitting — no revisions, no second sessions",
-      "Create something specifically for one person and give it to them",
-      "Make something without a plan — let the form emerge as you work",
-      "Finish something creative you abandoned and left incomplete",
-      "Create in a medium you've never used with the goal of finishing today",
-    ],
-    communicate: [
-      "Say the thing you've been unable to say — clearly, without softening",
-      "Write a message that requires real courage to send, and then send it",
-      "Tell a story from your own life that reveals something genuinely true",
-      "Explain something complex to someone unfamiliar until they actually understand it",
-      "Have a conversation where you make yourself genuinely vulnerable",
-    ],
-    perform: [
-      "Share your work publicly knowing some people will reject it",
-      "Speak about your own ideas or creative work with confidence and specificity",
-      "Perform or present something that required real effort to create",
-      "Teach a room — make them feel something, not just understand something",
-      "Share a perspective publicly that you normally keep entirely to yourself",
-    ],
-  },
-  4: {
-    organize: [
-      "Build a system you've been putting off — one that will still work in six months",
-      "Eliminate one source of recurring disorder in your environment permanently",
-      "Create a structure so clear that someone else could maintain it without you",
-      "Review and redesign a process you've let run inefficiently for too long",
-      "Build the organizing layer for a goal you've had but never structured",
-    ],
-    build: [
-      "Put 90 uninterrupted minutes into something you're building long-term",
-      "Lay a foundation that your future self will genuinely thank you for",
-      "Revisit a project you shelved and honestly assess whether it deserves to be built",
-      "Do one thing that makes tomorrow's work structurally easier",
-      "Build something that requires patience — and choose patience over shortcuts",
-    ],
-    discipline: [
-      "Do the hard thing first without negotiating with yourself",
-      "Hold a standard you've been letting slip — fully, not approximately",
-      "Follow through on a commitment you made to yourself even though no one would know",
-      "Do the work at your most resistant moment — prove the commitment is unconditional",
-      "Complete something to a higher standard than was required",
-    ],
-  },
-  5: {
-    explore: [
-      "Do something genuinely unfamiliar that produces discomfort — and stay with it",
-      "Visit or engage with a world entirely unlike your own",
-      "Take a route, method, or approach you've never considered before",
-      "Enter a conversation, event, or space you don't belong in — and stay curious",
-      "Explore a question you've been avoiding because the answer might change something",
-    ],
-    adapt: [
-      "When the plan breaks, improvise — and document what you discover in the process",
-      "Change direction mid-stride when new information makes the old plan wrong",
-      "Accept a significant shift in circumstance without attempting to control the outcome",
-      "Adapt to someone else's pace, style, or preference without resentment",
-      "Find opportunity in a constraint you've been treating as an obstacle",
-    ],
-    learn: [
-      "Learn something that genuinely challenges your existing assumptions",
-      "Go beyond surface understanding — find the mechanism, not just the fact",
-      "Learn from someone whose worldview differs significantly from yours — take notes",
-      "Apply something you learned immediately, before you forget what not-knowing felt like",
-      "Follow a learning thread until it surprises you",
-    ],
-  },
-  6: {
-    nurture: [
-      "Give proper rest or recovery to something that has been depleted",
-      "Care for your body in a way that's about love, not obligation",
-      "Create a space where someone else can fully relax and recover",
-      "Attend to something you've been neglecting because it wasn't urgent",
-      "Make one person feel genuinely safe — not just comfortable",
-    ],
-    serve: [
-      "Contribute something significant without any recognition or record",
-      "Give your full skill to someone who cannot repay you",
-      "Serve a cause that benefits people you'll never meet",
-      "Do something for a shared space, community, or group without being asked",
-      "Solve a problem for someone before they know they have it",
-    ],
-    beautify: [
-      "Create beauty in a space that has been overlooked or neglected",
-      "Bring something to its best possible form — not functional, genuinely beautiful",
-      "Elevate an ordinary moment with intention and real care",
-      "Create something aesthetic that has no purpose other than to be what it is",
-      "Make one interaction more beautiful than it needed to be",
-    ],
-  },
-  7: {
-    study: [
-      "Study something until the questions become more interesting than the answers",
-      "Go deep enough into a subject to disagree with something you were taught",
-      "Read primary sources — not summaries, the original material",
-      "Study the history of an idea you currently take for granted",
-      "Sit with a concept until your mental model of it changes",
-    ],
-    reflect: [
-      "Write about a pattern in yourself that you've been reluctant to name",
-      "Ask yourself what you're avoiding — and write about it honestly",
-      "Examine a belief that guides your behavior and trace it to its origin",
-      "Sit with an unresolved question long enough to sense an answer coming",
-      "Reflect on a past decision without judgment — see only information",
-    ],
-    analyze: [
-      "Find the root cause of something you've been treating as a symptom",
-      "Map the assumptions behind a decision you're about to make",
-      "Identify the pattern you keep returning to — and name what's actually driving it",
-      "Analyze an outcome from multiple angles before drawing any conclusion",
-      "Break a belief into its component assumptions and examine each one honestly",
-    ],
-  },
-  8: {
-    achieve: [
-      "Complete something significant that requires sustained effort and no shortcuts",
-      "Accomplish the thing that would most advance a major goal — nothing else first",
-      "Produce a result measurably better than your previous best",
-      "Finish something with excellence, not just completion",
-      "Do the work that only you can do, at the level that proves you can do it",
-    ],
-    manage: [
-      "Take full ownership of a result — no disclaimers, no shared credit for the shortfall",
-      "Audit one system that has been underperforming and redesign it today",
-      "Make a resource decision that optimizes for long-term leverage",
-      "Set a standard clearly, then hold it consistently in the same interaction",
-      "Close a feedback loop you've been leaving open",
-    ],
-    invest: [
-      "Make a decision that costs you something real now for substantial future return",
-      "Invest time in a relationship or skill that will compound over years",
-      "Put energy into what most expands your capability, not your comfort",
-      "Have a conversation about future opportunity that takes real courage",
-      "Make a commitment that closes off easier options in order to unlock better ones",
-    ],
-  },
-  9: {
-    contribute: [
-      "Give something of real value to the world, not just to your circle",
-      "Leave a situation, person, or place measurably better than you found it",
-      "Contribute to something larger than your current life in a way that will outlast today",
-      "Give in a way that costs you something — not the surplus, the real thing",
-      "Do something for humanity in the abstract — not for people you know",
-    ],
-    complete: [
-      "Finish something that has resisted completion — go until it's truly done",
-      "Close a chapter you've been pretending isn't still open",
-      "Bring something to its proper ending, even if that ending is loss",
-      "Complete a commitment you made to someone and explicitly acknowledge it",
-      "Finish something in a way that honors what it was, not just checks it off",
-    ],
-    release: [
-      "Release something you've been holding — a story, resentment, or attachment — fully",
-      "Let go of a vision for how something should be and accept how it actually is",
-      "Forgive something specific. Completely. Do not hedge.",
-      "Give up control of an outcome that is no longer yours to hold",
-      "Release the version of yourself that still needs to prove something",
-    ],
-  },
-}
-
-// ── Cycle XP modifiers ────────────────────────────────────────────────────────
-// Each cycle number changes which quest behaviors earn bonus XP.
+// ── Cycle labels (effects unused — labels only for gen records / getCycleInfo)
 const CYCLE_MODIFIERS = {
-  1: {
-    label: 'Initiation Cycle',
-    rule:  'Bonus XP for categories you have never completed before',
-    effect(quest, history) {
-      if (!history.completedTypes.includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.3)
-    },
-  },
-  2: {
-    label: 'Partnership Cycle',
-    rule:  'Bonus XP for connecting, supporting, and harmonizing actions',
-    effect(quest) {
-      if (['connect', 'harmonize', 'support', 'serve', 'nurture'].includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.25)
-    },
-  },
-  3: {
-    label: 'Expression Cycle',
-    rule:  'Bonus XP for creative, communicative, and performative actions',
-    effect(quest) {
-      if (['create', 'communicate', 'perform', 'beautify'].includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.3)
-    },
-  },
-  4: {
-    label: 'Foundation Cycle',
-    rule:  'Bonus XP for repeating the same category — consistency is rewarded',
-    effect(quest, history) {
-      const recentCount = history.lastActions.slice(-5).filter(a => a === quest.category).length
-      if (recentCount >= 2) {
-        quest.rewardXP = Math.round(quest.rewardXP * 1.3)
-        quest.isRepeated = true
-      }
-    },
-  },
-  5: {
-    label: 'Freedom Cycle',
-    rule:  'Bonus XP for new category types; penalty for repeated ones',
-    effect(quest, history) {
-      if (!history.lastActions.includes(quest.category)) {
-        quest.rewardXP = Math.round(quest.rewardXP * 1.3)
-        quest.isNew = true
-      } else if (history.lastActions.slice(-3).every(a => a === quest.category)) {
-        quest.rewardXP = Math.round(quest.rewardXP * 0.7)
-        quest.isRepeated = true
-      }
-    },
-  },
-  6: {
-    label: 'Responsibility Cycle',
-    rule:  'Bonus XP for nurturing, serving, and supporting others',
-    effect(quest) {
-      if (['nurture', 'serve', 'support', 'beautify', 'connect'].includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.25)
-    },
-  },
-  7: {
-    label: 'Introspection Cycle',
-    rule:  'Bonus XP for deep study, reflection, and analysis',
-    effect(quest) {
-      if (['study', 'reflect', 'analyze'].includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.35)
-    },
-  },
-  8: {
-    label: 'Power Cycle',
-    rule:  'Bonus XP scales with difficulty — hard quests pay most',
-    effect(quest) {
-      if (quest.difficulty === 'hard')   quest.rewardXP = Math.round(quest.rewardXP * 1.4)
-      if (quest.difficulty === 'medium') quest.rewardXP = Math.round(quest.rewardXP * 1.15)
-    },
-  },
-  9: {
-    label: 'Completion Cycle',
-    rule:  'Bonus XP for completing, contributing, and releasing',
-    effect(quest) {
-      if (['complete', 'release', 'contribute'].includes(quest.category))
-        quest.rewardXP = Math.round(quest.rewardXP * 1.3)
-    },
-  },
+  1: { label: 'Initiation Cycle',     rule: 'Bonus XP for categories you have never completed before' },
+  2: { label: 'Partnership Cycle',    rule: 'Bonus XP for connecting, supporting, and harmonizing actions' },
+  3: { label: 'Expression Cycle',     rule: 'Bonus XP for creative, communicative, and performative actions' },
+  4: { label: 'Foundation Cycle',     rule: 'Bonus XP for repeating the same category — consistency is rewarded' },
+  5: { label: 'Freedom Cycle',        rule: 'Bonus XP for new category types; penalty for repeated ones' },
+  6: { label: 'Responsibility Cycle', rule: 'Bonus XP for nurturing, serving, and supporting others' },
+  7: { label: 'Introspection Cycle',  rule: 'Bonus XP for deep study, reflection, and analysis' },
+  8: { label: 'Power Cycle',          rule: 'Bonus XP scales with difficulty — hard quests pay most' },
+  9: { label: 'Completion Cycle',     rule: 'Bonus XP for completing, contributing, and releasing' },
 }
 
-// ── Outer Quest Tiers — tied to outer frequency (1-9) ─────────────────────────
-// Each outer number has 3 tiers of increasing difficulty focused on how others perceive you
-export const OUTER_QUEST_TIERS = {
-  1: [ // Seen as leader / initiator
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Step Forward',
-      desc: 'Be seen as someone who takes initiative in small, practical moments.',
-      objectives: [
-        'Volunteer to start a task no one has claimed yet',
-        'Speak first in one meeting or group chat',
-        'Make one clear decision and communicate it simply',
-      ],
-      archetype: 'Initiator',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Set Direction',
-      desc: 'Be seen as someone who provides direction when things are unclear.',
-      objectives: [
-        'Suggest a clear next-step plan for a shared task',
-        'Coordinate two people around a deadline',
-        'Take ownership of a stalled decision and move it forward',
-      ],
-      archetype: 'Directional Leader',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Reliable Lead',
-      desc: 'Be seen as a dependable leader through consistent follow-through.',
-      objectives: [
-        'Run a recurring check-in for one week',
-        'Lead a small effort from start to completion',
-        'Be the person others ask first when work needs direction',
-      ],
-      archetype: 'Trusted Leader',
-    },
-  ],
-
-  2: [ // Seen as cooperative / diplomatic
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Find Common Ground',
-      desc: 'Be seen as someone who listens and reduces tension.',
-      objectives: [
-        'Reflect back someone\'s viewpoint before giving yours',
-        'Name one point of agreement in a disagreement',
-        'Support a teammate without taking over',
-      ],
-      archetype: 'Peacemaker',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Bridge Builder',
-      desc: 'Be seen as someone who helps people work together.',
-      objectives: [
-        'Facilitate a short conversation between two people with friction',
-        'Connect two people who can help each other',
-        'Summarize both sides fairly in a conflict',
-      ],
-      archetype: 'Diplomat',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Trusted Connector',
-      desc: 'Be seen as a steady connector people rely on in tense moments.',
-      objectives: [
-        'Help resolve an issue that has been open for days',
-        'Create a shared agreement everyone can commit to',
-        'Be asked to mediate because people trust your fairness',
-      ],
-      archetype: 'Trusted Diplomat',
-    },
-  ],
-
-  3: [ // Seen as expressive / engaging
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Share Your Voice',
-      desc: 'Be seen as expressive and engaging in everyday interactions.',
-      objectives: [
-        'Share one original idea in conversation or chat',
-        'Post or present a small piece of your work',
-        'Tell a short story that keeps people engaged',
-      ],
-      archetype: 'Expressive Communicator',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Clear Communicator',
-      desc: 'Be seen as someone who can make ideas easy to understand.',
-      objectives: [
-        'Explain a complex topic simply to one person',
-        'Lead a short discussion and keep it focused',
-        'Turn scattered input into a clear summary',
-      ],
-      archetype: 'Social Communicator',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Positive Presence',
-      desc: 'Be seen as someone whose expression improves group energy consistently.',
-      objectives: [
-        'Host or lead a short creative or brainstorming session',
-        'Help a group communicate more effectively this week',
-        'Be recognized as someone who brings clarity and energy',
-      ],
-      archetype: 'Recognized Voice',
-    },
-  ],
-
-  4: [ // Seen as organized / dependable
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Get It In Order',
-      desc: 'Be seen as someone who brings order and reliability.',
-      objectives: [
-        'Organize one shared space, file, or workflow',
-        'Finish one task completely before switching',
-        'Send a clear status update before being asked',
-      ],
-      archetype: 'Organizer',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Build Structure',
-      desc: 'Be seen as someone who creates useful systems people can trust.',
-      objectives: [
-        'Create a checklist or process others can use',
-        'Improve a recurring routine so it runs smoother',
-        'Help a group plan with realistic timelines',
-      ],
-      archetype: 'System Builder',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Trusted Operator',
-      desc: 'Be seen as the person who keeps things stable under pressure.',
-      objectives: [
-        'Own a process for one full week with no missed handoffs',
-        'Fix a recurring operational pain point',
-        'Be the go-to person for keeping work organized',
-      ],
-      archetype: 'Dependable Anchor',
-    },
-  ],
-
-  5: [ // Seen as adaptable / dynamic
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Try Something New',
-      desc: 'Be seen as adaptable and open to change.',
-      objectives: [
-        'Try a new method for a familiar task',
-        'Say yes to one healthy, unexpected opportunity',
-        'Introduce one small improvement to routine',
-      ],
-      archetype: 'Adaptable Explorer',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Catalyst Move',
-      desc: 'Be seen as someone who helps others embrace useful change.',
-      objectives: [
-        'Help someone try a new approach that reduces stress',
-        'Refresh a stale workflow with one practical change',
-        'Model calm flexibility when plans shift unexpectedly',
-      ],
-      archetype: 'Change Catalyst',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Adaptive Leader',
-      desc: 'Be seen as steady and resourceful during uncertainty.',
-      objectives: [
-        'Guide a team through an unexpected change smoothly',
-        'Help others reframe a setback into a workable plan',
-        'Be recognized for keeping momentum through change',
-      ],
-      archetype: 'Adaptive Guide',
-    },
-  ],
-
-  6: [ // Seen as caring / responsible
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Show Care',
-      desc: 'Be seen as warm, supportive, and responsible toward others.',
-      objectives: [
-        'Check in thoughtfully with someone who seems stressed',
-        'Help someone with one practical task',
-        'Offer support without expecting anything back',
-      ],
-      archetype: 'Supportive Presence',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Steady Support',
-      desc: 'Be seen as someone people can count on emotionally and practically.',
-      objectives: [
-        'Follow up with someone you helped earlier',
-        'Create a calm, respectful environment in a tense moment',
-        'Support two people without overextending yourself',
-      ],
-      archetype: 'Reliable Caretaker',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Trusted Care Anchor',
-      desc: 'Be seen as someone who sustains care through consistency and boundaries.',
-      objectives: [
-        'Maintain a support routine for one full week',
-        'Help a group improve how they care for each other',
-        'Be recognized as both caring and dependable',
-      ],
-      archetype: 'Community Care Anchor',
-    },
-  ],
-
-  7: [ // Seen as thoughtful / insightful
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Think It Through',
-      desc: 'Be seen as reflective and thoughtful in how you respond.',
-      objectives: [
-        'Pause before reacting and ask one clarifying question',
-        'Research a topic before sharing an opinion',
-        'Write down one insight from today\'s events',
-      ],
-      archetype: 'Reflective Thinker',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Insight Translator',
-      desc: 'Be seen as someone who turns complexity into useful understanding.',
-      objectives: [
-        'Explain a confusing issue in plain language',
-        'Offer a balanced perspective that helps someone decide',
-        'Help someone separate facts from assumptions',
-      ],
-      archetype: 'Practical Insight',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Trusted Advisor',
-      desc: 'Be seen as a grounded source of perspective over time.',
-      objectives: [
-        'Give guidance that someone uses and reports back on',
-        'Create a short reflection framework others can use',
-        'Be asked for input because your thinking is consistently clear',
-      ],
-      archetype: 'Trusted Advisor',
-    },
-  ],
-
-  8: [ // Seen as competent / authoritative
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Own Results',
-      desc: 'Be seen as competent, decisive, and accountable.',
-      objectives: [
-        'Take ownership of one visible outcome',
-        'Set a practical target and hit it today',
-        'Communicate progress with confidence and accuracy',
-      ],
-      archetype: 'Accountable Performer',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Resource Manager',
-      desc: 'Be seen as someone who manages resources and priorities effectively.',
-      objectives: [
-        'Prioritize competing tasks and justify your order',
-        'Help others by allocating time or support fairly',
-        'Make a decision that improves results for the group',
-      ],
-      archetype: 'Practical Authority',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Trusted Decision Maker',
-      desc: 'Be seen as fair, strong, and reliable when stakes are higher.',
-      objectives: [
-        'Lead a high-impact decision with transparent reasoning',
-        'Balance people needs and performance needs in one call',
-        'Be recognized as fair and effective under pressure',
-      ],
-      archetype: 'Respected Authority',
-    },
-  ],
-
-  9: [ // Seen as compassionate / big-picture
-    {
-      tier: 1, difficulty: 'easy',
-      title: 'Contribute',
-      desc: 'Be seen as generous and aware of the bigger picture.',
-      objectives: [
-        'Do one concrete action that helps a group, not just yourself',
-        'Share useful knowledge or resources with no payoff expected',
-        'Offer encouragement to someone who is struggling',
-      ],
-      archetype: 'Compassionate Contributor',
-    },
-    {
-      tier: 2, difficulty: 'medium',
-      title: 'Guide and Uplift',
-      desc: 'Be seen as someone who helps others grow with patience and perspective.',
-      objectives: [
-        'Mentor someone through one practical next step',
-        'Help resolve tension by focusing on shared humanity',
-        'Offer perspective that helps someone move forward',
-      ],
-      archetype: 'Community Mentor',
-    },
-    {
-      tier: 3, difficulty: 'hard',
-      title: 'Steady Humanitarian',
-      desc: 'Be seen as consistently compassionate, practical, and service-oriented.',
-      objectives: [
-        'Sustain one service habit for a full week',
-        'Help coordinate support for multiple people',
-        'Be recognized for putting people first without burning out',
-      ],
-      archetype: 'Grounded Humanitarian',
-    },
-  ],
-}
-
-// ── Base XP per difficulty ────────────────────────────────────────────────────
-// Difficulty has REAL impact on rewards:
-//   easy   = 0.75x base, medium = 1.0x base, hard = 1.5x base
-const BASE_XP = { easy: 50, medium: 100, hard: 160 }
-const DIFFICULTY_MULTIPLIER = { easy: 0.75, medium: 1.0, hard: 1.5 }
-const DIFF_META = {
-  easy:   { label: 'EASY',   icon: '●',   color: '#4ade80', shortColor: 'var(--sage)' },
-  medium: { label: 'MEDIUM', icon: '●●',  color: '#fbbf24', shortColor: 'var(--gold)' },
-  hard:   { label: 'HARD',   icon: '●●●', color: '#f87171', shortColor: 'var(--rose)' },
-}
-
-// ── Re-roll configuration ─────────────────────────────────────────────────────
-const LS_REROLL_COUNT = 'scl_reroll_count'
-const LS_REROLL_DATE  = 'scl_reroll_date'
-const MAX_REROLLS_PER_DAY = 2
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
-
-function uid() {
-  return Math.random().toString(36).slice(2, 9)
-}
-
-
-function dispatch(name, detail) {
-  window.dispatchEvent(new CustomEvent(name, { detail: detail || null }))
-}
-
-// ── History ───────────────────────────────────────────────────────────────────
-function defaultHistory() {
-  return {
-    lastActions: [],
-    completedTypes: [],
-    categoryCompletions: {},
-    focusStreaks: { primaryNumber: null, days: 0, lastDate: '' },
-  }
-}
-
-export function loadQuestHistory() {
-  try {
-    const raw = localStorage.getItem(LS_QUEST_HIST)
-    return raw ? JSON.parse(raw) : defaultHistory()
-  } catch { return defaultHistory() }
-}
-
-function saveHistory(history) {
-  try { localStorage.setItem(LS_QUEST_HIST, JSON.stringify(history)) } catch {}
-}
-
-// ── Outer quest progression ───────────────────────────────────────────────────
-function defaultOuterProgress() {
-  return {
-    // map of frequency number -> completion count
-    completionsByNumber: {},
-  }
-}
-
-function loadOuterProgress() {
-  try {
-    const raw = localStorage.getItem(LS_OUTER_PROGRESS)
-    if (!raw) return defaultOuterProgress()
-    const parsed = JSON.parse(raw)
-    return parsed && typeof parsed === 'object'
-      ? { completionsByNumber: parsed.completionsByNumber || {} }
-      : defaultOuterProgress()
-  } catch {
-    return defaultOuterProgress()
-  }
-}
-
-function saveOuterProgress(progress) {
-  try { localStorage.setItem(LS_OUTER_PROGRESS, JSON.stringify(progress)) } catch {}
-}
-
-/**
- * Tier thresholds by completed outer quests for a given frequency:
- * 1-3 completions => tier 1
- * 4-8 completions => tier 2
- * 9+ completions  => tier 3
- */
-export function getOuterTierForNumber(outerNumber) {
-  const progress = loadOuterProgress()
-  const completed = progress.completionsByNumber?.[outerNumber] || 0
-  if (completed >= 9) return 3
-  if (completed >= 4) return 2
-  return 1
-}
-
-export function getOuterTierProgress(outerNumber) {
-  const progress = loadOuterProgress()
-  const completed = progress.completionsByNumber?.[outerNumber] || 0
-  const tier = getOuterTierForNumber(outerNumber)
-  const nextAt = tier === 1 ? 4 : tier === 2 ? 9 : null
-  const remaining = nextAt ? Math.max(0, nextAt - completed) : 0
-  return { tier, completed, nextAt, remaining }
-}
 
 // ── Stat XP helpers ───────────────────────────────────────────────────────────
-function _statXPForDifficulty(difficulty) {
-  // Keep personal-stat growth slower than quest cadence (4+/day).
-  return { easy: 1, medium: 1, hard: 2 }[difficulty] || 1
-}
+// Use skillQuestBridge.statXPForDifficulty (1 / 2 / 4) — single source of truth.
 
 function _updateCategoryAffinity(history, number, category) {
   if (!category || category === 'objective') return
@@ -1067,12 +132,12 @@ function _updateFocusStreak(history, number) {
   return fs.days
 }
 
-/** Awards the Daily Sweep bonus once all 4 quests are complete. */
+/** Awards the Daily Sweep bonus once all journal quests are complete. */
 function _checkDailySweep(raw) {
   if (raw.sweepAwarded) return
   if (!raw.quests.every(q => q.completed)) return
   raw.sweepAwarded = true
-  try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw)) } catch { /* intentional */ }
+  persistGenQuests(raw)
   earnFreqXP(25)
   const cn = raw.cycleNumber
   if (cn >= 1 && cn <= 9) {
@@ -1081,53 +146,7 @@ function _checkDailySweep(raw) {
   dispatch('scl:xp_toast', { msg: '◈ DAILY SWEEP · +25 FREQ XP', color: 'var(--teal)' })
 }
 
-/** Generate an outer quest based on the outer frequency number.
- *  Outer quests are about how others perceive you.
- *  Returns a single quest from the appropriate tier for the outer number.
- */
-export function generateOuterQuest(outerNumber, tierOverride = null) {
-  if (!outerNumber || outerNumber < 1 || outerNumber > 9) return null
-  const tiers = OUTER_QUEST_TIERS[outerNumber]
-  if (!tiers) return null
-  
-  // Automatic progression by completion history, unless explicitly overridden.
-  const autoTier = getOuterTierForNumber(outerNumber)
-  const tier = tierOverride ? Math.max(1, Math.min(3, tierOverride)) : autoTier
-  const questTemplate = tiers[tier - 1]
-  if (!questTemplate) return null
-  
-  // Pick a random objective from the tier
-  const objective = pick(questTemplate.objectives)
-  
-  return {
-    id: uid(),
-    title: questTemplate.title,
-    desc: questTemplate.desc,
-    objective,
-    tier: questTemplate.tier,
-    difficulty: questTemplate.difficulty,
-    archetype: questTemplate.archetype,
-    outerNumber,
-    type: 'outer',
-    baseXP: BASE_XP[questTemplate.difficulty] * 1.5, // Outer quests worth more
-    rewardXP: BASE_XP[questTemplate.difficulty] * 1.5,
-    isOuter: true,
-    completed: false,
-  }
-}
-
-// ── Life quest tier objective ─────────────────────────────────────────────────
-// Returns the active tier number for a quest node given the stored LQP state.
-function activeTierFor(questKey, lqp) {
-  if (!lqp || !lqp[questKey]) return 1
-  for (let t = 1; t <= 3; t++) {
-    const prog = lqp[questKey][t] || []
-    if (!prog.length || !prog.every(Boolean)) return t
-  }
-  return 3
-}
-
-// ── Generate today's 4 quests ─────────────────────────────────────────────────
+// ── Generate today's 6 journal quests ─────────────────────────────────────────
 /**
  * user = {
  *   dominantNumbers: number[]   — top frequency numbers from profile
@@ -1154,18 +173,13 @@ export function generateDailyQuests(user) {
   const cycleRoots  = user?.cycleRoots  || {}
   const freqLevel   = user?.freqLevel || 1
 
-  // ── Class loadout (seed from progress if empty) ────────────────────────────
+  // ── Class loadout ──────────────────────────────────────────────────────────
   let skillProgress = {}
   try {
     skillProgress = loadSkillTreeProgressV3()
   } catch {
     skillProgress = {}
   }
-
-  // Soft-clear auto-seeded loadout (player picks class paths themselves)
-  try {
-    clearAutoSeededLoadout()
-  } catch { /* ignore */ }
 
   const loadout = loadClassLoadout()
   const filledSlots = getFilledSlots(loadout)
@@ -1257,8 +271,12 @@ export function generateDailyQuests(user) {
   // ── 2 LIFE / BLUEPRINT quests — prefer loadout seal roots ──────────────────
   const lqp = getLQP()
   const lifePool = []
-  for (const node of lifeNodes) {
-    const tier     = activeTierFor(node.key, lqp)
+  const unlockedLifeNodes = (lifeNodes || []).filter((node) => {
+    const unlock = BLUEPRINT_UNLOCK_LV[node.key] ?? 0
+    return freqLevel >= unlock
+  })
+  for (const node of unlockedLifeNodes) {
+    const tier     = activeTierFor(node.key)
     const objs     = getTieredObjectiveTexts(node.root, tier)
     const progress = lqp?.[node.key]?.[tier] || []
     objs.forEach((text, i) => {
@@ -1311,7 +329,7 @@ export function generateDailyQuests(user) {
 
   // ── 2 CURRENT quests (personal year + personal month cycle objectives) ────
   const blueprintKey = user?.blueprintKey || 'cl'
-  const monthLqpTier = activeTierFor(blueprintKey, lqp)
+  const monthLqpTier = activeTierFor(blueprintKey)
 
   const cyclePool = []
   const cycleTypes = [
@@ -1393,7 +411,7 @@ export function generateDailyQuests(user) {
     cycleNumber,
     loadoutEmpty,
   }
-  try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(record)) } catch {}
+  persistGenQuests(record)
   dispatch('scl:gen_quests_updated', { quests })
 
   multiDayStarts.forEach((quest) => {
@@ -1407,6 +425,44 @@ export function generateDailyQuests(user) {
 /**
  * Returns the stored quest array for today, or null if none generated yet.
  */
+
+function persistGenQuests(raw) {
+  try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw)) } catch { /* intentional */ }
+  try { window.NativeAuth?.saveGenQuests?.(JSON.stringify(raw)) } catch { /* intentional */ }
+}
+
+/** Merge remote gen quests over local — never empty over non-empty same-day set. */
+export function hydrateGenQuestsFromCloud(cb) {
+  const apply = (remoteRaw) => {
+    try {
+      const remote = typeof remoteRaw === 'string' ? JSON.parse(remoteRaw || '{}') : (remoteRaw || {})
+      const local = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
+      const today = todayStr()
+      const remoteOk = remote && remote.date === today && Array.isArray(remote.quests) && remote.quests.length
+      const localOk = local && local.date === today && Array.isArray(local.quests) && local.quests.length
+      if (!remoteOk && localOk) {
+        try { window.NativeAuth?.saveGenQuests?.(JSON.stringify(local)) } catch { /* intentional */ }
+        cb?.(local)
+        return
+      }
+      if (remoteOk) {
+        const rDone = remote.quests.filter(q => q.completed).length
+        const lDone = localOk ? local.quests.filter(q => q.completed).length : 0
+        const chosen = (localOk && lDone > rDone) ? local : remote
+        persistGenQuests(chosen)
+        cb?.(chosen)
+        return
+      }
+      cb?.(localOk ? local : null)
+    } catch { cb?.(null) }
+  }
+  if (window.NativeAuth?.loadGenQuests) {
+    window.NativeAuth.loadGenQuests((json) => apply(json))
+  } else {
+    apply('{}')
+  }
+}
+
 export function getGeneratedQuests() {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
@@ -1543,7 +599,7 @@ export function completeGeneratedQuest(questId, journalText) {
 
     quest.completed   = true
     quest.completedAt = Date.now()
-    localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw))
+    persistGenQuests(raw)
 
     earnFreqXP(quest.rewardXP)
 
@@ -1551,10 +607,14 @@ export function completeGeneratedQuest(questId, journalText) {
     const history = loadQuestHistory()
 
     // ── Difficulty-scaled stat XP ──────────────────────────────────────────────
-    let statXPAmount = _statXPForDifficulty(quest.difficulty)
+    let statXPAmount = statXPForDifficulty(quest.difficulty)
 
-    // ── Focus streak bonus (primary quests only; disabled in Cycle 5 Freedom) ──
-    if (quest.type === 'primary' && raw.cycleNumber !== 5) {
+    // ── Focus streak bonus (skill / life / cycle focus; disabled in Cycle 5) ──
+    const isFocusType = quest.type === 'skilltree'
+      || quest.type === 'objective'
+      || quest.source === 'skill'
+      || quest.source === 'life'
+    if (isFocusType && raw.cycleNumber !== 5) {
       const streak = _updateFocusStreak(history, quest.number)
       if (streak >= 3) {
         statXPAmount = Math.round(statXPAmount * 1.25)
@@ -1585,17 +645,9 @@ export function completeGeneratedQuest(questId, journalText) {
       _updateCategoryAffinity(history, quest.number, quest.category)
     }
 
-    // ── Outer progression update ─────────────────────────────────────────────
-    if (quest.type === 'outer' && quest.outerNumber >= 1 && quest.outerNumber <= 9) {
-      const outerProgress = loadOuterProgress()
-      outerProgress.completionsByNumber[quest.outerNumber] =
-        (outerProgress.completionsByNumber[quest.outerNumber] || 0) + 1
-      saveOuterProgress(outerProgress)
-    }
-
     saveHistory(history)
 
-    // ── Daily Sweep bonus (all 4 complete) ────────────────────────────────────
+    // ── Daily Sweep bonus (all journal quests complete) ───────────────────────
     _checkDailySweep(raw)
 
     // Trigger achievements check after quest & sweep
@@ -1678,7 +730,7 @@ export function beginMultiDayQuest(quest) {
       if (q) {
         if (!q.multiDay) q.multiDay = { totalDays: quest.multiDay?.totalDays || 0 }
         q.multiDay.started = true
-        localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw))
+        persistGenQuests(raw)
       }
     }
   } catch (e) { console.error('[beginMultiDay] Error:', e) }
@@ -1747,7 +799,7 @@ export function completeMultiDayQuest(questId, journalText) {
   earnFreqXP(finalXP)
 
   // ── Streak-scaled stat XP: base by difficulty + 1 per 7 clean days ──
-  const baseStatXP  = _statXPForDifficulty(quest.difficulty)
+  const baseStatXP  = statXPForDifficulty(quest.difficulty)
   const streakBonus = Math.floor(maxStreak / 7)
   const finalStatXP = baseStatXP + streakBonus
 
@@ -1823,7 +875,7 @@ export function hasCompletedQuests() {
  * Re-roll uncompleted quests with new ones.
  * Completed quests are preserved and cannot be re-rolled.
  */
-export function rerollGeneratedQuests(user) {
+export function rerollGeneratedQuests(userOrPlayerData) {
   const gen = getGeneratedQuests()
   if (!gen || !gen.quests) return { ok: false, error: 'No quests to re-roll' }
 
@@ -1835,6 +887,13 @@ export function rerollGeneratedQuests(user) {
   if (remaining <= 0) {
     return { ok: false, error: `Re-roll limit reached (${MAX_REROLLS_PER_DAY}/day)` }
   }
+
+  // Always normalize to buildQuestUserProfile so lifeNodes + cycleRoots exist
+  let user = userOrPlayerData
+  if (userOrPlayerData && !userOrPlayerData.lifeNodes) {
+    user = buildQuestUserProfile(userOrPlayerData)
+  }
+  if (!user) return { ok: false, error: 'No player profile for re-roll' }
 
   try {
     localStorage.setItem(LS_REROLL_DATE, todayStr())
@@ -1850,7 +909,7 @@ export function rerollGeneratedQuests(user) {
   const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || '{}')
   raw.quests = finalQuests
   raw.rerolled = true
-  try { localStorage.setItem(LS_GEN_QUESTS, JSON.stringify(raw)) } catch {}
+  persistGenQuests(raw)
 
   dispatch('scl:gen_quests_updated', { quests: finalQuests })
 

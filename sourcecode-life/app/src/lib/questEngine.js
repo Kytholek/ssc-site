@@ -255,7 +255,29 @@ function _saveToStorage() {
 }
 
 function _syncToFirestore() {
-  window.NativeMap?.savePlayerXP?.(_charXP, _charLevel, _freqXP, _freqLevel, JSON.stringify(_statXP));
+  // GameContext earn* paths update LS but skip module vars — read LS so cloud stays correct
+  try {
+    const cx = parseInt(localStorage.getItem(LS_CHAR_XP)  || String(_charXP), 10) || 0;
+    const cl = parseInt(localStorage.getItem(LS_CHAR_LVL) || String(_charLevel), 10) || 1;
+    const fx = parseInt(localStorage.getItem(LS_FREQ_XP)  || String(_freqXP), 10) || 0;
+    const fl = parseInt(localStorage.getItem(LS_FREQ_LVL) || String(_freqLevel), 10) || 1;
+    let sx = _statXP;
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_STAT_XP) || 'null');
+      if (raw && typeof raw === 'object') sx = raw;
+    } catch { /* intentional */ }
+    _charXP = cx; _charLevel = cl; _freqXP = fx; _freqLevel = fl; _statXP = sx;
+    try {
+      const combined = JSON.parse(localStorage.getItem('scl_xp') || '{}');
+      localStorage.setItem('scl_xp', JSON.stringify({
+        ...combined,
+        charXP: cx, charLevel: cl, freqXP: fx, freqLevel: fl, statXP: sx,
+      }));
+    } catch { /* intentional */ }
+    window.NativeMap?.savePlayerXP?.(cx, cl, fx, fl, JSON.stringify(sx));
+  } catch {
+    window.NativeMap?.savePlayerXP?.(_charXP, _charLevel, _freqXP, _freqLevel, JSON.stringify(_statXP));
+  }
 }
 
 function _dispatch(name, detail) {
@@ -462,10 +484,21 @@ export function QuestEngine_reset() {
      // Skill tree progress
      'scl_skilltree_progress_v3',
      'scl_skilltree_progress_v2',
-     // Notification prefs (keep for now)
-     // 'scl_notif_prefs',
     ].forEach(k => localStorage.removeItem(k));
+    // Season keys (avoid importing seasonEngine — circular)
+    const seasonKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith('scl_month_season_') || k.startsWith('scl_year_season_')
+        || k.startsWith('scl_fourmonth_season_') || k === 'scl_season_bundle_v1')) {
+        seasonKeys.push(k);
+      }
+    }
+    seasonKeys.forEach(k => localStorage.removeItem(k));
   } catch { /* intentional */ }
+  try { window.NativeAuth?.saveSeasonState?.('{}') } catch { /* intentional */ }
+  try { window.NativeAuth?.saveGenQuests?.('{}') } catch { /* intentional */ }
+  try { window.NativeAuth?.saveSkillTreeProgress?.('{}') } catch { /* intentional */ }
   window.NativeMap?.savePlayerXP?.(0, 1, 0, 1, JSON.stringify(_statXP));
   window.NativeMap?.saveFreqLog?.('{}');
   _dispatch('scl:xp_updated', getXPState());
@@ -535,9 +568,10 @@ export function getDailyQuestState() {
   }
 
   const ms = _msUntilMidnight();
+  const resonant = !!d.dayRootMatch;
   return {
     ...d,
-    xpAward: XP_AWARDS.daily,
+    xpAward: Math.round(XP_AWARDS.daily * (resonant ? 2 : 1.5)),
     resetHours: Math.floor(ms / 3600000),
     resetMins:  Math.floor((ms % 3600000) / 60000),
   };
@@ -558,11 +592,11 @@ export function QuestEngine_completeDailyQuest(lpRoot) {
   const resonant = !!d.dayRootMatch;
   const dailyXP = Math.round(XP_AWARDS.daily * (resonant ? 2 : 1.5));
 
-  // Mark life quest objective if linked
+  // Mark life quest objective if linked (skill pip awarded once below)
   try {
     if (d.dayObjMeta) {
       const { questKey, tier, objIdx } = d.dayObjMeta;
-      QuestEngine_markLQPObjective(questKey, tier, objIdx);
+      QuestEngine_markLQPObjective(questKey, tier, objIdx, { skipSkillReward: true });
     }
   } catch { /* intentional */ }
 
@@ -612,10 +646,10 @@ export function getFreqLog() {
 export function isFreqDone(key) {
   const log = getFreqLog();
   if (!log[key]) return false;
-  const n = new Date();
   if (key.startsWith('dfreq_'))     return key.endsWith(todayStr()) && !!log[key];
   if (key.startsWith('day_'))       return key === 'day_' + todayStr();
-  if (key.startsWith('month_'))     return key === 'month_' + n.getFullYear() + '-' + (n.getMonth()+1) && !!log[key];
+  // Season writers use month_{yearKey}_{monthNum} / year_{yearKey} / fourmonth_{yearKey}_{n}
+  if (key.startsWith('month_'))     return !!log[key];
   if (key.startsWith('year_'))      return !!log[key];
   if (key.startsWith('fourmonth_')) return !!log[key];
   if (key.startsWith('pinnacle_'))  return !!log[key] && log[key] === _quarterKey();

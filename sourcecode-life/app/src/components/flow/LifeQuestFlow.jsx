@@ -7,6 +7,15 @@ import 'reactflow/dist/style.css'
 import { fmt } from '../../lib/numerology'
 import FlowDetailPanel from './FlowDetailPanel'
 import FlowProgressNode from './FlowProgressNode'
+import { useAppDispatch } from '../../context/AppContext'
+import { useGameDispatch } from '../../state/GameContext'
+import { ACTIONS } from '../../state/actions'
+import {
+  QuestEngine_markLQPObjective,
+  earnStatXP,
+  getLQP,
+} from '../../lib/questEngine'
+import { applyQuestSkillReward } from '../../lib/skillQuestBridge'
 
 const LIFE_NODE_SIZE = 72
 const LIFE_NODE_HALF = LIFE_NODE_SIZE / 2
@@ -110,6 +119,8 @@ export default function LifeQuestFlow({
   const [selected, setSelected] = useState(null)
   const [selectedObjective, setSelectedObjective] = useState(null)
   const [zoomLock, setZoomLock] = useState(null)
+  const dispatch = useAppDispatch()
+  const gameDispatch = useGameDispatch()
 
   useEffect(() => {
     setSelectedObjective(null)
@@ -119,6 +130,28 @@ export default function LifeQuestFlow({
     setSelected(null)
     setSelectedObjective(null)
   }, [])
+
+  const handleCompleteObjective = useCallback(() => {
+    if (!selectedObjective || selectedObjective.done) return
+    const { questKey, tier, objIdx } = selectedObjective
+    const root = numMap[questKey]?.root
+    const difficulty = tier === 3 ? 'hard' : tier === 2 ? 'medium' : 'easy'
+
+    QuestEngine_markLQPObjective(questKey, tier, objIdx, { skipSkillReward: true })
+    if (root != null) {
+      applyQuestSkillReward(
+        { root, tier, questKind: 'life', difficulty },
+        earnStatXP,
+        (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail: detail || null })),
+      )
+    }
+    gameDispatch({ type: ACTIONS.REFRESH_LQP, payload: getLQP() })
+    gameDispatch({
+      type: ACTIONS.SET_TOAST,
+      payload: { msg: '✦ Life objective complete', color: 'var(--teal)' },
+    })
+    setSelectedObjective((prev) => (prev ? { ...prev, done: true } : null))
+  }, [selectedObjective, numMap, gameDispatch])
 
   const selData = selected
     ? {
@@ -293,6 +326,24 @@ export default function LifeQuestFlow({
               <div className="objective-detail-context-value">
                 {getQuestDescription?.(selectedObjective.questKey) || 'Quest objective'}
               </div>
+            </div>
+            <div className="objective-detail-actions">
+              {!selectedObjective.done && (
+                <button
+                  type="button"
+                  className="objective-detail-btn objective-detail-btn--complete"
+                  onClick={handleCompleteObjective}
+                >
+                  Complete
+                </button>
+              )}
+              <button
+                type="button"
+                className="objective-detail-journal-link"
+                onClick={() => dispatch({ type: 'SET_TAB', payload: 'home', section: 'journal' })}
+              >
+                Open in Home journal →
+              </button>
             </div>
           </div>
         ) : (

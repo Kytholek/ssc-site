@@ -16,6 +16,33 @@ import { getEquippedRouteId } from './classLoadout'
 
 export { SKILLTREE_LS_KEY }
 
+function _readStatValues() {
+  try {
+    const fromCombined = JSON.parse(localStorage.getItem('scl_xp') || '{}')
+    if (fromCombined?.statXP && typeof fromCombined.statXP === 'object') {
+      const sv = {}
+      for (let i = 1; i <= 9; i++) sv[String(i)] = fromCombined.statXP[i] || fromCombined.statXP[String(i)] || 0
+      return sv
+    }
+  } catch { /* ignore */ }
+  try {
+    const raw = JSON.parse(localStorage.getItem('scl_stat_xp') || '{}')
+    const sv = {}
+    for (let i = 1; i <= 9; i++) sv[String(i)] = raw[i] || raw[String(i)] || 0
+    return sv
+  } catch {
+    return {}
+  }
+}
+
+function _readSeeds() {
+  try {
+    return window.__scl_innate_seeds__ || {}
+  } catch {
+    return {}
+  }
+}
+
 const STAGE_LABELS = [
   TIER_LABELS[1].label,
   TIER_LABELS[2].label,
@@ -83,9 +110,14 @@ export function updateSkillTreeProgress(skillMeta) {
       || getEquippedRouteId(number)
       || null
     const prog = loadSkillTreeProgressV3()
-    const { progress, filled } = fillSkillPipV3(prog, number, stageIdx, preferred)
+    const statValues = skillMeta.statValues || _readStatValues()
+    const seeds = skillMeta.seeds || _readSeeds()
+    const { progress, filled } = fillSkillPipV3(prog, number, stageIdx, preferred, statValues, seeds)
     if (!filled) return false
     saveSkillTreeProgressV3(progress)
+    try {
+      window.NativeAuth?.saveSkillTreeProgress?.(JSON.stringify(progress))
+    } catch { /* ignore */ }
     window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: progress }))
     return true
   } catch {

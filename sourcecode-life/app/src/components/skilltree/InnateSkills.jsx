@@ -14,146 +14,14 @@ import {
   saveSkillTreeProgressV3,
   mergeSeedsV3,
   migrateProgressToV3,
+  mergeSkillProgressV3,
+  isSkillProgressEmpty,
 } from '../../lib/skillRoutes'
 import {
   loadClassLoadout,
   saveClassLoadout,
   clearAutoSeededLoadout,
 } from '../../lib/classLoadout'
-
-const DIGIT_SKILL_TREE = {
-  1: {
-    title: 'Initiation', coreStat: 'WILL', branch: 'ELECTRIC', subtitle: 'Action into motion',
-    skills: [
-      { name: 'INITIATIVE', desc: 'Start faster and reduce friction to begin.' },
-      { name: 'LEADERSHIP', desc: 'Direct groups, set pace, and hold direction.' },
-    ],
-    branches: [
-      { icon: '▶', label: 'START',    short: 'Open the cycle' },
-      { icon: '△', label: 'COURAGE',  short: 'Act before certainty' },
-      { icon: '✦', label: 'COMMAND',  short: 'Guide momentum' },
-      { icon: '◈', label: 'DRIVE',    short: 'Keep movement alive' },
-    ],
-  },
-  2: {
-    title: 'Connection', coreStat: 'RESONANCE', branch: 'MAGNETIC', subtitle: 'Signal between people',
-    skills: [
-      { name: 'COMMUNICATION', desc: 'Clarify signal and reduce conflict noise.' },
-      { name: 'NETWORKING',    desc: 'Expand useful alliances and social reach.' },
-    ],
-    branches: [
-      { icon: '◌', label: 'LISTENING', short: 'Receive nuance' },
-      { icon: '◍', label: 'HARMONY',   short: 'Balance tension' },
-      { icon: '☍', label: 'BONDING',   short: 'Strengthen trust' },
-      { icon: '◎', label: 'LINKING',   short: 'Connect the network' },
-    ],
-  },
-  3: {
-    title: 'Expression', coreStat: 'EXPRESSION', branch: 'ELECTRIC', subtitle: 'Externalized intelligence',
-    skills: [
-      { name: 'CREATIVITY',  desc: 'Generate more ideas and creative options.' },
-      { name: 'EXPRESSION',  desc: 'Broadcast your signal with clarity and style.' },
-    ],
-    branches: [
-      { icon: '✎', label: 'CREATIVITY',    short: 'Make ideas tangible' },
-      { icon: '◔', label: 'COMMUNICATION', short: 'Transmit clearly' },
-      { icon: '◉', label: 'PERFORMANCE',   short: 'Carry presence outward' },
-      { icon: '✦', label: 'STORYTELLING',  short: 'Shape meaning into form' },
-    ],
-  },
-  4: {
-    title: 'Structure', coreStat: 'STABILITY', branch: 'MAGNETIC', subtitle: 'Form that can hold',
-    skills: [
-      { name: 'ORGANIZATION', desc: 'Create systems that stay intact under load.' },
-      { name: 'FOCUS',        desc: 'Lock attention onto the essential.' },
-    ],
-    branches: [
-      { icon: '□', label: 'SYSTEMS',   short: 'Build structure' },
-      { icon: '▣', label: 'ORDER',     short: 'Reduce chaos' },
-      { icon: '◫', label: 'ROUTINE',   short: 'Repeat with strength' },
-      { icon: '◪', label: 'PRECISION', short: 'Tighten execution' },
-    ],
-  },
-  5: {
-    title: 'Adaptation', coreStat: 'MOTION', branch: 'ELECTRIC', subtitle: 'Freedom in movement',
-    skills: [
-      { name: 'ADAPTABILITY', desc: 'Pivot quickly as the field changes.' },
-      { name: 'PROWESS',      desc: 'Perform well while conditions stay unstable.' },
-    ],
-    branches: [
-      { icon: '↺', label: 'PIVOT', short: 'Shift without panic' },
-      { icon: '⇄', label: 'RANGE', short: 'Move across lanes' },
-      { icon: '⚡', label: 'SPEED', short: 'Keep the flow sharp' },
-      { icon: '◧', label: 'RISK',  short: 'Advance into change' },
-    ],
-  },
-  6: {
-    title: 'Care', coreStat: 'SUPPORT', branch: 'MAGNETIC', subtitle: 'Hold what matters',
-    skills: [
-      { name: 'CARE',           desc: 'Maintain morale, protection, and emotional steadiness.' },
-      { name: 'RESPONSIBILITY', desc: 'See commitments through to full completion.' },
-    ],
-    branches: [
-      { icon: '♡', label: 'NURTURE',  short: 'Create safety' },
-      { icon: '⌂', label: 'HOME',     short: 'Stabilize the field' },
-      { icon: '❋', label: 'SERVICE',  short: 'Show up consistently' },
-      { icon: '◡', label: 'REPAIR',   short: 'Restore cohesion' },
-    ],
-  },
-  7: {
-    title: 'Insight', coreStat: 'PERCEPTION', branch: 'ELECTRIC', subtitle: 'Depth before action',
-    skills: [
-      { name: 'KNOWLEDGE', desc: 'Acquire insight and understand hidden patterns.' },
-      { name: 'FAITH',     desc: 'Stay aligned before proof is visible.' },
-    ],
-    branches: [
-      { icon: '◐', label: 'STUDY',   short: 'Gather signal' },
-      { icon: '◑', label: 'PATTERN', short: 'See what repeats' },
-      { icon: '✧', label: 'TRUST',   short: 'Stay with the unseen' },
-      { icon: '⌁', label: 'MYSTERY', short: 'Move with depth' },
-    ],
-  },
-  8: {
-    title: 'Mastery', coreStat: 'AUTHORITY', branch: 'MAGNETIC', subtitle: 'Power with discipline',
-    skills: [
-      { name: 'WISDOM',     desc: 'Choose leverage, timing, and proper force.' },
-      { name: 'DISCIPLINE', desc: 'Execute to a high standard repeatedly.' },
-    ],
-    branches: [
-      { icon: '▲', label: 'STRATEGY',  short: 'See the advantage' },
-      { icon: '▴', label: 'CONTROL',   short: 'Hold the line' },
-      { icon: '◬', label: 'EXECUTION', short: 'Convert plan to result' },
-      { icon: '◇', label: 'SCALE',     short: 'Grow impact cleanly' },
-    ],
-  },
-  9: {
-    title: 'Completion', coreStat: 'TRANSMUTATION', branch: 'AETHER', subtitle: 'Endings into openings',
-    skills: [
-      { name: 'COMPASSION', desc: 'Hold the wide view with humanity.' },
-      { name: 'RELEASE',    desc: 'Let go cleanly so the next cycle can begin.' },
-    ],
-    branches: [
-      { icon: '◜', label: 'HEALING',    short: 'Soothe the field' },
-      { icon: '◝', label: 'FORGIVENESS',short: 'Reduce karmic drag' },
-      { icon: '◟', label: 'CLOSURE',    short: 'Finish the cycle' },
-      { icon: '◞', label: 'LEGACY',     short: 'Leave what lasts' },
-    ],
-  },
-}
-
-const MASTER_ROOT_MAP = { 11:2, 22:4, 33:6, 44:8, 55:1, 66:3, 77:5, 88:7, 99:9 }
-
-const MASTER_ENHANCED_SKILLS = {
-  11: { name: 'INTUITIVE CONNECTION',       desc: 'Enhanced root-2 resonance: perceive hidden emotional links instantly.' },
-  22: { name: 'ARCHITECT NETWORK',          desc: 'Enhanced root-4 structure: design durable systems at scale.' },
-  33: { name: 'HEARTFIELD HARMONY',         desc: 'Enhanced root-6 care: convert tension into cooperative energy.' },
-  44: { name: 'FOCUS FORTRESS',             desc: 'Enhanced root-8 discipline: hold precision under extreme pressure.' },
-  55: { name: 'SOVEREIGN INITIATION',       desc: 'Enhanced root-1 leadership: trigger coordinated starts across teams.' },
-  66: { name: 'CREATIVE RESPONSIBILITY',    desc: 'Enhanced root-3 expression: ship creative work with accountability.' },
-  77: { name: 'ADAPTIVE FAITH',             desc: 'Enhanced root-5 adaptability: stay aligned while conditions mutate.' },
-  88: { name: 'WISE COMMAND',               desc: 'Enhanced root-7 knowledge: apply insight with strategic authority.' },
-  99: { name: 'COMPASSIONATE TRANSCENDENCE',desc: 'Enhanced root-9 release: resolve cycles without karmic residue.' },
-}
 
 // ── Gift sidebar ──────────────────────────────────────────────────────────────
 function GiftSidebar({ gift, cfg, label, n, onClose }) {
@@ -453,9 +321,26 @@ function SkillTreeSection({ playerData }) {
     if (window.NativeAuth?.loadSkillTreeProgress) {
       window.NativeAuth.loadSkillTreeProgress((progressJson) => {
         try {
-          const progress = JSON.parse(progressJson)
-          if (progress && typeof progress === 'object') {
-            const merged = mergeSeedsV3(migrateProgressToV3(progress), seeds)
+          const remote = JSON.parse(progressJson || '{}')
+          const local = loadSkillTreeProgressV3()
+          // Never let empty cloud wipe non-empty local progress
+          if (
+            (!remote || typeof remote !== 'object' || isSkillProgressEmpty(remote))
+            && !isSkillProgressEmpty(local)
+          ) {
+            const kept = mergeSeedsV3(local, seeds)
+            setCompleted(kept)
+            didLoadRemote.current = true
+            try {
+              window.NativeAuth?.saveSkillTreeProgress?.(JSON.stringify(kept))
+            } catch { /* ignore */ }
+            return
+          }
+          if (remote && typeof remote === 'object') {
+            const merged = mergeSeedsV3(
+              mergeSkillProgressV3(local, migrateProgressToV3(remote)),
+              seeds,
+            )
             setCompleted(merged)
             didLoadRemote.current = true
           }
@@ -518,9 +403,6 @@ function SkillTreeSection({ playerData }) {
         statValues={statValues}
         playerData={playerData}
         freqLevel={freqLevel}
-        digitSkillTree={DIGIT_SKILL_TREE}
-        masterRootMap={MASTER_ROOT_MAP}
-        masterEnhancedSkills={MASTER_ENHANCED_SKILLS}
       />
     </div>
   )

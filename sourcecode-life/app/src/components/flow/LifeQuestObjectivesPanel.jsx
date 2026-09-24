@@ -12,6 +12,7 @@ import {
 import {
   getTieredObjectiveTexts,
 } from '../../lib/objectives'
+import { useAppDispatch } from '../../context/AppContext'
 
 const TIER_LABELS = { 1: 'APPRENTICE', 2: 'ADEPT', 3: 'MASTER' }
 
@@ -43,6 +44,7 @@ export default function LifeQuestObjectivesPanel({
   onClose,
 }) {
   const [expandedTiers, setExpandedTiers] = useState({ 1: true, 2: false, 3: false })
+  const dispatch = useAppDispatch()
 
   if (!selected) return null
 
@@ -94,6 +96,10 @@ export default function LifeQuestObjectivesPanel({
     })
   }
 
+  const goToJournal = () => {
+    dispatch({ type: 'SET_TAB', payload: 'home', section: 'journal' })
+  }
+
   return (
     <motion.div
       className="life-quest-objectives-panel"
@@ -119,6 +125,10 @@ export default function LifeQuestObjectivesPanel({
           ✕
         </button>
       </div>
+
+      <button type="button" className="lqop-journal-link" onClick={goToJournal}>
+        Complete today&apos;s life objectives in the Home journal →
+      </button>
 
       {/* Quest Description */}
       {qData?.desc && (

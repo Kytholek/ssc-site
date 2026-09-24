@@ -4364,9 +4364,6 @@
   border-color: color-mix(in srgb, var(--border) 40%, transparent);
   color: var(--text-mid);
 }
-[data-theme="fantasy"] .seasons-pinnacle-crest {
-  border-color: color-mix(in srgb, var(--gold) 32%, transparent);
-}
 [data-theme="fantasy"] .seasons-cards-container {
   border-color: color-mix(in srgb, var(--border) 35%, transparent);
 }
@@ -4424,9 +4421,6 @@
   --seasons-card-shadow: 0 4px 18px rgba(0,0,0,0.55);
   --seasons-btn-bg: color-mix(in srgb, var(--bg-panel) 90%, transparent);
 }
-[data-theme="diablo"] .seasons-pinnacle-crest {
-  border-color: color-mix(in srgb, var(--red) 28%, transparent);
-}
 [data-theme="diablo"] .seasons-cards-container {
   border-color: color-mix(in srgb, var(--red) 18%, transparent);
 }
@@ -4480,9 +4474,6 @@
   --seasons-card-shadow: 0 4px 18px rgba(0,0,0,0.5);
   --seasons-btn-bg: color-mix(in srgb, var(--bg-panel) 90%, transparent);
 }
-[data-theme="unicorn"] .seasons-pinnacle-crest {
-  border-color: color-mix(in srgb, var(--purple) 28%, transparent);
-}
 [data-theme="unicorn"] .seasons-cards-container {
   border-color: color-mix(in srgb, var(--purple) 18%, transparent);
 }
@@ -4535,9 +4526,6 @@
   --seasons-subtle-bg: rgba(0,200,255,0.04);
   --seasons-card-shadow: 0 4px 18px rgba(0,0,0,0.5);
   --seasons-btn-bg: color-mix(in srgb, var(--bg-panel) 90%, transparent);
-}
-[data-theme="scifi"] .seasons-pinnacle-crest {
-  border-color: color-mix(in srgb, #00c8ff 24%, transparent);
 }
 [data-theme="scifi"] .seasons-cards-container {
   border-color: color-mix(in srgb, #00c8ff 16%, transparent);

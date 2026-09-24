@@ -328,6 +328,19 @@ function CharCard() {
 
           <div className="char-card-class" aria-label="Class specialization">
             <div className="char-card-class-head">
+              {hasClassPaths && (
+                <span className="char-card-class-crest" aria-hidden="true">
+                  {pathChips.map((chip, i) => (
+                    <span
+                      key={`${chip.number}-${chip.routeId}`}
+                      className={`char-card-class-crest-seal${i > 0 ? ' char-card-class-crest-seal--second' : ''}`}
+                      style={{ '--crest-color': chip.color }}
+                    >
+                      {chip.icon}
+                    </span>
+                  ))}
+                </span>
+              )}
               <span className="char-card-class-kicker">CLASS</span>
               {hasClassPaths ? (
                 <button

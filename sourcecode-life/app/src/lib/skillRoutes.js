@@ -61,10 +61,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('leadership', 'Leadership', 'Presence -> Direction -> Leadership', '1',
         ['Presence', 'Direction', 'Leadership'], { classNoun: 'Leader' }),
-      stubRoute('entrepreneurship', 'Entrepreneurship', 'Opportunity -> Execution -> Enterprise', '1',
-        ['Opportunity', 'Execution', 'Enterprise'], { placeholder: true, classNoun: 'Founder' }),
-      stubRoute('physical', 'Physical Agency', 'Movement -> Strength -> Physical Mastery', '1',
-        ['Movement', 'Strength', 'Physical Mastery'], { placeholder: true, classNoun: 'Athlete' }),
+      {
+        id: 'entrepreneurship',
+        name: 'Entrepreneurship',
+        classNoun: 'Founder',
+        thesis: 'Opportunity -> Execution -> Enterprise',
+        stages: [
+          {
+            stage: 1, name: 'Opportunity',
+            quests: [
+              'Write down one problem you personally want solved this month.',
+              'Talk to three people about that problem and note what they share.',
+              'Sketch a one-page offer or product idea you could test in a week.',
+            ],
+          },
+          {
+            stage: 2, name: 'Execution',
+            quests: [
+              'Ship a minimum version to one real person and collect feedback.',
+              'Price something and ask for payment or a clear yes/no.',
+              'Run the same offer three times and refine based on results.',
+            ],
+          },
+          {
+            stage: 3, name: 'Enterprise',
+            quests: [
+              'Document a repeatable process so someone else could run it.',
+              'Set a weekly revenue or impact target and track it for four weeks.',
+              'Hand off or automate one part of the work you no longer need to do alone.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'physical',
+        name: 'Physical Agency',
+        classNoun: 'Athlete',
+        thesis: 'Movement -> Strength -> Physical Mastery',
+        stages: [
+          {
+            stage: 1, name: 'Movement',
+            quests: [
+              'Move your body for 20 minutes today with no phone.',
+              'Take a walk outside and note how your energy shifts afterward.',
+              'Stretch or mobilize for 10 minutes before bed three nights this week.',
+            ],
+          },
+          {
+            stage: 2, name: 'Strength',
+            quests: [
+              'Complete three strength sessions this week and log each one.',
+              'Add progressive overload to one lift or movement for two weeks.',
+              'Hit a personal best on a simple metric (reps, distance, or hold time).',
+            ],
+          },
+          {
+            stage: 3, name: 'Physical Mastery',
+            quests: [
+              'Follow a written training plan for four consecutive weeks.',
+              'Recover deliberately: sleep, food, and rest days for one full cycle.',
+              'Complete a physical challenge that once felt out of reach.',
+            ],
+          },
+        ],
+      },
     ],
   },
   2: {
@@ -72,10 +132,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('relationships', 'Relationships', 'Connection -> Intimacy -> Partnership', '2',
         ['Connection', 'Intimacy', 'Partnership'], { classNoun: 'Partner' }),
-      stubRoute('empathy', 'Empathy', 'Awareness -> Understanding -> Compassion', '2',
-        ['Awareness', 'Understanding', 'Compassion'], { placeholder: true, classNoun: 'Empath' }),
-      stubRoute('social', 'Social Intelligence', 'Reading People -> Navigating Groups -> Social Mastery', '2',
-        ['Reading People', 'Navigating Groups', 'Social Mastery'], { placeholder: true, classNoun: 'Connector' }),
+      {
+        id: 'empathy',
+        name: 'Empathy',
+        classNoun: 'Empath',
+        thesis: 'Awareness -> Understanding -> Compassion',
+        stages: [
+          {
+            stage: 1, name: 'Awareness',
+            quests: [
+              'In one conversation, name the other person’s emotion out loud once.',
+              'Sit with someone’s story without offering advice for five minutes.',
+              'Journal how your body reacts when someone near you is upset.',
+            ],
+          },
+          {
+            stage: 2, name: 'Understanding',
+            quests: [
+              'Ask three clarifying questions before giving your opinion.',
+              'Reflect back what you heard until the other person says “yes, that’s it.”',
+              'Read or watch one piece that challenges your usual view of a conflict.',
+            ],
+          },
+          {
+            stage: 3, name: 'Compassion',
+            quests: [
+              'Offer concrete help once without being asked — then follow through.',
+              'Repair a strained connection with an honest, kind check-in.',
+              'Practice compassion toward yourself the same day you extend it to someone else.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'social',
+        name: 'Social Intelligence',
+        classNoun: 'Connector',
+        thesis: 'Reading People -> Navigating Groups -> Social Mastery',
+        stages: [
+          {
+            stage: 1, name: 'Reading People',
+            quests: [
+              'In a group, note who speaks most and who is left out — adjust once.',
+              'Guess someone’s mood from tone and posture, then gently verify.',
+              'Introduce two people who should know each other and stay for the open.',
+            ],
+          },
+          {
+            stage: 2, name: 'Navigating Groups',
+            quests: [
+              'Host or help run a small gathering of three or more people.',
+              'Defuse one awkward moment with a light redirect or inclusive question.',
+              'Leave a group conversation having made one person feel more included.',
+            ],
+          },
+          {
+            stage: 3, name: 'Social Mastery',
+            quests: [
+              'Facilitate a meeting or circle so every voice gets heard once.',
+              'Build a recurring social ritual (weekly call, dinner, or hang) for a month.',
+              'Mentor someone through a social situation they find hard.',
+            ],
+          },
+        ],
+      },
     ],
   },
   3: {
@@ -121,10 +241,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('discipline', 'Discipline', 'Routine -> Consistency -> Self-Mastery', '4',
         ['Routine', 'Consistency', 'Self-Mastery'], { classNoun: 'Disciple' }),
-      stubRoute('organization', 'Organization', 'Order -> Planning -> Optimization', '4',
-        ['Order', 'Planning', 'Optimization'], { placeholder: true, classNoun: 'Architect' }),
-      stubRoute('systems', 'Systems', 'Process -> Automation -> Architecture', '4',
-        ['Process', 'Automation', 'Architecture'], { placeholder: true, classNoun: 'Engineer' }),
+      {
+        id: 'organization',
+        name: 'Organization',
+        classNoun: 'Architect',
+        thesis: 'Order -> Planning -> Optimization',
+        stages: [
+          {
+            stage: 1, name: 'Order',
+            quests: [
+              'Clear one physical or digital space completely today.',
+              'Write a single inbox-zero pass for email or messages.',
+              'Label or group three messy piles so you can find them tomorrow.',
+            ],
+          },
+          {
+            stage: 2, name: 'Planning',
+            quests: [
+              'Plan tomorrow night before — three priorities only.',
+              'Break one large project into dated milestones on a calendar.',
+              'Do a weekly review: what worked, what slips, what to cut.',
+            ],
+          },
+          {
+            stage: 3, name: 'Optimization',
+            quests: [
+              'Remove one recurring friction from your week for good.',
+              'Template a process you do often so it takes half the time.',
+              'Keep a clean system for 30 days without a full reset.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'systems',
+        name: 'Systems',
+        classNoun: 'Engineer',
+        thesis: 'Process -> Automation -> Architecture',
+        stages: [
+          {
+            stage: 1, name: 'Process',
+            quests: [
+              'Write the steps of one recurring task as a checklist.',
+              'Time one process end-to-end and note every handoff.',
+              'Standardize how you start and end your workday.',
+            ],
+          },
+          {
+            stage: 2, name: 'Automation',
+            quests: [
+              'Automate or batch one repetitive chore this week.',
+              'Build a simple tool, template, or script that saves ten minutes.',
+              'Hand a process to someone else using only your written steps.',
+            ],
+          },
+          {
+            stage: 3, name: 'Architecture',
+            quests: [
+              'Map how three systems connect (work, home, money, or health).',
+              'Redesign one bottleneck so it cannot silently fail.',
+              'Maintain a living “how we operate” doc for a month.',
+            ],
+          },
+        ],
+      },
     ],
   },
   5: {
@@ -132,10 +312,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('exploration', 'Exploration', 'Curiosity -> Experimentation -> Discovery', '5',
         ['Curiosity', 'Experimentation', 'Discovery'], { classNoun: 'Explorer' }),
-      stubRoute('adventure', 'Adventure', 'Departure -> Challenge -> Expedition', '5',
-        ['Departure', 'Challenge', 'Expedition'], { placeholder: true, classNoun: 'Adventurer' }),
-      stubRoute('innovation', 'Innovation', 'Question -> Experiment -> Reinvent', '5',
-        ['Question', 'Experiment', 'Reinvent'], { placeholder: true, classNoun: 'Innovator' }),
+      {
+        id: 'adventure',
+        name: 'Adventure',
+        classNoun: 'Adventurer',
+        thesis: 'Departure -> Challenge -> Expedition',
+        stages: [
+          {
+            stage: 1, name: 'Departure',
+            quests: [
+              'Go somewhere you have never been within an hour of home.',
+              'Say yes to one invitation you would normally decline.',
+              'Pack light and take a half-day solo outing with no agenda.',
+            ],
+          },
+          {
+            stage: 2, name: 'Challenge',
+            quests: [
+              'Do one activity that scares you a little and finish it.',
+              'Travel or explore overnight without over-planning every hour.',
+              'Learn a physical skill outdoors (hike, climb, swim, bike) three times.',
+            ],
+          },
+          {
+            stage: 3, name: 'Expedition',
+            quests: [
+              'Plan and complete a multi-day trip or expedition of your own design.',
+              'Document the journey so someone else could follow your path.',
+              'Bring another person on an adventure you lead from start to finish.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'innovation',
+        name: 'Innovation',
+        classNoun: 'Innovator',
+        thesis: 'Question -> Experiment -> Reinvent',
+        stages: [
+          {
+            stage: 1, name: 'Question',
+            quests: [
+              'Write five “why do we still do it this way?” questions about your life or work.',
+              'Interview someone who solved a problem you have not.',
+              'Challenge one assumption you have held for years — in writing.',
+            ],
+          },
+          {
+            stage: 2, name: 'Experiment',
+            quests: [
+              'Run a one-week experiment with a clear success metric.',
+              'Prototype a better way to do a daily task and try it for three days.',
+              'Kill an idea quickly after a fair test — and note what you learned.',
+            ],
+          },
+          {
+            stage: 3, name: 'Reinvent',
+            quests: [
+              'Replace an old habit or system with your improved version for 30 days.',
+              'Share the innovation with others and invite them to improve it.',
+              'Ship a public change (post, product, process) that did not exist last month.',
+            ],
+          },
+        ],
+      },
     ],
   },
   6: {
@@ -143,10 +383,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('care', 'Care', 'Support -> Nurture -> Stewardship', '6',
         ['Support', 'Nurture', 'Stewardship'], { classNoun: 'Caregiver' }),
-      stubRoute('family', 'Family', 'Presence -> Commitment -> Foundation', '6',
-        ['Presence', 'Commitment', 'Foundation'], { placeholder: true, classNoun: 'Kinkeeper' }),
-      stubRoute('service', 'Service', 'Help -> Serve -> Lead Through Service', '6',
-        ['Help', 'Serve', 'Lead Through Service'], { placeholder: true, classNoun: 'Server' }),
+      {
+        id: 'family',
+        name: 'Family',
+        classNoun: 'Kinkeeper',
+        thesis: 'Presence -> Commitment -> Foundation',
+        stages: [
+          {
+            stage: 1, name: 'Presence',
+            quests: [
+              'Spend one uninterrupted hour with family or chosen family today.',
+              'Call or visit someone you have been meaning to reconnect with.',
+              'Put phones away for a shared meal and stay through the conversation.',
+            ],
+          },
+          {
+            stage: 2, name: 'Commitment',
+            quests: [
+              'Keep one family promise on time without reminders.',
+              'Take on a recurring household or care responsibility for two weeks.',
+              'Plan a shared event and own every logistic until it happens.',
+            ],
+          },
+          {
+            stage: 3, name: 'Foundation',
+            quests: [
+              'Create or update a family ritual that can outlast this month.',
+              'Document something important (history, values, or logistics) for the group.',
+              'Be the steady person someone leans on through a hard week.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'service',
+        name: 'Service',
+        classNoun: 'Server',
+        thesis: 'Help -> Serve -> Lead Through Service',
+        stages: [
+          {
+            stage: 1, name: 'Help',
+            quests: [
+              'Do one useful favor today without announcing it.',
+              'Ask “what would help most?” and do that exact thing.',
+              'Volunteer an hour to a cause or neighbor who needs hands.',
+            ],
+          },
+          {
+            stage: 2, name: 'Serve',
+            quests: [
+              'Commit to a recurring service slot for four weeks.',
+              'Meet a need before it becomes a crisis for someone in your circle.',
+              'Teach someone a skill that reduces their dependence on you later.',
+            ],
+          },
+          {
+            stage: 3, name: 'Lead Through Service',
+            quests: [
+              'Organize a service effort others can join — then step back from the spotlight.',
+              'Build a system so help continues when you are not there.',
+              'Mentor a new volunteer or helper through their first full cycle.',
+            ],
+          },
+        ],
+      },
     ],
   },
   7: {
@@ -154,10 +454,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('contemplation', 'Contemplation', 'Stillness -> Observation -> Insight', '7',
         ['Stillness', 'Observation', 'Insight'], { classNoun: 'Seer' }),
-      stubRoute('research', 'Research', 'Question -> Investigate -> Understand', '7',
-        ['Question', 'Investigate', 'Understand'], { placeholder: true, classNoun: 'Scholar' }),
-      stubRoute('consciousness', 'Consciousness', 'Self-Observation -> Pattern Recognition -> Integration', '7',
-        ['Self-Observation', 'Pattern Recognition', 'Integration'], { placeholder: true, classNoun: 'Mystic' }),
+      {
+        id: 'research',
+        name: 'Research',
+        classNoun: 'Scholar',
+        thesis: 'Question -> Investigate -> Understand',
+        stages: [
+          {
+            stage: 1, name: 'Question',
+            quests: [
+              'Write one precise research question you actually want answered.',
+              'List three sources you trust and one you will challenge.',
+              'Spend 30 minutes reading primary material, not summaries.',
+            ],
+          },
+          {
+            stage: 2, name: 'Investigate',
+            quests: [
+              'Collect notes from five sources into one organized brief.',
+              'Talk to one person with lived experience on the topic.',
+              'Test a claim with evidence instead of guessing.',
+            ],
+          },
+          {
+            stage: 3, name: 'Understand',
+            quests: [
+              'Write a one-page synthesis with your own conclusion.',
+              'Explain the topic clearly to someone who knows less than you.',
+              'Update a decision in your life based on what you learned.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'consciousness',
+        name: 'Consciousness',
+        classNoun: 'Mystic',
+        thesis: 'Self-Observation -> Pattern Recognition -> Integration',
+        stages: [
+          {
+            stage: 1, name: 'Self-Observation',
+            quests: [
+              'Pause three times today and name what you feel without fixing it.',
+              'Journal one trigger and what happened in your body.',
+              'Sit in silence for ten minutes with no media.',
+            ],
+          },
+          {
+            stage: 2, name: 'Pattern Recognition',
+            quests: [
+              'Track a recurring mood or habit for seven days.',
+              'Name the story you tell yourself when stressed — write it down.',
+              'Notice one projection: where you see your fear in someone else.',
+            ],
+          },
+          {
+            stage: 3, name: 'Integration',
+            quests: [
+              'Choose a new response to an old trigger and practice it three times.',
+              'Share an insight with a trusted person and ask for reflection.',
+              'Live one week aligned with a value you named in your notes.',
+            ],
+          },
+        ],
+      },
     ],
   },
   8: {
@@ -165,10 +525,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('achievement', 'Achievement', 'Goal -> Performance -> Excellence', '8',
         ['Goal', 'Performance', 'Excellence'], { classNoun: 'Achiever' }),
-      stubRoute('wealth', 'Wealth', 'Value -> Resource -> Wealth Creation', '8',
-        ['Value', 'Resource', 'Wealth Creation'], { placeholder: true, classNoun: 'Magnate' }),
-      stubRoute('command', 'Leadership', 'Authority -> Responsibility -> Command', '8',
-        ['Authority', 'Responsibility', 'Command'], { placeholder: true, classNoun: 'Commander' }),
+      {
+        id: 'wealth',
+        name: 'Wealth',
+        classNoun: 'Magnate',
+        thesis: 'Value -> Resource -> Wealth Creation',
+        stages: [
+          {
+            stage: 1, name: 'Value',
+            quests: [
+              'Write what value you create for others in one clear sentence.',
+              'Track every dollar in and out for seven days.',
+              'Identify one underpriced skill you already have.',
+            ],
+          },
+          {
+            stage: 2, name: 'Resource',
+            quests: [
+              'Build or update a simple budget and stick to it for two weeks.',
+              'Negotiate or ask for one better rate, raise, or deal.',
+              'Create a small surplus and park it intentionally.',
+            ],
+          },
+          {
+            stage: 3, name: 'Wealth Creation',
+            quests: [
+              'Launch or grow one income stream with a weekly review habit.',
+              'Invest time or money where compound returns are real.',
+              'Teach someone else one money habit that changed your results.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'command',
+        name: 'Leadership',
+        classNoun: 'Commander',
+        thesis: 'Authority -> Responsibility -> Command',
+        stages: [
+          {
+            stage: 1, name: 'Authority',
+            quests: [
+              'Make one clear decision for a group and own the outcome.',
+              'Set a standard out loud and keep it yourself first.',
+              'Give feedback that is direct, kind, and specific once today.',
+            ],
+          },
+          {
+            stage: 2, name: 'Responsibility',
+            quests: [
+              'Own a miss publicly and present the fix.',
+              'Delegate a task with a deadline and check in once — then trust.',
+              'Protect someone’s focus by removing a blocker this week.',
+            ],
+          },
+          {
+            stage: 3, name: 'Command',
+            quests: [
+              'Lead a project from brief to delivery with a visible scoreboard.',
+              'Develop one person under you until they can run a piece alone.',
+              'Hold a hard line when it matters, then repair the relationship.',
+            ],
+          },
+        ],
+      },
     ],
   },
   9: {
@@ -176,10 +596,70 @@ export const SKILL_TREE = {
     routes: [
       stubRoute('contribution', 'Contribution', 'Give -> Serve -> Legacy', '9',
         ['Give', 'Serve', 'Legacy'], { classNoun: 'Giver' }),
-      stubRoute('teaching', 'Teaching', 'Learn -> Teach -> Mentor', '9',
-        ['Learn', 'Teach', 'Mentor'], { placeholder: true, classNoun: 'Mentor' }),
-      stubRoute('creation', 'Creation', 'Build -> Share -> Leave Something Behind', '9',
-        ['Build', 'Share', 'Leave Something Behind'], { placeholder: true, classNoun: 'Artisan' }),
+      {
+        id: 'teaching',
+        name: 'Teaching',
+        classNoun: 'Mentor',
+        thesis: 'Learn -> Teach -> Mentor',
+        stages: [
+          {
+            stage: 1, name: 'Learn',
+            quests: [
+              'Master one concept well enough to explain it without notes.',
+              'Take notes as if you will teach them tomorrow.',
+              'Ask a beginner what confuses them most about your topic.',
+            ],
+          },
+          {
+            stage: 2, name: 'Teach',
+            quests: [
+              'Teach one person a skill in a 20-minute session.',
+              'Write or record a short lesson someone else can follow alone.',
+              'Run the same lesson twice and improve it from feedback.',
+            ],
+          },
+          {
+            stage: 3, name: 'Mentor',
+            quests: [
+              'Mentor someone across multiple sessions until they hit a goal.',
+              'Build a simple curriculum or checklist for future learners.',
+              'Hand the teaching role to your mentee for one session.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'creation',
+        name: 'Creation',
+        classNoun: 'Artisan',
+        thesis: 'Build -> Share -> Leave Something Behind',
+        stages: [
+          {
+            stage: 1, name: 'Build',
+            quests: [
+              'Start a durable project that will still matter in a year.',
+              'Ship a first rough version this week — imperfect is fine.',
+              'Spend focused hours building without announcing it first.',
+            ],
+          },
+          {
+            stage: 2, name: 'Share',
+            quests: [
+              'Show the work to three people and take notes on their reactions.',
+              'Publish or gift a finished piece into the world.',
+              'Invite collaboration on the next version.',
+            ],
+          },
+          {
+            stage: 3, name: 'Leave Something Behind',
+            quests: [
+              'Finish a body of work you are willing to put your name on.',
+              'Document how it was made so others can continue it.',
+              'Pass ownership or stewardship to someone who will keep it alive.',
+            ],
+          },
+        ],
+      },
     ],
   },
 }
@@ -265,6 +745,53 @@ export function saveSkillTreeProgressV3(progress) {
   } catch { /* ignore */ }
 }
 
+/** True when progress has no filled pips and no active routes. */
+export function isSkillProgressEmpty(progress) {
+  const p = progress || {}
+  const keys = Object.keys(p)
+  if (!keys.length) return true
+  return keys.every((k) => {
+    const node = p[k]
+    if (!node || typeof node !== 'object') return true
+    const active = Array.isArray(node.activeRoutes) ? node.activeRoutes : []
+    if (active.length) return false
+    const routes = node.routes || {}
+    return !Object.values(routes).some((arr) => Array.isArray(arr) && arr.some(Boolean))
+  })
+}
+
+/** Union of two v3 progress trees — never lose filled pips. */
+export function mergeSkillProgressV3(local, remote) {
+  const a = migrateProgressToV3(local || {})
+  const b = migrateProgressToV3(remote || {})
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+  const out = {}
+  for (const key of keys) {
+    const la = a[key] || emptyRouteProgress(key)
+    const rb = b[key] || emptyRouteProgress(key)
+    const routeIds = new Set([
+      ...Object.keys(la.routes || {}),
+      ...Object.keys(rb.routes || {}),
+      ...(Array.isArray(la.activeRoutes) ? la.activeRoutes : []),
+      ...(Array.isArray(rb.activeRoutes) ? rb.activeRoutes : []),
+    ])
+    const routes = {}
+    for (const rid of routeIds) {
+      const ls = getRouteStages(la, key, rid)
+      const rs = getRouteStages(rb, key, rid)
+      routes[rid] = [0, 1, 2].map((i) => !!(ls[i] || rs[i]))
+    }
+    const activeRoutes = [
+      ...new Set([
+        ...(Array.isArray(la.activeRoutes) ? la.activeRoutes : []),
+        ...(Array.isArray(rb.activeRoutes) ? rb.activeRoutes : []),
+      ]),
+    ]
+    out[key] = { activeRoutes, routes }
+  }
+  return out
+}
+
 /** Primary = first active route, else first route on the number */
 export function getPrimaryRouteId(numProgress, numId) {
   const active = numProgress?.activeRoutes
@@ -287,9 +814,9 @@ export function stagesDoneOnRoute(numProgress, numId, routeId) {
   return getRouteStages(numProgress, numId, routeId).filter(Boolean).length
 }
 
-/** Seal pips use primary active route */
-export function getSealProgress(numProgress, numId) {
-  const rid = getPrimaryRouteId(numProgress, numId)
+/** Seal pips prefer equipped class route when provided, else primary active. */
+export function getSealProgress(numProgress, numId, preferredRouteId = null) {
+  const rid = preferredRouteId || getPrimaryRouteId(numProgress, numId)
   return getRouteStages(numProgress, numId, rid)
 }
 
@@ -350,18 +877,26 @@ export function mergeSeedsV3(progress, seeds) {
 
 /**
  * Fill a pip on a preferred route, else primary active route.
+ * Refuses fills when the stage is locked (stat/seed gate).
  * @param {object} progress
  * @param {number|string} number
  * @param {number} stageIdx
  * @param {string|null} [preferredRouteId]
+ * @param {object} [statValues]
+ * @param {object} [seeds]
  */
-export function fillSkillPipV3(progress, number, stageIdx, preferredRouteId = null) {
+export function fillSkillPipV3(progress, number, stageIdx, preferredRouteId = null, statValues = {}, seeds = {}) {
   const key = String(number)
   let next = migrateProgressToV3(progress)
   let node = next[key] || emptyRouteProgress(key)
   let rid = preferredRouteId && getRouteDef(key, preferredRouteId)
     ? preferredRouteId
     : getPrimaryRouteId(node, key)
+
+  if (!isRouteStageUnlocked(key, rid, stageIdx, node, statValues, seeds)) {
+    return { progress: next, filled: false }
+  }
+
   if (!node.activeRoutes.includes(rid)) {
     const started = startRoute(next, key, rid)
     if (started.error) {
@@ -378,6 +913,9 @@ export function fillSkillPipV3(progress, number, stageIdx, preferredRouteId = nu
       next = started.progress
       node = next[key]
     }
+  }
+  if (!isRouteStageUnlocked(key, rid, stageIdx, node, statValues, seeds)) {
+    return { progress: next, filled: false }
   }
   const arr = getRouteStages(node, key, rid)
   if (stageIdx > 0 && !arr[stageIdx - 1]) return { progress: next, filled: false }

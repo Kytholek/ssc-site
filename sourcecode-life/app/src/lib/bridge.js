@@ -341,6 +341,80 @@ window.NativeAuth = {
       }
     ).catch(() => {})
   },
+
+  /** Load generated daily journal quests from players/{uid}.genQuests */
+  loadGenQuests(cb) {
+    const user = auth.currentUser
+    if (!user) { cb?.('{}'); return }
+    _withFirestore(
+      () => getDoc(doc(db, 'players', user.uid)),
+      () => {
+        try {
+          const local = localStorage.getItem('scl_gen_quests')
+          cb?.(local || '{}')
+        } catch { cb?.('{}') }
+        return null
+      }
+    )
+      .then(snap => {
+        if (!snap) return
+        const raw = snap.exists() ? snap.data().genQuests : null
+        cb?.(JSON.stringify(raw && typeof raw === 'object' ? raw : {}))
+      })
+      .catch(() => cb?.('{}'))
+  },
+
+  /** Persist generated journal quests to players/{uid}.genQuests */
+  saveGenQuests(json) {
+    const user = auth.currentUser
+    if (!user) return
+    let parsed = {}
+    try { parsed = JSON.parse(json || '{}') } catch { return }
+    if (!parsed || typeof parsed !== 'object') return
+    _withFirestore(
+      () => setDoc(doc(db, 'players', user.uid), { genQuests: parsed, updated: Date.now() }, { merge: true }),
+      () => {
+        try { localStorage.setItem('scl_gen_quests', JSON.stringify(parsed)) } catch { /* intentional */ }
+      }
+    ).catch(() => {})
+  },
+
+  /** Load season state bundle from players/{uid}.seasonState */
+  loadSeasonState(cb) {
+    const user = auth.currentUser
+    if (!user) { cb?.('{}'); return }
+    _withFirestore(
+      () => getDoc(doc(db, 'players', user.uid)),
+      () => {
+        try {
+          const local = localStorage.getItem('scl_season_bundle_v1')
+          cb?.(local || '{}')
+        } catch { cb?.('{}') }
+        return null
+      }
+    )
+      .then(snap => {
+        if (!snap) return
+        const raw = snap.exists() ? snap.data().seasonState : null
+        cb?.(JSON.stringify(raw && typeof raw === 'object' ? raw : {}))
+      })
+      .catch(() => cb?.('{}'))
+  },
+
+  /** Persist season state bundle to players/{uid}.seasonState */
+  saveSeasonState(json) {
+    const user = auth.currentUser
+    if (!user) return
+    let parsed = {}
+    try { parsed = JSON.parse(json || '{}') } catch { return }
+    if (!parsed || typeof parsed !== 'object') return
+    _withFirestore(
+      () => setDoc(doc(db, 'players', user.uid), { seasonState: parsed, updated: Date.now() }, { merge: true }),
+      () => {
+        try { localStorage.setItem('scl_season_bundle_v1', JSON.stringify(parsed)) } catch { /* intentional */ }
+      }
+    ).catch(() => {})
+  },
 }
 
 // â”€â”€ NativeMap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

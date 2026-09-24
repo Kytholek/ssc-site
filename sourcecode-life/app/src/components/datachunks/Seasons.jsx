@@ -1,11 +1,16 @@
 /**
  * Seasons — Home energy rundown for current pinnacle / year / month.
- * Quest check-ins and commitments live under Quests → Current (TimeFlow).
+ * Month check-ins use the live seasonEngine path (same as Quests → Current).
  */
+import { useMemo, useState } from 'react'
 import { useAppDispatch } from '../../context/AppContext'
-import { calcPersonalYear, calcPersonalMonth, calcPinnacles } from '../../lib/numerology'
+import { useQuestEngine } from '../../hooks/useQuestEngine'
+import { calcPersonalYear, calcPersonalMonth, calcPinnacles, todayStr } from '../../lib/numerology'
 import { PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { CYCLE_MEANINGS, CYCLE_QUEST_COLORS } from '../../lib/data'
+import { addMonthCheckin, getMonthSeasonState } from '../../lib/seasonEngine'
+import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
+import MonthCheckinPanel from './MonthCheckinPanel'
 
 function EnergyRow({
   glyph,
@@ -17,6 +22,7 @@ function EnergyRow({
   lens,
   color,
   accent,
+  children,
 }) {
   return (
     <article
@@ -35,14 +41,27 @@ function EnergyRow({
       {theme && <h3 className="seasons-energy-theme">{theme}</h3>}
       {summary && <p className="seasons-energy-summary">{summary}</p>}
       {lens && <p className="seasons-energy-lens">{lens}</p>}
+      {children}
     </article>
   )
 }
 
 export default function SeasonsSection({ playerData }) {
   const dispatch = useAppDispatch()
+  const { xp } = useQuestEngine()
+  const freqLevel = xp?.freqLevel || 1
+  const [checkinOpen, setCheckinOpen] = useState(false)
+  const [seasonTick, setSeasonTick] = useState(0)
+
+  const { m, d, y, lp } = playerData || {}
+
+  const monthSeasonState = useMemo(() => {
+    seasonTick
+    if (!lp?.root || !m || !d) return null
+    return getMonthSeasonState(lp.root, m, d, freqLevel, playerData)
+  }, [lp?.root, m, d, freqLevel, seasonTick, playerData])
+
   if (!playerData) return null
-  const { m, d, y, lp } = playerData
 
   const py = calcPersonalYear(m, d)
   const pm = calcPersonalMonth(m, d)
@@ -62,12 +81,34 @@ export default function SeasonsSection({ playerData }) {
   const monthMeaning = CYCLE_MEANINGS.personalMonth?.[pm.root] || {}
   const yearColor = `var(${CYCLE_QUEST_COLORS.personalYear?.color || '--teal'})`
   const monthColor = `var(${CYCLE_QUEST_COLORS.personalMonth?.color || '--rose'})`
-  /* Month lens keyed by personal month root (same as TimeFlow Current). */
   const monthLens = PINNACLE_MONTH_LENS[pm.root] || null
 
   const pinnMeta = currentPinn
     ? `Ch. ${pinnIndex} · Ages ${currentPinn.startAge}–${currentPinn.endAge || '∞'}`
     : null
+
+  const tierDays = monthSeasonState?.tierDays || 7
+  const checkinCount = monthSeasonState?.checkins?.length || 0
+  const today = todayStr()
+  const checkedInToday = monthSeasonState?.checkins?.some((c) => c.date === today)
+  const multiDay = monthSeasonState?.multiDayId
+    ? getActiveMultiDayQuests()[monthSeasonState.multiDayId]
+    : null
+  const streak = multiDay?.multiDay?.streak || checkinCount
+  const canCheckin = !!monthSeasonState
+    && !monthSeasonState.completed
+    && !checkedInToday
+    && checkinCount < tierDays
+
+  const handleCheckinSubmit = (journal, objectiveIdx) => {
+    const result = addMonthCheckin(lp.root, m, d, journal, objectiveIdx)
+    if (result.ok) {
+      setCheckinOpen(false)
+      setSeasonTick((t) => t + 1)
+      return { ok: true }
+    }
+    return result
+  }
 
   return (
     <section className="seasons-section seasons-section--energy home-section-shell" aria-labelledby="seasons-heading">
@@ -112,16 +153,56 @@ export default function SeasonsSection({ playerData }) {
           summary={monthMeaning.summary}
           lens={monthLens}
           color={monthColor}
-        />
+        >
+          {monthSeasonState && (
+            <div className="seasons-energy-month-actions">
+              <div className="seasons-checkins-stats seasons-checkins-stats--inline">
+                <span>{checkinCount}/{tierDays} sealed</span>
+                <span>streak {streak}/{tierDays}</span>
+              </div>
+              {canCheckin && (
+                <button
+                  type="button"
+                  className="seasons-checkin-btn seasons-checkin-btn--compact"
+                  onClick={() => setCheckinOpen(true)}
+                  style={{ '--season-color': monthColor }}
+                >
+                  ▶ CHECK IN TODAY
+                </button>
+              )}
+              {checkedInToday && !monthSeasonState.completed && (
+                <div className="seasons-checkin-status seasons-checkin-status--done">
+                  ✦ Checked in today
+                </div>
+              )}
+              {monthSeasonState.completed && (
+                <div className="seasons-checkin-status">✦ MONTH COMPLETE</div>
+              )}
+            </div>
+          )}
+        </EnergyRow>
 
         <button
           type="button"
           className="seasons-energy-cta"
           onClick={() => dispatch({ type: 'SET_TAB', payload: 'quests', section: 'current' })}
         >
-          Act on this in Current →
+          Open full Current cycles →
         </button>
       </div>
+
+      <MonthCheckinPanel
+        open={checkinOpen}
+        monthTheme={monthMeaning.theme || 'This Month'}
+        monthRoot={pm.root}
+        objectives={monthSeasonState?.objectives || []}
+        color={CYCLE_QUEST_COLORS.personalMonth?.hex || 'var(--rose)'}
+        checkinCount={checkinCount}
+        tierDays={tierDays}
+        streak={streak}
+        onClose={() => setCheckinOpen(false)}
+        onSubmit={handleCheckinSubmit}
+      />
     </section>
   )
 }

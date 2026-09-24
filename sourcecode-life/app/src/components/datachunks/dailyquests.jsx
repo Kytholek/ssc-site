@@ -16,11 +16,13 @@ import {
   detectMultiDay,
   rerollGeneratedQuests, getRerollsRemaining, hasCompletedQuests,
   getDifficultyMeta,
+  buildQuestUserProfile,
+  hydrateGenQuestsFromCloud,
 } from '../../lib/numerologyQuests'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
 import {
-  calcPersonalDay, calcPersonalYear, reduceToSimple,
+  calcPersonalDay, reduceToSimple,
 } from '../../lib/numerology'
 import { showFloatingXP, showParticleBurst } from '../effects/FloatingXP'
 import { markDayCompleted } from '../effects/StreakCalendar'
@@ -66,43 +68,10 @@ function getCycleObjs(type, root) {
   ]
 }
 
-function buildUserProfile(player, statXP = {}) {
-  const { lp, ex, cl, so, ou, ac, th, m, d } = player
-  const coreRoots = [lp.root, ex.root, cl.root, so.root, ou.root, ac.root, th.root]
-    .map(r => reduceToSimple(r))
-    .filter(r => r >= 1 && r <= 9)
-  const counts = {}
-  for (let i = 1; i <= 9; i++) counts[i] = 0
-  coreRoots.forEach(n => counts[n]++)
-  const sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort((a, b) => counts[b] - counts[a])
-  return {
-    dominantNumbers: sorted.filter(n => counts[n] >= 2).length
-      ? sorted.filter(n => counts[n] >= 2) : sorted.slice(0, 2),
-    weakerNumbers: sorted.filter(n => counts[n] === 0).length
-      ? sorted.filter(n => counts[n] === 0) : sorted.slice(-2),
-    cycleNumber: reduceToSimple(calcPersonalYear(m, d).root),
-    outerNumber: reduceToSimple(ou.root),
-    statXP,
-    dayRoot: reduceToSimple(calcPersonalDay(m, d).root),
-    bpRoots: [lp.root, ex.root, cl.root, so.root, ou.root, ac.root, th.root]
-      .map(r => reduceToSimple(r))
-      .filter((v, i, a) => a.indexOf(v) === i),
-    lifeNodes: [
-      { key: 'lp', root: lp.root },
-      { key: 'ex', root: ex.root },
-      { key: 'cl', root: cl.root },
-      { key: 'so', root: so.root },
-      { key: 'ou', root: ou.root },
-      { key: 'ac', root: ac.root },
-      { key: 'th', root: th.root },
-    ],
-  }
-}
-
 const JOURNAL_SOURCES = [
   { id: 'skill', label: 'CLASS', icon: '◈', color: 'var(--teal)' },
-  { id: 'life',  label: 'BLUEPRINT', icon: '★', color: 'var(--gold)' },
-  { id: 'cycle', label: 'CYCLE', icon: '↺', color: 'var(--rose)' },
+  { id: 'life',  label: 'LIFE', icon: '★', color: 'var(--gold)' },
+  { id: 'cycle', label: 'CURRENT', icon: '↺', color: 'var(--rose)' },
 ]
 
 function journalSource(quest) {
@@ -315,7 +284,13 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
 //  CHAPTERS — Skill / Life / Cycle
 // ═══════════════════════════════════════════════════════════════
 
-function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
+function QuestChapters({
+  genQuests,
+  onComplete,
+  expandedId,
+  onExpand,
+  alignmentSlot,
+}) {
   const dispatch = useAppDispatch()
   const [loadout, setLoadout] = useState(() => loadClassLoadout())
 
@@ -325,10 +300,10 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
     return () => window.removeEventListener('scl:class_loadout_updated', onL)
   }, [])
 
-  if (!genQuests) return null
+  if (!genQuests && !alignmentSlot) return null
 
-  const active = genQuests.filter(q => !q.completed)
-  const done = genQuests.filter(q => q.completed)
+  const active = (genQuests || []).filter(q => !q.completed)
+  const done = (genQuests || []).filter(q => q.completed)
   const filled = getFilledSlots(loadout)
   const loadoutEmpty = filled.length === 0
   const classTitle = getClassTitle(loadout)
@@ -365,10 +340,17 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
 
   return (
     <div className="qj-chapters">
-      <div className="qj-section-break" role="presentation">
-        <h3 className="qj-section-break-label">DAILY QUESTS</h3>
-        <span className="qj-section-break-line" aria-hidden="true" />
-      </div>
+      {alignmentSlot && (
+        <section className="qj-chapter qj-chapter--alignment" aria-labelledby="qj-chapter-alignment">
+          <h3 id="qj-chapter-alignment" className="qj-chapter-label" style={{ color: 'var(--rose)' }}>
+            <span aria-hidden="true">◎</span>
+            <span>ALIGNMENT</span>
+          </h3>
+          <div className="qj-chapter-entries">
+            {alignmentSlot}
+          </div>
+        </section>
+      )}
 
       {JOURNAL_SOURCES.map(source => {
         const quests = grouped.get(source.id) || []
@@ -444,14 +426,16 @@ function QuestChapters({ genQuests, onComplete, expandedId, onExpand }) {
 //  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpRoot, classSupportNote }) {
+function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, classSupportNote }) {
   const [justCompleted, setJustCompleted] = useState(false)
   const cardRef = useRef(null)
   const { completeDailyQuest: eqComplete } = useQuestEngine()
   const doComplete = onComplete || eqComplete
 
   const dayRoot = reduceToSimple(pd.root)
-  const isFocusMatch = !!(bpRoots?.filter(r => r === dayRoot).length)
+  const isFocusMatch = !!(daily?.dayRootMatch)
+  const awardedXP = daily?.xpAward
+    ?? Math.round(XP_AWARDS.daily * (isFocusMatch ? 2 : 1.5))
   const theme = meaning.theme || 'Daily Alignment'
   const summary = meaning.summary || daily.body
   const objectives = getCycleObjs('personalDay', pd.root)
@@ -466,10 +450,15 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpR
     setJustCompleted(true)
 
     try {
-      showFloatingXP({ xp: XP_AWARDS.daily, color: colorVar, x, y })
+      showFloatingXP({ xp: awardedXP, color: colorVar, x, y })
       showParticleBurst({ color: colorVar, x, y, count: 14 })
       markDayCompleted(isFocusMatch)
       window.dispatchEvent(new CustomEvent('scl:streak_updated'))
+      if (classSupportNote) {
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: { msg: classSupportNote, color: 'var(--gold)' },
+        }))
+      }
     } catch (e) {
       console.warn('Visual feedback error:', e)
     }
@@ -484,7 +473,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpR
           <span className="qj-align-seal">✓</span>
         </span>
         <div className="qj-align-body">
-          <span className="qj-align-kicker">TODAY&apos;S ALIGNMENT</span>
+          <span className="qj-align-kicker">ALIGNMENT</span>
           <span className="qj-align-theme">{theme}</span>
         </div>
         <span className="qj-align-stamp">COMPLETE</span>
@@ -501,7 +490,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, bpRoots, lpR
           <span className="qj-align-day">DAY {pd.dayNum}</span>
         </span>
         <div className="qj-align-copy">
-          <span className="qj-align-kicker">TODAY&apos;S ALIGNMENT</span>
+          <span className="qj-align-kicker">ALIGNMENT</span>
           <h3 className="qj-align-theme">{theme}</h3>
           {isFocusMatch && (
             <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
@@ -618,7 +607,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
   const [genState, setGenState] = useState(() => getGeneratedQuests())
   const [expandedId, setExpandedId] = useState(null)
   const [rerollError, setRerollError] = useState(null)
-  const genProfile = playerData ? buildUserProfile(playerData, xp?.statXP) : null
   const chainStreak = getResonanceChain()
   const profileReady = Boolean(playerData)
   const rerollsRemaining = getRerollsRemaining()
@@ -631,27 +619,57 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
   }, [])
 
   useEffect(() => {
+    hydrateGenQuestsFromCloud(() => setGenState(getGeneratedQuests()))
+  }, [])
+
+  useEffect(() => {
     if (!profileReady || !playerData) return
-    if (!getGeneratedQuests()) generateDailyQuests(buildUserProfile(playerData, xp?.statXP))
+    if (!getGeneratedQuests()) generateDailyQuests(buildQuestUserProfile(playerData, xp?.statXP))
   }, [profileReady, playerData, xp?.statXP])
+
+  const daySealForToast = playerData
+    ? reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)
+    : null
+  const classSupportToast = (() => {
+    if (!daySealForToast) return null
+    const loadoutNow = loadClassLoadout()
+    const title = getClassTitle(loadoutNow)
+    return getFilledSlots(loadoutNow).some((s) => s.number === daySealForToast)
+      ? `Today supports your ${title} path`
+      : null
+  })()
+
+  useEffect(() => {
+    if (!classSupportToast || daily?.completed) return
+    const key = `scl_class_toast_${new Date().toISOString().slice(0, 10)}`
+    try {
+      if (sessionStorage.getItem(key)) return
+      sessionStorage.setItem(key, '1')
+    } catch { /* ignore */ }
+    window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+      detail: { msg: classSupportToast, color: 'var(--gold)' },
+    }))
+  }, [classSupportToast, daily?.completed])
 
   if (!playerData) return null
   const { m, d } = playerData
 
   const genQuests = genState?.quests ?? null
   const genCompleted = genQuests ? genQuests.filter(q => q.completed).length : 0
-  const genActive = genQuests ? genQuests.filter(q => !q.completed).length : 0
+  const genTotal = genQuests ? genQuests.length : 0
   const dailyCompleted = daily?.completed ? 1 : 0
   const totalCompleted = dailyCompleted + genCompleted
-  const totalQuests = 1 + (genQuests ? genQuests.length : 0)
+  const totalQuests = 1 + genTotal
+  const allDone = totalQuests > 0 && totalCompleted >= totalQuests
+  const openCount = (daily?.completed ? 0 : 1) + (genTotal - genCompleted)
 
   const pd = calcPersonalDay(m, d)
   const cfg = CYCLE_QUEST_COLORS.personalDay
   const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
   const colorVar = `var(${cfg.color})`
-  const plateMeta = genQuests
-    ? `${genActive} open · ${genCompleted} ignited`
-    : '—'
+  const plateMeta = allDone
+    ? `${totalCompleted}/${totalQuests} complete`
+    : `${openCount} open · ${totalCompleted}/${totalQuests} done`
 
   const daySeal = reduceToSimple(pd.root)
   const loadoutNow = loadClassLoadout()
@@ -670,7 +688,7 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
 
   function handleReroll() {
     setRerollError(null)
-    const result = rerollGeneratedQuests(playerData)
+    const result = rerollGeneratedQuests(buildQuestUserProfile(playerData, xp?.statXP))
     if (!result.ok) setRerollError(result.error)
   }
 
@@ -718,27 +736,16 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
           </div>
           <div className="qj-status-cue">
             <span
-              className={`qj-daily-state${daily?.completed ? ' qj-daily-state--complete' : ''}`}
-              aria-label={daily?.completed ? 'Daily complete' : 'Daily pending'}
+              className={`qj-daily-state${allDone ? ' qj-daily-state--complete' : ''}`}
+              aria-label={allDone ? 'Daily set complete' : 'Daily set in progress'}
             >
-              {daily?.completed ? 'COMPLETE' : 'PENDING'}
+              {allDone ? 'COMPLETE' : 'IN PROGRESS'}
             </span>
             <DailyCountdown />
           </div>
         </div>
 
         <div className="qj-pages">
-          <DailyQuestCard
-            daily={daily}
-            colorVar={colorVar}
-            meaning={meaning}
-            pd={pd}
-            onComplete={completeDailyQuest}
-            bpRoots={genProfile?.bpRoots || null}
-            lpRoot={playerData.lp?.root}
-            classSupportNote={classSupportNote}
-          />
-
           <ReminderBanner />
 
           <QuestChapters
@@ -746,6 +753,17 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
             onComplete={handleCompleteGen}
             expandedId={expandedId}
             onExpand={handleExpand}
+            alignmentSlot={(
+              <DailyQuestCard
+                daily={daily}
+                colorVar={colorVar}
+                meaning={meaning}
+                pd={pd}
+                onComplete={completeDailyQuest}
+                lpRoot={playerData.lp?.root}
+                classSupportNote={classSupportNote}
+              />
+            )}
           />
         </div>
       </div>

@@ -596,7 +596,7 @@ export function getGeneratedQuests() {
         const multiDay = detectMultiDay(q?.title || '')
         return multiDay ? { ...q, multiDay } : q
       })
-      return { quests, cycleLabel: raw.cycleLabel || '' }
+      return { quests, cycleLabel: raw.cycleLabel || '', cycleNumber: raw.cycleNumber || null }
     }
   } catch {}
   return null

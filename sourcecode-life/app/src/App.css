@@ -1654,6 +1654,63 @@ body.scl-realm-open .tab-bar {
   color: var(--gold, #c9a84c);
   letter-spacing: 0.04em;
 }
+.skills-class-rename-btn {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 40%, transparent);
+  background: transparent;
+  color: color-mix(in srgb, var(--gold, #c9a84c) 85%, #fff);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.skills-class-rename-btn--locked {
+  opacity: 0.65;
+}
+.skills-class-rename {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  max-width: 320px;
+}
+.skills-class-rename-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 35%, transparent);
+  background: color-mix(in srgb, #000 40%, transparent);
+  color: var(--text, #eee);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+}
+.skills-class-rename-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.skills-class-rename-save,
+.skills-class-rename-reset {
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--teal, #00c9ff) 40%, transparent);
+  background: transparent;
+  color: var(--teal, #00c9ff);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.skills-class-rename-reset {
+  border-color: color-mix(in srgb, var(--text, #fff) 25%, transparent);
+  color: color-mix(in srgb, var(--text, #eee) 70%, transparent);
+}
+.skills-class-rename-error {
+  margin: 0;
+  font-size: 11px;
+  color: var(--rose, #ff2d55);
+}
 .skills-loadout-chips {
   display: flex;
   flex-wrap: wrap;

@@ -161,18 +161,18 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
       return
     }
 
-    const xpAmount = quest.rewardXP
-    const isResonant = quest.isResonant
-    const questColor = source.color
-    const rect = rowRef.current?.getBoundingClientRect()
-    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
-    const y = rect ? rect.top + 40 : window.innerHeight / 2
-
     const result = onComplete(quest.id, trimmed)
     if (result && result.ok === false) {
       setError(result.error)
       return
     }
+
+    const xpAmount = (result && result.xpAwarded != null) ? result.xpAwarded : quest.rewardXP
+    const isResonant = quest.isResonant
+    const questColor = source.color
+    const rect = rowRef.current?.getBoundingClientRect()
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const y = rect ? rect.top + 40 : window.innerHeight / 2
 
     try {
       showFloatingXP({ xp: xpAmount, color: questColor, x, y })
@@ -535,6 +535,13 @@ function ActiveCommitmentsStrip({ refreshKey }) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
   const [, bump] = useState(0)
+
+  useEffect(() => {
+    const onUpdate = () => bump((n) => n + 1)
+    window.addEventListener('scl:gen_quests_updated', onUpdate)
+    return () => window.removeEventListener('scl:gen_quests_updated', onUpdate)
+  }, [])
+
   const active = Object.values(getActiveMultiDayQuests()).filter((q) => !q.completed)
   const today = todayStr()
 
@@ -580,6 +587,7 @@ function ActiveCommitmentsStrip({ refreshKey }) {
           const total = q.multiDay?.totalDays || 0
           const checkedToday = (q.multiDay?.checkins || []).includes(today)
           const canComplete = daysDone >= total && total > 0
+          const needsCheckin = !checkedToday && daysDone < total
           const isEditing = completeId === q.id
           return (
             <li key={q.id} className="qj-commitment">
@@ -590,7 +598,7 @@ function ActiveCommitmentsStrip({ refreshKey }) {
                 </span>
               </div>
               <div className="qj-commitment-actions">
-                {!checkedToday && !canComplete && (
+                {needsCheckin && (
                   <button type="button" className="qj-commitment-btn" onClick={() => handleCheckin(q.id)}>
                     Check in
                   </button>

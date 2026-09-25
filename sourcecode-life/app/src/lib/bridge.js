@@ -737,16 +737,25 @@ window.NativeLeaderboard = {
 // â”€â”€ NativeNotif â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.NativeNotif = {
   scheduleDaily(hour, minute, title, body) {
-    if ('Notification' in window && Notification.permission !== 'denied') {
-      Notification.requestPermission().then(perm => {
-        if (perm === 'granted') new Notification(title, { body })
-      })
+    try {
+      localStorage.setItem('scl_notif_hour', String(hour ?? 9))
+      localStorage.setItem('scl_notif_minute', String(minute ?? 0))
+      localStorage.setItem('scl_notif_enabled', '1')
+    } catch { /* intentional */ }
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    // Immediate preview when scheduling from native / settings
+    if (title && 'Notification' in window && Notification.permission === 'granted') {
+      try { new Notification(title, { body: body || '' }) } catch { /* intentional */ }
     }
   },
-  cancelDaily() {},
+  cancelDaily() {
+    try { localStorage.setItem('scl_notif_enabled', '0') } catch { /* intentional */ }
+  },
   sendNow(title, body) {
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body })
+      try { new Notification(title, { body: body || '' }) } catch { /* intentional */ }
     }
   },
 }

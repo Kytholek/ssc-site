@@ -16,6 +16,7 @@ import AvatarCreator     from './components/charCreate/AvatarCreator'
 import AppShell from './components/shell/AppShell'
 import { ensureDailyQuests, hydrateGenQuestsFromCloud } from './lib/numerologyQuests'
 import { hydrateSeasonStateFromCloud } from './lib/seasonEngine'
+import { startNotifScheduler } from './lib/notifScheduler'
 
 // ── Root component — registered bridges + screen router ──────────────────────
 function AppRoot() {
@@ -37,6 +38,9 @@ function AppRoot() {
 
   // Load theme on mount
   useEffect(() => { loadSavedTheme() }, [])
+
+  // Client notification scheduler (daily + multi-day) while tab is open
+  useEffect(() => startNotifScheduler(), [])
 
   // Handle Stripe purchase redirect — unlock/toast happen in useAuthBridge after uid is ready
   useEffect(() => {

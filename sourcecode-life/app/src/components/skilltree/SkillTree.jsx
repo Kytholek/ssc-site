@@ -36,7 +36,10 @@ import {
   findLoadoutSlotIndex,
   equipRoute,
   unequipSlot,
+  setClassTitleOverride,
+  clearClassTitleOverride,
 } from '../../lib/classLoadout'
+import { useGameState } from '../../state/GameContext'
 
 export { NUMBERS }
 
@@ -241,6 +244,11 @@ export default function SkillTree({
   const [gateMsg, setGateMsg] = useState(null)
   const [zoomLock, setZoomLock] = useState(null)
   const [loadout, setLoadout] = useState(() => loadClassLoadout())
+  const [renameOpen, setRenameOpen] = useState(false)
+  const [renameDraft, setRenameDraft] = useState('')
+  const [renameError, setRenameError] = useState('')
+  const { user } = useGameState()
+  const isPremium = !!user?.isPremium
   const [replacePicker, setReplacePicker] = useState(null) // { number, routeId }
   const [lockSheet, setLockSheet] = useState(null) // { label, color, reason }
   const rfRef = useRef(null)
@@ -389,6 +397,44 @@ export default function SkillTree({
       } catch { /* intentional */ }
     }
   }, [loadout])
+
+  const openRename = useCallback(() => {
+    if (!isPremium) {
+      setGateMsg('Premium unlocks custom class titles.')
+      try {
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: { msg: 'Premium unlocks custom class titles.', color: 'var(--gold)' },
+        }))
+      } catch { /* intentional */ }
+      return
+    }
+    setRenameDraft(loadout.titleOverride || classTitle)
+    setRenameError('')
+    setRenameOpen(true)
+  }, [isPremium, loadout.titleOverride, classTitle])
+
+  const saveRename = useCallback(() => {
+    if (!isPremium) return
+    const res = setClassTitleOverride(renameDraft, loadout)
+    if (!res.ok) {
+      setRenameError(res.error || 'Could not save title.')
+      return
+    }
+    setLoadout(res.loadout)
+    setRenameOpen(false)
+    setRenameError('')
+  }, [isPremium, renameDraft, loadout])
+
+  const resetRename = useCallback(() => {
+    if (!isPremium) return
+    const res = clearClassTitleOverride(loadout)
+    if (res.ok) {
+      setLoadout(res.loadout)
+      setRenameOpen(false)
+      setRenameDraft('')
+      setRenameError('')
+    }
+  }, [isPremium, loadout])
 
   useEffect(() => {
     const el = wrapRef.current
@@ -895,7 +941,52 @@ export default function SkillTree({
           <div className="skills-class-row">
             <span className="skills-class-kicker">CLASS</span>
             <span className="skills-class-title">{classTitle}</span>
+            {filledSlots.length > 0 && (
+              <button
+                type="button"
+                className={`skills-class-rename-btn${isPremium ? '' : ' skills-class-rename-btn--locked'}`}
+                onClick={openRename}
+                title={isPremium ? 'Rename class title' : 'Premium: rename class title'}
+              >
+                {isPremium ? 'Rename' : 'Rename ✦'}
+              </button>
+            )}
           </div>
+          {renameOpen && isPremium && (
+            <div className="skills-class-rename" role="group" aria-label="Custom class title">
+              <input
+                type="text"
+                className="skills-class-rename-input"
+                value={renameDraft}
+                maxLength={32}
+                onChange={(e) => setRenameDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveRename()
+                  if (e.key === 'Escape') setRenameOpen(false)
+                }}
+                placeholder="Custom class title"
+                aria-label="Custom class title"
+              />
+              <div className="skills-class-rename-actions">
+                <button type="button" className="skills-class-rename-save" onClick={saveRename}>
+                  Save
+                </button>
+                {loadout.titleOverride && (
+                  <button type="button" className="skills-class-rename-reset" onClick={resetRename}>
+                    Reset
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="skills-class-rename-reset"
+                  onClick={() => setRenameOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+              {renameError && <p className="skills-class-rename-error" role="status">{renameError}</p>}
+            </div>
+          )}
           <div className="skills-loadout-chips" aria-label="Equipped paths">
             {[0, 1].map((i) => {
               const chip = pathChips[i]

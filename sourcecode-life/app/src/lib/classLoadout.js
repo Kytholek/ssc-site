@@ -295,6 +295,32 @@ export function getClassTitle(loadout = loadClassLoadout()) {
   return getBlendTitle(filled[0], filled[1]) || 'Unspecialized'
 }
 
+/**
+ * Premium: set or clear a custom class title.
+ * @returns {{ ok: boolean, loadout: object, error?: string }}
+ */
+export function setClassTitleOverride(title, loadout = null) {
+  const next = normalizeLoadout(loadout || loadClassLoadout())
+  const trimmed = typeof title === 'string' ? title.trim() : ''
+  if (!trimmed) {
+    next.titleOverride = null
+    return { ok: true, loadout: saveClassLoadout(next) }
+  }
+  if (trimmed.length < 2) {
+    return { ok: false, loadout: next, error: 'Title needs at least 2 characters.' }
+  }
+  if (trimmed.length > 32) {
+    return { ok: false, loadout: next, error: 'Title max 32 characters.' }
+  }
+  next.titleOverride = trimmed
+  next.userChosen = true
+  return { ok: true, loadout: saveClassLoadout(next) }
+}
+
+export function clearClassTitleOverride(loadout = null) {
+  return setClassTitleOverride('', loadout)
+}
+
 export function getLoadoutPathChips(loadout = loadClassLoadout()) {
   return getFilledSlots(loadout).map((s) => {
     const num = getNumberDef(s.number)

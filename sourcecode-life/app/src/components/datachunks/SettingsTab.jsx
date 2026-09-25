@@ -89,7 +89,7 @@ function NotificationsSection() {
     <section className="settings-section">
       <h3 className="settings-section-title">NOTIFICATIONS</h3>
       <p className="notif-perm-warning" style={{ marginBottom: 10 }}>
-        Preferences save here. Scheduled daily alerts are not wired yet — toggles only store your intent for when scheduling ships.
+        Daily and multi-day reminders fire around 9:00 local while this tab is open (once per day).
       </p>
 
       {permState === 'denied' && (

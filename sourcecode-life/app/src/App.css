@@ -24795,55 +24795,59 @@ body.scl-realm-open .tab-bar {
   flex-direction: column;
   gap: 0;
 }
+.qj-chapter-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 10px;
+  padding: 4px 0 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+}
 .qj-chapter-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 10px;
-  padding: 6px 0 8px;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 .qj-chapter-class-meta {
-  margin-left: auto;
+  margin: 0;
+  padding-left: 22px;
   font-family: 'Crimson Text', serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   font-style: italic;
   letter-spacing: 0.02em;
-  opacity: 0.75;
+  opacity: 0.7;
   text-transform: none;
+  color: color-mix(in srgb, var(--text, #ece8f4) 78%, transparent);
 }
 .qj-chapter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: -4px 0 10px;
+  gap: 8px;
+  margin: -2px 0 12px;
 }
 .qj-chapter-chip {
-  padding: 2px 7px;
+  padding: 4px 9px;
   border: 1px solid color-mix(in srgb, var(--chip-color, var(--gold)) 40%, transparent);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--chip-color, var(--gold)) 80%, #fff);
 }
 .qj-entry-path-chip {
-  display: inline-block;
-  margin-top: 2px;
-  padding: 1px 6px;
-  border: 1px solid color-mix(in srgb, var(--teal, #00c9ff) 35%, transparent);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.05em;
-  color: color-mix(in srgb, var(--teal, #00c9ff) 85%, #fff);
+  display: none;
 }
 .qj-commitments {
-  margin: 0 0 14px;
-  padding: 10px 12px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
   border: 1px solid color-mix(in srgb, var(--rose, #ff2d55) 28%, transparent);
   background: color-mix(in srgb, var(--rose, #ff2d55) 6%, transparent);
 }
@@ -24851,7 +24855,7 @@ body.scl-realm-open .tab-bar {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.12em;
@@ -24864,14 +24868,14 @@ body.scl-realm-open .tab-bar {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .qj-commitment {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 8px;
-  padding: 8px 0;
+  padding: 6px 0;
   border-top: 1px solid color-mix(in srgb, var(--text, #fff) 8%, transparent);
 }
 .qj-commitment:first-child { border-top: 0; padding-top: 0; }
@@ -24880,18 +24884,21 @@ body.scl-realm-open .tab-bar {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 .qj-commitment-title {
-  font-size: 13px;
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 14px;
   line-height: 1.35;
   color: var(--text, #eee);
+  max-width: 36ch;
+  overflow-wrap: break-word;
 }
 .qj-commitment-meta {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.04em;
-  color: color-mix(in srgb, var(--text, #eee) 55%, transparent);
+  color: color-mix(in srgb, var(--text, #eee) 52%, transparent);
 }
 .qj-commitment-actions {
   display: flex;
@@ -24981,12 +24988,13 @@ body.scl-realm-open .tab-bar {
 }
 .qj-entry-route {
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  color: color-mix(in srgb, var(--qj-ink, var(--teal)) 70%, #fff);
-  opacity: 0.85;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--qj-ink, var(--teal)) 65%, #fff);
+  opacity: 0.78;
+  max-width: 42ch;
 }
 .qj-align-class-note {
   display: block;
@@ -25049,24 +25057,38 @@ body.scl-realm-open .tab-bar {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   padding-top: 1px;
 }
 .qj-book .qj-entry-title {
   font-family: 'Crimson Text', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.4;
-  color: var(--text, #ece8f4);
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--text, #f2eef8);
   font-style: normal;
+  max-width: 38ch;
+  overflow-wrap: break-word;
+}
+.qj-book .qj-entry--open .qj-entry-title,
+.qj-book .qj-entry--open .qj-entry-route,
+.qj-book .qj-entry--open .qj-entry-meta {
+  animation: qj-entry-reveal 0.28s ease-out;
+}
+@keyframes qj-entry-reveal {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
 }
 .qj-entry-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: var(--qj-mute);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--qj-mute, #9a96a8) 92%, transparent);
+  opacity: 0.9;
 }
 .qj-entry-bp { color: var(--qj-ink, var(--teal)); }
 
@@ -25135,13 +25157,15 @@ body.scl-realm-open .tab-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 2px;
-  opacity: 0.55;
+  padding: 10px 2px;
+  opacity: 0.62;
 }
 .qj-book .qj-entry--done .qj-entry-title {
   text-decoration: line-through;
-  text-decoration-color: color-mix(in srgb, var(--qj-ink, var(--teal)) 45%, transparent);
-  font-size: 14px;
+  text-decoration-color: color-mix(in srgb, var(--qj-ink, var(--teal)) 40%, transparent);
+  font-size: 15px;
+  font-weight: 500;
+  opacity: 0.85;
 }
 .qj-book .qj-entry--done .qj-entry-body {
   flex-direction: row;
@@ -25149,12 +25173,18 @@ body.scl-realm-open .tab-bar {
   justify-content: space-between;
   gap: 10px;
 }
+.qj-book .qj-entry--done .qj-entry-stamp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  opacity: 0.55;
+}
 
 .qj-carve {
   display: grid;
   grid-template-rows: 1fr;
-  gap: 8px;
-  padding: 0 2px 12px 52px;
+  gap: 10px;
+  padding: 4px 2px 14px 52px;
   animation: qj-carve-open 0.22s ease-out;
 }
 @keyframes qj-carve-open {
@@ -25164,13 +25194,14 @@ body.scl-realm-open .tab-bar {
 .qj-carve-prompt {
   margin: 0;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--qj-mute);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--text, #ece8f4) 72%, transparent);
 }
 .qj-carve-input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: 2px;
   border: 0;
   border-bottom: 1px solid color-mix(in srgb, var(--qj-ink, var(--teal)) 35%, transparent);
@@ -25187,24 +25218,33 @@ body.scl-realm-open .tab-bar {
   resize: vertical;
   outline: none;
   min-height: 96px;
+  transition: box-shadow 0.18s ease, border-bottom-color 0.18s ease;
 }
 .qj-carve-input:focus {
   border-bottom-color: var(--qj-ink, var(--teal));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--qj-ink, var(--teal)) 22%, transparent);
 }
 .qj-carve-foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  position: sticky;
+  bottom: 0;
+  padding-top: 4px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--bg, #0c0a12) 88%, transparent), transparent);
 }
 .qj-carve-count,
 .qj-carve-xp {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   color: var(--qj-mute);
 }
-.qj-carve-count--ready { color: var(--sage, #4ade80); }
+.qj-carve-count--ready {
+  color: var(--sage, #4ade80);
+  font-weight: 700;
+}
 .qj-carve-submit {
   margin-left: auto;
   font-family: 'Share Tech Mono', monospace;

@@ -204,6 +204,18 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
     )
   }
 
+  const pathContext = (() => {
+    if (quest.discovery) return 'Discovery training'
+    const parts = []
+    if (quest.classNoun) parts.push(quest.classNoun)
+    else if (quest.routeName) parts.push(quest.routeName)
+    if (quest.routeName && quest.classNoun) parts.push(quest.routeName)
+    if (quest.stageName) parts.push(quest.stageName)
+    if (parts.length) return parts.join(' · ')
+    if (quest.supportsClass) return 'Supports class path'
+    return null
+  })()
+
   return (
     <div
       ref={rowRef}
@@ -222,20 +234,8 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
         </span>
         <span className="qj-entry-body">
           <span className="qj-entry-title">{quest.title}</span>
-          {(quest.routeName || quest.stageName || quest.classNoun) && (
-            <span className="qj-entry-route">
-              {quest.discovery ? 'Discovery' : (quest.classNoun || quest.routeName || 'Path')}
-              {quest.routeName && quest.classNoun ? ` · ${quest.routeName}` : ''}
-              {quest.stageName ? ` · ${quest.stageName}` : ''}
-            </span>
-          )}
-          {quest.supportsClass && !quest.routeName && !quest.classNoun && (
-            <span className="qj-entry-route">Supports class path</span>
-          )}
-          {quest.routeId && !quest.discovery && (
-            <span className="qj-entry-path-chip" aria-label="Class path">
-              {quest.classNoun || quest.routeName || quest.routeId}
-            </span>
+          {pathContext && (
+            <span className="qj-entry-route">{pathContext}</span>
           )}
           <span className="qj-entry-meta">
             {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
@@ -351,10 +351,12 @@ function QuestChapters({
     <div className="qj-chapters">
       {alignmentSlot && (
         <section className="qj-chapter qj-chapter--alignment" aria-labelledby="qj-chapter-alignment">
-          <h3 id="qj-chapter-alignment" className="qj-chapter-label" style={{ color: 'var(--rose)' }}>
-            <span aria-hidden="true">◎</span>
-            <span>ALIGNMENT</span>
-          </h3>
+          <header className="qj-chapter-head">
+            <h3 id="qj-chapter-alignment" className="qj-chapter-label" style={{ color: 'var(--rose)' }}>
+              <span aria-hidden="true">◎</span>
+              <span>ALIGNMENT</span>
+            </h3>
+          </header>
           <div className="qj-chapter-entries">
             {alignmentSlot}
           </div>
@@ -369,10 +371,12 @@ function QuestChapters({
         if (isClass && loadoutEmpty) {
           return (
             <section key={source.id} className="qj-chapter" aria-labelledby={`qj-chapter-${source.id}`}>
-              <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
-                <span aria-hidden="true">{source.icon}</span>
-                <span>{source.label}</span>
-              </h3>
+              <header className="qj-chapter-head">
+                <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
+                  <span aria-hidden="true">{source.icon}</span>
+                  <span>{source.label}</span>
+                </h3>
+              </header>
               <button type="button" className="qj-class-cta" onClick={openSkills}>
                 <span className="qj-class-cta-kicker">UNSPECIALIZED</span>
                 <span className="qj-class-cta-title">Equip your class paths in Skills</span>
@@ -393,13 +397,15 @@ function QuestChapters({
 
         return (
           <section key={source.id} className="qj-chapter" aria-labelledby={`qj-chapter-${source.id}`}>
-            <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
-              <span aria-hidden="true">{source.icon}</span>
-              <span>{source.label}</span>
-              {isClass && (
-                <span className="qj-chapter-class-meta">{classTitle}</span>
+            <header className="qj-chapter-head">
+              <h3 id={`qj-chapter-${source.id}`} className="qj-chapter-label" style={{ color: source.color }}>
+                <span aria-hidden="true">{source.icon}</span>
+                <span>{source.label}</span>
+              </h3>
+              {isClass && classTitle && (
+                <p className="qj-chapter-class-meta">{classTitle}</p>
               )}
-            </h3>
+            </header>
             {isClass && pathChips.length > 0 && (
               <div className="qj-chapter-chips" aria-label="Class loadout">
                 {pathChips.map((chip) => (

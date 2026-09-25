@@ -59,6 +59,48 @@ export function getNotifPrefs() {
   }
 }
 
+// ── XP / difficulty / re-roll constants ───────────────────────────────────────
+const BASE_XP = { easy: 50, medium: 100, hard: 160 }
+const DIFFICULTY_MULTIPLIER = { easy: 0.75, medium: 1.0, hard: 1.5 }
+const DIFF_META = {
+  easy:   { label: 'EASY',   icon: '●',   color: '#4ade80', shortColor: 'var(--sage)' },
+  medium: { label: 'MEDIUM', icon: '●●',  color: '#fbbf24', shortColor: 'var(--gold)' },
+  hard:   { label: 'HARD',   icon: '●●●', color: '#f87171', shortColor: 'var(--rose)' },
+}
+const LS_REROLL_COUNT = 'scl_reroll_count'
+const LS_REROLL_DATE  = 'scl_reroll_date'
+const MAX_REROLLS_PER_DAY = 2
+
+function dispatch(name, detail) {
+  window.dispatchEvent(new CustomEvent(name, { detail: detail || null }))
+}
+
+function defaultHistory() {
+  return {
+    lastActions: [],
+    completedTypes: [],
+    categoryCompletions: {},
+    focusStreaks: { primaryNumber: null, days: 0, lastDate: '' },
+  }
+}
+
+export function loadQuestHistory() {
+  try {
+    const raw = localStorage.getItem(LS_QUEST_HIST)
+    return raw ? JSON.parse(raw) : defaultHistory()
+  } catch {
+    return defaultHistory()
+  }
+}
+
+function saveHistory(history) {
+  try { localStorage.setItem(LS_QUEST_HIST, JSON.stringify(history)) } catch { /* intentional */ }
+}
+
+function activeTierFor(questKey) {
+  return getActiveTier(questKey)
+}
+
 // ── Quest type display metadata ───────────────────────────────────────────────
 export const QUEST_TYPE_META = {
   primary:   { label: 'PRIMARY',    desc: 'Your core strength'      },

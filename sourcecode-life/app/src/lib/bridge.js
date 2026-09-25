@@ -203,16 +203,8 @@ window.NativeAuth = {
           let dobStr = d.dob || ''
           if (d.dobM && d.dobD && d.dobY) dobStr = d.dobM + '/' + d.dobD + '/' + d.dobY
           window.NativeAuth_onLoadPlayerResult?.(true, uid, d.name || '', dobStr, authEmail)
-          // Restore XP
-          const charXP    = d.charXP    || 0
-          const charLevel = d.charLevel || 1
-          const freqXP    = d.freqXP    || 0
-          const freqLevel = d.freqLevel || 1
-          const statXP    = d.statXP    || '{}'
-          const freqLog   = (typeof d.freqLog === 'object' && d.freqLog !== null) ? d.freqLog : {}
-          window.NativeQuest_onXPLoaded?.(charXP, charLevel, freqXP, freqLevel,
-            JSON.stringify(statXP), JSON.stringify(freqLog))
-          // Restore progress keys to localStorage
+          // Restore progress keys to localStorage BEFORE XP callback so GameContext
+          // reads fresh LQP / quests on the same tick as SYNC_FROM_FIRESTORE.
           try {
             if (d.achievements)  localStorage.setItem('scl_achievements',  typeof d.achievements === 'string'  ? d.achievements  : JSON.stringify(d.achievements))
             if (d.founder === true) localStorage.setItem('scl_founder', 'true')
@@ -223,12 +215,29 @@ window.NativeAuth = {
             if (d.inviteAllies)  localStorage.setItem('scl_invite_allies',  String(d.inviteAllies))
             if (d.thirtyDayDone) localStorage.setItem('scl_30day_done',     String(d.thirtyDayDone))
             if (d.realmQuests)   localStorage.setItem('scl_realm_quests',   typeof d.realmQuests === 'string'  ? d.realmQuests   : JSON.stringify(d.realmQuests))
+            if (d.genQuests && typeof d.genQuests === 'object') {
+              localStorage.setItem('scl_gen_quests', JSON.stringify(d.genQuests))
+            } else if (typeof d.genQuests === 'string' && d.genQuests) {
+              localStorage.setItem('scl_gen_quests', d.genQuests)
+            }
+            if (d.classLoadout && typeof d.classLoadout === 'object') {
+              localStorage.setItem('scl_class_loadout_v1', JSON.stringify(d.classLoadout))
+            }
             if (Array.isArray(d.quests) && d.quests.length) {
               const local    = _load(LS_MAP_QUESTS) || []
               const localIds = new Set(local.map(q => q.id))
               _save(LS_MAP_QUESTS, [...local, ...d.quests.filter(q => !localIds.has(q.id))])
             }
           } catch { /* intentional */ }
+          // Restore XP (reads LQP from LS written above)
+          const charXP    = d.charXP    || 0
+          const charLevel = d.charLevel || 1
+          const freqXP    = d.freqXP    || 0
+          const freqLevel = d.freqLevel || 1
+          const statXP    = d.statXP    || '{}'
+          const freqLog   = (typeof d.freqLog === 'object' && d.freqLog !== null) ? d.freqLog : {}
+          window.NativeQuest_onXPLoaded?.(charXP, charLevel, freqXP, freqLevel,
+            JSON.stringify(statXP), JSON.stringify(freqLog))
         } else {
           window.NativeAuth_onLoadPlayerResult?.(false, uid, '', '', authEmail)
         }

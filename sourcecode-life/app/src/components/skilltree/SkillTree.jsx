@@ -22,6 +22,7 @@ import {
   getTrainingProgress,
   getNextTierAction,
   migrateProgressToV3,
+  resolveRouteStageQuests,
 } from '../../lib/skillRoutes'
 import {
   loadClassLoadout,
@@ -375,7 +376,18 @@ export default function SkillTree({
 
   const tryUnequip = useCallback((slotIndex) => {
     const res = unequipSlot(slotIndex, loadout)
-    if (res.ok) setLoadout(res.loadout)
+    if (res.ok) {
+      setLoadout(res.loadout)
+      return
+    }
+    if (res.error) {
+      setGateMsg(res.error)
+      try {
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: { msg: res.error, color: 'var(--rose)' },
+        }))
+      } catch { /* intentional */ }
+    }
   }, [loadout])
 
   useEffect(() => {
@@ -745,6 +757,31 @@ export default function SkillTree({
             {!gate.ok && (
               <p className="skills-detail-gate" role="status">{gate.reason}</p>
             )}
+            {Array.isArray(route.relatedRoutes) && route.relatedRoutes.length > 0 && (
+              <div className="skills-cross-train" role="group" aria-label="Cross-train paths">
+                <p className="skills-detail-kicker">Cross-train</p>
+                {route.relatedRoutes.map((edge) => {
+                  const targetNum = NUMBERS.find((n) => Number(n.id) === Number(edge.number))
+                  const targetRoute = targetNum?.routes?.find((r) => r.id === edge.routeId)
+                  if (!targetNum || !targetRoute) return null
+                  return (
+                    <button
+                      key={`${edge.number}-${edge.routeId}`}
+                      type="button"
+                      className="skills-cross-train-link"
+                      onClick={() => {
+                        openSeal(targetNum)
+                        setExpandedRouteId(edge.routeId)
+                        setFocus({ type: 'route', routeId: edge.routeId, numId: targetNum.id })
+                      }}
+                    >
+                      {targetNum.label} · {targetRoute.name}
+                      {targetRoute.classNoun ? ` (${targetRoute.classNoun})` : ''}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
             <p className="skills-detail-kicker">Tiers &amp; quests</p>
             {route.stages.map((s, i) => {
               const done = !!stages[i]
@@ -760,7 +797,7 @@ export default function SkillTree({
                     </span>
                   </div>
                   <ul className="skills-detail-quests">
-                    {(s.quests || []).map((q, qi) => (
+                    {resolveRouteStageQuests(expanded.id, route.id, i, s.quests || []).map((q, qi) => (
                       <li key={qi} className={done ? 'is-done' : ''}>{q}</li>
                     ))}
                   </ul>
@@ -816,7 +853,7 @@ export default function SkillTree({
             )}
             <p className="skills-detail-kicker">Quests</p>
             <ul className="skills-detail-quests">
-              {stage.quests.map((q, i) => (
+              {resolveRouteStageQuests(expanded.id, route.id, focus.stageIdx, stage.quests || []).map((q, i) => (
                 <li key={i} className={isDone ? 'is-done' : ''}>{q}</li>
               ))}
             </ul>
@@ -832,6 +869,7 @@ export default function SkillTree({
   }, [
     expanded, focus, numProgress, seeds, statValues, tryStartRoute,
     tryEquipRoute, tryUnequip, loadout, replacePicker, playerData, freqLevel,
+    openSeal,
   ])
 
   const thesis = !expanded

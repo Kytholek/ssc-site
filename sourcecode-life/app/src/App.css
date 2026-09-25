@@ -2195,6 +2195,27 @@ body.scl-realm-open .tab-bar {
   font-size: 12px;
   line-height: 1.4;
 }
+.skills-cross-train {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 4px;
+}
+.skills-cross-train-link {
+  align-self: flex-start;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--teal, #00c9ff);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.skills-cross-train-link:hover {
+  color: #fff;
+}
 .skills-detail-cta {
   align-self: flex-start;
   background: color-mix(in srgb, var(--flow-color, #c9a84c) 22%, transparent);
@@ -24751,6 +24772,115 @@ body.scl-realm-open .tab-bar {
   font-size: 8px;
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--chip-color, var(--gold)) 80%, #fff);
+}
+.qj-entry-path-chip {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--teal, #00c9ff) 35%, transparent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--teal, #00c9ff) 85%, #fff);
+}
+.qj-commitments {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--rose, #ff2d55) 28%, transparent);
+  background: color-mix(in srgb, var(--rose, #ff2d55) 6%, transparent);
+}
+.qj-commitments-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rose, #ff2d55);
+}
+.qj-commitments-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qj-commitment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid color-mix(in srgb, var(--text, #fff) 8%, transparent);
+}
+.qj-commitment:first-child { border-top: 0; padding-top: 0; }
+.qj-commitment-main {
+  flex: 1 1 160px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.qj-commitment-title {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text, #eee);
+}
+.qj-commitment-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text, #eee) 55%, transparent);
+}
+.qj-commitment-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qj-commitment-btn {
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 45%, transparent);
+  background: transparent;
+  color: var(--gold, #c9a84c);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.qj-commitment-btn--complete {
+  border-color: color-mix(in srgb, var(--teal, #00c9ff) 45%, transparent);
+  color: var(--teal, #00c9ff);
+}
+.qj-commitment-done-today {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--text, #eee) 45%, transparent);
+}
+.qj-commitment-carve {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qj-commitment-carve textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 64px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--text, #fff) 15%, transparent);
+  background: color-mix(in srgb, #000 35%, transparent);
+  color: var(--text, #eee);
+  font-size: 13px;
+}
+.qj-commitment-error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--rose, #ff2d55);
 }
 .qj-class-cta {
   display: flex;

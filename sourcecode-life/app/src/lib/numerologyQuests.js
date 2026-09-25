@@ -27,12 +27,15 @@ import {
   getPrimaryRouteId,
   getRouteStages,
   isRouteStageUnlocked,
+  getRouteDef,
+  resolveRouteStageQuests,
 } from './skillRoutes.js'
 import {
   loadClassLoadout,
   getFilledSlots,
   getEligibleSeals,
 } from './classLoadout.js'
+import { pickClassFlavoredObjective } from './classQuestFlavor.js'
 import { recordDailySnapshot, updateDailySummary } from './dataHistory.js'
 import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
 import { resolveBlueprintNode, BLUEPRINT_UNLOCK_LV } from './questBlueprint.js'
@@ -91,17 +94,90 @@ export const CATEGORY_BRANCH_MAP = {
   9: ['contribute', 'complete', 'release'],
 }
 
-// ── Cycle labels (effects unused — labels only for gen records / getCycleInfo)
-const CYCLE_MODIFIERS = {
-  1: { label: 'Initiation Cycle',     rule: 'Bonus XP for categories you have never completed before' },
-  2: { label: 'Partnership Cycle',    rule: 'Bonus XP for connecting, supporting, and harmonizing actions' },
-  3: { label: 'Expression Cycle',     rule: 'Bonus XP for creative, communicative, and performative actions' },
-  4: { label: 'Foundation Cycle',     rule: 'Bonus XP for repeating the same category — consistency is rewarded' },
-  5: { label: 'Freedom Cycle',        rule: 'Bonus XP for new category types; penalty for repeated ones' },
-  6: { label: 'Responsibility Cycle', rule: 'Bonus XP for nurturing, serving, and supporting others' },
-  7: { label: 'Introspection Cycle',  rule: 'Bonus XP for deep study, reflection, and analysis' },
-  8: { label: 'Power Cycle',          rule: 'Bonus XP scales with difficulty — hard quests pay most' },
-  9: { label: 'Completion Cycle',     rule: 'Bonus XP for completing, contributing, and releasing' },
+// ── Cycle XP modifiers (applied in completeGeneratedQuest via applyCycleXpMod)
+export const CYCLE_MODIFIERS = {
+  1: { label: 'Initiation Cycle',     rule: 'Bonus XP for categories you have never completed before', bonus: 0.15 },
+  2: { label: 'Partnership Cycle',    rule: 'Bonus XP for connecting, supporting, and harmonizing actions', bonus: 0.15 },
+  3: { label: 'Expression Cycle',     rule: 'Bonus XP for creative, communicative, and performative actions', bonus: 0.15 },
+  4: { label: 'Foundation Cycle',     rule: 'Bonus XP for repeating the same category — consistency is rewarded', bonus: 0.15 },
+  5: { label: 'Freedom Cycle',        rule: 'Bonus XP for new category types; penalty for repeated ones', bonus: 0.15, penalty: 0.1 },
+  6: { label: 'Responsibility Cycle', rule: 'Bonus XP for nurturing, serving, and supporting others', bonus: 0.15 },
+  7: { label: 'Introspection Cycle',  rule: 'Bonus XP for deep study, reflection, and analysis', bonus: 0.15 },
+  8: { label: 'Power Cycle',          rule: 'Bonus XP scales with difficulty — hard quests pay most', bonus: 0.2 },
+  9: { label: 'Completion Cycle',     rule: 'Bonus XP for completing, contributing, and releasing', bonus: 0.15 },
+}
+
+const CYCLE_CATS = {
+  2: new Set(['connect', 'harmonize', 'support']),
+  3: new Set(['create', 'communicate', 'perform']),
+  6: new Set(['nurture', 'serve', 'beautify', 'support']),
+  7: new Set(['study', 'reflect', 'analyze']),
+  9: new Set(['contribute', 'complete', 'release']),
+}
+
+/** Pick a category verb for a quest from its seal number. */
+function categoryForQuest(number, questId = '') {
+  const seal = skillTreeNumber(number) || Number(number) || 5
+  const cats = CATEGORY_BRANCH_MAP[seal] || CATEGORY_BRANCH_MAP[5]
+  if (!cats?.length) return 'explore'
+  let hash = 0
+  const s = String(questId || seal)
+  for (let i = 0; i < s.length; i++) hash = (hash + s.charCodeAt(i) * (i + 1)) % 997
+  return cats[hash % cats.length]
+}
+
+/**
+ * Modest ±% XP from personal-year cycle. Capped to ±20%.
+ * @returns {{ xp: number, mult: number, label: string, applied: boolean }}
+ */
+export function applyCycleXpMod(baseXP, cycleNumber, category, history = {}) {
+  const mod = CYCLE_MODIFIERS[cycleNumber]
+  if (!mod || !baseXP) {
+    return { xp: baseXP, mult: 1, label: '', applied: false }
+  }
+  const completed = history.completedTypes || []
+  const last = history.lastActions || []
+  const lastCat = last[last.length - 1]
+  let delta = 0
+
+  switch (Number(cycleNumber)) {
+    case 1:
+      if (category && !completed.includes(category)) delta = mod.bonus
+      break
+    case 2:
+    case 3:
+    case 6:
+    case 7:
+    case 9:
+      if (category && CYCLE_CATS[cycleNumber]?.has(category)) delta = mod.bonus
+      break
+    case 4:
+      if (category && lastCat === category) delta = mod.bonus
+      break
+    case 5:
+      if (category && !completed.includes(category)) delta = mod.bonus
+      else if (category && completed.includes(category)) delta = -(mod.penalty || 0.1)
+      break
+    case 8: {
+      // Difficulty scaling handled by caller passing category as difficulty hint via history.difficulty
+      const diff = history.difficulty || 'easy'
+      if (diff === 'hard') delta = mod.bonus
+      else if (diff === 'medium') delta = (mod.bonus || 0.2) * 0.5
+      break
+    }
+    default:
+      break
+  }
+
+  delta = Math.max(-0.2, Math.min(0.2, delta))
+  const mult = 1 + delta
+  const xp = Math.max(1, Math.round(baseXP * mult))
+  return {
+    xp,
+    mult,
+    label: mod.label,
+    applied: Math.abs(delta) > 0.001,
+  }
 }
 
 
@@ -192,7 +268,13 @@ export function generateDailyQuests(user) {
       const stages = getRouteStages(numProgress, numberObj.id, route.id)
       if (stages[stageIdx]) return // already done — skip for daily focus
       const isNextTier = stages.findIndex((d) => !d) === stageIdx
-      stageObj.quests.forEach((questText, questIdx) => {
+      const questTexts = resolveRouteStageQuests(
+        numberObj.id,
+        route.id,
+        stageIdx,
+        stageObj.quests,
+      )
+      questTexts.forEach((questText, questIdx) => {
         pool.push({
           number:      Number(numberObj.id),
           numberLabel: numberObj.label,
@@ -222,17 +304,27 @@ export function generateDailyQuests(user) {
       pushRouteQuests(skillPool, numberObj, route, numProgress, { priority: 20 - slotIdx })
     })
   } else {
-    // Discovery: blueprint-eligible seals, primary routes
+    // Discovery: prefer seals with activeRoutes[0], then primary route
     const pdLike = user?.lifeNodes?.length
       ? Object.fromEntries(user.lifeNodes.map((n) => [n.key, { root: n.root }]))
       : null
     const eligible = pdLike ? getEligibleSeals(pdLike, freqLevel) : new Set()
+    const withActive = []
+    const withoutActive = []
     NUMBERS.forEach((numberObj) => {
       if (eligible.size && !eligible.has(Number(numberObj.id))) return
       const numProgress = skillProgress[numberObj.id] || { activeRoutes: [], routes: {} }
+      const hasActive = Array.isArray(numProgress.activeRoutes) && numProgress.activeRoutes.length > 0
       const routeId = getPrimaryRouteId(numProgress, numberObj.id)
       const route = numberObj.routes?.find((r) => r.id === routeId) || numberObj.routes?.[0]
-      pushRouteQuests(skillPool, numberObj, route, numProgress, { priority: 0 })
+      const entry = { numberObj, route, numProgress, hasActive }
+      if (hasActive) withActive.push(entry)
+      else withoutActive.push(entry)
+    })
+    ;[...withActive, ...withoutActive].forEach(({ numberObj, route, numProgress }) => {
+      pushRouteQuests(skillPool, numberObj, route, numProgress, {
+        priority: (skillProgress[numberObj.id]?.activeRoutes || []).length ? 5 : 0,
+      })
     })
   }
 
@@ -243,8 +335,10 @@ export function generateDailyQuests(user) {
   const low = skillPool.filter((q) => q.priority < topPri - 5)
   const skillPicked = [..._shuffle(high), ..._shuffle(low)].slice(0, 2)
 
-  const skillQuests = skillPicked.map(q => ({
-    id:          `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`,
+  const skillQuests = skillPicked.map(q => {
+    const id = `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`
+    return {
+    id,
     title:       q.questText,
     number:      q.number,
     numberLabel: q.numberLabel,
@@ -254,6 +348,7 @@ export function generateDailyQuests(user) {
     routeId:     q.routeId,
     routeName:   q.routeName,
     classNoun:   q.classNoun,
+    category:    categoryForQuest(q.number, id),
     discovery:   loadoutEmpty,
     source:      'skill',
     type:        'skilltree',
@@ -266,7 +361,8 @@ export function generateDailyQuests(user) {
     completed:   false,
     isNew:       true,
     isRepeated:  false,
-  }))
+  }
+  })
 
   // ── 2 LIFE / BLUEPRINT quests — prefer loadout seal roots ──────────────────
   const lqp = getLQP()
@@ -301,14 +397,26 @@ export function generateDailyQuests(user) {
     const diff = c.tier === 3 ? 'hard' : c.tier === 2 ? 'medium' : 'easy'
     const seal = skillTreeNumber(c.root)
     const equippedRoute = filledSlots.find((s) => s.number === seal)
+    const routeDef = equippedRoute ? getRouteDef(equippedRoute.number, equippedRoute.routeId) : null
+    const id = `life-${c.questKey}-${c.tier}-${c.objIdx}-${today}`
+    const flavoredTitle = pickClassFlavoredObjective(c.text, {
+      classNoun: routeDef?.classNoun,
+      kind: 'life',
+      seed: (c.objIdx + 1) * (seal || 1) + (cycleNumber || 0),
+    })
     const quest = {
-      id:        `life-${c.questKey}-${c.tier}-${c.objIdx}-${today}`,
-      title:     c.text,
+      id,
+      title:     flavoredTitle,
       number:    c.root,
       source:    'life',
       type:      'objective',
       difficulty: diff,
+      category:  categoryForQuest(c.root, id),
       rewardXP:  Math.round(BASE_XP[diff] * (DIFFICULTY_MULTIPLIER[diff] || 1.0)),
+      routeId:   equippedRoute?.routeId || null,
+      routeName: routeDef?.name || null,
+      classNoun: routeDef?.classNoun || routeDef?.name || null,
+      classFlavored: !!(equippedRoute && flavoredTitle !== c.text),
       skillMeta: {
         ...resolveSkillMeta({ root: c.root, tier: c.tier, questKind: 'life' }),
         preferredRouteId: equippedRoute?.routeId || null,
@@ -347,15 +455,27 @@ export function generateDailyQuests(user) {
   const cycleQuests = cyclePicked.map(c => {
     const seal = skillTreeNumber(c.root)
     const equippedRoute = filledSlots.find((s) => s.number === seal)
+    const routeDef = equippedRoute ? getRouteDef(equippedRoute.number, equippedRoute.routeId) : null
+    const id = `current-${c.type}-${c.root}-${c.idx}-${today}`
+    const flavoredTitle = pickClassFlavoredObjective(c.text, {
+      classNoun: routeDef?.classNoun,
+      kind: 'current',
+      seed: (c.idx + 3) * (seal || 1) + (cycleNumber || 0) * 2,
+    })
     return {
-      id:          `current-${c.type}-${c.root}-${c.idx}-${today}`,
-      title:       c.text,
+      id,
+      title:       flavoredTitle,
       number:      c.root,
       cycleType:   c.type,
       source:      'current',
       type:        'cycle',
       difficulty:  'easy',
+      category:    categoryForQuest(c.root, id),
       rewardXP:    Math.round(BASE_XP.easy * (DIFFICULTY_MULTIPLIER['easy'] || 1.0)),
+      routeId:     equippedRoute?.routeId || null,
+      routeName:   routeDef?.name || null,
+      classNoun:   routeDef?.classNoun || routeDef?.name || null,
+      classFlavored: !!(equippedRoute && flavoredTitle !== c.text),
       skillMeta:   {
         ...resolveSkillMeta({ root: c.root, questKind: 'cycle' }),
         preferredRouteId: equippedRoute?.routeId || null,
@@ -377,8 +497,10 @@ export function generateDailyQuests(user) {
       )
     )
     const needed = 6 - quests.length
-    const fillers = remainingSkill.slice(0, needed).map(q => ({
-      id:          `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`,
+    const fillers = remainingSkill.slice(0, needed).map(q => {
+      const id = `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`
+      return {
+      id,
       title:       q.questText,
       number:      q.number,
       numberLabel: q.numberLabel,
@@ -388,6 +510,7 @@ export function generateDailyQuests(user) {
       routeId:     q.routeId,
       routeName:   q.routeName,
       classNoun:   q.classNoun,
+      category:    categoryForQuest(q.number, id),
       discovery:   loadoutEmpty,
       source:      'skill',
       type:        'skilltree',
@@ -400,7 +523,8 @@ export function generateDailyQuests(user) {
         ...resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
         preferredRouteId: q.routeId,
       },
-    }))
+    }
+    })
     quests.push(...fillers)
   }
 
@@ -601,10 +725,18 @@ export function completeGeneratedQuest(questId, journalText) {
     quest.completedAt = Date.now()
     persistGenQuests(raw)
 
-    earnFreqXP(quest.rewardXP)
-
     // Load history once for all tracking below
     const history = loadQuestHistory()
+    if (!quest.category) quest.category = categoryForQuest(quest.number, quest.id)
+
+    const cycleMod = applyCycleXpMod(
+      quest.rewardXP,
+      raw.cycleNumber,
+      quest.category,
+      { ...history, difficulty: quest.difficulty },
+    )
+    const freqAward = cycleMod.xp
+    earnFreqXP(freqAward)
 
     // ── Difficulty-scaled stat XP ──────────────────────────────────────────────
     let statXPAmount = statXPForDifficulty(quest.difficulty)
@@ -661,7 +793,7 @@ export function completeGeneratedQuest(questId, journalText) {
     dispatch('scl:gen_quests_updated', { quests: raw.quests, completed: questId })
 
     updateDailySummary({
-      xpEarned: quest.rewardXP,
+      xpEarned: freqAward,
       questsCompleted: 1,
     })
     try { recordDailySnapshot() } catch {}
@@ -669,7 +801,7 @@ export function completeGeneratedQuest(questId, journalText) {
     // ── Detailed reward summary toast ──────────────────────────────────────
     try {
       dispatch('scl:quest_reward', {
-        freqXP: quest.rewardXP,
+        freqXP: freqAward,
         statXP: statXPAmount,
         statNum: skillResult.meta?.number || skillTreeNumber(quest.number) || quest.number,
         difficulty: quest.difficulty,
@@ -677,10 +809,20 @@ export function completeGeneratedQuest(questId, journalText) {
         questNumber: quest.number,
         skillPipFilled: skillResult.pipFilled,
         skillStageName: skillResult.pipFilled ? ['Initiate', 'Consistency', 'Mastery'][skillResult.meta?.stageIdx] : null,
+        cycleLabel: cycleMod.applied ? cycleMod.label : null,
+        cycleMult: cycleMod.applied ? cycleMod.mult : null,
       })
-    } catch {}
+      if (cycleMod.applied) {
+        const pct = Math.round((cycleMod.mult - 1) * 100)
+        const sign = pct >= 0 ? '+' : ''
+        dispatch('scl:xp_toast', {
+          msg: `${cycleMod.label} · ${sign}${pct}% XP`,
+          color: pct >= 0 ? 'var(--gold)' : 'var(--rose)',
+        })
+      }
+    } catch { /* intentional */ }
 
-    return { ok: true, xpAwarded: quest.rewardXP }
+    return { ok: true, xpAwarded: freqAward, cycleMod }
   } catch (e) {
     return { ok: false, error: String(e) }
   }

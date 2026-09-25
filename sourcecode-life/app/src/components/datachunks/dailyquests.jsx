@@ -10,7 +10,10 @@ import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { XP_AWARDS } from '../../lib/questEngine'
 import {
   generateDailyQuests, getGeneratedQuests, completeGeneratedQuest,
-  getUncheckedMultiDayQuests,
+  getActiveMultiDayQuests,
+  checkinMultiDayQuest,
+  completeMultiDayQuest,
+  getCycleInfo,
   QUEST_TYPE_META,
   getJournalPrompt,
   detectMultiDay,
@@ -18,6 +21,7 @@ import {
   getDifficultyMeta,
   buildQuestUserProfile,
 } from '../../lib/numerologyQuests'
+import { todayStr } from '../../lib/numerology'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
 import {
@@ -218,14 +222,20 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
         </span>
         <span className="qj-entry-body">
           <span className="qj-entry-title">{quest.title}</span>
-          {(quest.routeName || quest.stageName) && (
+          {(quest.routeName || quest.stageName || quest.classNoun) && (
             <span className="qj-entry-route">
-              {quest.discovery ? 'Discovery' : (quest.routeName || 'Path')}
+              {quest.discovery ? 'Discovery' : (quest.classNoun || quest.routeName || 'Path')}
+              {quest.routeName && quest.classNoun ? ` · ${quest.routeName}` : ''}
               {quest.stageName ? ` · ${quest.stageName}` : ''}
             </span>
           )}
-          {quest.supportsClass && !quest.routeName && (
+          {quest.supportsClass && !quest.routeName && !quest.classNoun && (
             <span className="qj-entry-route">Supports class path</span>
+          )}
+          {quest.routeId && !quest.discovery && (
+            <span className="qj-entry-path-chip" aria-label="Class path">
+              {quest.classNoun || quest.routeName || quest.routeId}
+            </span>
           )}
           <span className="qj-entry-meta">
             {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
@@ -520,19 +530,104 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
   )
 }
 
-function ReminderBanner() {
-  const unchecked = getUncheckedMultiDayQuests()
-  if (!unchecked.length) return null
+function ActiveCommitmentsStrip({ refreshKey }) {
+  const [completeId, setCompleteId] = useState(null)
+  const [text, setText] = useState('')
+  const [error, setError] = useState('')
+  const [, bump] = useState(0)
+  const active = Object.values(getActiveMultiDayQuests()).filter((q) => !q.completed)
+  const today = todayStr()
+
+  if (!active.length) return null
+
+  function refresh() {
+    bump((n) => n + 1)
+    window.dispatchEvent(new CustomEvent('scl:gen_quests_updated', { detail: {} }))
+  }
+
+  function handleCheckin(questId) {
+    const res = checkinMultiDayQuest(questId)
+    if (!res.ok) {
+      setError(res.error || 'Check-in failed')
+      return
+    }
+    setError('')
+    if (res.isComplete) setCompleteId(questId)
+    refresh()
+  }
+
+  function handleComplete(questId) {
+    const res = completeMultiDayQuest(questId, text)
+    if (!res.ok) {
+      setError(res.error || 'Complete failed')
+      return
+    }
+    setText('')
+    setCompleteId(null)
+    setError('')
+    refresh()
+  }
+
   return (
-    <div className="gq-reminder">
-      <span>◉</span>
-      <span>
-        {unchecked.length === 1
-          ? 'Active commitment — check in today'
-          : `${unchecked.length} commitments — check in to keep streaks`
-        }
-      </span>
-    </div>
+    <section className="qj-commitments" aria-label="Active commitments" data-refresh={refreshKey}>
+      <h3 className="qj-commitments-label">
+        <span aria-hidden="true">◉</span>
+        <span>Active Commitments</span>
+      </h3>
+      <ul className="qj-commitments-list">
+        {active.map((q) => {
+          const daysDone = q.multiDay?.checkins?.length || 0
+          const total = q.multiDay?.totalDays || 0
+          const checkedToday = (q.multiDay?.checkins || []).includes(today)
+          const canComplete = daysDone >= total && total > 0
+          const isEditing = completeId === q.id
+          return (
+            <li key={q.id} className="qj-commitment">
+              <div className="qj-commitment-main">
+                <span className="qj-commitment-title">{q.title}</span>
+                <span className="qj-commitment-meta">
+                  {daysDone}/{total} days · streak {q.multiDay?.streak || 0}
+                </span>
+              </div>
+              <div className="qj-commitment-actions">
+                {!checkedToday && !canComplete && (
+                  <button type="button" className="qj-commitment-btn" onClick={() => handleCheckin(q.id)}>
+                    Check in
+                  </button>
+                )}
+                {checkedToday && !canComplete && (
+                  <span className="qj-commitment-done-today">Checked in</span>
+                )}
+                {(canComplete || isEditing) && (
+                  <button
+                    type="button"
+                    className="qj-commitment-btn qj-commitment-btn--complete"
+                    onClick={() => setCompleteId(isEditing ? null : q.id)}
+                  >
+                    {isEditing ? 'Cancel' : 'Complete'}
+                  </button>
+                )}
+              </div>
+              {isEditing && (
+                <div className="qj-commitment-carve">
+                  <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Reflect on this commitment (30+ chars)…"
+                    rows={3}
+                    aria-label="Commitment reflection"
+                  />
+                  <button type="button" className="qj-commitment-btn" onClick={() => handleComplete(q.id)}>
+                    Finish commitment
+                  </button>
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+      {error && <p className="qj-commitment-error" role="status">{error}</p>}
+    </section>
   )
 }
 
@@ -662,9 +757,15 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
   const cfg = CYCLE_QUEST_COLORS.personalDay
   const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
   const colorVar = `var(${cfg.color})`
-  const plateMeta = allDone
-    ? `${totalCompleted}/${totalQuests} complete`
-    : `${openCount} open · ${totalCompleted}/${totalQuests} done`
+  const plateMeta = (() => {
+    const base = allDone
+      ? `${totalCompleted}/${totalQuests} complete`
+      : `${openCount} open · ${totalCompleted}/${totalQuests} done`
+    const cycleInfo = getCycleInfo(genState?.cycleNumber)
+    if (cycleInfo?.label) return `${base} · ${cycleInfo.label}`
+    if (genState?.cycleLabel) return `${base} · ${genState.cycleLabel}`
+    return base
+  })()
 
   const daySeal = reduceToSimple(pd.root)
   const loadoutNow = loadClassLoadout()
@@ -741,7 +842,7 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
         </div>
 
         <div className="qj-pages">
-          <ReminderBanner />
+          <ActiveCommitmentsStrip refreshKey={genCompleted} />
 
           <QuestChapters
             genQuests={genQuests}

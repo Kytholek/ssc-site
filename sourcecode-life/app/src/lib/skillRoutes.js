@@ -4,6 +4,9 @@
  *   { "3": { activeRoutes: ["art"], routes: { art: [t1,t2,t3], voice: [...], ... } } }
  */
 
+import { resolveRouteStageQuests } from './routeQuestPools'
+
+export { resolveRouteStageQuests } from './routeQuestPools'
 
 export const SKILLTREE_LS_KEY_V2 = 'scl_skilltree_progress_v2'
 export const SKILLTREE_LS_KEY = 'scl_skilltree_progress_v3'
@@ -26,6 +29,7 @@ export const SKILL_TREE = {
         name: 'Leadership',
         classNoun: 'Leader',
         thesis: 'Presence -> Direction -> Leadership',
+        relatedRoutes: [{ number: 8, routeId: 'achievement' }, { number: 3, routeId: 'voice' }],
         stages: [
           {
             stage: 1, name: 'Presence',
@@ -127,6 +131,7 @@ export const SKILL_TREE = {
         name: 'Relationships',
         classNoun: 'Partner',
         thesis: 'Connection -> Intimacy -> Partnership',
+        relatedRoutes: [{"number":6,"routeId":"care"},{"number":3,"routeId":"voice"}],
         stages: [
           {
             stage: 1, name: 'Connection',
@@ -228,6 +233,7 @@ export const SKILL_TREE = {
         name: 'Voice',
         classNoun: 'Orator',
         thesis: 'Speak -> Present -> Influence',
+        relatedRoutes: [{"number":7,"routeId":"contemplation"},{"number":9,"routeId":"teaching"}],
         stages: [
           {
             stage: 1, name: 'Find Your Voice',
@@ -329,6 +335,7 @@ export const SKILL_TREE = {
         name: 'Discipline',
         classNoun: 'Disciple',
         thesis: 'Routine -> Consistency -> Self-Mastery',
+        relatedRoutes: [{"number":8,"routeId":"achievement"},{"number":1,"routeId":"leadership"}],
         stages: [
           {
             stage: 1, name: 'Routine',
@@ -430,6 +437,7 @@ export const SKILL_TREE = {
         name: 'Exploration',
         classNoun: 'Explorer',
         thesis: 'Curiosity -> Experimentation -> Discovery',
+        relatedRoutes: [{"number":7,"routeId":"research"},{"number":1,"routeId":"leadership"}],
         stages: [
           {
             stage: 1, name: 'Curiosity',
@@ -531,6 +539,7 @@ export const SKILL_TREE = {
         name: 'Care',
         classNoun: 'Caregiver',
         thesis: 'Support -> Nurture -> Stewardship',
+        relatedRoutes: [{"number":2,"routeId":"relationships"},{"number":9,"routeId":"contribution"}],
         stages: [
           {
             stage: 1, name: 'Support',
@@ -632,6 +641,7 @@ export const SKILL_TREE = {
         name: 'Contemplation',
         classNoun: 'Seer',
         thesis: 'Stillness -> Observation -> Insight',
+        relatedRoutes: [{"number":3,"routeId":"voice"},{"number":9,"routeId":"contribution"}],
         stages: [
           {
             stage: 1, name: 'Stillness',
@@ -733,6 +743,7 @@ export const SKILL_TREE = {
         name: 'Achievement',
         classNoun: 'Achiever',
         thesis: 'Goal -> Performance -> Excellence',
+        relatedRoutes: [{"number":1,"routeId":"leadership"},{"number":4,"routeId":"discipline"}],
         stages: [
           {
             stage: 1, name: 'Goal',
@@ -834,6 +845,7 @@ export const SKILL_TREE = {
         name: 'Contribution',
         classNoun: 'Giver',
         thesis: 'Give -> Serve -> Legacy',
+        relatedRoutes: [{"number":7,"routeId":"contemplation"},{"number":6,"routeId":"care"}],
         stages: [
           {
             stage: 1, name: 'Give',

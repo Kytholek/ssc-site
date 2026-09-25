@@ -31,6 +31,7 @@ import {
   getFreqLog,
   getLQP,
   getAcceptedQuests,
+  getDailyQuestState,
 } from '../lib/questEngine'
 
 // Helper: map Firebase error codes → human messages
@@ -348,6 +349,10 @@ export function useAuthBridge() {
       gameDispatch({ type: ACTIONS.REFRESH_LQP, payload: getLQP() })
       gameDispatch({ type: ACTIONS.REFRESH_FREQ_LOG, payload: getFreqLog() })
       gameDispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
+      gameDispatch({ type: ACTIONS.REFRESH_DAILY, payload: getDailyQuestState() })
+      try {
+        window.dispatchEvent(new CustomEvent('scl:gen_quests_updated', { detail: {} }))
+      } catch { /* intentional */ }
     }
 
     // ── NativePurchase.startPurchase() result (Google Play + Stripe) ──────────

@@ -15,6 +15,7 @@ import { markChecklistItem } from './tourStorage'
 
 export const CLASS_LOADOUT_LS_KEY = 'scl_class_loadout_v1'
 export const MAX_LOADOUT_SLOTS = 2
+export const RESPEC_COOLDOWN_MS = 24 * 60 * 60 * 1000
 
 const BLUEPRINT_NODES = ['lp', 'ex', 'cl', 'so', 'ou', 'ac', 'th']
 
@@ -28,8 +29,22 @@ function mapSealRoot(root) {
   return (n >= 1 && n <= 9) ? n : null
 }
 
+/** Seal archetype keys for composeBlendTitle templates */
+const SEAL_ARCH = {
+  1: 'action',
+  2: 'bond',
+  3: 'voice',
+  4: 'craft',
+  5: 'motion',
+  6: 'care',
+  7: 'sight',
+  8: 'power',
+  9: 'gift',
+}
+
 /** Authored dual-class blends keyed by sorted "num:routeId|num:routeId" */
 export const CLASS_BLEND_TABLE = {
+  // Existing signatures
   '3:voice|7:contemplation': 'Orator–Seer',
   '3:creation|7:contemplation': 'Maker–Seer',
   '3:writing|7:contemplation': 'Scribe–Seer',
@@ -41,6 +56,121 @@ export const CLASS_BLEND_TABLE = {
   '5:exploration|7:research': 'Explorer–Scholar',
   '3:writing|9:teaching': 'Scribe–Mentor',
   '7:contemplation|9:contribution': 'Seer–Giver',
+  // Seal 1 pairings
+  '1:leadership|2:relationships': 'Leader–Partner',
+  '1:leadership|4:discipline': 'Leader–Disciple',
+  '1:leadership|5:exploration': 'Leader–Explorer',
+  '1:leadership|6:care': 'Leader–Caregiver',
+  '1:leadership|7:contemplation': 'Leader–Seer',
+  '1:leadership|9:contribution': 'Leader–Giver',
+  '1:entrepreneurship|3:creation': 'Founder–Maker',
+  '1:entrepreneurship|4:systems': 'Founder–Engineer',
+  '1:entrepreneurship|8:wealth': 'Founder–Magnate',
+  '1:entrepreneurship|5:innovation': 'Founder–Innovator',
+  '1:physical|5:adventure': 'Athlete–Adventurer',
+  '1:physical|4:discipline': 'Athlete–Disciple',
+  '1:physical|8:achievement': 'Athlete–Achiever',
+  // Seal 2
+  '2:relationships|3:voice': 'Partner–Orator',
+  '2:relationships|7:contemplation': 'Partner–Seer',
+  '2:relationships|9:teaching': 'Partner–Mentor',
+  '2:empathy|6:care': 'Empath–Caregiver',
+  '2:empathy|7:contemplation': 'Empath–Seer',
+  '2:empathy|9:contribution': 'Empath–Giver',
+  '2:social|3:voice': 'Connector–Orator',
+  '2:social|5:exploration': 'Connector–Explorer',
+  '2:social|9:teaching': 'Connector–Mentor',
+  // Seal 3
+  '3:voice|4:discipline': 'Orator–Disciple',
+  '3:voice|6:care': 'Orator–Caregiver',
+  '3:voice|9:teaching': 'Orator–Mentor',
+  '3:creation|4:organization': 'Maker–Architect',
+  '3:creation|5:innovation': 'Maker–Innovator',
+  '3:creation|9:creation': 'Maker–Artisan',
+  '3:writing|4:organization': 'Scribe–Architect',
+  '3:writing|7:research': 'Scribe–Scholar',
+  '3:writing|8:command': 'Scribe–Commander',
+  // Seal 4
+  '4:discipline|6:care': 'Disciple–Caregiver',
+  '4:discipline|7:research': 'Disciple–Scholar',
+  '4:organization|8:achievement': 'Architect–Achiever',
+  '4:organization|9:contribution': 'Architect–Giver',
+  '4:systems|5:innovation': 'Engineer–Innovator',
+  '4:systems|7:research': 'Engineer–Scholar',
+  '4:systems|8:wealth': 'Engineer–Magnate',
+  // Seal 5
+  '5:exploration|6:service': 'Explorer–Server',
+  '5:exploration|8:achievement': 'Explorer–Achiever',
+  '5:exploration|9:contribution': 'Explorer–Giver',
+  '5:adventure|8:command': 'Adventurer–Commander',
+  '5:adventure|9:contribution': 'Adventurer–Giver',
+  '5:innovation|7:research': 'Innovator–Scholar',
+  '5:innovation|8:wealth': 'Innovator–Magnate',
+  // Seal 6
+  '6:care|7:contemplation': 'Caregiver–Seer',
+  '6:care|8:achievement': 'Caregiver–Achiever',
+  '6:care|9:teaching': 'Caregiver–Mentor',
+  '2:relationships|6:family': 'Partner–Kinkeeper',
+  '6:family|9:contribution': 'Kinkeeper–Giver',
+  '6:service|8:command': 'Server–Commander',
+  '6:service|9:contribution': 'Server–Giver',
+  // Seal 7
+  '7:contemplation|8:achievement': 'Seer–Achiever',
+  '7:research|8:wealth': 'Scholar–Magnate',
+  '7:research|9:teaching': 'Scholar–Mentor',
+  '7:consciousness|9:contribution': 'Mystic–Giver',
+  '3:voice|7:consciousness': 'Orator–Mystic',
+  // Seal 8–9
+  '8:achievement|9:contribution': 'Achiever–Giver',
+  '8:achievement|9:teaching': 'Achiever–Mentor',
+  '8:wealth|9:contribution': 'Magnate–Giver',
+  '8:command|9:teaching': 'Commander–Mentor',
+  '3:voice|8:command': 'Orator–Commander',
+}
+
+/**
+ * Deterministic readable dual title when CLASS_BLEND_TABLE has no entry.
+ * Templates key off seal archetypes; nouns stay the classNouns.
+ */
+export function composeBlendTitle(nounA, nounB, sealA, sealB) {
+  const a = String(nounA || 'Path')
+  const b = String(nounB || 'Path')
+  const sa = Number(sealA) || 0
+  const sb = Number(sealB) || 0
+  let first = a
+  let second = b
+  let archLo = SEAL_ARCH[sa] || 'path'
+  let archHi = SEAL_ARCH[sb] || 'path'
+  if (sa > sb || (sa === sb && a.localeCompare(b) > 0)) {
+    first = b
+    second = a
+    archLo = SEAL_ARCH[sb] || 'path'
+    archHi = SEAL_ARCH[sa] || 'path'
+  }
+  const pair = [archLo, archHi].sort().join('|')
+  switch (pair) {
+    case 'bond|care':
+      return `${first} Heart`
+    case 'sight|voice':
+      return `${first} Vision`
+    case 'action|power':
+      return `${first} Force`
+    case 'craft|power':
+      return `${first} Forge`
+    case 'gift|sight':
+      return `${first} Wisdom`
+    case 'motion|sight':
+      return `${first} Scout`
+    case 'action|gift':
+      return `${first} Legacy`
+    case 'care|gift':
+      return `${first} Grace`
+    case 'power|voice':
+      return `${first} Voice`
+    default:
+      if (archLo === archHi) return `${first} & ${second}`
+      return `${first}\u2013${second}`
+  }
 }
 
 function emptyLoadout() {
@@ -49,6 +179,7 @@ function emptyLoadout() {
     titleOverride: null,
     updatedAt: 0,
     userChosen: false,
+    lastRespecAt: 0,
   }
 }
 
@@ -74,6 +205,7 @@ function normalizeLoadout(raw) {
     titleOverride: typeof raw.titleOverride === 'string' ? raw.titleOverride : null,
     updatedAt: Number(raw.updatedAt) || 0,
     userChosen: !!raw.userChosen,
+    lastRespecAt: Number(raw.lastRespecAt) || 0,
   }
 }
 
@@ -152,7 +284,7 @@ export function getBlendTitle(slotA, slotB) {
   if (CLASS_BLEND_TABLE[key]) return CLASS_BLEND_TABLE[key]
   const nounA = getClassNoun(slotA.number, slotA.routeId)
   const nounB = getClassNoun(slotB.number, slotB.routeId)
-  return `${nounA}\u2013${nounB}`
+  return composeBlendTitle(nounA, nounB, slotA.number, slotB.number)
 }
 
 export function getClassTitle(loadout = loadClassLoadout()) {
@@ -177,6 +309,12 @@ export function getLoadoutPathChips(loadout = loadClassLoadout()) {
       icon: num?.icon || '\u2726',
     }
   })
+}
+
+export function getRespecCooldownRemaining(loadout = loadClassLoadout()) {
+  const last = Number(loadout.lastRespecAt) || 0
+  if (!last) return 0
+  return Math.max(0, RESPEC_COOLDOWN_MS - (Date.now() - last))
 }
 
 /**
@@ -245,8 +383,22 @@ export function unequipSlot(slotIndex, loadout = null) {
   if (slotIndex < 0 || slotIndex >= MAX_LOADOUT_SLOTS) {
     return { ok: false, loadout: next, error: 'Invalid slot.' }
   }
+  if (!next.slots[slotIndex]) {
+    return { ok: true, loadout: next, already: true }
+  }
+  const remaining = getRespecCooldownRemaining(next)
+  if (remaining > 0) {
+    const hoursLeft = Math.max(1, Math.ceil(remaining / (60 * 60 * 1000)))
+    return {
+      ok: false,
+      loadout: next,
+      cooldown: true,
+      error: `Respec cooldown — ${hoursLeft}h remaining`,
+    }
+  }
   next.slots[slotIndex] = null
   next.userChosen = true
+  next.lastRespecAt = Date.now()
   return { ok: true, loadout: saveClassLoadout(next) }
 }
 
@@ -275,6 +427,7 @@ export function clearAutoSeededLoadout() {
     slots: [null, null],
     titleOverride: null,
     userChosen: false,
+    lastRespecAt: existing.lastRespecAt || 0,
   })
 }
 

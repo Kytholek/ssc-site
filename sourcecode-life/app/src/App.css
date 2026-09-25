@@ -19962,6 +19962,7 @@ body.scl-realm-open .tab-bar {
   .home-dashboard .seasons-section .seasons-heading-line {
     max-width: 220px;
   }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .seasons-card,

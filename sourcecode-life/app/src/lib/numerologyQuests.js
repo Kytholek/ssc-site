@@ -370,12 +370,71 @@ export function generateDailyQuests(user) {
     })
   }
 
-  // Prefer high-priority (next unfinished tier on loadout), then shuffle within band
-  skillPool.sort((a, b) => b.priority - a.priority)
-  const topPri = skillPool[0]?.priority ?? 0
-  const high = skillPool.filter((q) => q.priority >= topPri - 5)
-  const low = skillPool.filter((q) => q.priority < topPri - 5)
-  const skillPicked = [..._shuffle(high), ..._shuffle(low)].slice(0, 2)
+  // Prefer one CLASS quest per equipped path (2 slots → 1 each).
+  // Discovery / single-path: diversify by route, then fall back to priority shuffle.
+  function pickSkillQuests(pool, slots, count = 2) {
+    const picked = []
+    const usedKeys = new Set()
+    const keyOf = (q) => `${q.number}|${q.routeId}|${q.stageIdx}|${q.questIdx}`
+
+    function takeFrom(candidates) {
+      if (!candidates.length) return null
+      const sorted = [...candidates].sort((a, b) => b.priority - a.priority)
+      const top = sorted[0]?.priority ?? 0
+      const band = sorted.filter((q) => q.priority >= top - 5)
+      const choice = _shuffle(band.length ? band : sorted)[0]
+      if (!choice) return null
+      picked.push(choice)
+      usedKeys.add(keyOf(choice))
+      return choice
+    }
+
+    const remaining = () => pool.filter((q) => !usedKeys.has(keyOf(q)))
+
+    if (slots.length >= 2) {
+      slots.slice(0, count).forEach((slot) => {
+        takeFrom(
+          remaining().filter(
+            (q) => q.number === slot.number && q.routeId === slot.routeId,
+          ),
+        )
+      })
+    } else if (slots.length === 1) {
+      const slot = slots[0]
+      const fromPath = remaining().filter(
+        (q) => q.number === slot.number && q.routeId === slot.routeId,
+      )
+      takeFrom(fromPath)
+      // Prefer a different stage for the second pick from the same path
+      const firstStage = picked[0]?.stageIdx
+      const otherStage = fromPath.filter(
+        (q) => !usedKeys.has(keyOf(q)) && q.stageIdx !== firstStage,
+      )
+      takeFrom(otherStage.length ? otherStage : fromPath.filter((q) => !usedKeys.has(keyOf(q))))
+    } else {
+      // Discovery: one from each distinct route when possible
+      const byRoute = new Map()
+      remaining().forEach((q) => {
+        const rk = `${q.number}|${q.routeId}`
+        if (!byRoute.has(rk)) byRoute.set(rk, [])
+        byRoute.get(rk).push(q)
+      })
+      const routeGroups = _shuffle([...byRoute.values()])
+      for (const group of routeGroups) {
+        if (picked.length >= count) break
+        takeFrom(group)
+      }
+    }
+
+    while (picked.length < count) {
+      const more = remaining()
+      if (!more.length) break
+      takeFrom(more)
+    }
+    return picked.slice(0, count)
+  }
+
+  const skillPicked = pickSkillQuests(skillPool, filledSlots, 2)
 
   const skillQuests = skillPicked.map(q => {
     const id = `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`

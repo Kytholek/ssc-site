@@ -5559,50 +5559,102 @@
   line-height: 1.5;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   CHARACTER DOSSIER â€” plaque accents (not journal page clones)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHARACTER DOSSIER — plaque accents (not journal page clones)
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-theme="fantasy"] .char-card {
-  border-color: color-mix(in srgb, var(--gold) 50%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
   background:
-    linear-gradient(90deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.14) 16px, transparent 28px),
-    linear-gradient(165deg, #1a1c28 0%, #12141c 55%, #0d0f16 100%);
-  color: inherit;
+    linear-gradient(90deg, rgba(108, 60, 8, 0.08) 0%, transparent 18px),
+    linear-gradient(155deg, var(--bg-panel) 0%, var(--bg-panel2) 55%, #e2c898 100%);
+  color: var(--text);
   box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.5),
-    0 0 0 1px color-mix(in srgb, var(--gold) 18%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--gold) 22%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 8px 24px rgba(78, 38, 0, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--gold) 22%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+[data-theme="fantasy"] .char-card:hover {
+  box-shadow:
+    0 10px 28px rgba(78, 38, 0, 0.22),
+    0 0 0 1px color-mix(in srgb, var(--gold) 32%, transparent),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 [data-theme="fantasy"] .char-card-spine {
-  background: linear-gradient(180deg, #8a5410 0%, #4a2a08 50%, #8a5410 100%);
-  border-right-color: color-mix(in srgb, #c9a84c 55%, transparent);
+  background:
+    linear-gradient(90deg, rgba(78, 38, 0, 0.2) 0%, transparent 70%),
+    linear-gradient(180deg, #b87828 0%, #6c3c08 50%, #b87828 100%);
+  border-right-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  box-shadow: 3px 0 12px rgba(78, 38, 0, 0.2);
 }
 [data-theme="fantasy"] .char-card-seal,
 [data-theme="fantasy"] .char-card-seal-label,
 [data-theme="fantasy"] .char-card-rep-label,
 [data-theme="fantasy"] .char-card-rep-stars {
-  color: #c9a84c;
+  color: var(--gold);
 }
 [data-theme="fantasy"] .char-card-seal {
   border: 0;
   background: transparent;
 }
+[data-theme="fantasy"] .char-card-name {
+  color: var(--gold);
+  text-shadow: none;
+}
+[data-theme="fantasy"] .char-card-dob,
+[data-theme="fantasy"] .char-card-calling-label,
+[data-theme="fantasy"] .char-card-lp-key,
+[data-theme="fantasy"] .char-card-class-kicker {
+  color: var(--text-dim);
+}
+[data-theme="fantasy"] .char-card-calling-num,
+[data-theme="fantasy"] .char-card-lp-val,
+[data-theme="fantasy"] .char-card-class-title {
+  color: var(--gold);
+  text-shadow: none;
+}
+[data-theme="fantasy"] .char-card-portrait {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--bg-panel2) 80%, #d8bc82);
+}
 [data-theme="fantasy"] .char-card-xp-bars,
 [data-theme="fantasy"] .char-card-xp-mirror,
-[data-theme="fantasy"] .char-card-rep {
-  border-color: transparent;
+[data-theme="fantasy"] .char-card-rep,
+[data-theme="fantasy"] .char-card-rail {
+  border-color: color-mix(in srgb, var(--gold) 22%, transparent);
   background: transparent;
-  color: inherit;
+  color: var(--text);
+}
+[data-theme="fantasy"] .char-card-class-crest-seal {
+  color: color-mix(in srgb, var(--crest-color, var(--gold)) 70%, var(--text));
+  background:
+    radial-gradient(circle at 35% 30%,
+      color-mix(in srgb, var(--crest-color, var(--gold)) 28%, transparent) 0%,
+      transparent 65%),
+    color-mix(in srgb, var(--bg-inset) 85%, #fff);
+  border-color: color-mix(in srgb, var(--crest-color, var(--gold)) 50%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 15%, transparent);
+}
+[data-theme="fantasy"] .char-card-class-chip {
+  border-color: color-mix(in srgb, var(--gold) 35%, transparent);
+  background: color-mix(in srgb, var(--bg-inset) 70%, transparent);
+  color: var(--text);
+}
+[data-theme="fantasy"] .char-card-class-chip--add,
+[data-theme="fantasy"] .char-card-class-empty {
+  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
 }
 [data-theme="fantasy"] .char-ach-panel {
   background: linear-gradient(180deg, #f4ead2 0%, #e8d7b0 100%);
-  border-color: color-mix(in srgb, #6c3c08 35%, transparent);
-  color: #3a2e1c;
+  border-color: color-mix(in srgb, var(--gold) 35%, transparent);
+  color: var(--text);
 }
 [data-theme="fantasy"] .char-ach-panel-title {
-  color: #6c3c08;
+  color: var(--gold);
 }
 
 [data-theme="diablo"] .char-card {

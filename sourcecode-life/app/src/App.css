@@ -3268,39 +3268,40 @@ body.scl-realm-open .tab-bar {
   box-shadow: 0 0 8px var(--red);
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   Fantasy theme â€” Character Card Panel (gold glass)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Fantasy theme — Character Card Panel (parchment)
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 [data-theme="fantasy"] .char-card-panel {
   background:
     linear-gradient(135deg,
-      color-mix(in srgb, var(--gold) 8%, transparent) 0%,
-      color-mix(in srgb, var(--gold) 3%, transparent) 50%,
-      color-mix(in srgb, var(--gold) 5%, transparent) 100%
+      color-mix(in srgb, var(--gold) 6%, transparent) 0%,
+      transparent 50%,
+      color-mix(in srgb, var(--gold) 4%, transparent) 100%
     ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
-  border-top-color: color-mix(in srgb, var(--gold) 35%, transparent);
+    linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel2) 100%);
+  border-top-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  color: var(--text);
   box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.4),
-    0 0 1px color-mix(in srgb, var(--gold) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 -8px 28px rgba(78, 38, 0, 0.2),
+    0 0 1px color-mix(in srgb, var(--gold) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 [data-theme="fantasy"] .char-card-panel::before {
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--gold) 50%, transparent) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--gold) 45%, transparent) 50%, transparent 100%);
 }
 [data-theme="fantasy"] .char-card-panel-header {
-  border-bottom-color: color-mix(in srgb, var(--gold) 15%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--gold) 22%, transparent);
 }
 [data-theme="fantasy"] .char-card-panel-title {
   color: var(--gold);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--gold) 40%, transparent);
+  text-shadow: none;
 }
 [data-theme="fantasy"] .char-card-panel-close:hover {
   border-color: color-mix(in srgb, var(--gold) 45%, transparent);
   color: var(--gold);
   background: color-mix(in srgb, var(--gold) 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 20%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 15%, transparent);
 }
 [data-theme="fantasy"] .char-card-panel-tab::before {
   background: var(--gold);

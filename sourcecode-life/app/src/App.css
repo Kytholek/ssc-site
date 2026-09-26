@@ -24895,6 +24895,10 @@ body.scl-realm-open .tab-bar {
   overflow-wrap: break-word;
 }
 .qj-commitment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.04em;
@@ -25118,9 +25122,12 @@ body.scl-realm-open .tab-bar {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--gold) 75%, transparent);
-  box-shadow: 0 0 4px color-mix(in srgb, var(--gold) 35%, transparent);
+  background: color-mix(in srgb, var(--gold) 28%, transparent);
   flex-shrink: 0;
+}
+.qj-multiday-pip--filled {
+  background: color-mix(in srgb, var(--gold) 90%, transparent);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--gold) 35%, transparent);
 }
 .qj-multiday-pip--more {
   width: 7px;

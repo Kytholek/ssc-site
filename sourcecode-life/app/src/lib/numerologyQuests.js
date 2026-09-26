@@ -435,6 +435,7 @@ export function generateDailyQuests(user) {
   ].slice(0, 2)
 
   const multiDayStarts = []
+  let multiDayOfferSlots = multiDaySlotsRemaining()
   const lifeQuests = lifePicked.map(c => {
     const diff = c.tier === 3 ? 'hard' : c.tier === 2 ? 'medium' : 'easy'
     const seal = skillTreeNumber(c.root)
@@ -470,9 +471,10 @@ export function generateDailyQuests(user) {
       supportsClass: !!equippedRoute,
     }
     const multi = detectMultiDay(c.text)
-    if (multi) {
+    // Only offer multi-day when a commitment slot is free (max 2 active)
+    if (multi && multiDayOfferSlots > 0) {
       quest.multiDay = { totalDays: multi.totalDays }
-      multiDayStarts.push(quest)
+      multiDayOfferSlots -= 1
     }
     return quest
   })
@@ -580,10 +582,6 @@ export function generateDailyQuests(user) {
   persistGenQuests(record)
   dispatch('scl:gen_quests_updated', { quests })
 
-  multiDayStarts.forEach((quest) => {
-    try { beginMultiDayQuest(quest) } catch { /* intentional */ }
-  })
-
   return quests
 }
 
@@ -633,10 +631,24 @@ export function getGeneratedQuests() {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
     if (raw && raw.date === todayStr()) {
-      const quests = (raw.quests || []).map(q => {
-        if (q?.multiDay?.totalDays) return q
+      let offerSlots = multiDaySlotsRemaining()
+      const quests = (raw.quests || []).map((q) => {
+        if (q?.multiDay?.started) return q
+        if (q?.multiDay?.totalDays) {
+          if (offerSlots > 0) {
+            offerSlots -= 1
+            return q
+          }
+          // Already at commitment cap — demote unstarted multi-day offers
+          const { multiDay: _drop, ...rest } = q
+          return rest
+        }
         const multiDay = detectMultiDay(q?.title || '')
-        return multiDay ? { ...q, multiDay } : q
+        if (multiDay && offerSlots > 0) {
+          offerSlots -= 1
+          return { ...q, multiDay }
+        }
+        return q
       })
       return { quests, cycleLabel: raw.cycleLabel || '', cycleNumber: raw.cycleNumber || null }
     }
@@ -707,9 +719,20 @@ export function getJournalPrompt(number, type, questId) {
 }
 
 // ── Multi-day detection ───────────────────────────────────────────────────────
+/** Max incomplete commitments tracked at once (check-ins + finish). */
+export const MAX_ACTIVE_MULTIDAY = 2
+
 export function detectMultiDay(text) {
   const m = text.match(/(\d+)\s+consecutive\s+days?/i) || text.match(/(\d+)\s+days\b/i)
   return m ? { totalDays: parseInt(m[1]) } : null
+}
+
+export function countActiveMultiDay() {
+  return Object.values(getActiveMultiDayQuests()).filter((q) => !q.completed).length
+}
+
+export function multiDaySlotsRemaining() {
+  return Math.max(0, MAX_ACTIVE_MULTIDAY - countActiveMultiDay())
 }
 
 // ── Reflection storage ────────────────────────────────────────────────────────
@@ -879,7 +902,24 @@ window.Achievements_statState = statState  // for achievements.js
 const LS_MULTIDAY = 'scl_multiday_quests'
 
 export function getActiveMultiDayQuests() {
-  try { return JSON.parse(localStorage.getItem(LS_MULTIDAY) || '{}') } catch { return {} }
+  try {
+    const map = JSON.parse(localStorage.getItem(LS_MULTIDAY) || '{}')
+    const active = Object.entries(map).filter(([, q]) => q && !q.completed)
+    if (active.length <= MAX_ACTIVE_MULTIDAY) return map
+
+    // Soft-prune excess incomplete commitments (keep newest starts)
+    active.sort((a, b) => {
+      const aStart = a[1]?.multiDay?.startDate || ''
+      const bStart = b[1]?.multiDay?.startDate || ''
+      if (aStart !== bStart) return bStart.localeCompare(aStart)
+      return (b[1]?.multiDay?.checkins?.length || 0) - (a[1]?.multiDay?.checkins?.length || 0)
+    })
+    const drop = new Set(active.slice(MAX_ACTIVE_MULTIDAY).map(([id]) => id))
+    const next = { ...map }
+    for (const id of drop) delete next[id]
+    _saveMultiDay(next)
+    return next
+  } catch { return {} }
 }
 
 function _saveMultiDay(map) {
@@ -897,6 +937,14 @@ export function beginMultiDayQuest(quest) {
   if (!quest.multiDay) return { ok: false, error: 'Not a multi-day quest' }
   const map = getActiveMultiDayQuests()
   if (map[quest.id]) return { ok: false, error: 'Already tracking' }
+
+  const activeCount = Object.values(map).filter((q) => !q.completed).length
+  if (activeCount >= MAX_ACTIVE_MULTIDAY) {
+    return {
+      ok: false,
+      error: `Max ${MAX_ACTIVE_MULTIDAY} active commitments — finish or check in on one first`,
+    }
+  }
 
   const today = todayStr()
   map[quest.id] = {
@@ -957,7 +1005,7 @@ export function checkinMultiDayQuest(questId) {
 
   _saveMultiDay(map)
   dispatch('scl:gen_quests_updated', {})
-  return { ok: true, daysLeft, streak: newStreak, isComplete, missedDay }
+  return { ok: true, daysLeft, streak: newStreak, isComplete, missedDay, xpAwarded: 10 }
 }
 
 /** Complete a multi-day quest with journal reflection. Awards streak-scaled XP. */
@@ -1007,6 +1055,20 @@ export function completeMultiDayQuest(questId, journalText) {
 
   saveGenReflection(questId + '_complete', trimmed, quest)
   dispatch('scl:xp_toast', { msg: `⚡ ${mult.toFixed(1)}× STREAK · +${finalXP} XP`, color: 'var(--gold)' })
+
+  // Mark today's journal slot done so progress / chapters stay honest
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
+    if (raw?.date === todayStr()) {
+      const q = raw.quests.find(x => x.id === questId)
+      if (q && !q.completed) {
+        q.completed = true
+        q.completedAt = Date.now()
+        persistGenQuests(raw)
+      }
+    }
+  } catch { /* intentional */ }
+
   dispatch('scl:gen_quests_updated', {})
 
   updateDailySummary({

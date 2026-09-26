@@ -27,6 +27,14 @@ function AppRoot() {
   // Keep questEngine's window global in sync with playerData
   useEffect(() => {
     window.__scl_playerData__ = playerData || undefined
+    if (playerData?.m != null && playerData?.d != null) {
+      try {
+        localStorage.setItem('scl_birth_md', JSON.stringify({
+          m: Number(playerData.m),
+          d: Number(playerData.d),
+        }))
+      } catch { /* intentional */ }
+    }
     if (playerData) {
       hydrateGenQuestsFromCloud(() => ensureDailyQuests(playerData))
       hydrateSeasonStateFromCloud(() => {})

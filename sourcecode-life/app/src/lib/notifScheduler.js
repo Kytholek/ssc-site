@@ -4,12 +4,15 @@
  */
 
 import { getNotifPrefs, getUncheckedMultiDayQuests } from './numerologyQuests'
-import { todayStr } from './numerology'
+import { calcPersonalDay, todayStr } from './numerology'
+import { CYCLE_MEANINGS } from './data'
 
 const LS_FIRED = 'scl_notif_fired_v1'
+const LS_BIRTH = 'scl_birth_md'
 const DEFAULT_DAILY_HOUR = 9
 const DEFAULT_DAILY_MINUTE = 0
 const TICK_MS = 60 * 1000
+const BODY_MAX = 160
 
 function loadFired() {
   try {
@@ -21,6 +24,56 @@ function loadFired() {
 
 function saveFired(map) {
   try { localStorage.setItem(LS_FIRED, JSON.stringify(map)) } catch { /* quota */ }
+}
+
+function cacheBirthMd(m, d) {
+  if (m == null || d == null) return
+  try { localStorage.setItem(LS_BIRTH, JSON.stringify({ m: Number(m), d: Number(d) })) } catch { /* quota */ }
+}
+
+function resolveBirthMd() {
+  try {
+    const pd = typeof window !== 'undefined' ? window.__scl_playerData__ : null
+    if (pd?.m != null && pd?.d != null) {
+      cacheBirthMd(pd.m, pd.d)
+      return { m: Number(pd.m), d: Number(pd.d) }
+    }
+  } catch { /* intentional */ }
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_BIRTH) || 'null')
+    if (raw?.m != null && raw?.d != null) return { m: Number(raw.m), d: Number(raw.d) }
+  } catch { /* intentional */ }
+  return null
+}
+
+function clipBody(text) {
+  const s = String(text || '').trim()
+  if (s.length <= BODY_MAX) return s
+  return `${s.slice(0, BODY_MAX - 1).trimEnd()}…`
+}
+
+/** Build title/body from today's personal-day energy. */
+export function buildDailyEnergyNotification(asOf = new Date()) {
+  const birth = resolveBirthMd()
+  if (!birth) {
+    return {
+      title: 'Quest Journal ready',
+      body: 'Your daily Alignment and class quests are waiting.',
+    }
+  }
+
+  const pd = calcPersonalDay(birth.m, birth.d, asOf)
+  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
+  const theme = meaning.theme || 'Daily Alignment'
+  const summary = meaning.summary
+    || `Personal day ${pd.root} — open your Quest Journal for today's alignment.`
+
+  return {
+    title: `Day ${pd.root} · ${theme}`,
+    body: clipBody(summary),
+    root: pd.root,
+    theme,
+  }
 }
 
 function send(title, body) {
@@ -65,8 +118,15 @@ export function tickNotifScheduler({
   const now = new Date()
   const out = []
 
+  // Keep birth date cached whenever player data is available
+  try {
+    const pd = window.__scl_playerData__
+    if (pd?.m != null && pd?.d != null) cacheBirthMd(pd.m, pd.d)
+  } catch { /* intentional */ }
+
   if (prefs.dailyReminder && fired.daily !== today && pastDailyWindow(now, dailyHour, dailyMinute)) {
-    send('Quest Journal ready', 'Your daily Alignment and class quests are waiting.')
+    const energy = buildDailyEnergyNotification(now)
+    send(energy.title, energy.body)
     fired.daily = today
     out.push('daily')
   }

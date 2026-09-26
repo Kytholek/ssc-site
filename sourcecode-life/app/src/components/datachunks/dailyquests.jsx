@@ -108,29 +108,45 @@ function questMultiDay(quest) {
   return detectMultiDay(quest?.title || '')
 }
 
-function MultiDayPips({ totalDays }) {
+function MultiDayPips({ totalDays, daysDone = 0 }) {
   const days = Math.max(0, Number(totalDays) || 0)
   if (!days) return null
 
+  const done = Math.max(0, Math.min(days, Number(daysDone) || 0))
   // Cap raw pips so 30-day stays readable; denser weeks for longer runs
   const maxPips = days <= 7 ? days : days <= 14 ? days : 10
+  const filledCount = Math.round((done / days) * maxPips)
   const pips = Array.from({ length: maxPips }, (_, i) => i)
 
   return (
     <span
       className="qj-entry-multiday"
-      title={`${days}-day multi-day commitment`}
-      aria-label={`${days}-day multi-day quest`}
+      title={`${done}/${days} days · multi-day commitment`}
+      aria-label={`${done} of ${days} days complete`}
     >
       <span className="qj-multiday-pips" aria-hidden="true">
         {pips.map(i => (
-          <span key={i} className="qj-multiday-pip" />
+          <span
+            key={i}
+            className={`qj-multiday-pip${i < filledCount ? ' qj-multiday-pip--filled' : ''}`}
+          />
         ))}
         {days > maxPips && <span className="qj-multiday-pip qj-multiday-pip--more" />}
       </span>
-      <span className="qj-multiday-label">{days}-DAY</span>
+      <span className="qj-multiday-label">{done > 0 ? `${done}/${days}` : `${days}-DAY`}</span>
     </span>
   )
+}
+
+function isMultiDayCommitted(quest) {
+  if (quest?.multiDay?.started) return true
+  if (!quest?.id) return false
+  try {
+    const active = getActiveMultiDayQuests()
+    return !!(active[quest.id] && !active[quest.id].completed)
+  } catch {
+    return false
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -167,12 +183,29 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
       return
     }
 
-    const xpAmount = (result && result.xpAwarded != null) ? result.xpAwarded : quest.rewardXP
-    const isResonant = quest.isResonant
     const questColor = source.color
     const rect = rowRef.current?.getBoundingClientRect()
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
     const y = rect ? rect.top + 40 : window.innerHeight / 2
+
+    // Multi-day carve starts a commitment — no full XP / complete FX
+    if (result?.multiDayStarted) {
+      try {
+        showParticleBurst({ color: questColor, x, y, count: 8 })
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: { msg: 'Moved to Active Commitments', color: questColor },
+        }))
+      } catch (e) {
+        console.warn('Commitment start feedback error:', e)
+      }
+      setText('')
+      setError('')
+      if (expanded) onToggle()
+      return
+    }
+
+    const xpAmount = (result && result.xpAwarded != null) ? result.xpAwarded : quest.rewardXP
+    const isResonant = quest.isResonant
 
     try {
       showFloatingXP({ xp: xpAmount, color: questColor, x, y })
@@ -255,7 +288,7 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
         <div className="qj-carve">
           {multiDays > 0 && (
             <p className="qj-carve-multiday-note">
-              Multi-day commitment · {multiDays} consecutive days
+              Starts a {multiDays}-day commitment · check in daily for XP · full reward on finish
             </p>
           )}
           <p className="qj-carve-prompt" id={`qj-prompt-${quest.id}`}>{prompt}</p>
@@ -275,9 +308,13 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
             <span className={`qj-carve-count${count >= 30 ? ' qj-carve-count--ready' : ''}`}>
               {count}/30
             </span>
-            <span className="qj-carve-xp" style={{ color: diffMeta.color }}>+{quest.rewardXP} XP</span>
+            {multiDays > 0 ? (
+              <span className="qj-carve-xp">XP on finish</span>
+            ) : (
+              <span className="qj-carve-xp" style={{ color: diffMeta.color }}>+{quest.rewardXP} XP</span>
+            )}
             <button type="button" className="qj-carve-submit" onClick={handleSubmit}>
-              ▶ CARVE & COMPLETE
+              {multiDays > 0 ? `▶ BEGIN ${multiDays}-DAY` : '▶ CARVE & COMPLETE'}
             </button>
           </div>
           {error && (
@@ -311,7 +348,8 @@ function QuestChapters({
 
   if (!genQuests && !alignmentSlot) return null
 
-  const active = (genQuests || []).filter(q => !q.completed)
+  // Started multi-days live in Active Commitments — hide from chapter rows
+  const active = (genQuests || []).filter(q => !q.completed && !isMultiDayCommitted(q))
   const done = (genQuests || []).filter(q => q.completed)
   const filled = getFilledSlots(loadout)
   const loadoutEmpty = filled.length === 0
@@ -541,6 +579,7 @@ function ActiveCommitmentsStrip({ refreshKey }) {
   const [text, setText] = useState('')
   const [error, setError] = useState('')
   const [, bump] = useState(0)
+  const stripRef = useRef(null)
 
   useEffect(() => {
     const onUpdate = () => bump((n) => n + 1)
@@ -565,6 +604,33 @@ function ActiveCommitmentsStrip({ refreshKey }) {
       return
     }
     setError('')
+
+    const xpAmount = res.xpAwarded != null ? res.xpAwarded : 10
+    const rect = stripRef.current?.getBoundingClientRect()
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const y = rect ? rect.top + 36 : window.innerHeight / 2
+
+    try {
+      showFloatingXP({ xp: xpAmount, color: 'var(--rose, #ff2d55)', x, y })
+      if (res.missedDay) {
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: {
+            msg: `Streak reset · +${xpAmount} XP · day checked in`,
+            color: 'var(--rose, #ff2d55)',
+          },
+        }))
+      } else {
+        window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+          detail: {
+            msg: `+${xpAmount} XP · streak ${res.streak || 1}`,
+            color: 'var(--teal, #00c9ff)',
+          },
+        }))
+      }
+    } catch (e) {
+      console.warn('Check-in feedback error:', e)
+    }
+
     if (res.isComplete) setCompleteId(questId)
     refresh()
   }
@@ -582,7 +648,7 @@ function ActiveCommitmentsStrip({ refreshKey }) {
   }
 
   return (
-    <section className="qj-commitments" aria-label="Active commitments" data-refresh={refreshKey}>
+    <section ref={stripRef} className="qj-commitments" aria-label="Active commitments" data-refresh={refreshKey}>
       <h3 className="qj-commitments-label">
         <span aria-hidden="true">◉</span>
         <span>Active Commitments</span>
@@ -600,7 +666,8 @@ function ActiveCommitmentsStrip({ refreshKey }) {
               <div className="qj-commitment-main">
                 <span className="qj-commitment-title">{q.title}</span>
                 <span className="qj-commitment-meta">
-                  {daysDone}/{total} days · streak {q.multiDay?.streak || 0}
+                  <MultiDayPips totalDays={total} daysDone={daysDone} />
+                  <span>streak {q.multiDay?.streak || 0}</span>
                 </span>
               </div>
               <div className="qj-commitment-actions">
@@ -760,12 +827,16 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
 
   const genQuests = genState?.quests ?? null
   const genCompleted = genQuests ? genQuests.filter(q => q.completed).length : 0
+  const genCommitted = genQuests
+    ? genQuests.filter(q => !q.completed && isMultiDayCommitted(q)).length
+    : 0
   const genTotal = genQuests ? genQuests.length : 0
   const dailyCompleted = daily?.completed ? 1 : 0
   const totalCompleted = dailyCompleted + genCompleted
   const totalQuests = 1 + genTotal
   const allDone = totalQuests > 0 && totalCompleted >= totalQuests
-  const openCount = (daily?.completed ? 0 : 1) + (genTotal - genCompleted)
+  // Open = carveable journal rows (exclude commitments already moved to the strip)
+  const openCount = (daily?.completed ? 0 : 1) + (genTotal - genCompleted - genCommitted)
 
   const pd = calcPersonalDay(m, d)
   const cfg = CYCLE_QUEST_COLORS.personalDay

@@ -44,7 +44,7 @@ const NOTIF_ITEMS = [
   {
     key: 'dailyReminder',
     label: 'Daily Quest Reminder',
-    desc: 'Morning notification when your daily quests are ready',
+    desc: 'Morning notification with today’s personal-day energy (theme + guidance)',
   },
   {
     key: 'questOnMap',
@@ -89,7 +89,7 @@ function NotificationsSection() {
     <section className="settings-section">
       <h3 className="settings-section-title">NOTIFICATIONS</h3>
       <p className="notif-perm-warning" style={{ marginBottom: 10 }}>
-        Daily and multi-day reminders fire around 9:00 local while this tab is open (once per day).
+        Daily reminder includes today’s personal-day energy. Reminders fire around 9:00 local while this tab is open (once per day).
       </p>
 
       {permState === 'denied' && (

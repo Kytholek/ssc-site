@@ -922,9 +922,11 @@ function initHomePage() {
     initHomeStickyCta();
     initHomeCtaTracking();
     initSclCarousel();
+    initSclInstallScroll();
     _homePageInited = true;
   }
   initSclCarousel();
+  initSclInstallScroll();
   enableHomeSnap();
   requestAnimationFrame(function () { enableHomeSnap(); });
 }
@@ -1496,6 +1498,23 @@ function initSclCarousel() {
     if (Math.abs(dx) < 40) return;
     if (dx < 0) next(); else prev();
     restart();
+  });
+}
+
+function initSclInstallScroll() {
+  var details = document.querySelector('.hp-scl-install-details');
+  if (!details || details.dataset.scrollReady === '1') return;
+  details.dataset.scrollReady = '1';
+  details.addEventListener('toggle', function () {
+    if (!details.open) return;
+    var last = details.querySelector('.hp-scl-install-step:last-child');
+    var scroller = document.querySelector('html.hp-snapping .hp-scl-wrap') || details.closest('.hp-scl-wrap');
+    if (last && scroller && scroller.scrollHeight > scroller.clientHeight + 8) {
+      var top = last.getBoundingClientRect().bottom - scroller.getBoundingClientRect().bottom + scroller.scrollTop + 24;
+      scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      return;
+    }
+    if (last && last.scrollIntoView) last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
 }
 

@@ -1129,7 +1129,21 @@ html.hp-snapping .hp-use-offer {
 }
 html.hp-snapping .hp-scl-section {
   overflow: hidden;
-  justify-content: center;
+  justify-content: flex-start;
+}
+html.hp-snapping .hp-scl-wrap {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  flex: 1 1 auto;
+  max-height: 100%;
+  padding-bottom: 112px;
+  scroll-padding-bottom: 112px;
+  -webkit-overflow-scrolling: touch;
+}
+html.hp-snapping .hp-scl-install-step:last-child {
+  scroll-margin-bottom: 120px;
 }
 html.hp-snapping .hp-scl-inner {
   gap: 48px;

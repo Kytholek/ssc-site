@@ -49,7 +49,7 @@ export default function QuestCompletionChart({ range = 30 }) {
       {showInfo && <div className="data-chart-tooltip">Shows daily quest completions over the past {range} days. Gold highlights indicate resonant quest completions.</div>}
       <svg viewBox={`0 0 ${chartW} ${chartH + padTop + padBottom}`} className="data-chart-svg">
         {[0, 0.25, 0.5, 0.75, 1].map(pct => (
-          <line key={pct} x1={0} y1={padTop + chartH * (1 - pct)} x2={chartW} y2={padTop + chartH * (1 - pct)} stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+          <line key={pct} x1={0} y1={padTop + chartH * (1 - pct)} x2={chartW} y2={padTop + chartH * (1 - pct)} stroke="currentColor" strokeWidth={1} />
         ))}
         {data.map((d, i) => {
           const barH = (d.completed / maxVal) * chartH
@@ -62,7 +62,7 @@ export default function QuestCompletionChart({ range = 30 }) {
               <rect x={x} y={y} width={barW} height={barH} rx={1} fill={isToday ? 'var(--teal)' : isResonant ? 'rgba(201,168,76,0.6)' : 'rgba(0,229,204,0.4)'} opacity={isToday ? 1 : 0.8} />
               {d.resonant > 0 && <rect x={x} y={y + barH * 0.3} width={barW} height={barH * 0.7} rx={1} fill="rgba(201,168,76,0.3)" />}
               {data.length <= 14 && i % Math.ceil(data.length / 7) === 0 && (
-                <text x={x + barW / 2} y={padTop + chartH + 14} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={7} fill="rgba(255,255,255,0.25)">{DAYS_LABELS[new Date(d.date + 'T00:00:00').getDay()]}</text>
+                <text x={x + barW / 2} y={padTop + chartH + 14} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={7} fill="var(--text-dim)">{DAYS_LABELS[new Date(d.date + 'T00:00:00').getDay()]}</text>
               )}
             </g>
           )

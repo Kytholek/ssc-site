@@ -3872,13 +3872,18 @@
 
 /* -- FANTASY: flow chart dark regions (purpose/identity/lessons) */
 [data-theme="fantasy"] .lqt-flow-wrap,
-[data-theme="fantasy"] .react-flow__renderer {
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__renderer {
   background: #0a0a18 !important;
   border-radius: 8px;
   border: 1px solid rgba(200,160,64,0.2);
 }
-[data-theme="fantasy"] .react-flow__pane {
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__pane {
   background: #0a0a18 !important;
+}
+[data-theme="fantasy"] .skills-branch-canvas .react-flow__renderer,
+[data-theme="fantasy"] .skills-branch-canvas .react-flow__pane {
+  background: transparent !important;
+  border: none;
 }
 /* Flow edge lines â€” brighter on parchment context */
 [data-theme="fantasy"] .react-flow__edge-path {

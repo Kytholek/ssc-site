@@ -109,11 +109,11 @@ export default function PolarityStatCard() {
               return (
                 <>
                   <text x={CENTER} y={CENTER - 4} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={9} fill={meta.color} fontWeight="700">{meta.icon}</text>
-                  <text x={CENTER} y={CENTER + 8} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={6} fill="rgba(255,255,255,0.35)" letterSpacing="0.06em">{meta.label.slice(0, 6)}</text>
+                  <text x={CENTER} y={CENTER + 8} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={6} fill="var(--text-dim)" letterSpacing="0.06em">{meta.label.slice(0, 6)}</text>
                 </>
               )
             })() : (
-              <text x={CENTER} y={CENTER} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={7} fill="rgba(255,255,255,0.2)">NO DATA</text>
+              <text x={CENTER} y={CENTER} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={7} fill="var(--text-dim)">NO DATA</text>
             )}
           </svg>
           {/* Polarity breakdown */}
@@ -178,8 +178,8 @@ export default function PolarityStatCard() {
             )
           })}
           <div className="psc-dev-legend">
-            <span className="psc-dev-legend-item"><span className="psc-dev-legend-swatch" style={{ background: 'rgba(255,255,255,0.15)' }} />Innate</span>
-            <span className="psc-dev-legend-item"><span className="psc-dev-legend-swatch" style={{ background: 'rgba(255,255,255,0.5)' }} />Active</span>
+            <span className="psc-dev-legend-item"><span className="psc-dev-legend-swatch" style={{ background: 'color-mix(in srgb, var(--text) 28%, transparent)' }} />Innate</span>
+            <span className="psc-dev-legend-item"><span className="psc-dev-legend-swatch" style={{ background: 'color-mix(in srgb, var(--text) 62%, transparent)' }} />Active</span>
           </div>
         </div>
       )}

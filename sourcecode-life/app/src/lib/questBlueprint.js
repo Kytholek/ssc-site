@@ -31,33 +31,39 @@ function unlockedBlueprintKeys(playerData, freqLevel = 1) {
 
 /**
  * Find a blueprint node whose root matches the given frequency.
- * Returns null when no unlocked node shares that root.
+ * Returns null when no node shares that root.
+ * Level locks are ignored when options.ignoreUnlock is set, so a personal day
+ * can still land on its real number before that node is open on the map.
  */
-export function findBlueprintKeyByRoot(playerData, root, freqLevel = 1) {
+export function findBlueprintKeyByRoot(playerData, root, freqLevel = 1, options = {}) {
   if (!playerData || root == null) return null
   const simple = reduceToSimple(root)
-  for (const key of unlockedBlueprintKeys(playerData, freqLevel)) {
+  const keys = options.ignoreUnlock
+    ? BLUEPRINT_NODES.filter((key) => playerData[key])
+    : unlockedBlueprintKeys(playerData, freqLevel)
+  for (const key of keys) {
     if (reduceToSimple(playerData[key].root) === simple) return key
   }
   return null
 }
 
 /**
- * Pick blueprint node: personal day root → personal month root → cl (Life Calling).
+ * Pick the blueprint node that shares the cycle number.
+ * prefer 'day' checks the personal day first; 'month' checks the personal month first.
+ * A locked node still wins when it is the only one with that number.
+ * A different number is used only when neither cycle matches any node.
  */
-export function resolveBlueprintNode(playerData, pd, pm, freqLevel = 1) {
+export function resolveBlueprintNode(playerData, pd, pm, freqLevel = 1, prefer = 'day') {
   if (!playerData) return 'cl'
 
-  const simpleDay = reduceToSimple(pd.root)
-  const simpleMonth = reduceToSimple(pm.root)
-  const unlocked = unlockedBlueprintKeys(playerData, freqLevel)
+  const order = prefer === 'month' ? ['month', 'day'] : ['day', 'month']
+  for (const which of order) {
+    const root = which === 'day' ? pd?.root : pm?.root
+    const key = findBlueprintKeyByRoot(playerData, root, freqLevel, { ignoreUnlock: true })
+    if (key) return key
+  }
 
-  for (const key of unlocked) {
-    if (reduceToSimple(playerData[key].root) === simpleDay) return key
-  }
-  for (const key of unlocked) {
-    if (reduceToSimple(playerData[key].root) === simpleMonth) return key
-  }
+  const unlocked = unlockedBlueprintKeys(playerData, freqLevel)
   if (unlocked.includes('cl')) return 'cl'
   return unlocked[0] || 'cl'
 }
@@ -85,9 +91,12 @@ export function resolveDailyBlueprint(playerData, freqLevel = 1) {
   const pd = calcPersonalDay(m, d)
   const pm = calcPersonalMonth(m, d)
 
-  const questKey = resolveBlueprintNode(playerData, pd, pm, freqLevel)
-  const tier = getActiveTier(questKey)
-  const nodeRoot = playerData[questKey]?.root ?? pd.root
+  const dayKey = findBlueprintKeyByRoot(playerData, pd.root, freqLevel, { ignoreUnlock: true })
+  const dayUnlock = BLUEPRINT_UNLOCK_LV[dayKey] ?? 0
+  const dayNodeOpen = !!dayKey && freqLevel >= dayUnlock
+  const questKey = dayNodeOpen ? dayKey : null
+  const tier = questKey ? getActiveTier(questKey) : 1
+  const nodeRoot = questKey ? (playerData[questKey]?.root ?? pd.root) : pd.root
 
   const dayPool = getPersonalDayGlyphPool(pd.root)
   const dayGlyphs = dayPool.slice(0, 2).map((o) => ({
@@ -122,17 +131,19 @@ export function resolveDailyBlueprint(playerData, freqLevel = 1) {
     })
   }
 
-  const heroLink = pickFirstIncompleteObjective(questKey, tier, nodeRoot)
-  const dayObjMeta = { questKey, tier, objIdx: heroLink.objIdx }
-  const blueprintLabel = `${questKey.toUpperCase()} · ${TIER_LABELS[tier]} objective ${heroLink.objIdx + 1}`
+  const heroLink = questKey ? pickFirstIncompleteObjective(questKey, tier, nodeRoot) : null
+  const dayObjMeta = heroLink ? { questKey, tier, objIdx: heroLink.objIdx } : null
+  const blueprintLabel = heroLink
+    ? `${questKey.toUpperCase()} · ${TIER_LABELS[tier]} objective ${heroLink.objIdx + 1}`
+    : null
 
-  const dayRootMatch = reduceToSimple(nodeRoot) === reduceToSimple(pd.root)
+  const dayRootMatch = !!questKey && reduceToSimple(nodeRoot) === reduceToSimple(pd.root)
 
   return {
     questKey,
     tier,
-    objIdx: heroLink.objIdx,
-    dayObj: heroLink.text,
+    objIdx: heroLink?.objIdx ?? null,
+    dayObj: heroLink?.text || null,
     dayObjMeta,
     questRoot: nodeRoot,
     dayGlyphs,

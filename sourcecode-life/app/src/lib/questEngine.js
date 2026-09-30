@@ -18,7 +18,7 @@ import { getTieredObjectiveTexts, isTierListComplete } from './objectives'
 import { resolveDailyBlueprint } from './questBlueprint'
 import { updateDailySummary, recordDailySnapshot } from './dataHistory'
 import { ACTIONS } from '../state/actions'
-import { todayStr, legacyTodayStr, calcPersonalDay } from './numerology'
+import { todayStr, legacyTodayStr, calcPersonalDay, reduceToSimple } from './numerology'
 import {
   applyQuestSkillReward,
   sanitizeSkillTreeProgress,
@@ -557,7 +557,14 @@ export function getDailyQuestState() {
       dayRootMatch: blueprint?.dayRootMatch ?? prev?.dayRootMatch ?? false,
     };
     try { localStorage.setItem(LS_DAILY_Q, JSON.stringify(d)); } catch { /* intentional */ }
-  } else if (blueprint && !d.dayObjMeta && !d.completed) {
+  } else if (
+    blueprint &&
+    !d.completed &&
+    (
+      !d.dayObjMeta ||
+      reduceToSimple(blueprint.questRoot) !== reduceToSimple(d.questRoot)
+    )
+  ) {
     d.dayObj = blueprint.dayObj
     d.dayObjMeta = blueprint.dayObjMeta
     d.questRoot = blueprint.questRoot
@@ -591,14 +598,6 @@ export function QuestEngine_completeDailyQuest(lpRoot) {
 
   const resonant = !!d.dayRootMatch;
   const dailyXP = Math.round(XP_AWARDS.daily * (resonant ? 2 : 1.5));
-
-  // Mark life quest objective if linked (skill pip awarded once below)
-  try {
-    if (d.dayObjMeta) {
-      const { questKey, tier, objIdx } = d.dayObjMeta;
-      QuestEngine_markLQPObjective(questKey, tier, objIdx, { skipSkillReward: true });
-    }
-  } catch { /* intentional */ }
 
   const dayRoot = _getPersonalDayRoot(lpRoot);
   applyQuestSkillReward({ root: dayRoot, questKind: 'daily', difficulty: 'easy' }, earnStatXP, _dispatch);

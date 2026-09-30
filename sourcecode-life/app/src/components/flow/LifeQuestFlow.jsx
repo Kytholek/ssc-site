@@ -8,15 +8,8 @@ import { fmt } from '../../lib/numerology'
 import FlowDetailPanel from './FlowDetailPanel'
 import FlowProgressNode from './FlowProgressNode'
 import { useAppDispatch } from '../../context/AppContext'
-import { useGameDispatch } from '../../state/GameContext'
-import { ACTIONS } from '../../state/actions'
-import {
-  QuestEngine_markLQPObjective,
-  earnStatXP,
-  getLQP,
-} from '../../lib/questEngine'
-import { applyQuestSkillReward } from '../../lib/skillQuestBridge'
 import { getTierObjectiveCount, isTierListComplete } from '../../lib/objectives'
+import { getGeneratedQuests, getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 import { resolveThemeColor } from './flowNodeConstants'
 
 const LIFE_NODE_SIZE = 72
@@ -57,6 +50,21 @@ const NODE_ICONS = {
 
 function resolveColor(colorToken) {
   return { hex: resolveThemeColor(colorToken) }
+}
+
+function sameLifeObjective(quest, questKey, tier, objIdx) {
+  const meta = quest?.lqpMeta
+  if (!meta || quest.completed) return false
+  return meta.questKey === questKey
+    && Number(meta.tier) === Number(tier)
+    && Number(meta.objIdx) === Number(objIdx)
+}
+
+/** True when this life objective is one of today's journal rows or an open commitment. */
+function lifeObjectiveOfferedToday(questKey, tier, objIdx) {
+  const gen = getGeneratedQuests()
+  if ((gen?.quests || []).some((q) => sameLifeObjective(q, questKey, tier, objIdx))) return true
+  return Object.values(getActiveMultiDayQuests() || {}).some((q) => sameLifeObjective(q, questKey, tier, objIdx))
 }
 
 const TIER_LABELS = { 1: 'APPRENTICE', 2: 'ADEPT', 3: 'MASTER' }
@@ -110,7 +118,6 @@ export default function LifeQuestFlow({
   const [selectedObjective, setSelectedObjective] = useState(null)
   const [zoomLock, setZoomLock] = useState(null)
   const dispatch = useAppDispatch()
-  const gameDispatch = useGameDispatch()
 
   useEffect(() => {
     setSelectedObjective(null)
@@ -121,27 +128,9 @@ export default function LifeQuestFlow({
     setSelectedObjective(null)
   }, [])
 
-  const handleCompleteObjective = useCallback(() => {
-    if (!selectedObjective || selectedObjective.done) return
-    const { questKey, tier, objIdx } = selectedObjective
-    const root = numMap[questKey]?.root
-    const difficulty = tier === 3 ? 'hard' : tier === 2 ? 'medium' : 'easy'
-
-    QuestEngine_markLQPObjective(questKey, tier, objIdx, { skipSkillReward: true })
-    if (root != null) {
-      applyQuestSkillReward(
-        { root, tier, questKind: 'life', difficulty },
-        earnStatXP,
-        (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail: detail || null })),
-      )
-    }
-    gameDispatch({ type: ACTIONS.REFRESH_LQP, payload: getLQP() })
-    gameDispatch({
-      type: ACTIONS.SET_TOAST,
-      payload: { msg: '✦ Life objective complete', color: 'var(--teal)' },
-    })
-    setSelectedObjective((prev) => (prev ? { ...prev, done: true } : null))
-  }, [selectedObjective, numMap, gameDispatch])
+  const openJournal = useCallback(() => {
+    dispatch({ type: 'SET_TAB', payload: 'home', section: 'journal' })
+  }, [dispatch])
 
   const selData = selected
     ? {
@@ -250,6 +239,9 @@ export default function LifeQuestFlow({
     }))
   ), [])
 
+  const offeredToday = selectedObjective
+    ? lifeObjectiveOfferedToday(selectedObjective.questKey, selectedObjective.tier, selectedObjective.objIdx)
+    : false
   const panelOpen = !!selected
   const panelTitle = selectedObjective
     ? (nodeMeta[selectedObjective.questKey]?.label || 'Quest Objective')
@@ -316,22 +308,20 @@ export default function LifeQuestFlow({
               </div>
             </div>
             <div className="objective-detail-actions">
-              {!selectedObjective.done && (
+              {!selectedObjective.done && offeredToday && (
                 <button
                   type="button"
                   className="objective-detail-btn objective-detail-btn--complete"
-                  onClick={handleCompleteObjective}
+                  onClick={openJournal}
                 >
-                  Complete
+                  Write today’s journal
                 </button>
               )}
-              <button
-                type="button"
-                className="objective-detail-journal-link"
-                onClick={() => dispatch({ type: 'SET_TAB', payload: 'home', section: 'journal' })}
-              >
-                Open in Home journal →
-              </button>
+              {!selectedObjective.done && !offeredToday && (
+                <p className="objective-detail-wait">
+                  This objective returns when the daily journal offers it. It cannot be marked done from this map.
+                </p>
+              )}
             </div>
           </div>
         ) : (

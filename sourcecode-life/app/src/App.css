@@ -18017,6 +18017,13 @@ body.scl-realm-open .tab-bar {
   font-family: 'Crimson Text', serif;
 }
 .objective-detail-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.objective-detail-wait {
+  margin: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+}
 .objective-detail-btn {
   padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600;
   cursor: pointer; border: 1px solid transparent; transition: all 0.15s;

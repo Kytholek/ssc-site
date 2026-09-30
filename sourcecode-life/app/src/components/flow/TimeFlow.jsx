@@ -393,7 +393,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
             )}
             {selNode.key === 'personalMonth' && (() => {
               const blueprintKey = monthSeasonState?.lockedObj?.questKey
-                || (playerData ? resolveBlueprintNode(playerData, pd, pm, freqLevel) : 'cl')
+                || (playerData ? resolveBlueprintNode(playerData, pd, pm, freqLevel, 'month') : 'cl')
               const tier = getActiveTier(blueprintKey) || 1
               const tierName = ['APPRENTICE', 'ADEPT', 'MASTER'][tier - 1]
               const tierDays = monthSeasonState?.tierDays || 7

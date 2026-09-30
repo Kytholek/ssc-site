@@ -22,6 +22,7 @@ import {
   buildQuestUserProfile,
 } from '../../lib/numerologyQuests'
 import { todayStr } from '../../lib/numerology'
+import { BLUEPRINT_UNLOCK_LV } from '../../lib/questBlueprint'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
 import {
@@ -295,7 +296,9 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
           <textarea
             ref={inputRef}
             className="qj-carve-input"
-            placeholder="Write down your experience..."
+            placeholder={quest.source === 'life' || quest.type === 'objective'
+              ? 'What you did, when, and what changed...'
+              : 'Write down your experience...'}
             value={text}
             onChange={e => { setText(e.target.value); setError('') }}
             rows={4}
@@ -561,7 +564,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
         {objectives.map((o, i) => <li key={i}>{o}</li>)}
       </ul>
 
-      {daily.dayObj && (
+      {daily.dayObj && reduceToSimple(daily.questRoot) === dayRoot && (
         <div className="qj-align-life">
           <span aria-hidden="true">★ </span><span>{daily.dayObj}</span>
         </div>
@@ -795,7 +798,28 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
 
   useEffect(() => {
     if (!profileReady || !playerData) return
-    if (!getGeneratedQuests()) generateDailyQuests(buildQuestUserProfile(playerData, xp?.statXP))
+    const existing = getGeneratedQuests()
+    const dayRoot = reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)
+    const quests = existing?.quests || []
+    const hasDayQuest = quests.some(
+      (q) => q.cycleType === 'personalDay' && reduceToSimple(q.number) === dayRoot,
+    )
+    const freqLevel = xp?.freqLevel || 1
+    const lockedLife = quests.some((q) => {
+      const key = q.lqpMeta?.questKey
+      if (q.source !== 'life' || !key) return false
+      return freqLevel < (BLUEPRINT_UNLOCK_LV[key] ?? 0)
+    })
+    const dayClassEquipped = getFilledSlots(loadClassLoadout()).some(
+      (s) => reduceToSimple(s.number) === dayRoot,
+    )
+    const hasDaySkill = quests.some(
+      (q) => (q.source === 'skill' || q.type === 'skilltree') && reduceToSimple(q.number) === dayRoot,
+    )
+    const anyDone = quests.some((q) => q.completed)
+    if (!existing || (!anyDone && (!hasDayQuest || lockedLife || (dayClassEquipped && !hasDaySkill)))) {
+      generateDailyQuests(buildQuestUserProfile(playerData, xp?.statXP))
+    }
   }, [profileReady, playerData, xp?.statXP])
 
   const daySealForToast = playerData

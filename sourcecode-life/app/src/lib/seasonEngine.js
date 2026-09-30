@@ -3,7 +3,6 @@ import { getCycleObjectives, getCommitmentObjective, TIER_COMMITMENT_DAYS } from
 import { findBlueprintKeyByRoot } from './questBlueprint'
 import {
   QuestEngine_completeFreqQuest,
-  QuestEngine_markLQPObjective,
   getActiveTier,
   XP_AWARDS,
   earnStatXP,
@@ -330,12 +329,8 @@ export function completeMonthSeason(lpRoot, m, d) {
   QuestEngine_completeFreqQuest(`month_${yearKey}_${monthNum}`, XP_AWARDS.personal_month, root)
 
   if (state.lockedObj) {
-    const { tierAtLock, objIdx, questKey } = state.lockedObj
+    const { tierAtLock } = state.lockedObj
 
-    // Only advance Life Quest when the season frequency matches a blueprint node
-    if (questKey) {
-      QuestEngine_markLQPObjective(questKey, tierAtLock, objIdx ?? 2, { skipSkillReward: true })
-    }
     applyQuestSkillReward({
       root: pm.root,
       tier: tierAtLock || 1,

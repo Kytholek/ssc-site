@@ -437,7 +437,13 @@ export function generateDailyQuests(user) {
     return picked.slice(0, count)
   }
 
-  const skillPicked = pickSkillQuests(skillPool, filledSlots, 2)
+  const daySimple = reduceToSimple(cycleRoots.personalDay)
+  const orderedSlots = [...filledSlots].sort((a, b) => {
+    const aMatch = reduceToSimple(a.number) === daySimple ? 0 : 1
+    const bMatch = reduceToSimple(b.number) === daySimple ? 0 : 1
+    return aMatch - bMatch
+  })
+  const skillPicked = pickSkillQuests(skillPool, orderedSlots, 2)
 
   const skillQuests = skillPicked.map(q => {
     const id = `skill-${q.number}-${q.routeId}-${q.stage}-${q.questIdx}-${today}`
@@ -468,14 +474,15 @@ export function generateDailyQuests(user) {
   }
   })
 
-  // ── 2 LIFE / BLUEPRINT quests — prefer loadout seal roots ──────────────────
+  // ── 2 LIFE quests — unlocked nodes only. A locked day-number goes to class. ─
   const lqp = getLQP()
   const lifePool = []
-  const unlockedLifeNodes = (lifeNodes || []).filter((node) => {
+  const monthSimple = reduceToSimple(cycleRoots.personalMonth)
+  const offeredLifeNodes = (lifeNodes || []).filter((node) => {
     const unlock = BLUEPRINT_UNLOCK_LV[node.key] ?? 0
     return freqLevel >= unlock
   })
-  for (const node of unlockedLifeNodes) {
+  for (const node of offeredLifeNodes) {
     const tier     = activeTierFor(node.key)
     const objs     = getTieredObjectiveTexts(node.root, tier)
     const progress = lqp?.[node.key]?.[tier] || []
@@ -484,17 +491,32 @@ export function generateDailyQuests(user) {
     })
   }
 
-  const loadoutSealSet = new Set(filledSlots.map((s) => s.number))
-  const lifePreferred = loadoutSealSet.size
-    ? lifePool.filter((c) => loadoutSealSet.has(skillTreeNumber(c.root)))
-    : []
-  const lifeOther = loadoutSealSet.size
-    ? lifePool.filter((c) => !loadoutSealSet.has(skillTreeNumber(c.root)))
-    : lifePool
-  const lifePicked = [
-    ..._shuffle(lifePreferred),
-    ..._shuffle(lifeOther),
-  ].slice(0, 2)
+  const lifeRank = (c) => {
+    const simple = reduceToSimple(c.root)
+    if (daySimple && simple === daySimple) return 0
+    if (monthSimple && simple === monthSimple) return 1
+    return 2
+  }
+  const lifeBuckets = [[], [], []]
+  for (const c of lifePool) lifeBuckets[lifeRank(c)].push(c)
+  const lifePicked = []
+  const usedLifeKeys = new Set()
+  for (const bucket of lifeBuckets) {
+    for (const c of _shuffle(bucket)) {
+      if (lifePicked.length >= 2) break
+      if (usedLifeKeys.has(c.questKey)) continue
+      usedLifeKeys.add(c.questKey)
+      lifePicked.push(c)
+    }
+    if (lifePicked.length >= 2) break
+  }
+  if (lifePicked.length < 2) {
+    for (const c of lifeBuckets.flat()) {
+      if (lifePicked.length >= 2) break
+      if (lifePicked.includes(c)) continue
+      lifePicked.push(c)
+    }
+  }
 
   const multiDayStarts = []
   let multiDayOfferSlots = multiDaySlotsRemaining()
@@ -541,7 +563,7 @@ export function generateDailyQuests(user) {
     return quest
   })
 
-  // ── 2 CURRENT quests (personal year + personal month cycle objectives) ────
+  // ── 2 CURRENT quests — the personal day is always one of them ─────────────
   const blueprintKey = user?.blueprintKey || 'cl'
   const monthLqpTier = activeTierFor(blueprintKey)
 
@@ -557,7 +579,19 @@ export function generateDailyQuests(user) {
     objs.forEach((o, i) => cyclePool.push({ type, root, text: o.text, idx: i }))
   }
 
-  const cyclePicked = _shuffle(cyclePool).slice(0, 2)
+  const takeCycle = (type, used) => {
+    const choices = _shuffle(cyclePool.filter((c) => c.type === type && !used.has(`${c.type}:${c.idx}`)))
+    const choice = choices[0]
+    if (!choice) return null
+    used.add(`${choice.type}:${choice.idx}`)
+    return choice
+  }
+  const cycleUsed = new Set()
+  const dayCycle = takeCycle('personalDay', cycleUsed)
+  const monthCycle = takeCycle('personalMonth', cycleUsed)
+  const yearCycle = takeCycle('personalYear', cycleUsed)
+  const cyclePicked = [dayCycle, monthCycle || yearCycle].filter(Boolean)
+  if (cyclePicked.length < 2 && yearCycle && !cyclePicked.includes(yearCycle)) cyclePicked.push(yearCycle)
   const cycleQuests = cyclePicked.map(c => {
     const seal = skillTreeNumber(c.root)
     const equippedRoute = filledSlots.find((s) => s.number === seal)
@@ -766,9 +800,9 @@ export const JOURNAL_PROMPTS = {
     'What did you give that had nothing to do with receiving?',
   ],
   objective: [
-    'What shifted in you as a result of this? Be specific.',
-    'What did this require of you that you didn\'t expect?',
-    'What would you tell someone just beginning this tier?',
+    'What did you actually do, and when did you do it?',
+    'What changed because you did it — in you, or in the situation?',
+    'Name the action, the moment, and one thing that is different now.',
   ],
 }
 

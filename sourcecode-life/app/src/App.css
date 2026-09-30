@@ -1627,20 +1627,23 @@ body.scl-realm-open .tab-bar {
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .skills-stage-header--loadout {
-  align-items: flex-start;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 6px;
 }
 .skills-loadout-block {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: contents;
 }
 .skills-class-row {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   align-items: baseline;
   gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 .skills-class-kicker {
   font-family: 'Share Tech Mono', monospace;
@@ -1713,21 +1716,32 @@ body.scl-realm-open .tab-bar {
   color: var(--rose, #ff2d55);
 }
 .skills-loadout-chips {
-  display: flex;
-  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
+  width: 100%;
+}
+.skills-class-rename,
+.skills-class-coach--header,
+.skills-thesis {
+  grid-column: 1 / -1;
 }
 .skills-loadout-chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 4px;
-  padding: 3px 8px;
+  min-width: 0;
+  padding: 6px 8px;
   border: 1px solid color-mix(in srgb, var(--chip-color, var(--gold)) 45%, transparent);
   background: color-mix(in srgb, var(--chip-color, var(--gold)) 12%, transparent);
-  color: color-mix(in srgb, var(--chip-color, var(--gold)) 80%, #fff);
+  color: color-mix(in srgb, var(--chip-color, var(--gold)) 80%, var(--text, #fff));
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-align: left;
   cursor: pointer;
 }
 .skills-loadout-chip--empty {
@@ -1806,6 +1820,8 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.02em;
 }
 .skills-progress {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4024,7 +4040,8 @@ body.scl-realm-open .tab-bar {
 .char-card-class {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  align-items: flex-start;
+  gap: 1px;
   margin: 2px 0 0;
   min-width: 0;
 }
@@ -4067,7 +4084,7 @@ body.scl-realm-open .tab-bar {
   font-family: 'Share Tech Mono', monospace;
   font-size: 8px;
   letter-spacing: 0.16em;
-  color: rgba(201, 168, 76, 0.55);
+  color: color-mix(in srgb, var(--gold) 78%, var(--text));
 }
 .char-card-class-title {
   margin: 0;
@@ -4138,7 +4155,7 @@ body.scl-realm-open .tab-bar {
   font-family: 'Crimson Text', serif;
   font-size: 13px;
   font-style: italic;
-  color: rgba(255,255,255,0.45);
+  color: var(--text-dim, rgba(255,255,255,0.45));
   cursor: pointer;
   text-align: left;
 }
@@ -5966,12 +5983,15 @@ body.scl-realm-open .tab-bar {
   margin-bottom: 0.25rem;
   position: relative;
   z-index: 2;
+  color: #f6edd4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 /* â”€â”€ Number display â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .flow-node-number {
   font-family: 'Cinzel', serif;
-  color: var(--flow-color, #c9a84c);
+  color: #f6edd4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
   font-size: 1rem;
   font-weight: 700;
   line-height: 1;
@@ -6173,9 +6193,10 @@ body.scl-realm-open .tab-bar {
   width: 100%;
   max-width: 100%;
   min-height: 40svh;
-  max-height: 70svh;
+  max-height: min(88svh, 100dvh);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 9999 !important;
+  overflow: hidden;
   border-top: 2px solid var(--flow-color-border, rgba(201, 168, 76, 0.3));
   border-left: none;
   border-radius: 18px 18px 0 0;
@@ -6187,8 +6208,8 @@ body.scl-realm-open .tab-bar {
   padding: 24px 20px 16px;
   border-bottom: 1px solid var(--flow-color-border-dim, rgba(201, 168, 76, 0.13));
   background: linear-gradient(135deg, var(--lf-color-faded, rgba(201, 168, 76, 0.05)) 0%, transparent 60%);
-  position: sticky;
-  top: 0;
+  position: relative;
+  flex-shrink: 0;
   z-index: 10;
   backdrop-filter: blur(10px);
 }
@@ -6603,11 +6624,16 @@ body.scl-realm-open .tab-bar {
 
 .cursor-pointer { cursor: pointer; }
 
-/* Panel body */
+/* Panel body — scroll here, not on the sliding sheet (its transform blocks touch scroll). */
 .flow-panel-body {
   padding: 16px 20px;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .flow-panel-body--mobile {
@@ -11771,7 +11797,70 @@ body.scl-realm-open .tab-bar {
 }
 [data-theme="fantasy"] .tf-header-title {
   color: var(--gold);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--gold) 40%, transparent);
+  text-shadow: none;
+}
+[data-theme="fantasy"] .tf-panel,
+[data-theme="fantasy"] .tf-panel-header {
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel2) 100%);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--gold) 30%, transparent);
+}
+[data-theme="fantasy"] .tf-cycle-row {
+  border-color: color-mix(in srgb, var(--gold) 34%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 12%, var(--bg-panel)) 0%, var(--bg-panel2) 100%);
+  color: var(--text);
+}
+[data-theme="fantasy"] .tf-cycle-row-label,
+[data-theme="fantasy"] .tf-node-caption {
+  color: var(--text-dim);
+}
+[data-theme="fantasy"] .tf-node-caption--active {
+  color: var(--gold);
+}
+[data-theme="fantasy"] .tf-connector-bg {
+  stroke: color-mix(in srgb, var(--text) 18%, transparent);
+}
+[data-theme="fantasy"] .tf-connector {
+  stroke: var(--gold);
+  opacity: 0.75;
+}
+[data-theme="fantasy"] .tf-svg text {
+  fill: var(--text-dim);
+}
+[data-theme="fantasy"] .qj-entry {
+  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel2) 100%);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--gold) 36%, transparent);
+  box-shadow: 0 2px 8px rgba(78, 38, 0, 0.12);
+}
+[data-theme="fantasy"] .journal-strip {
+  background: var(--bg-panel);
+  border-color: color-mix(in srgb, var(--gold) 32%, transparent);
+  color: var(--text);
+  box-shadow: none;
+}
+[data-theme="fantasy"] .journal-strip:hover,
+[data-theme="fantasy"] .journal-strip.open {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  background: var(--bg-panel2);
+}
+[data-theme="fantasy"] .lqt-hint {
+  color: var(--text-dim);
+}
+[data-theme="fantasy"] .coach-mark {
+  background: color-mix(in srgb, var(--gold) 12%, var(--bg-panel));
+  border-color: color-mix(in srgb, var(--gold) 36%, transparent);
+  color: var(--text);
+}
+[data-theme="fantasy"] .coach-mark-title {
+  color: var(--gold);
+}
+[data-theme="fantasy"] .coach-mark-body,
+[data-theme="fantasy"] .coach-mark-dismiss {
+  color: var(--text);
+}
+[data-theme="fantasy"] .profile-navbar-btn-sub {
+  color: var(--text-dim);
 }
 
 [data-theme="unicorn"] .tf-header::after {
@@ -24170,6 +24259,69 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.1em;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Current-cycle squares: glyph and number sit in cream so they read on the dark medallion. */
+.tf-wrap .flow-node-base {
+  gap: 1px;
+  padding: 8px 4px 10px;
+  box-sizing: border-box;
+}
+.tf-wrap .flow-node-icon {
+  font-size: 1.15rem;
+  margin: 0;
+  line-height: 1;
+}
+.tf-wrap .flow-node-number {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .char-card--dossier {
+    padding: 14px 12px 12px 22px;
+  }
+  .char-card-identity {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    min-height: 0;
+  }
+  .char-card-portrait {
+    width: 64px;
+    height: 64px;
+  }
+  .char-card-id-text {
+    gap: 2px;
+    padding-top: 0;
+  }
+  .char-card-name {
+    font-size: 15px;
+    letter-spacing: 0.06em;
+  }
+  .char-card-name-row {
+    gap: 8px;
+  }
+  .char-card-calling-archetype-name {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .char-card-class-title {
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+  }
+  .char-card-xp-mirror {
+    gap: 8px;
+  }
+  .char-card-seal {
+    padding: 6px 2px;
+    min-height: 40px;
+  }
+  .char-card-seal-label {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
 }
 
 .char-ach-overlay {

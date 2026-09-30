@@ -72,7 +72,7 @@ const NODE_META = [
   { key: 'personalYear',   label: 'YEAR',     icon: '◎' },
   { key: 'fourMonthCycle', label: '4-MONTH',  icon: '◇' },
   { key: 'personalMonth',  label: 'MONTH',    icon: '✦' },
-  { key: 'personalDay',    label: 'DAY',      icon: '·' },
+  { key: 'personalDay',    label: 'DAY',      icon: '✧' },
 ]
 
 const ZONE_ROWS = [

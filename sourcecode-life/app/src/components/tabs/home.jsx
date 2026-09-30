@@ -25,13 +25,11 @@ import SeasonsSection from '../datachunks/Seasons'
 import DailySection from '../datachunks/dailyquests'
 import { useFloatingXP, useParticleBurst } from '../effects/FloatingXP'
 import { useQuestRewardToast } from '../effects/QuestRewardToast'
-import { MedalsRow } from '../Achievements.jsx'
 import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
 import {
   loadClassLoadout,
   getClassTitle,
-  getLoadoutPathChips,
   getFilledSlots,
 } from '../../lib/classLoadout'
 
@@ -260,8 +258,7 @@ function CharCard() {
   const callingName = (CALLING[cl.root]?.name || 'Unknown').toUpperCase()
   const callingTitle = CALLING[cl.root]?.essence || CALLING[cl.root]?.summary || 'Life calling'
   const classTitle = getClassTitle(classLoadout)
-  const pathChips = getLoadoutPathChips(classLoadout)
-  const hasClassPaths = getFilledSlots(classLoadout).length > 0
+  const hasClass = getFilledSlots(classLoadout).length > 0
 
   const makerEmpty = !ownRep || ownRep.ratingCount === 0
   const seekerEmpty = !takerRep || takerRep.ratingCount === 0
@@ -326,72 +323,26 @@ function CharCard() {
             <span className="char-card-calling-archetype-name">{callingName}</span>
           </div>
 
-          <div className="char-card-class" aria-label="Class specialization">
-            <div className="char-card-class-head">
-              {hasClassPaths && (
-                <span className="char-card-class-crest" aria-hidden="true">
-                  {pathChips.map((chip, i) => (
-                    <span
-                      key={`${chip.number}-${chip.routeId}`}
-                      className={`char-card-class-crest-seal${i > 0 ? ' char-card-class-crest-seal--second' : ''}`}
-                      style={{ '--crest-color': chip.color }}
-                    >
-                      {chip.icon}
-                    </span>
-                  ))}
-                </span>
-              )}
-              <span className="char-card-class-kicker">CLASS</span>
-              {hasClassPaths ? (
-                <button
-                  type="button"
-                  className="char-card-class-title"
-                  onClick={openSkills}
-                  title="Open Skills to change class paths"
-                >
-                  {classTitle}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="char-card-class-empty"
-                  onClick={openSkills}
-                >
-                  Choose your paths in Skills
-                </button>
-              )}
-            </div>
-            {hasClassPaths && (
-              <div className="char-card-class-chips">
-                {pathChips.map((chip) => (
-                  <button
-                    key={`${chip.number}-${chip.routeId}`}
-                    type="button"
-                    className="char-card-class-chip"
-                    style={{ '--chip-color': chip.color }}
-                    onClick={openSkills}
-                  >
-                    <span className="char-card-class-chip-seal" aria-hidden="true">{chip.icon}</span>
-                    <span className="char-card-class-chip-label">
-                      {chip.sealLabel} · {chip.routeName}
-                    </span>
-                  </button>
-                ))}
-                {pathChips.length < 2 && (
-                  <button
-                    type="button"
-                    className="char-card-class-chip char-card-class-chip--add"
-                    onClick={openSkills}
-                  >
-                    + Second path
-                  </button>
-                )}
-              </div>
+          <div className="char-card-class" aria-label="Class">
+            <span className="char-card-class-kicker">CLASS</span>
+            {hasClass ? (
+              <button
+                type="button"
+                className="char-card-class-title"
+                onClick={openSkills}
+                title="Open Skills to change class"
+              >
+                {classTitle}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="char-card-class-empty"
+                onClick={openSkills}
+              >
+                Choose a class in Skills
+              </button>
             )}
-          </div>
-
-          <div className="char-card-meta char-card-meta--medals" aria-label="Earned medals">
-            <MedalsRow />
           </div>
         </div>
       </div>

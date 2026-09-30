@@ -3870,35 +3870,62 @@
   background: rgba(154,98,24,0.22) !important;
 }
 
-/* -- FANTASY: flow chart dark regions (purpose/identity/lessons) */
+/* Fantasy flow canvas — parchment behind quest and blueprint charts */
 [data-theme="fantasy"] .lqt-flow-wrap,
-[data-theme="fantasy"] .lqt-flow-wrap .react-flow__renderer {
-  background: #0a0a18 !important;
+[data-theme="fantasy"] .blueprint-section {
+  background: linear-gradient(165deg, var(--bg-panel) 0%, var(--bg-panel2) 100%) !important;
   border-radius: 8px;
-  border: 1px solid rgba(200,160,64,0.2);
+  border: 1px solid color-mix(in srgb, var(--gold) 32%, transparent);
+  color: var(--text);
 }
-[data-theme="fantasy"] .lqt-flow-wrap .react-flow__pane {
-  background: #0a0a18 !important;
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow,
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__renderer,
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__pane,
+[data-theme="fantasy"] .blueprint-section .react-flow__renderer,
+[data-theme="fantasy"] .blueprint-section .react-flow__pane {
+  background: transparent !important;
+  border: none;
 }
 [data-theme="fantasy"] .skills-branch-canvas .react-flow__renderer,
 [data-theme="fantasy"] .skills-branch-canvas .react-flow__pane {
   background: transparent !important;
   border: none;
 }
-/* Flow edge lines â€” brighter on parchment context */
-[data-theme="fantasy"] .react-flow__edge-path {
-  stroke: rgba(201,168,76,0.5) !important;
-  stroke-width: 2.5 !important;
+/* Ink lines and arrowheads on parchment */
+[data-theme="fantasy"] .react-flow__edge-path,
+[data-theme="fantasy"] .react-flow__connection-path {
+  stroke: var(--gold) !important;
+  stroke-width: 2.25 !important;
 }
 [data-theme="fantasy"] .react-flow__edge-animated-path {
-  stroke: rgba(201,168,76,0.8) !important;
+  stroke: var(--gold-bright) !important;
 }
-/* Blueprint section wrapper â€” dark canvas behind flow */
-[data-theme="fantasy"] .blueprint-section {
-  background: #06060f;
-  border-radius: 8px;
-  border: 1px solid rgba(200,160,64,0.15);
-  padding: 4px;
+[data-theme="fantasy"] .react-flow__arrowhead polyline,
+[data-theme="fantasy"] .react-flow__arrowhead path,
+[data-theme="fantasy"] .react-flow marker path {
+  fill: var(--gold) !important;
+  stroke: var(--gold) !important;
+}
+[data-theme="fantasy"] .react-flow__edgelabel-renderer,
+[data-theme="fantasy"] .react-flow__edge-text {
+  fill: var(--text);
+  color: var(--text);
+}
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__background pattern circle,
+[data-theme="fantasy"] .blueprint-section .react-flow__background pattern circle {
+  fill: color-mix(in srgb, var(--gold) 42%, transparent) !important;
+}
+[data-theme="fantasy"] .flow-node-ring-outer {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+}
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-base--default,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-base--active,
+[data-theme="fantasy"] .tf-wrap .flow-node-base--default,
+[data-theme="fantasy"] .tf-wrap .flow-node-base--active {
+  box-shadow:
+    0 6px 14px rgba(42, 24, 8, 0.2),
+    0 0 0 1px rgba(255, 244, 220, 0.55),
+    0 0 10px var(--flow-color-glow-dim, rgba(108, 60, 8, 0.28));
 }
 
 /* -- DIABLO: ember-tinted cards -------------------------------- */

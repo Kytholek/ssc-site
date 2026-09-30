@@ -39,9 +39,8 @@ import { pickClassFlavoredObjective } from './classQuestFlavor.js'
 import { recordDailySnapshot, updateDailySummary } from './dataHistory.js'
 import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
 import { resolveBlueprintNode, BLUEPRINT_UNLOCK_LV } from './questBlueprint.js'
-import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple } from './numerology.js'
+import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple, todayStr, calendarDayKey } from './numerology.js'
 import { statState } from './achievements.js'
-import { todayStr } from './numerology.js'
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 const LS_GEN_QUESTS  = 'scl_gen_quests'
@@ -234,12 +233,16 @@ function _updateCategoryAffinity(history, number, category) {
     (history.categoryCompletions[number][category] || 0) + 1
 }
 
+function isStampToday(value) {
+  return !!value && calendarDayKey(value) === todayStr()
+}
+
 /** Returns updated streak count (days) for the given primary number. */
 function _updateFocusStreak(history, number) {
   const today = todayStr()
   const fs = history.focusStreaks || { primaryNumber: null, days: 0, lastDate: '' }
-  if (fs.lastDate === today) return fs.days // already counted today
-  if (fs.primaryNumber === number && fs.lastDate === _yesterdayStr()) {
+  if (isStampToday(fs.lastDate)) return fs.days // already counted today
+  if (fs.primaryNumber === number && calendarDayKey(fs.lastDate) === _yesterdayStr()) {
     fs.days = (fs.days || 0) + 1
   } else {
     fs.days = 1
@@ -661,8 +664,8 @@ export function hydrateGenQuestsFromCloud(cb) {
       const remote = typeof remoteRaw === 'string' ? JSON.parse(remoteRaw || '{}') : (remoteRaw || {})
       const local = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
       const today = todayStr()
-      const remoteOk = remote && remote.date === today && Array.isArray(remote.quests) && remote.quests.length
-      const localOk = local && local.date === today && Array.isArray(local.quests) && local.quests.length
+      const remoteOk = remote && calendarDayKey(remote.date) === today && Array.isArray(remote.quests) && remote.quests.length
+      const localOk = local && calendarDayKey(local.date) === today && Array.isArray(local.quests) && local.quests.length
       if (!remoteOk && localOk) {
         try { window.NativeAuth?.saveGenQuests?.(JSON.stringify(local)) } catch { /* intentional */ }
         cb?.(local)
@@ -689,7 +692,7 @@ export function hydrateGenQuestsFromCloud(cb) {
 export function getGeneratedQuests() {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
-    if (raw && raw.date === todayStr()) {
+    if (raw && isStampToday(raw.date)) {
       let offerSlots = multiDaySlotsRemaining()
       const quests = (raw.quests || []).map((q) => {
         if (q?.multiDay?.started) return q
@@ -825,7 +828,7 @@ export function completeGeneratedQuest(questId, journalText) {
   }
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
-    if (!raw || raw.date !== todayStr()) return { ok: false, error: 'No active quests for today' }
+    if (!raw || !isStampToday(raw.date)) return { ok: false, error: 'No active quests for today' }
 
     const quest = raw.quests.find(q => q.id === questId)
     if (!quest)          return { ok: false, error: 'Quest not found' }
@@ -988,11 +991,13 @@ function _saveMultiDay(map) {
 function _yesterdayStr() {
   const n = new Date()
   const y = new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1)
-  return y.getFullYear() + '-' + (y.getMonth() + 1) + '-' + y.getDate()
+  const m = String(y.getMonth() + 1).padStart(2, '0')
+  const d = String(y.getDate()).padStart(2, '0')
+  return `${y.getFullYear()}-${m}-${d}`
 }
 
 /** Begin tracking a multi-day quest. Moves it from the daily slot into persistent storage. */
-export function beginMultiDayQuest(quest) {
+export function beginMultiDayQuest(quest, { seedCheckin = true } = {}) {
   if (!quest.multiDay) return { ok: false, error: 'Not a multi-day quest' }
   const map = getActiveMultiDayQuests()
   if (map[quest.id]) return { ok: false, error: 'Already tracking' }
@@ -1006,9 +1011,11 @@ export function beginMultiDayQuest(quest) {
   }
 
   const today = todayStr()
+  const checkins = seedCheckin ? [today] : []
+  const streak = seedCheckin ? 1 : 0
   map[quest.id] = {
     ...quest,
-    multiDay: { ...quest.multiDay, startDate: today, checkins: [today], streak: 1, maxStreak: 1 },
+    multiDay: { ...quest.multiDay, startDate: today, checkins, streak, maxStreak: streak },
     completed: false,
   }
   _saveMultiDay(map)
@@ -1046,9 +1053,9 @@ export function checkinMultiDayQuest(questId) {
 
   const today     = todayStr()
   const checkins  = quest.multiDay.checkins || []
-  if (checkins.includes(today)) return { ok: false, error: 'Already checked in today' }
+  if (checkins.some((c) => calendarDayKey(c) === today)) return { ok: false, error: 'Already checked in today' }
 
-  const isConsecutive = checkins.includes(_yesterdayStr())
+  const isConsecutive = checkins.some((c) => calendarDayKey(c) === _yesterdayStr())
   const newStreak     = isConsecutive ? quest.multiDay.streak + 1 : 1
   const newMax        = Math.max(quest.multiDay.maxStreak, newStreak)
   const missedDay     = !isConsecutive && checkins.length > 0
@@ -1118,7 +1125,7 @@ export function completeMultiDayQuest(questId, journalText) {
   // Mark today's journal slot done so progress / chapters stay honest
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
-    if (raw?.date === todayStr()) {
+    if (isStampToday(raw?.date)) {
       const q = raw.quests.find(x => x.id === questId)
       if (q && !q.completed) {
         q.completed = true
@@ -1159,7 +1166,7 @@ export function getCycleInfo(cycleNumber) {
 export function getRerollCount() {
   try {
     const date = localStorage.getItem(LS_REROLL_DATE)
-    if (date !== todayStr()) return 0
+    if (!isStampToday(date)) return 0
     return parseInt(localStorage.getItem(LS_REROLL_COUNT) || '0', 10)
   } catch { return 0 }
 }

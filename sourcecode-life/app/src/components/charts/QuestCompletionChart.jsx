@@ -59,8 +59,8 @@ export default function QuestCompletionChart({ range = 30 }) {
           const isResonant = d.resonant > 0
           return (
             <g key={d.date}>
-              <rect x={x} y={y} width={barW} height={barH} rx={1} fill={isToday ? 'var(--teal)' : isResonant ? 'rgba(201,168,76,0.6)' : 'rgba(0,229,204,0.4)'} opacity={isToday ? 1 : 0.8} />
-              {d.resonant > 0 && <rect x={x} y={y + barH * 0.3} width={barW} height={barH * 0.7} rx={1} fill="rgba(201,168,76,0.3)" />}
+              <rect x={x} y={y} width={barW} height={barH} rx={1} fill={isToday ? 'var(--teal)' : isResonant ? 'color-mix(in srgb, var(--gold) 60%, transparent)' : 'color-mix(in srgb, var(--teal) 40%, transparent)'} opacity={isToday ? 1 : 0.8} />
+              {d.resonant > 0 && <rect x={x} y={y + barH * 0.3} width={barW} height={barH * 0.7} rx={1} fill="color-mix(in srgb, var(--gold) 30%, transparent)" />}
               {data.length <= 14 && i % Math.ceil(data.length / 7) === 0 && (
                 <text x={x + barW / 2} y={padTop + chartH + 14} textAnchor="middle" fontFamily="'Share Tech Mono', monospace" fontSize={7} fill="var(--text-dim)">{DAYS_LABELS[new Date(d.date + 'T00:00:00').getDay()]}</text>
               )}
@@ -69,8 +69,8 @@ export default function QuestCompletionChart({ range = 30 }) {
         })}
       </svg>
       <div className="data-chart-legend">
-        <span className="data-chart-legend-item"><span className="data-chart-legend-dot" style={{ background: 'rgba(0,229,204,0.4)' }} />Completed</span>
-        <span className="data-chart-legend-item"><span className="data-chart-legend-dot" style={{ background: 'rgba(201,168,76,0.3)' }} />Resonant</span>
+        <span className="data-chart-legend-item"><span className="data-chart-legend-dot" style={{ background: 'color-mix(in srgb, var(--teal) 40%, transparent)' }} />Completed</span>
+        <span className="data-chart-legend-item"><span className="data-chart-legend-dot" style={{ background: 'color-mix(in srgb, var(--gold) 30%, transparent)' }} />Resonant</span>
       </div>
     </div>
   )

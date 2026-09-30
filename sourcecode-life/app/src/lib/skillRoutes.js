@@ -1177,7 +1177,7 @@ export function fillSkillPipV3(progress, number, stageIdx, preferredRouteId = nu
   if (!node.activeRoutes.includes(rid)) {
     const started = startRoute(next, key, rid)
     if (started.error) {
-      // Fall back to primary if preferred can't start
+      if (preferredRouteId) return { progress: next, filled: false }
       rid = getPrimaryRouteId(node, key)
       if (!node.activeRoutes.length) {
         const fallback = startRoute(next, key, rid)

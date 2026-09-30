@@ -11,6 +11,8 @@ import {
 } from '../../lib/data'
 import {
   getTieredObjectiveTexts,
+  isTierListComplete,
+  getTierObjectiveCount,
 } from '../../lib/objectives'
 import { useAppDispatch } from '../../context/AppContext'
 
@@ -24,13 +26,13 @@ function getQuestData(root) {
   return NUM_QUESTS[simple] || NUM_QUESTS[9]
 }
 
-function getActiveTierFromLQP(questKey, lqp) {
+function getActiveTierFromLQP(questKey, lqp, root) {
   if (!lqp || !lqp[questKey]) return 1
   for (let t = 1; t <= 3; t++) {
     const prog = lqp[questKey][t] || []
-    if (!prog.length) return t
-    const allDone = prog.every(Boolean)
-    if (!allDone) return t
+    const count = getTierObjectiveCount(root, t)
+    if (!count) return t
+    if (!isTierListComplete(prog, count)) return t
   }
   return 3
 }
@@ -53,7 +55,7 @@ export default function LifeQuestObjectivesPanel({
 
   const meta = nodeMeta[selected]
   const qData = getQuestData(selNum.root)
-  const activeTier = getActiveTierFromLQP(selected, lqp)
+  const activeTier = getActiveTierFromLQP(selected, lqp, selNum.root)
 
   const toggleTier = (tier) => {
     setExpandedTiers(prev => ({ ...prev, [tier]: !prev[tier] }))

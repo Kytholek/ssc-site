@@ -14,11 +14,11 @@
    ============================================================ */
 'use strict';
 
-import { getTieredObjectiveTexts } from './objectives'
+import { getTieredObjectiveTexts, isTierListComplete } from './objectives'
 import { resolveDailyBlueprint } from './questBlueprint'
 import { updateDailySummary, recordDailySnapshot } from './dataHistory'
 import { ACTIONS } from '../state/actions'
-import { todayStr, calcPersonalDay } from './numerology'
+import { todayStr, legacyTodayStr, calcPersonalDay } from './numerology'
 import {
   applyQuestSkillReward,
   sanitizeSkillTreeProgress,
@@ -646,8 +646,12 @@ export function getFreqLog() {
 export function isFreqDone(key) {
   const log = getFreqLog();
   if (!log[key]) return false;
-  if (key.startsWith('dfreq_'))     return key.endsWith(todayStr()) && !!log[key];
-  if (key.startsWith('day_'))       return key === 'day_' + todayStr();
+  if (key.startsWith('dfreq_')) {
+    return (key.endsWith(todayStr()) || key.endsWith(legacyTodayStr())) && !!log[key];
+  }
+  if (key.startsWith('day_')) {
+    return key === 'day_' + todayStr() || key === 'day_' + legacyTodayStr();
+  }
   // Season writers use month_{yearKey}_{monthNum} / year_{yearKey} / fourmonth_{yearKey}_{n}
   if (key.startsWith('month_'))     return !!log[key];
   if (key.startsWith('year_'))      return !!log[key];
@@ -797,7 +801,7 @@ export function getActiveTier(questKey) {
     const prog = lqp[questKey][t] || [];
     const objs = _objsForQuestTier(questKey, t);
     if (!objs.length) return t;
-    const allDone = objs.every((_, i) => !!prog[i]);
+    const allDone = isTierListComplete(prog, objs.length);
     if (!allDone) return t;
   }
   return 3;

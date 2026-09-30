@@ -15,9 +15,9 @@ const INNER_CIRC = 2 * Math.PI * INNER_R
 
 const POLES = ['electric', 'magnetic', 'aether']
 const POLE_META = {
-  electric: { icon: '⚡', color: '#f97316', label: 'ELECTRIC', nums: [1, 3, 5, 7], desc: 'Action, expression, change, discovery' },
-  magnetic: { icon: '◎', color: '#3b82f6', label: 'MAGNETIC', nums: [2, 4, 6, 8], desc: 'Harmony, structure, responsibility, service' },
-  aether:   { icon: '◇', color: '#a78bfa', label: 'AETHER',   nums: [0, 9],     desc: 'Spirit, completion, wisdom, transcendence' },
+  electric: { icon: '⚡', color: 'var(--amber)', label: 'ELECTRIC', nums: [1, 3, 5, 7], desc: 'Action, expression, change, discovery' },
+  magnetic: { icon: '◎', color: 'var(--teal)', label: 'MAGNETIC', nums: [2, 4, 6, 8], desc: 'Harmony, structure, responsibility, service' },
+  aether:   { icon: '◇', color: 'var(--purple)', label: 'AETHER',   nums: [0, 9],     desc: 'Spirit, completion, wisdom, transcendence' },
 }
 
 export default function PolarityStatCard() {
@@ -98,7 +98,7 @@ export default function PolarityStatCard() {
                 const off = -offset * INNER_CIRC
                 offset += pct
                 return (
-                  <circle key={`active-${key}`} cx={CENTER} cy={CENTER} r={INNER_R} fill="none" stroke={POLE_META[key].color} strokeWidth={12} strokeDasharray={`${dash} ${INNER_CIRC - dash}`} strokeDashoffset={off} transform={`rotate(-90 ${CENTER} ${CENTER})`} style={{ filter: `drop-shadow(0 0 4px ${POLE_META[key].color}66)`, transition: 'stroke-dasharray 0.6s ease, stroke-dashoffset 0.6s ease' }} />
+                  <circle key={`active-${key}`} cx={CENTER} cy={CENTER} r={INNER_R} fill="none" stroke={POLE_META[key].color} strokeWidth={12} strokeDasharray={`${dash} ${INNER_CIRC - dash}`} strokeDashoffset={off} transform={`rotate(-90 ${CENTER} ${CENTER})`} style={{ filter: 'drop-shadow(0 0 4px currentColor)', color: POLE_META[key].color, transition: 'stroke-dasharray 0.6s ease, stroke-dashoffset 0.6s ease' }} />
                 )
               })
             })() : null}
@@ -169,7 +169,7 @@ export default function PolarityStatCard() {
                 <span className="psc-dev-icon" style={{ color: d.meta.color }}>{d.meta.icon}</span>
                 <span className="psc-dev-label">{d.meta.label.slice(0, 4)}</span>
                 <div className="psc-dev-bars">
-                  <div className="psc-dev-bar-bg"><div className="psc-dev-bar-fill" style={{ width: `${d.innate}%`, background: `${d.meta.color}33` }} /></div>
+                  <div className="psc-dev-bar-bg"><div className="psc-dev-bar-fill" style={{ width: `${d.innate}%`, background: `color-mix(in srgb, ${d.meta.color} 20%, transparent)` }} /></div>
                   <div className="psc-dev-bar-bg"><div className="psc-dev-bar-fill" style={{ width: `${d.active}%`, background: d.meta.color, transition: 'width 0.6s ease' }} /></div>
                 </div>
                 <span className="psc-dev-pcts">{d.innate}% → {d.active}%</span>

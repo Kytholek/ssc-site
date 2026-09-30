@@ -3,6 +3,8 @@
  * All state in localStorage under 'scl_achievements'.
  */
 
+import { getTierObjectiveCount, isTierListComplete } from './objectives'
+
 export const LS_ACHIEVEMENTS = 'scl_achievements'
 export const LS_DAILY_STREAK = 'scl_daily_streak'
 export const LS_FOUNDER      = 'scl_founder'
@@ -349,8 +351,9 @@ export function buildAchievementData(playerData) {
         let tiersComplete = 0
         for (let t = 1; t <= 3; t++) {
           const prog = (lqp[qKey] && lqp[qKey][t]) ? lqp[qKey][t] : []
+          const count = getTierObjectiveCount(playerData[qKey].root, t)
           tiersComplete = t - 1
-          if (prog.length > 0 && prog.every(Boolean)) tiersComplete = t
+          if (isTierListComplete(prog, count)) tiersComplete = t
           else break
         }
         tierProgress[qKey] = tiersComplete

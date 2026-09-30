@@ -1,13 +1,12 @@
 import { db } from './firebase'
-import { collection, getDocs } from 'firebase/firestore'
-import { fetchCreatorReputation, fetchTakerReputation } from '../components/auth/firestoreprofile'
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore'
 
 export async function fetchLeaderboard() {
   try {
-    const ref = collection(db, 'players')
-    const snap = await getDocs(ref)
+    const ranked = query(collection(db, 'players'), orderBy('simScore', 'desc'), limit(10))
+    const snap = await getDocs(ranked)
 
-    const players = snap.docs
+    return snap.docs
       .map(d => {
         const data = d.data()
         return {
@@ -19,35 +18,11 @@ export async function fetchLeaderboard() {
           isPremium: Array.isArray(data.entitlements)
             ? data.entitlements.some(e => e === 'premium_lifetime' || /^premium_\d+d:/.test(e))
             : !!data.isPremium,
-          reputation: data.reputation,
-          takerReputation: data.takerReputation,
+          totalScore: Number(data.simScore) || 0,
         }
       })
       .filter(p => p.uid && p.uid !== 'system')
-
-    // Score: (creator quests made + completed) * 10 + (seeker ratings count)
-    // This weights creators heavily since making/completing quests is the primary activity
-    const scored = players.map(p => {
-      const creatorScore = (p.reputation?.ratingCount || 0) * 10
-      const seekerScore = p.takerReputation?.ratingCount || 0
-      const totalScore = creatorScore + seekerScore
-
-      return {
-        ...p,
-        creatorScore,
-        seekerScore,
-        totalScore,
-      }
-    })
-
-    // Sort by totalScore descending, then by name for tiebreaker
-    scored.sort((a, b) => {
-      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore
-      return (a.name || '').localeCompare(b.name || '')
-    })
-
-    // Add rank
-    return scored.map((p, i) => ({ ...p, rank: i + 1 }))
+      .map((p, i) => ({ ...p, rank: i + 1 }))
   } catch (e) {
     console.error('[SCL] Failed to fetch leaderboard:', e)
     return []

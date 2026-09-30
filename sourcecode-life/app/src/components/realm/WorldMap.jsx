@@ -379,11 +379,15 @@ export default function WorldMapView({ playerData, onOpenSideQuests }) {
         saveQuests(firestoreQuests)
 
         const reps = {}
+        const missing = []
         for (const q of firestoreQuests) {
-          if (q.uid && q.uid !== myUid && !reps[q.uid]) {
-            reps[q.uid] = await fetchCreatorReputation(q.uid)
-          }
+          if (!q.uid || q.uid === myUid || reps[q.uid] || missing.includes(q.uid)) continue
+          if (q.creatorReputation) reps[q.uid] = q.creatorReputation
+          else missing.push(q.uid)
         }
+        await Promise.all(missing.map(async (uid) => {
+          reps[uid] = await fetchCreatorReputation(uid)
+        }))
         setQuestReps(reps)
       }
     }

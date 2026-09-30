@@ -199,7 +199,25 @@ export function resolveCompoundDigits(root, compound) {
   return { twoDigit: c, digitA: parseInt(s[0], 10), digitB: parseInt(s[1], 10) }
 }
 
+/** Local calendar day as YYYY-MM-DD. Accepts a Date or an existing date string. */
+export function calendarDayKey(value) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const y = value.getFullYear()
+    const m = String(value.getMonth() + 1).padStart(2, '0')
+    const d = String(value.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  const match = String(value || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
+  if (!match) return ''
+  return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`
+}
+
 export function todayStr() {
+  return calendarDayKey(new Date())
+}
+
+/** Unpadded local day, kept so keys written before the padded format still match. */
+export function legacyTodayStr() {
   const d = new Date()
   return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
 }

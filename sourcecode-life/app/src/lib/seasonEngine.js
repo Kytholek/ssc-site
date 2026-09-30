@@ -1,4 +1,4 @@
-import { calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, reduceToSimple } from './numerology'
+import { calcPersonalYear, calcPersonalMonth, calcFourMonthCycle, reduceToSimple, todayStr, calendarDayKey } from './numerology'
 import { getCycleObjectives, getCommitmentObjective, TIER_COMMITMENT_DAYS } from './objectives'
 import { findBlueprintKeyByRoot } from './questBlueprint'
 import {
@@ -157,7 +157,8 @@ function ensureSeasonMultiDayTracking(state, lpRoot, yearKey, monthNum) {
   const quest = buildSeasonMultiDayQuest(state, lpRoot, yearKey, monthNum, state.lockedObj)
   const map = getActiveMultiDayQuests()
   if (!map[quest.id]) {
-    beginMultiDayQuest(quest)
+    const started = beginMultiDayQuest(quest, { seedCheckin: false })
+    if (!started?.ok) return
   }
   state.multiDayStarted = true
   state.multiDayId = quest.id
@@ -237,7 +238,7 @@ function initMonthState(monthNum, yearKey) {
     checkins: [],
     completed: false,
     completedAt: null,
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: todayStr(),
     multiDayStarted: false,
     multiDayId: null,
     tierDays: null,
@@ -256,10 +257,9 @@ export function addMonthCheckin(lpRoot, m, d, journal, objectiveIdx) {
   const monthNum = pm.monthNum
 
   const state = getMonthSeasonState(lpRoot, m, d)
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayStr()
   const tierDays = state.tierDays || getTierDays(state.lockedObj?.tierAtLock || 1)
-
-  if (state.checkins.some(c => c.date === today)) {
+  if (state.checkins.some(c => calendarDayKey(c.date) === today)) {
     return { ok: false, error: 'Already checked in today', checkinCount: state.checkins.length, daysActive: null, canComplete: false, tierDays }
   }
 
@@ -365,7 +365,7 @@ export function getFourMonthSeasonState(lpRoot, m, d, freqLevel = 1) {
       objectives: [],
       completed: false,
       completedAt: null,
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: todayStr(),
     }
   }
 

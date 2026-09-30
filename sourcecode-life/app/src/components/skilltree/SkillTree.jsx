@@ -610,7 +610,7 @@ export default function SkillTree({
         source: 'root',
         target: nodeId,
         type: 'smoothstep',
-        animated: isActive,
+        animated: false,
         style: {
           stroke: isActive ? `${expanded.color}99` : 'rgba(255,255,255,0.18)',
           strokeWidth: isActive ? 2 : 1.25,
@@ -672,7 +672,7 @@ export default function SkillTree({
           source: prevId,
           target: tierId,
           type: 'smoothstep',
-          animated: isDone || isNextTier,
+          animated: false,
           style: {
             stroke: isDone
               ? `${tierColor}aa`
@@ -920,7 +920,7 @@ export default function SkillTree({
 
   const thesis = !expanded
     ? (filledSlots.length
-      ? `Class: ${classTitle} — select a seal to train.`
+      ? `${classTitle} — select a seal to train.`
       : 'Equip up to two blueprint paths as your class.')
     : !isSealEligible(expanded.id, playerData, freqLevel)
       ? `${expanded.label} — not in your blueprint.`

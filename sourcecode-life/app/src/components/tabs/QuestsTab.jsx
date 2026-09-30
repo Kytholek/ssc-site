@@ -8,7 +8,6 @@ import LifeQuestFlow from '../flow/LifeQuestFlow'
 import LifeQuestObjectivesPanel from '../flow/LifeQuestObjectivesPanel'
 import TimeFlow from '../flow/TimeFlow'
 import QuestJournals from '../datachunks/QuestJournals'
-import CoachMark from '../ui/CoachMark'
 import { ensureDailyQuests } from '../../lib/numerologyQuests'
 import { NUM_QUESTS, MASTER_QUESTS } from '../../lib/data'
 import { reduceToSimple } from '../../lib/numerology'
@@ -19,7 +18,7 @@ const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 const SECTIONS = [
   { id: 'life',     label: '✦ LIFE',     subtitle: 'Your 7 frequency quests' },
   { id: 'current',  label: '◈ CURRENT',  subtitle: 'Time cycles & seasons' },
-  { id: 'journals', label: '◇ JOURNALS', subtitle: 'Quest reflections' },
+  { id: 'journals', label: '◇ REFLECTIONS', subtitle: 'Quest reflections' },
 ]
 
 function getQuestData(root) {
@@ -79,9 +78,6 @@ function LifeSection({ playerData, lqp, freqLevel }) {
 
   return (
     <div className="lqt-section">
-      <CoachMark storageKey="scl_coach_life_quest" title="Life Quest" afterTour>
-        Tap a node to see your growth path. Open any objective for details.
-      </CoachMark>
       <LifeQuestFlow
         numMap={numMap}
         freqLevel={freqLevel}

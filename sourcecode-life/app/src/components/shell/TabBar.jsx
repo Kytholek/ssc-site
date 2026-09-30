@@ -11,7 +11,7 @@ const SIDE_LEFT = [
 const MAP_TAB = { id: 'map', label: 'REALM', tourId: 'tab-map' }
 
 const SIDE_RIGHT = [
-  { id: 'profile', icon: '◇', label: 'CHARACTER', tourId: 'tab-stats' },
+  { id: 'profile', icon: '◇', label: 'CHAR', ariaLabel: 'CHARACTER', tourId: 'tab-stats' },
   { id: 'config',  icon: '⚙', label: 'SETTINGS',  tourId: 'tab-config' },
 ]
 
@@ -21,7 +21,7 @@ function SideTab({ tab, activeTab, onTabChange }) {
     <button
       type="button"
       aria-current={isActive ? 'page' : undefined}
-      aria-label={tab.label}
+      aria-label={tab.ariaLabel || tab.label}
       className={`tab-btn tab-btn--side${isActive ? ' active' : ''}`}
       data-tour={tab.tourId || undefined}
       onClick={() => onTabChange(tab.id)}
@@ -37,7 +37,7 @@ export default function TabBar({ onTabChange }) {
   const mapActive = activeTab === MAP_TAB.id
 
   return (
-    <nav className="tab-bar tab-bar--portal" aria-label="Main navigation">
+    <nav className={`tab-bar tab-bar--portal${mapActive ? ' tab-bar--realm' : ''}`} aria-label="Main navigation">
       <div className="tab-bar-side tab-bar-side--left">
         {SIDE_LEFT.map(tab => (
           <SideTab key={tab.id} tab={tab} activeTab={activeTab} onTabChange={onTabChange} />
@@ -57,6 +57,7 @@ export default function TabBar({ onTabChange }) {
           <span className="tab-portal-ring tab-portal-ring--inner" aria-hidden="true" />
           <span className="tab-portal-ripple" aria-hidden="true" />
           <span className="tab-portal-glyph" aria-hidden="true">◎</span>
+          <span className="tab-portal-caption">REALM</span>
         </button>
       </div>
 

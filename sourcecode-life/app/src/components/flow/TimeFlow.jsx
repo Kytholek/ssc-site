@@ -2,11 +2,10 @@
  * TimeFlow — Current Cycles (unified flow nodes)
  */
 import { useState, useEffect, useMemo } from 'react'
-import { reduceToSimple, getCycleAnchor, calcPersonalYear, calcPinnacles, calcPersonalMonth, calcPersonalDay, calcFourMonthCycle, todayStr } from '../../lib/numerology'
+import { reduceToSimple, getCycleAnchor, calcPersonalYear, calcPinnacles, calcPersonalMonth, calcPersonalDay, calcFourMonthCycle, todayStr, calendarDayKey } from '../../lib/numerology'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import FlowDetailPanel from './FlowDetailPanel'
 import FlowProgressNode from './FlowProgressNode'
-import CoachMark from '../ui/CoachMark'
 import MonthCheckinPanel from '../datachunks/MonthCheckinPanel'
 import {
   CYCLE_MEANINGS, CYCLE_QUEST_COLORS, MONTH_NAMES,
@@ -15,10 +14,11 @@ import {
 import { getCycleObjectives, PINNACLE_MONTH_LENS } from '../../lib/objectives'
 import { LS_DAILY_GLYPHS, getPinnacleProgress, getActiveTier } from '../../lib/questEngine'
 import { resolveBlueprintNode } from '../../lib/questBlueprint'
-import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, addMonthCheckin, completeMonthSeason } from '../../lib/seasonEngine'
+import { completeFourMonthSeason, getMonthSeasonState, getYearSeasonState, getFourMonthSeasonState, addMonthCheckin, completeMonthSeason } from '../../lib/seasonEngine'
 import { getActiveMultiDayQuests } from '../../lib/numerologyQuests'
 import { useGameDispatch } from '../../state/GameContext'
 import { ACTIONS } from '../../state/actions'
+import { resolveThemeColor } from './flowNodeConstants'
 
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
@@ -81,13 +81,20 @@ const ZONE_ROWS = [
   { label: 'SHORT TERM',  keys: ['personalMonth', 'personalDay'] },
 ]
 
-const ORB_COLORS = {
-  theme:         { hex: '#c9a84c', glow: '#c9a84c66' },
-  pinnacle:      { hex: '#c9a84c', glow: '#c9a84c66' },
-  personalYear:  { hex: '#00e5cc', glow: '#00e5cc66' },
-  fourMonthCycle:{ hex: '#7c3aed', glow: '#7c3aed66' },
-  personalMonth: { hex: '#f472b6', glow: '#f472b666' },
-  personalDay:   { hex: '#4ade80', glow: '#4ade8066' },
+function orbColor(token) {
+  const hex = resolveThemeColor(token)
+  return { hex, glow: String(hex).startsWith('#') ? `${hex}66` : hex }
+}
+
+function getOrbColors() {
+  return {
+    theme: orbColor('--gold'),
+    pinnacle: orbColor('--gold'),
+    personalYear: orbColor('--teal'),
+    fourMonthCycle: orbColor('--purple'),
+    personalMonth: orbColor('--rose'),
+    personalDay: orbColor('--sage'),
+  }
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -205,6 +212,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
     lp?.root, ex?.root, cl?.root, so?.root, ou?.root, ac?.root, th?.root,
   ].filter(Boolean).map(r => reduceToSimple(r))
 
+  const ORB_COLORS = getOrbColors()
   const nodeData = [
     {
       ...NODE_META[0], root: th.root, isMaster: MASTERS.has(th.root),
@@ -291,9 +299,6 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
 
   return (
     <div className="tf-wrap">
-      <CoachMark storageKey="scl_coach_time_flow" title="Current Cycles" afterTour>
-        Six time horizons: Theme & Pinnacle (long-term), Year & 4-Month (medium), Month & Day (now). Tap a node to see objectives.
-      </CoachMark>
       {/* ── Cycle grid (CSS-centered, no ReactFlow viewport offset) ── */}
       <div className="tf-chart-area tf-chart-area--flow tf-chart-area--ready">
         <div className="tf-cycle-grid">
@@ -403,7 +408,7 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
               const tierDays = monthSeasonState.tierDays || 7
               const checkinCount = monthSeasonState.checkins?.length || 0
               const today = todayStr()
-              const checkedInToday = monthSeasonState.checkins?.some(c => c.date === today)
+              const checkedInToday = monthSeasonState.checkins?.some(c => calendarDayKey(c.date) === today)
               const multiDay = monthSeasonState.multiDayId
                 ? getActiveMultiDayQuests()[monthSeasonState.multiDayId]
                 : null
@@ -471,21 +476,26 @@ export default function TimeFlow({ playerData, sideQuests: sqProp }) {
               </div>
               )
             })()}
-            {selNode.key === 'fourMonthCycle' && (
+            {selNode.key === 'fourMonthCycle' && !getFourMonthSeasonState(lp.root, m, d, freqLevel).completed && (
               <div className="journal-section" style={{ marginBottom: 12 }}>
                 <button
                   type="button"
                   className="tf-complete-season-btn"
                   onClick={() => {
                     if (!window.confirm('Complete this 4-month season? This cannot be undone.')) return
-                    const now = new Date()
-                    const res = completeFourMonthSeason(lp.root, now.getMonth() + 1, now.getDate(), pinnIndex, currentPinn.root)
-                    if (res.ok) setSelected(null)
+                    const res = completeFourMonthSeason(lp.root, m, d, pinnIndex, currentPinn.root)
+                    if (res.ok) {
+                      setSeasonRefreshTick(t => t + 1)
+                      setSelected(null)
+                    }
                   }}
                 >
                   Complete Season
                 </button>
               </div>
+            )}
+            {selNode.key === 'fourMonthCycle' && getFourMonthSeasonState(lp.root, m, d, freqLevel).completed && (
+              <div className="seasons-checkin-status" style={{ marginTop: 8 }}>✦ SEASON COMPLETE</div>
             )}
             {selNode.objectives?.length > 0 && (
               <div className="journal-section">

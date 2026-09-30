@@ -5,8 +5,16 @@ import { fmt, reduceToSimple } from '../../lib/numerology'
 import { ROOT, CALLING, COMPOUND_DESC, STRIPS } from '../../lib/data'
 import FlowNode, { flowNodeTypes } from './FlowNode'
 import FlowDetailPanel from './FlowDetailPanel'
+import { resolveThemeColor } from './flowNodeConstants'
 
-const NODE_SIZE = 90
+const NODE_COLOR_TOKENS = {
+  lp: '--teal',
+  ex: '--sage',
+  cl: '--gold',
+}
+function nodeColor(nodeKey) {
+  return resolveThemeColor(NODE_COLOR_TOKENS[nodeKey])
+}
 const PURPOSE_LAYOUT = {
   lp: { x: 280, y: 120 },
   ex: { x: 520, y: 120 },
@@ -24,12 +32,7 @@ const NODE_META = {
   cl: { label: 'CALLING',    subtitle: 'Your destiny',        icon: '★' },
 }
 
-const NODE_COLORS = {
-  lp: '#00e5cc',
-  ex: '#2dd4bf',
-  cl: '#c9a84c',
-}
-
+const NODE_SIZE = 90
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
 function StripContent({ nodeKey, playerData }) {
@@ -44,7 +47,7 @@ function StripContent({ nodeKey, playerData }) {
   const compound = numObj.compound
   const rData = ROOT[root] || ROOT[reduceToSimple(root)] || ROOT[9] || {}
   const isMaster = MASTERS.has(root)
-  const colorHex = NODE_COLORS[nodeKey] || '#c9a84c'
+  const colorHex = nodeColor(nodeKey)
   const displayNum = fmt(root, compound)
 
   let coreText = ''
@@ -130,7 +133,7 @@ export default function PurposeFlow({ playerData }) {
       const root = numObj.root
       const isMaster = MASTERS.has(root)
       const displayNum = fmt(root, numObj.compound)
-      const color = NODE_COLORS[nodeKey] || '#c9a84c'
+      const color = nodeColor(nodeKey)
 
       return {
         id: nodeKey,
@@ -156,7 +159,7 @@ export default function PurposeFlow({ playerData }) {
   })), [])
 
   const selMeta   = selected ? NODE_META[selected]   : null
-  const selColor  = selected ? NODE_COLORS[selected] : '#c9a84c'
+  const selColor  = selected ? nodeColor(selected) : resolveThemeColor('--gold')
 
   return (
     <>

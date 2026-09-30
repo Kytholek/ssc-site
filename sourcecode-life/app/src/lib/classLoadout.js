@@ -389,14 +389,31 @@ export function equipRoute(number, routeId, {
     }
   }
 
-  // Ensure route is started in skill progress
+  // Ensure route is started in skill progress before the loadout points at it.
   let prog = migrateProgressToV3(progress || loadSkillTreeProgressV3())
   const started = startRoute(prog, n, routeId)
-  if (!started.error) {
-    prog = started.progress
-    saveSkillTreeProgressV3(prog)
-    window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: prog }))
+  if (started.error) {
+    return { ok: false, loadout: loadClassLoadout(), error: started.error }
   }
+  prog = started.progress
+
+  const changesFilledSlot = sameSealIdx >= 0 || replaceSlotIndex != null
+  if (changesFilledSlot) {
+    const remaining = getRespecCooldownRemaining(nextLoadout)
+    if (remaining > 0) {
+      const hoursLeft = Math.max(1, Math.ceil(remaining / (60 * 60 * 1000)))
+      return {
+        ok: false,
+        loadout: loadClassLoadout(),
+        cooldown: true,
+        error: `Respec cooldown — ${hoursLeft}h remaining`,
+      }
+    }
+    nextLoadout.lastRespecAt = Date.now()
+  }
+
+  saveSkillTreeProgressV3(prog)
+  window.dispatchEvent(new CustomEvent('scl:skilltree_updated', { detail: prog }))
 
   nextLoadout.userChosen = true
   nextLoadout = saveClassLoadout(nextLoadout)

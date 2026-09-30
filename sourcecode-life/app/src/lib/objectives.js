@@ -734,6 +734,16 @@ export function getTierObjectiveCount(root, tier) {
   return getTieredObjectives(root, tier).length
 }
 
+/** True only when every objective slot 0..count-1 is done. Holes do not count. */
+export function isTierListComplete(prog, count) {
+  const n = Number(count) || 0
+  if (n <= 0) return false
+  for (let i = 0; i < n; i++) {
+    if (!prog?.[i]) return false
+  }
+  return true
+}
+
 /**
  * Returns the tier commitment objective (index 2) with commitmentDays metadata.
  */

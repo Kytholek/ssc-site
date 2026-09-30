@@ -155,15 +155,7 @@
 }
 
 /* â”€â”€ Auth Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.auth-overlay {
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,0.08) 0%, transparent 70%),
-    #0a0b0f;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 24px 16px; gap: 24px;
-  z-index: 800; overflow-y: auto;
-}
+
 .auth-header { text-align: center; }
 .auth-title {
   font-family: 'Cinzel', serif;
@@ -246,9 +238,15 @@
 
 /* â”€â”€ Auth Redesign: Canvas + Glass Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .auth-overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: #050508;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  gap: 24px;
   z-index: 800;
   overflow-y: auto;
 }
@@ -1095,15 +1093,17 @@ body.scl-realm-open .tab-bar {
 .tab-btn-icon { font-size: 15px; line-height: 1; }
 .tab-btn-label {
   font-family: 'Cinzel', serif;
-  font-size: 9px; letter-spacing: 0.1em;
+  font-size: 9px; letter-spacing: 0.06em;
 }
 
 /* â”€â”€ Portal map button â€” single circular portal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tab-portal-btn {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1px;
   width: 56px;
   height: 56px;
   padding: 0;
@@ -1161,11 +1161,32 @@ body.scl-realm-open .tab-bar {
 .tab-portal-glyph {
   position: relative;
   z-index: 1;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   color: var(--portal-accent);
   text-shadow: 0 0 10px var(--portal-accent), 0 0 20px var(--portal-accent-dim);
   animation: tabPortalGlyphPulse 3s ease-in-out infinite;
+}
+.tab-portal-caption {
+  position: relative;
+  z-index: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--gold, #c9a84c);
+}
+.tab-bar--portal:not(.tab-bar--realm) .tab-portal-btn,
+.tab-bar--portal:not(.tab-bar--realm) .tab-portal-ring,
+.tab-bar--portal:not(.tab-bar--realm) .tab-portal-ripple,
+.tab-bar--portal:not(.tab-bar--realm) .tab-portal-glyph {
+  animation: none;
+}
+.tab-lazy-fallback {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-dim);
+  font-family: 'Share Tech Mono', monospace;
 }
 .tab-portal-btn.active {
   border-color: var(--portal-accent);
@@ -1752,9 +1773,7 @@ body.scl-realm-open .tab-bar {
   cursor: default;
   pointer-events: none;
 }
-.skills-grid-cell {
-  position: relative;
-}
+
 .skills-grid-cell--locked {
   opacity: 0.38;
   filter: grayscale(0.55) saturate(0.55);
@@ -1831,7 +1850,7 @@ body.scl-realm-open .tab-bar {
   font-family: 'Share Tech Mono', monospace;
   font-size: 8px;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.4);
+  color: var(--text-dim);
 }
 .skills-progress-track {
   width: 88px;
@@ -1850,7 +1869,7 @@ body.scl-realm-open .tab-bar {
   font-family: 'Cinzel', serif;
   font-size: 11px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--text);
 }
 .skills-stage-body {
   flex: 1;
@@ -1890,6 +1909,7 @@ body.scl-realm-open .tab-bar {
   transform: translateY(-10%);
 }
 .skills-grid-cell {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2806,15 +2826,7 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Character Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /* XP bars inside char card */
-.char-card-xp-bars {
-  margin-top: 10px;
-  padding: 10px 14px 8px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+
 
 .char-card {
   position: relative;
@@ -2837,23 +2849,7 @@ body.scl-realm-open .tab-bar {
   -webkit-backdrop-filter: none;
 }
 /* Shimmer sweep behind content */
-.char-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: 50%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--gold) 6%, transparent) 40%,
-    color-mix(in srgb, var(--gold) 12%, transparent) 50%,
-    color-mix(in srgb, var(--gold) 6%, transparent) 60%,
-    transparent 100%
-  );
-  animation: card-scan-sweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  border-radius: inherit;
-  z-index: 0;
-}
+
 @media (prefers-reduced-motion: reduce) {
   .char-card::before {
     animation: none;
@@ -2890,35 +2886,7 @@ body.scl-realm-open .tab-bar {
 }
 
 /* 4-corner accents â€” single element, 8 stacked gradients */
-.char-card-corners {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  border-radius: inherit;
-  --ca: color-mix(in srgb, var(--gold) 45%, transparent);
-  --cs: 22px;
-  background-image:
-    /* TL top */    linear-gradient(90deg,  var(--ca) var(--cs), transparent var(--cs)),
-    /* TL left */   linear-gradient(180deg, var(--ca) var(--cs), transparent var(--cs)),
-    /* TR top */    linear-gradient(270deg, var(--ca) var(--cs), transparent var(--cs)),
-    /* TR right */  linear-gradient(180deg, var(--ca) var(--cs), transparent var(--cs)),
-    /* BL bottom */ linear-gradient(90deg,  var(--ca) var(--cs), transparent var(--cs)),
-    /* BL left */   linear-gradient(0deg,   var(--ca) var(--cs), transparent var(--cs)),
-    /* BR bottom */ linear-gradient(270deg, var(--ca) var(--cs), transparent var(--cs)),
-    /* BR right */  linear-gradient(0deg,   var(--ca) var(--cs), transparent var(--cs));
-  background-size:
-    100% 1px, 1px 100%,
-    100% 1px, 1px 100%,
-    100% 1px, 1px 100%,
-    100% 1px, 1px 100%;
-  background-position:
-    0 0,       0 0,
-    100% 0,    100% 0,
-    0 100%,    0 100%,
-    100% 100%, 100% 100%;
-  background-repeat: no-repeat;
-}
+
 
 /* Card sweep shimmer â€” now uses ::before on .char-card */
 @keyframes card-scan-sweep {
@@ -2930,137 +2898,39 @@ body.scl-realm-open .tab-bar {
 /* Corner accents via .char-card-corners */
 
 /* Staggered entrance animation */
-.char-card--entrance {
-  animation: charCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+
 @keyframes charCardEntrance {
   0% { opacity: 0; transform: translateY(16px) scale(0.98); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 /* identity row: portrait left, name + calling + medals fill the right */
-.char-card-identity {
-  display: flex;
-  align-items: stretch;
-  gap: 14px;
-  position: relative;
-  z-index: 1;
-  min-height: 88px;
-}
 
-.char-card-corners {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  border-radius: inherit;
-  --ca: color-mix(in srgb, var(--gold) 45%, transparent);
-  --cs: 22px;
-  background-image:
-    linear-gradient(90deg,  var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(180deg, var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(270deg, var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(180deg, var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(90deg,  var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(0deg,   var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(270deg, var(--ca) var(--cs), transparent var(--cs)),
-    linear-gradient(0deg,   var(--ca) var(--cs), transparent var(--cs));
-  background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%, 100% 1px, 1px 100%, 100% 1px, 1px 100%;
-  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
-  background-repeat: no-repeat;
-}
+
+
 
 /* Portrait sits within card, not hanging off */
-.char-card-portrait {
-  position: relative;
-  width: 80px; height: 80px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
-  background: rgba(255,255,255,0.02);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 0 16px color-mix(in srgb, var(--gold) 8%, transparent);
-}
-.char-card-portrait:hover {
-  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--gold) 25%, transparent), inset 0 0 16px color-mix(in srgb, var(--gold) 12%, transparent);
-  transform: scale(1.05);
-}
-.char-card-portrait:active {
-  transform: scale(0.94);
-  transition-duration: 0.1s;
-}
-.char-card-portrait:focus-visible {
-  outline: 2px solid rgba(0, 229, 204, 0.65);
-  outline-offset: 2px;
-}
+
+
+
+
 
 /* Shimmer overlay on hover */
-.char-card-portrait-shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    110deg,
-    transparent 0%,
-    transparent 35%,
-    color-mix(in srgb, var(--gold) 25%, transparent) 50%,
-    transparent 65%,
-    transparent 100%
-  );
-  background-size: 300% 100%;
-  background-position: 100% 0;
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  border-radius: 10px;
-}
-.char-card-portrait:hover .char-card-portrait-shimmer {
-  opacity: 1;
-  animation: portraitShimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
+
+
 @keyframes portraitShimmer {
   0% { background-position: 150% 0; }
   100% { background-position: -150% 0; }
 }
-.char-card-portrait-skeleton {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(
-    110deg,
-    rgba(255,255,255,0.02) 0%,
-    rgba(201,168,76,0.08) 30%,
-    rgba(255,255,255,0.1) 50%,
-    rgba(201,168,76,0.08) 70%,
-    rgba(255,255,255,0.02) 100%
-  );
-  background-size: 300% 100%;
-  animation: charPortraitShimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
+
 @keyframes charPortraitShimmer {
   0% { background-position: 150% 0; }
   100% { background-position: -150% 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-card-portrait-skeleton {
-    animation: none;
-    background: rgba(255,255,255,0.06);
-  }
+  
 }
-.char-card-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.char-card-portrait-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  width: 100%;
-  height: 100%;
-  user-select: none;
-}
+
+
 .char-card-portrait-placeholder-icon {
   font-size: 20px;
   color: var(--gold-dim, rgba(201,168,76,0.35));
@@ -3073,100 +2943,26 @@ body.scl-realm-open .tab-bar {
   color: var(--gold);
   text-transform: uppercase;
 }
-.char-card-portrait-input {
-  position: absolute; inset: 0; opacity: 0;
-  cursor: pointer; width: 100%; height: 100%;
-}
 
-.char-card-id-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 4px;
-  padding-top: 4px;
-}
-.char-card-name {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--gold, #c9a84c);
-  line-height: 1;
-  text-shadow: none;
-}
+
+
+
 
 /* Editable name as clickable button with tooltip */
-.char-card-name--editable {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-  transition: opacity 0.2s, transform 0.1s;
-  text-align: left;
-}
 
-.char-card-name--editable:hover {
-  opacity: 0.8;
-  text-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
-}
 
-.char-card-name--editable:active {
-  transform: scale(0.98);
-}
+
+
+
 
 /* Tooltip for editable name */
-.char-card-name--editable::after {
-  content: 'Tap to edit';
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  background: rgba(12, 13, 20, 0.95);
-  color: #c9a84c;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(201, 168, 76, 0.3);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-}
 
-.char-card-name--editable::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  border: 5px solid transparent;
-  border-top-color: rgba(201, 168, 76, 0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s;
-  z-index: 100;
-}
 
-.char-card-name--editable:hover::after,
-.char-card-name--editable:hover::before {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
 
-.char-card-name-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-}
+
+
+
+
 
 .char-card-name-group {
   display: flex;
@@ -3177,174 +2973,39 @@ body.scl-realm-open .tab-bar {
   overflow: hidden;
 }
 
-.char-card-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
 
-.char-card-name-edit {
-  display: none; /* Hidden - name is now clickable directly */
-}
+
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Character Card Panel â€” Premium glass with theme support
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-.char-card-panel {
-  position: fixed;
-  top: auto; bottom: 0; left: 0; right: 0;
-  width: 100%;
-  height: 85svh;
-  z-index: 9999;
-  padding-bottom: env(safe-area-inset-bottom);
-  background:
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--teal) 8%, transparent) 0%,
-      color-mix(in srgb, var(--teal) 3%, transparent) 50%,
-      color-mix(in srgb, var(--teal) 5%, transparent) 100%
-    ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
-  border-top: 2px solid color-mix(in srgb, var(--teal) 35%, transparent);
-  border-radius: 18px 18px 0 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: cc-slideUp 0.28s ease;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.5),
-    0 0 1px color-mix(in srgb, var(--teal) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
 
-.char-card-panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--teal) 50%, transparent) 50%, transparent 100%);
-  pointer-events: none;
-}
 
-.char-card-panel-header {
-  padding: 16px 16px 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--teal) 15%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  background: linear-gradient(180deg, rgba(20,22,32,0.6) 0%, transparent 100%);
-  position: relative;
-  z-index: 1;
-}
 
-.char-card-panel-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--teal);
-  letter-spacing: 0.15em;
-  text-shadow: 0 0 16px color-mix(in srgb, var(--teal) 40%, transparent);
-}
 
-.char-card-panel-close {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: var(--text-mid);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 6px 12px;
-  transition: all 0.2s;
-}
-.char-card-panel-close:hover {
-  border-color: color-mix(in srgb, var(--teal) 45%, transparent);
-  color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--teal) 20%, transparent);
-  transform: scale(1.05);
-}
-.char-card-panel-close:active {
-  transform: scale(0.95);
-}
 
-.char-card-panel-tabs {
-  display: flex;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(10, 10, 18, 0.5);
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
 
-.char-card-panel-tab {
-  flex: 1;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-dim);
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  padding: 12px 4px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-.char-card-panel-tab::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 1px;
-  background: var(--teal);
-  transition: width 0.3s ease;
-}
-.char-card-panel-tab:hover {
-  color: var(--text-mid);
-  background: rgba(255, 255, 255, 0.02);
-}
-.char-card-panel-tab:hover::before {
-  width: 60%;
-  opacity: 0.5;
-}
-.char-card-panel-tab.active {
-  color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 8%, transparent);
-}
-.char-card-panel-tab.active::before {
-  width: 80%;
-  opacity: 1;
-  box-shadow: 0 0 8px var(--teal);
-}
 
-.char-card-panel-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 16px;
-  position: relative;
-  z-index: 1;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Backdrop with blur */
-.char-card-panel-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 9998;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  animation: cc-backdrop-in 0.25s ease;
-}
+
 
 @keyframes cc-backdrop-in {
   0% { opacity: 0; }
@@ -3355,185 +3016,54 @@ body.scl-realm-open .tab-bar {
    Diablo theme â€” Character Card Panel (red glass)
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-[data-theme="diablo"] .char-card-panel {
-  background:
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--red) 8%, transparent) 0%,
-      color-mix(in srgb, var(--red) 3%, transparent) 50%,
-      color-mix(in srgb, var(--red) 5%, transparent) 100%
-    ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
-  border-top-color: color-mix(in srgb, var(--red) 35%, transparent);
-  box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.6),
-    0 0 1px color-mix(in srgb, var(--red) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.02);
-}
-[data-theme="diablo"] .char-card-panel::before {
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--red) 50%, transparent) 50%, transparent 100%);
-}
-[data-theme="diablo"] .char-card-panel-header {
-  border-bottom-color: color-mix(in srgb, var(--red) 15%, transparent);
-}
-[data-theme="diablo"] .char-card-panel-title {
-  color: var(--red);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--red) 40%, transparent);
-}
-[data-theme="diablo"] .char-card-panel-close {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme="diablo"] .char-card-panel-close:hover {
-  border-color: color-mix(in srgb, var(--red) 45%, transparent);
-  color: var(--red);
-  background: color-mix(in srgb, var(--red) 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--red) 20%, transparent);
-}
-[data-theme="diablo"] .char-card-panel-tab::before {
-  background: var(--red);
-}
-[data-theme="diablo"] .char-card-panel-tab.active {
-  color: var(--red);
-  background: color-mix(in srgb, var(--red) 8%, transparent);
-}
-[data-theme="diablo"] .char-card-panel-tab.active::before {
-  box-shadow: 0 0 8px var(--red);
-}
+
+
+
+
+
+
+
+
+
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Fantasy theme — Character Card Panel (parchment)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-[data-theme="fantasy"] .char-card-panel {
-  background:
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--gold) 6%, transparent) 0%,
-      transparent 50%,
-      color-mix(in srgb, var(--gold) 4%, transparent) 100%
-    ),
-    linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel2) 100%);
-  border-top-color: color-mix(in srgb, var(--gold) 40%, transparent);
-  color: var(--text);
-  box-shadow:
-    0 -8px 28px rgba(78, 38, 0, 0.2),
-    0 0 1px color-mix(in srgb, var(--gold) 35%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-[data-theme="fantasy"] .char-card-panel::before {
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--gold) 45%, transparent) 50%, transparent 100%);
-}
-[data-theme="fantasy"] .char-card-panel-header {
-  border-bottom-color: color-mix(in srgb, var(--gold) 22%, transparent);
-}
-[data-theme="fantasy"] .char-card-panel-title {
-  color: var(--gold);
-  text-shadow: none;
-}
-[data-theme="fantasy"] .char-card-panel-close:hover {
-  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
-  color: var(--gold);
-  background: color-mix(in srgb, var(--gold) 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 15%, transparent);
-}
-[data-theme="fantasy"] .char-card-panel-tab::before {
-  background: var(--gold);
-}
-[data-theme="fantasy"] .char-card-panel-tab.active {
-  color: var(--gold);
-  background: color-mix(in srgb, var(--gold) 8%, transparent);
-}
-[data-theme="fantasy"] .char-card-panel-tab.active::before {
-  box-shadow: 0 0 8px var(--gold);
-}
+
+
+
+
+
+
+
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Unicorn theme â€” Character Card Panel (purple glass)
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-[data-theme="unicorn"] .char-card-panel {
-  background:
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--purple) 8%, transparent) 0%,
-      color-mix(in srgb, var(--purple) 3%, transparent) 50%,
-      color-mix(in srgb, var(--purple) 5%, transparent) 100%
-    ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
-  border-top-color: color-mix(in srgb, var(--purple) 35%, transparent);
-  box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.5),
-    0 0 1px color-mix(in srgb, var(--purple) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-[data-theme="unicorn"] .char-card-panel::before {
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--purple) 50%, transparent) 50%, transparent 100%);
-}
-[data-theme="unicorn"] .char-card-panel-header {
-  border-bottom-color: color-mix(in srgb, var(--purple) 15%, transparent);
-}
-[data-theme="unicorn"] .char-card-panel-title {
-  color: var(--purple);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--purple) 40%, transparent);
-}
-[data-theme="unicorn"] .char-card-panel-close:hover {
-  border-color: color-mix(in srgb, var(--purple) 45%, transparent);
-  color: var(--purple);
-  background: color-mix(in srgb, var(--purple) 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--purple) 20%, transparent);
-}
-[data-theme="unicorn"] .char-card-panel-tab::before {
-  background: var(--purple);
-}
-[data-theme="unicorn"] .char-card-panel-tab.active {
-  color: var(--purple);
-  background: color-mix(in srgb, var(--purple) 8%, transparent);
-}
-[data-theme="unicorn"] .char-card-panel-tab.active::before {
-  box-shadow: 0 0 8px var(--purple);
-}
+
+
+
+
+
+
+
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    Sci-Fi theme â€” Character Card Panel (neon blue glass)
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-[data-theme="scifi"] .char-card-panel {
-  background:
-    linear-gradient(135deg,
-      color-mix(in srgb, #00c8ff 8%, transparent) 0%,
-      color-mix(in srgb, #00c8ff 3%, transparent) 50%,
-      color-mix(in srgb, #00c8ff 5%, transparent) 100%
-    ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
-  border-top-color: color-mix(in srgb, #00c8ff 35%, transparent);
-  box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.5),
-    0 0 1px color-mix(in srgb, #00c8ff 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-[data-theme="scifi"] .char-card-panel::before {
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, #00c8ff 50%, transparent) 50%, transparent 100%);
-}
-[data-theme="scifi"] .char-card-panel-header {
-  border-bottom-color: color-mix(in srgb, #00c8ff 15%, transparent);
-}
-[data-theme="scifi"] .char-card-panel-title {
-  color: #00c8ff;
-  text-shadow: 0 0 16px color-mix(in srgb, #00c8ff 40%, transparent);
-}
-[data-theme="scifi"] .char-card-panel-close:hover {
-  border-color: color-mix(in srgb, #00c8ff 45%, transparent);
-  color: #00c8ff;
-  background: color-mix(in srgb, #00c8ff 10%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, #00c8ff 20%, transparent);
-}
-[data-theme="scifi"] .char-card-panel-tab::before {
-  background: #00c8ff;
-}
-[data-theme="scifi"] .char-card-panel-tab.active {
-  color: #00c8ff;
-  background: color-mix(in srgb, #00c8ff 8%, transparent);
-}
-[data-theme="scifi"] .char-card-panel-tab.active::before {
-  box-shadow: 0 0 8px #00c8ff;
-}
+
+
+
+
+
+
+
+
 
 .char-card-open-btn.char-card-action-btn {
   flex: 1;
@@ -3545,112 +3075,20 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.12em;
 }
 
-.char-card-open-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 12px;
-  padding: 11px 14px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid color-mix(in srgb, var(--gold) 20%, transparent);
-  border-radius: 8px;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--gold);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.char-card-open-btn:hover {
-  background: color-mix(in srgb, var(--gold) 8%, transparent);
-  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--gold) 15%, transparent);
-  transform: translateY(-1px);
-}
-.char-card-open-btn:active {
-  transform: translateY(0) scale(0.98);
-  transition-duration: 0.1s;
-}
-.char-card-open-btn:focus-visible {
-  outline: 2px solid rgba(0, 229, 204, 0.65);
-  outline-offset: 2px;
-}
-.char-card-open-btn-icon {
-  font-size: 14px;
-  line-height: 1;
-  transition: transform 0.3s ease;
-}
-.char-card-open-btn:hover .char-card-open-btn-icon {
-  transform: scale(1.15);
-}
+
+
+
+
+
+
 
 /* TODAY section â€” uses shared home-section-shell */
-.home-today-section {
-  margin-top: 0;
-  margin-bottom: 0;
-  --daily-glyph-top: #1c1c2a;
-  --daily-glyph-mid: #0e0e16;
-  --daily-glyph-bottom: #08080f;
-  --daily-glyph-sealed-top: #0e0e14;
-  --daily-glyph-sealed-bottom: #060608;
-  --daily-rune-top: #151520;
-  --daily-rune-bottom: #08080f;
-  --daily-rune-deep: #0c0c14;
-  --daily-rune-done-top: #101018;
-  --daily-rune-done-bottom: #06060c;
-  --daily-hero-top: #141620;
-  --daily-hero-bottom: #0e1018;
-  --daily-inset-highlight: rgba(255,255,255,0.06);
-  --daily-inset-line: rgba(255,255,255,0.12);
-  --daily-inset-dark: rgba(0,0,0,0.55);
-  --daily-muted-border: rgba(255,255,255,0.08);
-  --daily-muted-bg: rgba(255,255,255,0.02);
-  --daily-glyph-shadow: 0 10px 28px rgba(0,0,0,0.65);
-  --daily-glyph-hover-shadow: 0 14px 36px rgba(0,0,0,0.7);
-  --daily-sealed-frame: rgba(90, 90, 100, 0.35);
-  --daily-sealed-text: rgba(140, 140, 150, 0.55);
-  --daily-connector-start: color-mix(in srgb, var(--gold) 35%, transparent);
-  --daily-connector-end: color-mix(in srgb, var(--gold) 4%, transparent);
-  --daily-glyph-accent: var(--gold);
-  --daily-glyph-skill-accent: var(--purple);
-  --daily-surface-hero: linear-gradient(155deg, var(--daily-hero-top) 0%, var(--daily-hero-bottom) 100%);
-  --daily-surface-glyph:
-    linear-gradient(180deg, var(--daily-inset-highlight) 0%, transparent 18%),
-    linear-gradient(160deg, var(--daily-glyph-top) 0%, var(--daily-glyph-mid) 45%, var(--daily-glyph-bottom) 100%);
-  --daily-surface-rune:
-    linear-gradient(135deg, var(--daily-inset-highlight) 0%, transparent 40%),
-    linear-gradient(160deg, var(--daily-rune-top) 0%, var(--daily-rune-bottom) 55%, var(--daily-rune-deep) 100%);
-  --daily-surface-rune-done: linear-gradient(160deg, var(--daily-rune-done-top) 0%, var(--daily-rune-done-bottom) 100%);
-  --daily-surface-sealed:
-    linear-gradient(180deg, color-mix(in srgb, var(--daily-inset-highlight) 35%, transparent) 0%, transparent 15%),
-    linear-gradient(160deg, var(--daily-glyph-sealed-top) 0%, var(--daily-glyph-sealed-bottom) 100%);
-}
-.home-today-header {
-  padding: 16px 18px 14px;
-}
 
-.gq-panel-header-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px 12px;
-  background: rgba(255,255,255,0.015);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  border-radius: 0 0 8px 8px;
-  backdrop-filter: blur(8px);
-}
 
-.gq-panel-title {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  color: var(--gold);
-  text-shadow: 0 0 12px rgba(201,168,76,0.5);
-  position: relative;
-}
+
+
+
+
 
 .gq-panel-title::before,
 .gq-panel-title::after {
@@ -3673,46 +3111,15 @@ body.scl-realm-open .tab-bar {
   transform: translateY(-50%);
 }
 /* Heading row â€” centered with ornamental flanking lines */
-.home-today-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  color: var(--gold);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 35%, transparent);
-}
+
 /* Flanking lines â€” fade outward from center */
-.home-today-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 35%, transparent) 0%, transparent 100%);
-}
-.home-today-line:first-child {
-  background: linear-gradient(270deg, color-mix(in srgb, var(--gold) 35%, transparent) 0%, transparent 100%);
-}
-.home-today-glyph {
-  font-size: 9px;
-  color: color-mix(in srgb, var(--gold) 55%, transparent);
-  flex-shrink: 0;
-}
+
+
+
 /* Date sub-label */
-.home-today-date {
-  text-align: center;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  color: rgba(200, 195, 215, 0.4);
-  padding: 4px 0 12px;
-  text-transform: uppercase;
-}
+
 /* Inner content â€” box owns the horizontal inset */
-.home-today-section .daily-section {
-  padding: 0 14px 14px;
-}
+
 
 /* Daily objectives column */
 .home-daily-objs {
@@ -3759,108 +3166,22 @@ body.scl-realm-open .tab-bar {
   font-style: italic;
 }
 
-.home-name-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(4px);
-}
-.home-name-modal {
-  width: 100%;
-  max-width: 340px;
-  padding: 22px 20px 18px;
-  background: linear-gradient(155deg, #141620 0%, #0e1018 100%);
-  border: 1px solid rgba(201,168,76,0.28);
-  border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
-}
-.home-name-modal-title {
-  margin: 0 0 6px;
-  font-family: 'Cinzel', serif;
-  font-size: 15px;
-  letter-spacing: 0.12em;
-  color: #c9a84c;
-}
-.home-name-modal-sub {
-  margin: 0 0 16px;
-  font-family: 'Crimson Text', serif;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--text-dim, #6b6882);
-}
-.home-name-modal-label {
-  display: block;
-  margin-bottom: 6px;
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  color: rgba(200,195,215,0.65);
-  text-transform: uppercase;
-}
-.home-name-modal-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  margin-bottom: 18px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.25);
-  color: #e8e4f0;
-  font-family: 'Crimson Text', serif;
-  font-size: 16px;
-}
-.home-name-modal-input:focus {
-  outline: none;
-  border-color: rgba(0, 229, 204, 0.45);
-  box-shadow: 0 0 0 1px rgba(0, 229, 204, 0.2);
-}
-.home-name-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-.home-name-modal-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
-}
-.home-name-modal-btn--ghost {
-  border: 1px solid rgba(255,255,255,0.15);
-  background: transparent;
-  color: var(--text-dim, #9a95ac);
-}
-.home-name-modal-btn--ghost:hover {
-  border-color: rgba(255,255,255,0.28);
-  color: #e0dce8;
-}
-.home-name-modal-btn--primary {
-  border: 1px solid rgba(0, 229, 204, 0.4);
-  background: rgba(0, 229, 204, 0.12);
-  color: #5eead4;
-}
-.home-name-modal-btn--primary:hover:not(:disabled) {
-  background: rgba(0, 229, 204, 0.2);
-  border-color: rgba(0, 229, 204, 0.65);
-}
-.home-name-modal-btn--primary:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
 
-.char-card-dob {
-  font-family: 'Crimson Text', serif;
-  font-size: 12px; color: var(--text-dim, #3d3b52);
-  letter-spacing: 0.18em; margin-top: 3px;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .char-card-archetype {
   margin: 4px 0 8px;
@@ -3892,14 +3213,7 @@ body.scl-realm-open .tab-bar {
   text-transform: uppercase;
 }
 
-.char-card-calling-num {
-  font-family: 'Cinzel', serif;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--teal, #00e5cc);
-  text-shadow: 0 0 10px rgba(0,229,204,0.18);
-  line-height: 1;
-}
+
 
 .char-card-freq-chips {
   display: flex;
@@ -3979,62 +3293,18 @@ body.scl-realm-open .tab-bar {
   outline-offset: 2px;
 }
 
-.char-card-rep-empty-link {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px dashed rgba(255,255,255,0.1);
-  border-radius: 8px;
-  background: transparent;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: #7a8a9a;
-  cursor: pointer;
-  text-align: center;
-  transition: color 0.2s, border-color 0.2s;
-}
 
-.char-card-rep-empty-link:hover {
-  color: var(--gold);
-  border-color: color-mix(in srgb, var(--gold) 30%, transparent);
-}
 
-.char-card-rep-empty-link:focus-visible {
-  outline: 2px solid rgba(0, 229, 204, 0.65);
-  outline-offset: 2px;
-}
+
+
+
 
 /* Legacy calling styles â€” kept for panel/other uses */
-.char-card-calling {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  flex-shrink: 0;
-  min-width: 72px;
-  cursor: help;
-  margin-right: 26px;
-}
+
 
 /* Life Calling archetype — quiet secondary under name */
-.char-card-calling-archetype {
-  text-align: left;
-  margin: 0;
-  padding: 0;
-  border-top: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.char-card-calling-archetype-name {
-  font-family: 'Crimson Text', serif;
-  font-size: 12px;
-  font-style: italic;
-  letter-spacing: 0.1em;
-  color: color-mix(in srgb, var(--gold) 72%, var(--text-mid));
-  text-transform: uppercase;
-  line-height: 1.25;
-}
+
+
 
 /* Class nest inside identity column (beside portrait) */
 .char-card-class {
@@ -4100,6 +3370,11 @@ body.scl-realm-open .tab-bar {
   text-align: left;
   line-height: 1.2;
   min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .char-card-class-title:hover {
   color: color-mix(in srgb, var(--gold) 80%, #fff);
@@ -4163,73 +3438,30 @@ body.scl-realm-open .tab-bar {
   color: var(--gold);
 }
 /* life path secondary row */
-.char-card-lp {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-.char-card-lp-key {
-  font-family: 'Crimson Text', serif;
-  font-size: 12px; color: var(--text-dim, #4a4860); letter-spacing: 0.1em;
-}
-.char-card-lp-val {
-  font-family: 'Cinzel', serif; font-size: 14px;
-  color: var(--purple, #a78bfa);
-}
+
+
+
 
 /* remove old list styles (no longer used) */
 
 /* â”€â”€ Settings Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.settings-tab { padding: 14px; }
-.settings-section {
-  background: linear-gradient(155deg, #141620 0%, #0e1018 100%);
-  border: 1px solid #252838;
-  border-radius: 8px;
-  padding: 16px; margin-bottom: 12px;
-}
-.settings-section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 9px; letter-spacing: 0.18em;
-  color: #3d3b52; margin: 0 0 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.setting-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.setting-row:last-child { border-bottom: none; }
-.setting-label  { font-family: 'Crimson Text', serif; font-size: 14px; color: #4a4860; }
-.setting-val    { font-family: 'Crimson Text', serif; font-size: 14px; color: #c8c3d8; }
-.setting-val-dim { color: #2a283a; }
-.setting-freq-row {
-  display: flex; justify-content: space-between;
-  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.setting-freq-row:last-child { border-bottom: none; }
-.setting-freq-label { font-family: 'Crimson Text', serif; font-size: 14px; color: #4a4860; }
-.setting-freq-val   { font-family: 'Cinzel', serif; font-size: 15px; }
-.settings-btn {
-  display: inline-block;
-  background: rgba(10,11,15,0.5);
-  border: 1px solid #252838;
-  border-radius: 4px; color: #8a8699;
-  font-family: 'Cinzel', serif;
-  font-size: 10px; letter-spacing: 0.1em;
-  padding: 11px 14px; cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  text-align: left; width: 100%;
-}
-.settings-btn:hover {
-  border-color: rgba(201,168,76,0.5);
-  color: #c9a84c; background: rgba(201,168,76,0.04);
-}
-.settings-btn-danger { color: #7a4040; }
-.settings-btn-danger:hover {
-  border-color: rgba(248,113,113,0.4);
-  color: #f87171; background: rgba(248,113,113,0.04);
-}
-.settings-panel { padding-top: 12px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* â”€â”€ Character Guidebook CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .char-guidebook-cta-wrap {
@@ -4303,82 +3535,19 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Notification toggles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.notif-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.notif-toggle-row:last-of-type { border-bottom: none; }
-.notif-toggle-info { flex: 1; min-width: 0; }
-.notif-toggle-label {
-  font-family: 'Crimson Text', serif;
-  font-size: 14px;
-  color: #c8c3d8;
-  line-height: 1.3;
-}
-.notif-toggle-desc {
-  font-family: 'Crimson Text', serif;
-  font-size: 11px;
-  color: #4a4860;
-  margin-top: 2px;
-  line-height: 1.4;
-}
-.notif-toggle-btn {
-  flex-shrink: 0;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  outline: none;
-}
-.notif-toggle-btn.disabled { opacity: 0.35; cursor: default; }
-.notif-toggle-track {
-  display: block;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  position: relative;
-  transition: background 0.2s, border-color 0.2s;
-}
-.notif-toggle-btn.on .notif-toggle-track {
-  background: rgba(45,212,191,0.25);
-  border-color: rgba(45,212,191,0.5);
-}
-.notif-toggle-thumb {
-  display: block;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.2s, background 0.2s;
-}
-.notif-toggle-btn.on .notif-toggle-thumb {
-  transform: translateX(18px);
-  background: var(--teal, #2dd4bf);
-}
-.notif-perm-warning {
-  font-family: 'Crimson Text', serif;
-  font-size: 12px;
-  color: var(--rose, #f472b6);
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-.notif-active-note {
-  font-family: 'Cinzel', serif;
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  color: rgba(45,212,191,0.5);
-  margin-top: 8px;
-  text-align: right;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FREQUENCY CHART
@@ -4697,11 +3866,7 @@ body.scl-realm-open .tab-bar {
   font-size: 11px; letter-spacing: 0.1em;
   display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
-.strip-master-badge {
-  font-size: 7.5px; border: 1px solid;
-  border-radius: 3px; padding: 1px 5px;
-  letter-spacing: 0.1em;
-}
+
 .strip-role {
   font-size: 10px; color: #4a4862;
   margin-top: 2px; letter-spacing: 0.04em;
@@ -4753,15 +3918,10 @@ body.scl-realm-open .tab-bar {
    ================================================ */
 
 /* Section body padding */
-.quest-section-body { padding: 4px 0 24px; }
+
 
 /* â”€â”€ Quest Hub â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.quest-hub {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding-top: 12px;
-}
+
 
 .quest-hub-section.quest-hub-section--life-progress {
   margin-top: 8px;
@@ -4806,232 +3966,67 @@ body.scl-realm-open .tab-bar {
   color: var(--text-mid);
 }
 
-.quest-hub-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
-.quest-hub-section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-}
 
-.quest-hub-section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--text);
-  text-transform: uppercase;
-}
 
-.quest-hub-section-sub {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  text-align: right;
-}
 
-.quest-hub-section-body {
-  display: grid;
-  gap: 8px;
-}
 
-.quest-hub-card {
-  padding: 12px 12px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
-}
 
-.quest-hub-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
 
-.quest-hub-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 
-.quest-hub-card--gold {
-  border-color: rgba(201,168,76,0.18);
-  background:
-    linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 42%),
-    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
-}
 
-.quest-hub-card--teal {
-  border-color: rgba(0,229,204,0.16);
-  background:
-    linear-gradient(135deg, rgba(0,229,204,0.06) 0%, transparent 42%),
-    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
-}
 
-.quest-hub-card--rose {
-  border-color: rgba(244,114,182,0.16);
-  background:
-    linear-gradient(135deg, rgba(244,114,182,0.06) 0%, transparent 42%),
-    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
-}
 
-.quest-hub-card--main {
-  border-color: rgba(201,168,76,0.2);
-  background:
-    linear-gradient(135deg, rgba(201,168,76,0.07) 0%, rgba(0,229,204,0.03) 100%),
-    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
-}
 
-.quest-hub-card--daily {
-  border-color: rgba(0,229,204,0.16);
-}
 
-.quest-hub-card--journal,
-.quest-hub-card--calm {
-  background: linear-gradient(155deg, rgba(20,22,32,0.88) 0%, rgba(14,16,24,0.96) 100%);
-}
 
-.quest-hub-card-badge {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-}
 
-.quest-hub-card-status {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  color: var(--text);
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-}
 
-.quest-hub-card-title {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.3;
-  margin-bottom: 4px;
-}
 
-.quest-hub-card-copy {
-  font-family: 'Crimson Text', serif;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--text-mid);
-  margin-bottom: 8px;
-}
 
-.quest-hub-card-progress {
-  margin-bottom: 10px;
-}
 
-.quest-hub-card-progress-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-  margin-bottom: 5px;
-  text-transform: uppercase;
-}
 
-.quest-hub-card-progress-track {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.45);
-}
 
-.quest-hub-card-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--gold) 0%, var(--teal) 100%);
-  box-shadow: 0 0 10px rgba(201,168,76,0.2);
-}
 
-.quest-hub-card--teal .quest-hub-card-progress-fill,
-.quest-hub-card--daily .quest-hub-card-progress-fill {
-  background: linear-gradient(90deg, rgba(0,229,204,0.85) 0%, rgba(0,229,204,0.45) 100%);
-  box-shadow: 0 0 10px rgba(0,229,204,0.18);
-}
 
-.quest-hub-card--rose .quest-hub-card-progress-fill {
-  background: linear-gradient(90deg, rgba(244,114,182,0.85) 0%, rgba(244,114,182,0.45) 100%);
-  box-shadow: 0 0 10px rgba(244,114,182,0.18);
-}
 
-.quest-hub-card--main .quest-hub-card-progress-fill {
-  background: linear-gradient(90deg, rgba(201,168,76,0.9) 0%, rgba(0,229,204,0.5) 100%);
-}
 
-.quest-hub-card-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
 
-.quest-hub-card-meta-item {
-  padding: 8px 9px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.025);
-}
 
-.quest-hub-card-meta-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
 
-.quest-hub-card-meta-value {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  color: var(--text);
-  line-height: 1.3;
-}
 
-.quest-hub-card-action {
-  margin-top: 10px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 7px;
-  color: var(--text);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 9px 12px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
-}
 
-.quest-hub-card-action:hover {
-  border-color: rgba(201,168,76,0.24);
-  background: rgba(201,168,76,0.06);
-  transform: translateY(-1px);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @media (max-width: 640px) {
   .quest-hub-section-head {
@@ -5078,15 +4073,7 @@ body.scl-realm-open .tab-bar {
   min-width: 72px;
   flex-shrink: 0;
 }
-.quest-xp-level {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  opacity: 0.9;
-  padding: 1px 4px;
-  border-radius: 3px;
-  background: transparent;
-  border: none;
-}
+
 .quest-xp-track-name--teal { color: var(--teal) !important; }
 .quest-xp-track-name--gold { color: var(--gold) !important; }
 .quest-xp-level--teal {
@@ -5105,6 +4092,10 @@ body.scl-realm-open .tab-bar {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   opacity: 0.85;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: transparent;
+  border: none;
 }
 
 .quest-xp-track {
@@ -5176,14 +4167,9 @@ body.scl-realm-open .tab-bar {
     padding: 16px;
   }
 
-  .char-card-identity {
-    gap: 12px;
-  }
+  
 
-  .char-card-portrait {
-    width: 76px;
-    height: 76px;
-  }
+  
 
   .char-card-calling-num {
     font-size: 16px;
@@ -5209,7 +4195,9 @@ body.scl-realm-open .tab-bar {
 /* Quest grid â€” 1 column on mobile, optional 2-col wider */
 .quest-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 
-.quest-section-body { padding: 0; }
+.quest-section-body {
+  padding: 0;
+}
 
 .tab-panel-content--quests {
   display: flex;
@@ -5293,19 +4281,10 @@ body.scl-realm-open .tab-bar {
   pointer-events: all;
 }
 
-.lqt-flow-wrap {
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  background: rgba(255,255,255,0.015);
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
-  height: auto;
-}
 
-.cursor-pointer { cursor: pointer; }
-.select-none { user-select: none; }
+
+
+
 
 @media (max-width: 700px) {
   .lqt-section .side-panel-mobile {
@@ -5316,17 +4295,11 @@ body.scl-realm-open .tab-bar {
   }
 }
 
-.lqt-flow-wrap .react-flow__pane {
-  cursor: default;
-}
 
-.lqt-flow-wrap .react-flow__edge-path {
-  stroke-linecap: round;
-}
 
-.lqt-flow-wrap .react-flow__node {
-  pointer-events: all;
-}
+
+
+
 
 .lqt-tree {
   display: flex;
@@ -6253,10 +5226,12 @@ body.scl-realm-open .tab-bar {
 .lqt-panel-close {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-dim);
   font-size: 22px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 0;
+  min-width: 44px;
+  min-height: 44px;
   flex-shrink: 0;
   transition: color 0.2s, opacity 0.2s;
   margin-left: auto;
@@ -6288,27 +5263,12 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Panel body */
-.flow-panel-body {
-  padding: 16px 20px;
-  flex: 1;
-  overflow-y: auto;
-}
 
-.flow-panel-body--mobile {
-  padding: 20px 20px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
+
 
 /* Mobile backdrop */
-.flow-side-panel-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 49;
-  backdrop-filter: blur(4px);
-}
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PURPOSE/IDENTITY/LESSONS STRIP CONTENT
@@ -6462,15 +5422,15 @@ body.scl-realm-open .tab-bar {
 }
 
 .strip-master-badge {
+  font-size: 7px;
+  border: 1px solid var(--flow-color, #c9a84c);
+  border-radius: 3px;
+  padding: 1px 6px;
+  letter-spacing: 0.08em;
   display: inline-block;
   margin-left: 6px;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 1px 6px;
-  border: 1px solid var(--flow-color, #c9a84c);
-  border-radius: 3px;
   background: rgba(255, 255, 255, 0.05);
   color: var(--flow-color, #c9a84c);
   text-transform: uppercase;
@@ -6480,67 +5440,21 @@ body.scl-realm-open .tab-bar {
    JOURNAL SECTIONS
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-.journal-section {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-}
 
-.journal-section-label {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  text-transform: uppercase;
-  color: var(--flow-color, #c9a84c);
-}
 
-.journal-section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  margin-left: 10px;
-  background: linear-gradient(90deg, currentColor 0%, transparent 100%);
-  opacity: 0.2;
-}
 
-.journal-section-text {
-  font-family: 'Crimson Text', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.72;
-  color: rgba(200,195,216,0.85);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 
-.journal-section-text p { margin: 0; }
 
-.journal-section-shadow .journal-section-label {
-  color: var(--color-rpg-rose, #f472b6);
-}
 
-.journal-section-shadow .journal-section-label::after {
-  opacity: 0.15;
-}
 
-.journal-affirmation {
-  font-family: 'Crimson Text', Georgia, serif;
-  font-size: 15px;
-  font-style: italic;
-  line-height: 1.6;
-  padding: 12px 15px;
-  border-left: 3px solid;
-  border-radius: 0 6px 6px 0;
-  color: var(--flow-color, rgba(200,195,216,0.82));
-  background: rgba(255,255,255,0.03);
-}
+
+
+
+
+
+
+
+
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FLOW ENTRANCE ANIMATIONS
@@ -6591,6 +5505,11 @@ body.scl-realm-open .tab-bar {
   stroke-dasharray: 8 4;
   animation: skilltree-edge-flow 1.2s linear infinite;
 }
+@media (prefers-reduced-motion: reduce) {
+  .flow-canvas-wrap .react-flow__edge .react-flow__edge-path {
+    animation: none;
+  }
+}
 
 /* Glow layer â€” uses the interaction edge class ReactFlow provides */
 .flow-canvas-wrap .react-flow__edge-interaction {
@@ -6611,6 +5530,7 @@ body.scl-realm-open .tab-bar {
   overflow: hidden;
   flex: 1;
   min-height: 0;
+  height: auto;
 }
 
 .lqt-flow-wrap .react-flow__pane { cursor: default; }
@@ -6618,8 +5538,8 @@ body.scl-realm-open .tab-bar {
 .lqt-flow-wrap .react-flow__node { pointer-events: all; }
 
 .select-none {
-  -webkit-user-select: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .cursor-pointer { cursor: pointer; }
@@ -6628,9 +5548,9 @@ body.scl-realm-open .tab-bar {
 .flow-panel-body {
   padding: 16px 20px;
   flex: 1 1 auto;
+  overflow-y: auto;
   min-height: 0;
   overflow-x: hidden;
-  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
@@ -7689,7 +6609,7 @@ body.scl-realm-open .tab-bar {
   justify-content: space-between;
   gap: 8px;
 }
-.qj-entry-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+
 .qj-entry-type { font-size: 9px; letter-spacing: 0.12em; font-family: 'Share Tech Mono', monospace; }
 .qj-entry-num { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700; line-height: 1; text-shadow: 0 0 8px currentColor; }
 .qj-entry-archetype { font-size: 9px; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
@@ -9648,10 +8568,7 @@ body.scl-realm-open .tab-bar {
   flex-direction: column;
   gap: 12px;
 }
-.rm-region-panel--primary {
-  margin: 0;
-  width: 100%;
-}
+
 .rm-realm-gate-strip {
   margin: 0;
   border-style: dashed;
@@ -10079,7 +8996,7 @@ body.scl-realm-open .tab-bar {
   cursor: pointer;
   letter-spacing: 1px;
 }
-.rm-loc-btn:disabled { opacity: 0.5; cursor: default; }
+
 .rm-loc-active { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #00e5cc; }
 .rm-loc-error  { font-size: 11px; color: #f87171; }
 .rm-place-btn.active { background: rgba(240,192,96,0.1); border-color: rgba(240,192,96,0.5); color: #f0c060; }
@@ -10199,7 +9116,7 @@ body.scl-realm-open .tab-bar {
   cursor: default;
 }
 
-.rm-nearby { padding: 12px; }
+
 .rm-nearby-label {
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
@@ -10209,21 +9126,8 @@ body.scl-realm-open .tab-bar {
   text-transform: uppercase;
   opacity: 0.9;
 }
-.rm-nearby-card {
-  background: linear-gradient(135deg, rgba(0,229,180,0.04) 0%, rgba(0,229,180,0.02) 100%);
-  border: 1px solid rgba(0,229,180,0.12);
-  border-left: 2px solid rgba(0,229,180,0.25);
-  padding: 9px 11px;
-  margin-bottom: 6px;
-  border-radius: 5px;
-  transition: all 0.15s;
-}
-.rm-nearby-card:hover {
-  background: linear-gradient(135deg, rgba(0,229,180,0.08) 0%, rgba(0,229,180,0.04) 100%);
-  border-color: rgba(0,229,180,0.2);
-  border-left-color: rgba(0,229,180,0.35);
-  box-shadow: 0 2px 6px rgba(0,229,180,0.08);
-}
+
+
 .rm-nearby-header {
   display: flex;
   justify-content: space-between;
@@ -10315,14 +9219,14 @@ body.scl-realm-open .tab-bar {
 .rm-cq-actions { display: flex; gap: 8px; margin-top: 14px; }
 .rm-cq-cancel { flex: 1; background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.45); font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 9px; cursor: pointer; }
 .rm-cq-save   { flex: 2; background: rgba(0,229,180,0.1); border: 1px solid rgba(0,229,180,0.45); color: #00e5cc; font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 9px; cursor: pointer; letter-spacing: 1px; }
-.rm-cq-form { background: var(--bg-panel, #0b0b14); border: 1px solid rgba(0,229,180,0.2); padding: 16px; margin: 12px; }
-.rm-cq-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
-.rm-cq-title { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #00e5cc; letter-spacing: 1px; flex: 1; }
-.rm-cq-coords { font-size: 10px; color: rgba(255,255,255,0.35); align-self: center; }
-.rm-cq-close { background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); font-size: 12px; padding: 2px 7px; cursor: pointer; }
+
+
+
+
+
 
 /* â”€â”€ Social: Allies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.rm-allies-view { padding-bottom: 16px; }
+
 .rm-invite-url { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.45); word-break: break-all; margin-bottom: 8px; line-height: 1.5; }
 .rm-invite-copy { background: rgba(0,229,180,0.06); border: 1px solid; font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 6px 12px; cursor: pointer; letter-spacing: 1px; margin-bottom: 6px; }
 .rm-invite-hint { font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; }
@@ -12074,6 +10978,11 @@ body.scl-realm-open .tab-bar {
   text-align: center;
   transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
 }
+.tab-panel-content--quests .profile-navbar-btn {
+  letter-spacing: 0.02em;
+  font-size: 11px;
+  padding: 10px 4px;
+}
 .profile-navbar-btn:hover:not(.active) {
   color: #c2cde0;
   background: rgba(255, 255, 255, 0.03);
@@ -12709,251 +11618,65 @@ body.scl-realm-open .tab-bar {
 .dhr-panel-complete-btn:active { transform: scale(0.98); }
 
 /* â”€â”€ Daily Hero Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.daily-hero {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--gold) 25%, var(--daily-muted-border));
-  border-radius: 10px;
-  background: var(--daily-surface-hero);
-  padding: 16px 16px 14px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-.daily-hero:hover {
-  border-color: color-mix(in srgb, var(--gold) 40%, var(--daily-muted-border));
-}
-.daily-hero-glow {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 60px;
-  pointer-events: none;
-}
-.daily-hero::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 50%, transparent) 30%, color-mix(in srgb, var(--gold) 50%, transparent) 70%, transparent);
-}
-.daily-hero::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 28px; height: 28px;
-  border-top: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
-  border-radius: 0 0 3px 0;
-  pointer-events: none;
-}
+
+
+
+
+
 /* Completed state */
-.daily-hero--done {
-  border-color: color-mix(in srgb, var(--teal) 30%, transparent);
-  background: linear-gradient(155deg, color-mix(in srgb, var(--teal) 4%, transparent) 0%, var(--daily-hero-bottom) 100%);
-}
+
 
 /* Top row: badge + button */
-.daily-hero-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.daily-hero-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-.daily-hero-badge-icon {
-  font-size: 13px;
-}
+
+
+
 
 /* Complete button â€” always visible in header */
-.daily-hero-complete-btn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  padding: 6px 14px;
-  border-radius: 5px;
-  border: 1px solid var(--dq-btn-color, var(--teal));
-  background: color-mix(in srgb, var(--dq-btn-color, var(--teal)) 10%, transparent);
-  color: var(--dq-btn-color, var(--teal));
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-}
-.daily-hero-complete-btn:hover {
-  background: color-mix(in srgb, var(--dq-btn-color, var(--teal)) 18%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--dq-btn-color, var(--teal)) 0.2);
-}
-.daily-hero-complete-btn:active {
-  transform: scale(0.97);
-}
+
+
+
 
 /* Title */
-.daily-hero-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-}
+
 
 /* One-line summary */
-.daily-hero-summary {
-  font-size: 12px;
-  color: var(--text-dim);
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
+
 
 /* Collapsible toggle */
-.daily-hero-toggle {
-  background: none;
-  border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  padding: 4px 0;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.daily-hero-toggle:hover { opacity: 0.8; }
+
+
 
 /* Collapsible details */
-.daily-hero-details {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-.daily-hero-obj-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 8px;
-  font-size: 11px;
-  color: var(--text-mid);
-  line-height: 1.6;
-}
-.daily-hero-obj-list li { padding-left: 12px; position: relative; }
-.daily-hero-obj-list li::before {
-  content: 'Â·';
-  position: absolute;
-  left: 0;
-  color: var(--text-dim);
-}
-.daily-hero-life-obj {
-  font-size: 11px;
-  color: var(--gold);
-  padding: 6px 8px;
-  background: rgba(201,168,76,0.04);
-  border: 1px solid rgba(201,168,76,0.12);
-  border-radius: 5px;
-}
+
+
+
+
+
 
 /* Completed celebration bar */
-.daily-hero-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 4px 0;
-}
-.daily-hero-icon {
-  font-size: 22px;
-  text-shadow: 0 0 16px var(--dq-color);
-  animation: daily-hero-pulse 1.5s ease-in-out infinite;
-}
-.daily-hero-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--dq-color, var(--teal));
-  margin-bottom: 2px;
-}
-.daily-hero-reward {
-  font-size: 11px;
-  color: var(--text-mid);
-}
+
+
+
+
 @keyframes daily-hero-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
 
 /* â”€â”€ Reminder Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.gq-reminder {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(220, 80, 120, 0.06);
-  border: 1px solid rgba(220, 80, 120, 0.15);
-  border-radius: 6px;
-  font-size: 10px;
-  color: var(--text-mid);
-  letter-spacing: 0.04em;
-}
-.gq-reminder > span:first-child { color: var(--rose); font-size: 12px; }
+
+
 
 /* â”€â”€ Generated Quests Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.gq-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+
 /* Premium centered header for Daily Runes panel */
-.gq-panel-header {
-  display: flex;
-  justify-content: center;
-  padding-bottom: 14px;
-  margin-bottom: 14px;
-  position: relative;
-}
+
 
 /* Glass holographic box */
-.gq-panel-header-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--teal) 8%, transparent) 0%,
-    color-mix(in srgb, var(--teal) 3%, transparent) 50%,
-    color-mix(in srgb, var(--teal) 5%, transparent) 100%
-  );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.3),
-    0 0 1px color-mix(in srgb, var(--teal) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
-  min-width: 280px;
-}
+
 
 /* Holographic shimmer overlay */
-.gq-panel-header-box::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 30%,
-    color-mix(in srgb, var(--teal) 12%, transparent) 50%,
-    transparent 70%
-  );
-  animation: headerShimmer 6s ease-in-out infinite;
-  pointer-events: none;
-}
+
 
 @keyframes headerShimmer {
   0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -12962,79 +11685,20 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Accent line under the box */
-.gq-panel-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--teal) 50%, transparent) 50%, transparent 100%);
-}
 
-.gq-panel-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--teal);
-  text-shadow: 0 0 16px color-mix(in srgb, var(--teal) 50%, transparent);
-  position: relative;
-  z-index: 1;
-}
 
-.gq-panel-stats {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-}
 
-.gq-panel-count {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  color: var(--text-mid);
-  letter-spacing: 0.08em;
-  opacity: 0.8;
-  flex-shrink: 0;
-}
+
+
+
+
 
 /* Re-roll button styling */
-.gq-reroll-btn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--teal) 35%, transparent);
-  background: color-mix(in srgb, var(--teal) 10%, transparent);
-  color: var(--teal);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.gq-reroll-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--teal) 18%, transparent);
-  border-color: color-mix(in srgb, var(--teal) 55%, transparent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--teal) 30%, transparent);
-  transform: translateY(-1px);
-}
-.gq-reroll-btn:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-.gq-reroll-btn--disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.gq-reroll-count {
-  margin-left: 4px;
-  opacity: 0.7;
-}
+
+
+
+
+
 
 /* Premium header for Quest History */
 .streak-calendar-header {
@@ -14099,9 +12763,7 @@ body.scl-realm-open .tab-bar {
   transform: none;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
-.rune-node--igniting {
-  animation: rune-node-ignite 0.6s ease-out !important;
-}
+
 @keyframes rune-node-ignite {
   0% { opacity: 0.6; transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
   40% { opacity: 1; transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 229, 204, 0.4), 0 8px 24px rgba(0,0,0,0.6); }
@@ -14383,18 +13045,7 @@ body.scl-realm-open .tab-bar {
    RE-ROLL BUTTON
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-.gq-reroll-btn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(201, 168, 76, 0.35);
-  background: rgba(201, 168, 76, 0.08);
-  color: var(--gold);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+
 
 .gq-reroll-btn:hover:not(.gq-reroll-btn--disabled) {
   background: rgba(201, 168, 76, 0.15);
@@ -14406,18 +13057,9 @@ body.scl-realm-open .tab-bar {
   transform: scale(0.96);
 }
 
-.gq-reroll-btn--disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  border-color: rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.02);
-  color: var(--text-dim);
-}
 
-.gq-reroll-count {
-  font-size: 8px;
-  opacity: 0.7;
-}
+
+
 
 .gq-reroll-error {
   font-family: 'Share Tech Mono', monospace;
@@ -14714,7 +13356,7 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Insights Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .insights-summary {
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(3, 1fr);
   gap: 8px; margin-bottom: 12px; position: relative;
 }
 .insights-summary-empty {
@@ -14738,8 +13380,8 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.06em; text-shadow: 0 0 8px currentColor;
 }
 .insights-summary-label {
-  font-family: 'Share Tech Mono', monospace; font-size: 7px;
-  color: var(--text-dim); letter-spacing: 0.1em;
+  font-family: 'Share Tech Mono', monospace; font-size: 10px;
+  color: var(--text-dim); letter-spacing: 0.06em;
   margin-top: 4px; text-transform: uppercase;
 }
 .insights-summary-best {
@@ -14756,6 +13398,9 @@ body.scl-realm-open .tab-bar {
 .psc-grid {
   display: grid; grid-template-columns: 140px 1fr;
   gap: 16px; align-items: start;
+}
+@media (max-width: 640px) {
+  .psc-grid { grid-template-columns: 1fr; }
 }
 .psc-ring-section { text-align: center; }
 .psc-polarity-legend {
@@ -15430,6 +14075,7 @@ body.scl-realm-open .tab-bar {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-top: 12px;
 }
 
 /* â”€â”€ Next Step Indicator â”€â”€ */
@@ -15469,8 +14115,10 @@ body.scl-realm-open .tab-bar {
 
 .quest-hub-section-head {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: baseline;
   gap: 2px;
+  flex-direction: column;
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
@@ -15478,33 +14126,37 @@ body.scl-realm-open .tab-bar {
 .quest-hub-section-title {
   font-family: 'Cinzel', serif;
   font-size: 12px;
-  font-weight: 700;
   letter-spacing: 0.15em;
   color: var(--gold);
-  margin: 0;
   text-transform: uppercase;
+  font-weight: 700;
+  margin: 0;
 }
 
 .quest-hub-section-sub {
   font-family: 'Crimson Text', serif;
   font-size: 12px;
+  letter-spacing: 0.08em;
   color: var(--text-dim);
+  text-transform: uppercase;
+  text-align: right;
   font-style: italic;
   margin: 0;
 }
 
 .quest-hub-section-body {
   display: flex;
-  flex-direction: column;
   gap: 10px;
+  flex-direction: column;
 }
 
 /* Quest Hub Card */
 .quest-hub-card {
+  padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.06);
   background: linear-gradient(135deg, rgba(14,16,24,0.8) 0%, rgba(10,10,18,0.9) 100%);
-  padding: 14px 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -15520,33 +14172,60 @@ body.scl-realm-open .tab-bar {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 8px;
 }
 
 .quest-hub-card-tags {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
+  align-items: center;
 }
 
-.quest-hub-card--gold { border-color: color-mix(in srgb, var(--gold) 20%, transparent); }
+.quest-hub-card--gold {
+  border-color: color-mix(in srgb, var(--gold) 20%, transparent);
+  background:
+    linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 42%),
+    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
+}
 .quest-hub-card--gold:hover { border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
-.quest-hub-card--teal { border-color: color-mix(in srgb, var(--teal) 20%, transparent); }
+.quest-hub-card--teal {
+  border-color: color-mix(in srgb, var(--teal) 20%, transparent);
+  background:
+    linear-gradient(135deg, rgba(0,229,204,0.06) 0%, transparent 42%),
+    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
+}
 .quest-hub-card--teal:hover { border-color: color-mix(in srgb, var(--teal) 40%, transparent); }
-.quest-hub-card--rose { border-color: color-mix(in srgb, var(--rose) 20%, transparent); }
+.quest-hub-card--rose {
+  border-color: color-mix(in srgb, var(--rose) 20%, transparent);
+  background:
+    linear-gradient(135deg, rgba(244,114,182,0.06) 0%, transparent 42%),
+    linear-gradient(155deg, rgba(20,22,32,0.94) 0%, rgba(14,16,24,0.98) 100%);
+}
 .quest-hub-card--rose:hover { border-color: color-mix(in srgb, var(--rose) 40%, transparent); }
-.quest-hub-card--main { border-color: color-mix(in srgb, var(--gold) 30%, transparent); background: linear-gradient(135deg, rgba(24,20,14,0.9) 0%, rgba(14,12,8,0.95) 100%); }
-.quest-hub-card--daily { border-color: color-mix(in srgb, var(--teal) 20%, transparent); }
+.quest-hub-card--main {
+  border-color: color-mix(in srgb, var(--gold) 30%, transparent);
+  background: linear-gradient(135deg, rgba(24,20,14,0.9) 0%, rgba(14,12,8,0.95) 100%);
+}
+.quest-hub-card--daily {
+  border-color: color-mix(in srgb, var(--teal) 20%, transparent);
+}
 .quest-hub-card--journal,
-.quest-hub-card--calm { border-color: rgba(255,255,255,0.06); background: rgba(14,16,24,0.5); }
+.quest-hub-card--calm {
+  background: rgba(14,16,24,0.5);
+  border-color: rgba(255,255,255,0.06);
+}
 
 .quest-hub-card-badge {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
+  color: var(--text-mid);
+  text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 4px;
   border: 1px solid currentColor;
-  color: var(--text-mid);
+  background: rgba(255,255,255,0.03);
 }
 .quest-hub-card--gold .quest-hub-card-badge { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 35%, transparent); }
 .quest-hub-card--teal .quest-hub-card-badge { color: var(--teal); border-color: color-mix(in srgb, var(--teal) 35%, transparent); }
@@ -15557,42 +14236,52 @@ body.scl-realm-open .tab-bar {
 .quest-hub-card-status {
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px;
-  color: var(--text-mid);
   letter-spacing: 0.06em;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
 }
 
 .quest-hub-card-title {
   font-family: 'Cinzel', serif;
   font-size: 14px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 4px;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: var(--text);
   margin: 0;
-  line-height: 1.4;
 }
 
 .quest-hub-card-copy {
   font-family: 'Crimson Text', serif;
   font-size: 13px;
-  color: var(--text-dim);
-  margin: 0;
   line-height: 1.5;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  margin: 0;
   font-style: italic;
 }
 
 .quest-hub-card-progress {
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .quest-hub-card-progress-label {
-  display: flex;
-  justify-content: space-between;
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
-  color: var(--text-mid);
   letter-spacing: 0.06em;
+  color: var(--text-mid);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
 }
 
 .quest-hub-card-progress-track {
@@ -15600,6 +14289,7 @@ body.scl-realm-open .tab-bar {
   border-radius: 3px;
   background: rgba(255,255,255,0.06);
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.45);
 }
 
 .quest-hub-card-progress-fill {
@@ -15635,6 +14325,10 @@ body.scl-realm-open .tab-bar {
 }
 
 .quest-hub-card-meta-item {
+  padding: 8px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.025);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15647,34 +14341,38 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.08em;
   color: var(--text-dim);
   text-transform: uppercase;
+  margin-bottom: 4px;
   text-align: center;
 }
 
 .quest-hub-card-meta-value {
   font-family: 'Cinzel', serif;
   font-size: 12px;
-  font-weight: 600;
   color: var(--gold);
+  line-height: 1.3;
+  font-weight: 600;
   text-align: center;
 }
 
 .quest-hub-card-action {
+  margin-top: 10px;
+  background: color-mix(in srgb, var(--teal) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
+  border-radius: 6px;
+  color: var(--teal);
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   padding: 8px 16px;
-  border-radius: 6px;
-  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
-  background: color-mix(in srgb, var(--teal) 8%, transparent);
-  color: var(--teal);
   cursor: pointer;
   transition: all 0.2s;
-  text-transform: uppercase;
   align-self: center;
 }
 .quest-hub-card-action:hover {
-  background: color-mix(in srgb, var(--teal) 15%, transparent);
   border-color: color-mix(in srgb, var(--teal) 50%, transparent);
+  background: color-mix(in srgb, var(--teal) 15%, transparent);
+  transform: translateY(-1px);
   box-shadow: 0 0 10px color-mix(in srgb, var(--teal) 20%, transparent);
 }
 
@@ -18135,11 +16833,7 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Journal Prompts â”€â”€ */
-.qf-journal {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 10px 12px; border-radius: 8px;
-  background: rgba(167, 139, 250, 0.04); border: 1px solid rgba(167, 139, 250, 0.1);
-}
+
 .qf-journal-label {
   font-family: 'Share Tech Mono', monospace; font-size: 7px; font-weight: 700;
   color: #a78bfa; text-transform: uppercase; letter-spacing: 0.18em;
@@ -18231,13 +16925,8 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Daily: Status â”€â”€ */
 .qf-status { padding-top: 4px; }
-.qf-status-badge {
-  font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 600;
-  padding: 5px 12px; border-radius: 6px; letter-spacing: 0.05em;
-}
-.qf-status-badge--done {
-  color: #2dd4bf; background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2);
-}
+
+
 .qf-status-badge--pending {
   color: #6b7280; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -18279,11 +16968,7 @@ body.scl-realm-open .tab-bar {
 .qf-tag--lqp { color: #a78bfa; background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.2); }
 
 /* â”€â”€ Skill View â”€â”€ */
-.qf-skill-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 14px; border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04);
-}
+
 .qf-skill-number {
   width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
   border-radius: 10px; font-family: 'Share Tech Mono', monospace; font-size: 16px; font-weight: 700;
@@ -18295,10 +16980,7 @@ body.scl-realm-open .tab-bar {
   font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; color: #e2e8f0;
   letter-spacing: 0.03em;
 }
-.qf-skill-stage {
-  font-family: 'Share Tech Mono', monospace; font-size: 8px; color: #6b7280;
-  text-transform: uppercase; letter-spacing: 0.1em;
-}
+
 .qf-skill-quest {
   font-family: 'Crimson Text', serif; font-size: 13px; font-style: italic;
   color: #9ca3af; padding: 10px 14px; line-height: 1.45;
@@ -18312,33 +16994,21 @@ body.scl-realm-open .tab-bar {
   font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600;
   color: #ef4444; letter-spacing: 0.04em;
 }
-.qf-lock-bar { width: 100%; padding: 0 4px; }
+
 .qf-lock-track {
   height: 6px; background: rgba(255, 255, 255, 0.04); border-radius: 999px;
   overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
 }
-.qf-lock-fill {
-  height: 100%; border-radius: 999px;
-  background: linear-gradient(90deg, #ef4444, #f87171);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
+
 .qf-lock-level {
   font-family: 'Share Tech Mono', monospace; font-size: 9px; color: #4b5563;
   margin-top: 4px;
 }
 
 /* â”€â”€ Buttons â”€â”€ */
-.qf-footer { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.qf-btn {
-  font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 600;
-  letter-spacing: 0.08em; padding: 9px 18px; border-radius: 8px;
-  border: 1px solid; cursor: pointer; transition: all 0.2s;
-  text-transform: uppercase; white-space: nowrap;
-}
-.qf-btn--checkin {
-  background: rgba(123, 97, 255, 0.1); border-color: rgba(123, 97, 255, 0.3); color: #7b61ff;
-}
+
+
+
 .qf-btn--checkin:hover:not(:disabled) {
   background: rgba(123, 97, 255, 0.18); border-color: rgba(123, 97, 255, 0.5);
   box-shadow: 0 0 16px rgba(123, 97, 255, 0.15);
@@ -18347,13 +17017,8 @@ body.scl-realm-open .tab-bar {
   background: rgba(45, 212, 191, 0.06); border-color: rgba(45, 212, 191, 0.15);
   color: #2dd4bf; opacity: 0.6; cursor: default;
 }
-.qf-btn--complete {
-  background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3); color: #2dd4bf;
-}
-.qf-btn--complete:hover:not(:disabled) {
-  background: rgba(45, 212, 191, 0.18); border-color: rgba(45, 212, 191, 0.5);
-  box-shadow: 0 0 16px rgba(45, 212, 191, 0.15);
-}
+
+
 .qf-btn--navigate {
   background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); color: #6b7280;
 }
@@ -18372,7 +17037,7 @@ body.scl-realm-open .tab-bar {
   background: rgba(123, 97, 255, 0.16); border-color: rgba(123, 97, 255, 0.4);
   box-shadow: 0 0 12px rgba(123, 97, 255, 0.12);
 }
-.qf-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 
 /* â”€â”€ Journal Overlay â”€â”€ */
 .qf-journal-backdrop {
@@ -18392,10 +17057,7 @@ body.scl-realm-open .tab-bar {
 }
 @keyframes qfJournalSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-.qf-journal-title {
-  font-family: 'Cinzel', serif; font-size: 14px; font-weight: 700;
-  color: #e2e8f0; margin: 0 0 4px; letter-spacing: 0.03em;
-}
+
 .qf-journal-hint {
   font-family: 'Share Tech Mono', monospace; font-size: 9px;
   color: #6b7280; margin: 0 0 12px; text-transform: uppercase;
@@ -18412,10 +17074,7 @@ body.scl-realm-open .tab-bar {
 .qf-journal-textarea:focus { border-color: rgba(45, 212, 191, 0.3); }
 .qf-journal-textarea::placeholder { color: #4b5563; }
 
-.qf-journal-count {
-  display: block; font-family: 'Share Tech Mono', monospace; font-size: 9px;
-  color: #4b5563; margin: 6px 0 12px; text-align: right;
-}
+
 .qf-journal-count--ok { color: #2dd4bf; }
 
 .qf-journal-btn {
@@ -18432,19 +17091,10 @@ body.scl-realm-open .tab-bar {
 .qf-journal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* â”€â”€ Empty State â”€â”€ */
-.qf-empty {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 16px 0 8px;
-}
-.qf-empty-icon {
-  font-size: 32px; opacity: 0.15;
-  animation: qfEmptyPulse 4s ease-in-out infinite;
-}
+
+
 @keyframes qfEmptyPulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.25; } }
-.qf-empty-text {
-  font-family: 'Crimson Text', serif; font-size: 13px; font-style: italic;
-  color: #4b5563;
-}
+
 .qf-empty-actions { display: flex; gap: 8px; margin-top: 4px; }
 
 /* â”€â”€ Picker â”€â”€ */
@@ -18498,7 +17148,7 @@ body.scl-realm-open .tab-bar {
 .qf-picker-cancel:hover { background: rgba(255, 255, 255, 0.03); color: #9ca3af; }
 
 @media (max-width: 600px) {
-  .quest-focus-strip-inner { padding: 16px; }
+  
   .qf-icon-ring { width: 40px; height: 40px; }
   .qf-title { font-size: 13px; }
   .qf-footer { justify-content: center; }
@@ -18506,9 +17156,7 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Header Row â”€â”€ */
-.quest-focus-header {
-  display: flex; align-items: center; gap: 14px;
-}
+
 
 .quest-focus-icon-wrap {
   width: 48px; height: 48px; border-radius: 10px;
@@ -18610,15 +17258,10 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Tier Display â”€â”€ */
 .quest-focus-tier-display { display: flex; gap: 6px; align-items: center; }
-.quest-focus-tier-dot {
-  font-size: 14px; line-height: 1; transition: all 0.2s;
-}
-.quest-focus-tier-dot--done { color: #2dd4bf; text-shadow: 0 0 4px rgba(45, 212, 191, 0.3); }
-.quest-focus-tier-dot--current {
-  color: #c9a84c; text-shadow: 0 0 6px rgba(201, 168, 76, 0.4);
-  animation: qfTierPulse 2s ease-in-out infinite;
-}
-.quest-focus-tier-dot--locked { color: #374151; }
+
+
+
+
 @keyframes qfTierPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 .quest-focus-tier-text {
   font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #6b7280;
@@ -18626,11 +17269,8 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Tags â”€â”€ */
-.quest-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.quest-focus-tag {
-  font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 600;
-  padding: 3px 8px; border-radius: 5px; letter-spacing: 0.03em;
-}
+
+
 .quest-focus-tag--xp {
   color: #00e5cc; background: rgba(0, 229, 204, 0.08); border: 1px solid rgba(0, 229, 204, 0.2);
 }
@@ -18908,16 +17548,7 @@ body.scl-realm-open .tab-bar {
 }
 
 /* â”€â”€ Side quest description â”€â”€ */
-.quest-focus-side-desc {
-  font-family: 'Crimson Text', serif;
-  font-size: 12px;
-  font-style: italic;
-  color: #6b7280;
-  padding: 8px 12px;
-  line-height: 1.4;
-  background: rgba(255, 255, 255, 0.01);
-  border-radius: 4px;
-}
+
 
 /* â”€â”€ Locked state â”€â”€ */
 .quest-focus-locked-msg {
@@ -18930,28 +17561,10 @@ body.scl-realm-open .tab-bar {
   border: 1px solid rgba(239, 68, 68, 0.1);
   border-radius: 8px;
 }
-.quest-focus-locked-text {
-  font-family: 'Crimson Text', serif;
-  font-size: 13px;
-  font-style: italic;
-  color: #9ca3af;
-  text-align: center;
-}
-.quest-focus-locked-bar { width: 100%; }
-.quest-focus-locked-track {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 999px;
-  overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-.quest-focus-locked-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ef4444, #f87171);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
+
+
+
+
 .quest-focus-locked-level {
   font-family: 'Share Tech Mono', monospace;
   font-size: 9px;
@@ -18961,8 +17574,12 @@ body.scl-realm-open .tab-bar {
 /* â”€â”€ Tags â”€â”€ */
 .quest-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .quest-focus-tag {
-  font-family: 'Share Tech Mono', monospace; font-size: 9px; font-weight: 600;
-  padding: 3px 8px; border-radius: 5px; letter-spacing: 0.03em;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.03em;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #9ca3af;
@@ -19211,6 +17828,8 @@ body.scl-realm-open .tab-bar {
   color: #6b7280;
   padding: 8px 0;
   line-height: 1.4;
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 4px;
 }
 
 /* â”€â”€ Completed Badge â”€â”€ */
@@ -19226,6 +17845,9 @@ body.scl-realm-open .tab-bar {
 
 /* â”€â”€ Header row positioning â”€â”€ */
 .quest-focus-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   position: relative;
 }
 .quest-focus-empty { display: flex; align-items: center; gap: 10px; flex: 1; }
@@ -19327,7 +17949,9 @@ body.scl-realm-open .tab-bar {
 .quest-focus-picker-cancel:hover { background: rgba(255, 255, 255, 0.04); color: #e2e8f0; }
 
 @media (max-width: 600px) {
-  .quest-focus-strip-inner { padding: 14px 16px; }
+  .quest-focus-strip-inner {
+  padding: 14px 16px;
+}
   .quest-focus-icon-wrap { width: 42px; height: 42px; }
   .quest-focus-title { font-size: 13px; }
   .quest-focus-actions { justify-content: center; }
@@ -19430,8 +18054,21 @@ body.scl-realm-open .tab-bar {
 .qf-hh-close{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:none;background:transparent;color:#4b5563;cursor:pointer;transition:all 0.2s;font-size:12px;flex-shrink:0}
 .qf-hh-close:hover{background:rgba(239,68,68,0.1);color:#ef4444}
 .qf-locked{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 0}
-.qf-lock-bar{width:100%;height:6px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
-.qf-lock-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#ef4444,#f87171);box-shadow:0 0 8px rgba(239,68,68,0.3);transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
+.qf-lock-bar{
+  width:100%;
+  padding: 0 4px;
+  height:6px;
+  background:rgba(255,255,255,0.04);
+  border-radius:999px;
+  overflow:hidden;
+}
+.qf-lock-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ef4444,#f87171);
+  box-shadow:0 0 8px rgba(239,68,68,0.3);
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
 .qf-lock-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:#6b7280}
 .qf-md{display:flex;flex-direction:column;gap:8px}
 .qf-md-counter{display:flex;align-items:center;gap:8px}
@@ -19475,35 +18112,139 @@ body.scl-realm-open .tab-bar {
 .qf-gen-tag{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#9ca3af}
 .qf-gen-tag--lqp{color:#a78bfa;background:rgba(167,139,250,0.06);border-color:rgba(167,139,250,0.15)}
 .qf-skill{display:flex;flex-direction:column;gap:6px}
-.qf-skill-header{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04)}
+.qf-skill-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:6px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.04);
+}
 .qf-skill-num{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:#a78bfa}
-.qf-skill-stage{font-family:'Share Tech Mono',monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em}
+.qf-skill-stage{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:#6b7280;
+  text-transform: uppercase;
+  letter-spacing:0.08em;
+}
 .qf-skill-text{font-family:'Crimson Text',serif;font-size:11px;font-style:italic;color:#9ca3af;padding:4px 10px;line-height:1.35}
-.qf-footer{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding-top:4px}
-.qf-btn{font-family:'Share Tech Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.08em;padding:7px 14px;border-radius:6px;border:1px solid;cursor:pointer;transition:all 0.2s;text-transform:uppercase;white-space:nowrap}
-.qf-btn--checkin{background:rgba(123,97,255,0.1);border-color:rgba(123,97,255,0.3);color:#7b61ff}
+.qf-footer{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding-top:4px;
+}
+.qf-btn{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  padding:7px 14px;
+  border-radius:6px;
+  border:1px solid;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.qf-btn--checkin{
+  background:rgba(123,97,255,0.1);
+  border-color:rgba(123,97,255,0.3);
+  color:#7b61ff;
+}
 .qf-btn--checkin:hover{background:rgba(123,97,255,0.18);box-shadow:0 0 12px rgba(123,97,255,0.15)}
 .qf-btn--done{background:rgba(45,212,191,0.06);border-color:rgba(45,212,191,0.15);color:#2dd4bf;opacity:0.6;cursor:default}
-.qf-btn--complete{background:rgba(45,212,191,0.1);border-color:rgba(45,212,191,0.3);color:#2dd4bf}
-.qf-btn--complete:hover:not(:disabled){background:rgba(45,212,191,0.18);box-shadow:0 0 12px rgba(45,212,191,0.15)}
+.qf-btn--complete{
+  background:rgba(45,212,191,0.1);
+  border-color:rgba(45,212,191,0.3);
+  color:#2dd4bf;
+}
+.qf-btn--complete:hover:not(:disabled){
+  background:rgba(45,212,191,0.18);
+  border-color: rgba(45, 212, 191, 0.5);
+  box-shadow:0 0 12px rgba(45,212,191,0.15);
+}
 .qf-btn--nav{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.1);color:#6b7280}
 .qf-btn--nav:hover{background:rgba(255,255,255,0.06)}
-.qf-btn:disabled{opacity:0.4;cursor:not-allowed}
-.qf-empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0}
-.qf-empty-icon{font-size:24px;opacity:0.15}
-.qf-empty-text{font-family:'Crimson Text',serif;font-size:12px;font-style:italic;color:#4b5563}
-.qf-status-badge{font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 10px;border-radius:4px}
-.qf-status-badge--done{color:#2dd4bf;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.2)}
+.qf-btn:disabled{
+  opacity:0.4;
+  cursor:not-allowed;
+}
+.qf-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  padding:10px 0;
+}
+.qf-empty-icon{
+  font-size:24px;
+  opacity:0.15;
+  animation: qfEmptyPulse 4s ease-in-out infinite;
+}
+.qf-empty-text{
+  font-family:'Crimson Text',serif;
+  font-size:12px;
+  font-style:italic;
+  color:#4b5563;
+}
+.qf-status-badge{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  font-weight: 600;
+  padding:4px 10px;
+  border-radius:4px;
+  letter-spacing: 0.05em;
+}
+.qf-status-badge--done{
+  color:#2dd4bf;
+  background:rgba(45,212,191,0.08);
+  border:1px solid rgba(45,212,191,0.2);
+}
 .qf-journal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:999;animation:qfFadeIn 0.2s ease}
 @keyframes qfFadeIn{from{opacity:0}to{opacity:1}}
-.qf-journal{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(18,16,28,0.98) 0%,rgba(12,10,20,0.99) 100%);border-top:1px solid rgba(45,212,191,0.2);border-radius:16px 16px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));z-index:1000;box-shadow:0 -8px 32px rgba(0,0,0,0.5);animation:qfSlideUp 0.25s cubic-bezier(0.4,0,0.2,1)}
+.qf-journal{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius:16px 16px 0 0;
+  background:linear-gradient(180deg,rgba(18,16,28,0.98) 0%,rgba(12,10,20,0.99) 100%);
+  border: 1px solid rgba(167, 139, 250, 0.1);
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  border-top:1px solid rgba(45,212,191,0.2);
+  z-index:1000;
+  box-shadow:0 -8px 32px rgba(0,0,0,0.5);
+  animation:qfSlideUp 0.25s cubic-bezier(0.4,0,0.2,1);
+}
 @keyframes qfSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.qf-journal-title{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px}
+.qf-journal-title{
+  font-family:'Cinzel',serif;
+  font-size:14px;
+  font-weight:700;
+  color:#e2e8f0;
+  margin: 0 0 4px;
+  letter-spacing: 0.03em;
+  margin-bottom:10px;
+}
 .qf-journal-ta{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#e2e8f0;font-family:'Crimson Text',serif;font-size:13px;line-height:1.5;resize:none;outline:none;box-sizing:border-box}
 .qf-journal-ta:focus{border-color:rgba(45,212,191,0.3)}
 .qf-journal-ta::placeholder{color:#374151}
 .qf-journal-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
-.qf-journal-count{font-family:'Share Tech Mono',monospace;font-size:9px;color:#4b5563}
+.qf-journal-count{
+  display: block;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:#4b5563;
+  margin: 6px 0 12px;
+  text-align: right;
+}
 .qf-journal-count.ok{color:#2dd4bf}
 .qf-journal-submit{padding:8px 16px;border-radius:6px;border:1px solid rgba(45,212,191,0.3);background:rgba(45,212,191,0.1);color:#2dd4bf;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;text-transform:uppercase}
 .qf-journal-submit:hover:not(:disabled){background:rgba(45,212,191,0.18)}
@@ -20850,6 +19591,8 @@ body.scl-realm-open .tab-bar {
   animation: rm-hero-ring-pulse 3.2s ease-in-out infinite;
 }
 .rm-region-panel--primary {
+  margin: 0;
+  width: 100%;
   animation: rm-region-panel-in 0.28s ease-out;
 }
 .rm-region-quest-list .rm-quest-card {
@@ -21040,20 +19783,15 @@ body.scl-realm-open .tab-bar {
 
 .rm-cq-form {
   background: linear-gradient(180deg, #0d0d1a 0%, #080810 100%);
+  border: 1px solid rgba(0,229,180,0.2);
+  padding: 20px 16px;
+  margin: 12px;
   border-top: 1px solid rgba(0,229,204,0.25);
   border-radius: 12px 12px 0 0;
-  padding: 20px 16px;
   box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
 }
 
-.rm-cq-title {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  color: #00e5cc;
-  text-shadow: 0 0 10px rgba(0,229,204,0.4);
-  letter-spacing: 0.1em;
-  margin-bottom: 16px;
-}
+
 
 .rm-cq-input {
   background: rgba(255,255,255,0.03);
@@ -21114,8 +19852,8 @@ body.scl-realm-open .tab-bar {
 }
 
 .rm-nearby {
-  border-top: 1px solid rgba(255,255,255,0.06);
   padding: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .rm-nearby-title {
@@ -21131,18 +19869,20 @@ body.scl-realm-open .tab-bar {
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.06);
   border-left: 3px solid var(--quest-color);
-  border-radius: 4px;
   padding: 10px 12px;
   margin-bottom: 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
   color: var(--text-mid, #99949e);
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .rm-nearby-card:hover {
   background: rgba(255,255,255,0.04);
+  border-color: rgba(0,229,180,0.2);
+  border-left-color: rgba(0,229,180,0.35);
   box-shadow: 0 0 8px color-mix(in srgb, var(--quest-color) 20%, transparent);
 }
 
@@ -22162,19 +20902,9 @@ body.scl-realm-open .tab-bar {
   margin-top: 8px;
 }
 
-.char-card-rep {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #888;
-  margin-top: 4px;
-  justify-content: center;
-}
 
-.char-card-rep-sep {
-  opacity: 0.4;
-}
+
+
 
 .rm-ally-rep {
   font-size: 10px;
@@ -22252,30 +20982,13 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Dual reputation section on CharCard */
-.char-card-rep-section {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 4px;
-  flex-wrap: wrap;
-}
 
-.char-card-rep--empty {
-  color: #555;
-}
 
-.char-card-rep-label {
-  font-size: 8px;
-  letter-spacing: 0.1em;
-  opacity: 0.6;
-  font-family: 'Press Start 2P', monospace;
-  margin-right: 4px;
-}
 
-.char-card-rep-none {
-  font-size: 10px;
-  color: #555;
-}
+
+
+
+
 
 /* Rate Seekers section in SideQuestsView */
 .rm-sq-rate-seekers {
@@ -23194,55 +21907,13 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Quiet text seals on CharCard */
-.char-card-rail {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid color-mix(in srgb, var(--gold) 18%, transparent);
-}
-.char-card-seal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 44px;
-  padding: 8px 4px;
-  border-radius: 0;
-  border: 0;
-  background: transparent;
-  color: var(--gold);
-  cursor: pointer;
-  transition: color 0.15s, opacity 0.15s, transform 0.15s;
-  box-shadow: none;
-  opacity: 0.88;
-}
-.char-card-seal:hover {
-  background: transparent;
-  opacity: 1;
-  transform: translateY(-1px);
-}
-.char-card-seal:active {
-  transform: translateY(0) scale(0.98);
-}
-.char-card-seal:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--teal) 70%, transparent);
-  outline-offset: 2px;
-}
-.char-card-seal-glyph {
-  font-size: 14px;
-  line-height: 1;
-}
-.char-card-seal-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  font-weight: 600;
-}
+
+
+
+
+
+
+
 
 
 
@@ -23289,6 +21960,20 @@ body.scl-realm-open .tab-bar {
 /* Mute competing edge wash — plaque uses box-shadow inset ring instead */
 .char-card::before {
   content: none;
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--gold) 6%, transparent) 40%,
+    color-mix(in srgb, var(--gold) 12%, transparent) 50%,
+    color-mix(in srgb, var(--gold) 6%, transparent) 60%,
+    transparent 100%
+  );
+  animation: card-scan-sweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
   display: none;
 }
 
@@ -23350,17 +22035,20 @@ body.scl-realm-open .tab-bar {
 /* Portrait sits within card, not hanging off */
 .char-card-portrait {
   position: relative;
-  width: 88px; height: 88px;
+  width: 88px;
+  height: 88px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
   background: rgba(255,255,255,0.02);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  align-self: flex-start;
   cursor: pointer;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: inset 0 0 16px color-mix(in srgb, var(--gold) 8%, transparent);
+  align-self: flex-start;
 }
 .char-card-portrait:hover {
   border-color: color-mix(in srgb, var(--gold) 55%, transparent);
@@ -23431,32 +22119,25 @@ body.scl-realm-open .tab-bar {
 }
 .char-card-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .char-card-portrait-placeholder {
-  font-size: 22px; color: var(--gold-dim, rgba(201,168,76,0.35)); line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
   user-select: none;
+  font-size: 22px;
+  color: var(--gold-dim, rgba(201,168,76,0.35));
+  line-height: 1;
 }
 .char-card-portrait-input {
   position: absolute; inset: 0; opacity: 0;
   cursor: pointer; width: 100%; height: 100%;
 }
 
-.char-card-id-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 4px;
-  padding-top: 4px;
-}
-.char-card-name {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--gold, #c9a84c);
-  line-height: 1;
-  text-shadow: none;
-}
+
+
 
 /* Editable name as clickable button with tooltip */
 .char-card-name--editable {
@@ -23521,13 +22202,7 @@ body.scl-realm-open .tab-bar {
   transform: translateX(-50%) translateY(0);
 }
 
-.char-card-name-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-}
+
 
 .char-card-name-edit {
   display: none; /* Hidden - name is now clickable directly */
@@ -23539,10 +22214,14 @@ body.scl-realm-open .tab-bar {
 
 .char-card-panel {
   position: fixed;
-  top: auto; bottom: 0; left: 0; right: 0;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   height: 85vh;
   z-index: 9999;
+  padding-bottom: env(safe-area-inset-bottom);
   background:
     linear-gradient(135deg,
       color-mix(in srgb, var(--teal) 8%, transparent) 0%,
@@ -23756,6 +22435,7 @@ body.scl-realm-open .tab-bar {
     ),
     linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
   border-top-color: color-mix(in srgb, var(--gold) 35%, transparent);
+  color: var(--text);
   box-shadow:
     0 -8px 32px rgba(0, 0, 0, 0.4),
     0 0 1px color-mix(in srgb, var(--gold) 40%, transparent),
@@ -23926,12 +22606,13 @@ body.scl-realm-open .tab-bar {
   z-index: 1;
 }
 .char-card-id-text {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1;
   justify-content: flex-start;
+  gap: 4px;
+  padding-top: 4px;
 }
 
 /* Archetype — quiet secondary under hero name */
@@ -23949,57 +22630,44 @@ body.scl-realm-open .tab-bar {
   font-family: 'Crimson Text', serif;
   font-size: 12px;
   font-style: italic;
-  font-weight: 400;
   letter-spacing: 0.1em;
   color: color-mix(in srgb, var(--gold) 68%, var(--text-mid, #9a96ab));
   text-transform: uppercase;
   line-height: 1.25;
+  font-weight: 400;
 }
 
 .char-card-name-row {
   display: flex;
   align-items: baseline;
-  flex-wrap: nowrap;
+  justify-content: space-between;
   gap: 8px;
-  width: 100%;
   min-width: 0;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 .char-card-name {
-  font-size: 19px;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-  order: 0;
-  flex: 1 1 auto;
-  min-width: 0;
-  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.char-card-calling {
-  display: inline-flex;
-  align-items: baseline;
-  justify-content: flex-end;
-  flex-shrink: 0;
   min-width: 0;
-  margin-right: 0;
-  margin-left: 0;
-  opacity: 0.55;
-  order: 2;
-}
-.char-card-calling-num {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-family: 'Cinzel', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold, #c9a84c);
+  line-height: 1;
   text-shadow: none;
+  order: 0;
+  flex: 1 1 auto;
+  text-align: left;
 }
+
+
 
 /* Quiet empty Maker/Seeker CTA — one line under XP when both empty */
 .char-card-rep-empty-link {
-  position: relative;
-  z-index: 1;
   width: 100%;
-  margin-top: 6px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -24011,6 +22679,9 @@ body.scl-realm-open .tab-bar {
   cursor: pointer;
   text-align: left;
   transition: color 0.15s;
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
 }
 .char-card-rep-empty-link:hover {
   color: var(--gold);
@@ -24023,30 +22694,34 @@ body.scl-realm-open .tab-bar {
 
 /* Maker / Seeker — hairline split row, no mini-cards */
 .char-card-rep-section {
+  display: grid;
+  gap: 0;
+  justify-content: center;
+  margin-top: 8px;
+  flex-wrap: wrap;
   position: relative;
   z-index: 1;
-  display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
-  margin-top: 8px;
   padding: 6px 0;
   border-top: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
 }
 .char-card-rep {
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
   gap: 3px;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--text, #ece8f4) 82%, transparent);
+  margin-top: 4px;
+  justify-content: center;
+  flex-direction: column;
   min-height: 0;
   padding: 2px 12px 2px 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
   letter-spacing: 0.04em;
-  color: color-mix(in srgb, var(--text, #ece8f4) 82%, transparent);
   line-height: 1.3;
 }
 .char-card-rep + .char-card-rep {
@@ -24057,11 +22732,12 @@ body.scl-realm-open .tab-bar {
   color: color-mix(in srgb, var(--text, #ece8f4) 42%, transparent);
 }
 .char-card-rep-label {
-  font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: 0.16em;
-  color: var(--gold);
+  opacity: 0.6;
+  font-family: 'Cinzel', serif;
   margin-right: 0;
+  color: var(--gold);
 }
 .char-card-rep-body {
   display: flex;
@@ -24081,6 +22757,7 @@ body.scl-realm-open .tab-bar {
 }
 .char-card-rep-none {
   font-size: 11px;
+  color: #555;
   letter-spacing: 0.04em;
   font-style: italic;
   font-family: 'Crimson Text', serif;
@@ -24125,7 +22802,15 @@ body.scl-realm-open .tab-bar {
 }
 
 /* Mirrored one-row XP strip — labels at outer edges, no nested gold frame */
-.char-card-xp-bars { display: none; }
+.char-card-xp-bars {
+  margin-top: 10px;
+  padding: 10px 14px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+}
 .char-card-xp-mirror {
   position: relative;
   z-index: 1;
@@ -24236,10 +22921,10 @@ body.scl-realm-open .tab-bar {
 }
 .char-card-seal:hover {
   background: transparent;
-  border-color: transparent;
-  box-shadow: none;
   opacity: 1;
   transform: translateY(-1px);
+  border-color: transparent;
+  box-shadow: none;
 }
 .char-card-seal:active {
   transform: translateY(0) scale(0.98);
@@ -24281,16 +22966,16 @@ body.scl-realm-open .tab-bar {
     padding: 14px 12px 12px 22px;
   }
   .char-card-identity {
-    display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    min-height: 0;
-  }
+  gap: 10px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  min-height: 0;
+}
   .char-card-portrait {
-    width: 64px;
-    height: 64px;
-  }
+  width: 64px;
+  height: 64px;
+}
   .char-card-id-text {
     gap: 2px;
     padding-top: 0;
@@ -24390,6 +23075,42 @@ body.scl-realm-open .tab-bar {
 .home-today-section {
   margin-top: 8px;
   margin-bottom: 16px;
+  --daily-glyph-top: #1c1c2a;
+  --daily-glyph-mid: #0e0e16;
+  --daily-glyph-bottom: #08080f;
+  --daily-glyph-sealed-top: #0e0e14;
+  --daily-glyph-sealed-bottom: #060608;
+  --daily-rune-top: #151520;
+  --daily-rune-bottom: #08080f;
+  --daily-rune-deep: #0c0c14;
+  --daily-rune-done-top: #101018;
+  --daily-rune-done-bottom: #06060c;
+  --daily-hero-top: #141620;
+  --daily-hero-bottom: #0e1018;
+  --daily-inset-highlight: rgba(255,255,255,0.06);
+  --daily-inset-line: rgba(255,255,255,0.12);
+  --daily-inset-dark: rgba(0,0,0,0.55);
+  --daily-muted-border: rgba(255,255,255,0.08);
+  --daily-muted-bg: rgba(255,255,255,0.02);
+  --daily-glyph-shadow: 0 10px 28px rgba(0,0,0,0.65);
+  --daily-glyph-hover-shadow: 0 14px 36px rgba(0,0,0,0.7);
+  --daily-sealed-frame: rgba(90, 90, 100, 0.35);
+  --daily-sealed-text: rgba(140, 140, 150, 0.55);
+  --daily-connector-start: color-mix(in srgb, var(--gold) 35%, transparent);
+  --daily-connector-end: color-mix(in srgb, var(--gold) 4%, transparent);
+  --daily-glyph-accent: var(--gold);
+  --daily-glyph-skill-accent: var(--purple);
+  --daily-surface-hero: linear-gradient(155deg, var(--daily-hero-top) 0%, var(--daily-hero-bottom) 100%);
+  --daily-surface-glyph:
+    linear-gradient(180deg, var(--daily-inset-highlight) 0%, transparent 18%),
+    linear-gradient(160deg, var(--daily-glyph-top) 0%, var(--daily-glyph-mid) 45%, var(--daily-glyph-bottom) 100%);
+  --daily-surface-rune:
+    linear-gradient(135deg, var(--daily-inset-highlight) 0%, transparent 40%),
+    linear-gradient(160deg, var(--daily-rune-top) 0%, var(--daily-rune-bottom) 55%, var(--daily-rune-deep) 100%);
+  --daily-surface-rune-done: linear-gradient(160deg, var(--daily-rune-done-top) 0%, var(--daily-rune-done-bottom) 100%);
+  --daily-surface-sealed:
+    linear-gradient(180deg, color-mix(in srgb, var(--daily-inset-highlight) 35%, transparent) 0%, transparent 15%),
+    linear-gradient(160deg, var(--daily-glyph-sealed-top) 0%, var(--daily-glyph-sealed-bottom) 100%);
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -24412,6 +23133,7 @@ body.scl-realm-open .tab-bar {
   color: rgba(180, 180, 200, 0.55);
 }
 .home-today-section .daily-section {
+  padding: 0 14px 14px;
   padding-left: 0;
   padding-right: 0;
 }
@@ -24564,16 +23286,18 @@ body.scl-realm-open .tab-bar {
   min-width: 0;
   cursor: help;
   margin-right: 0;
+  margin-left: 0;
   opacity: 0.55;
+  order: 2;
 }
 .char-card-calling-num {
   font-family: 'Cinzel', serif;
   font-size: 11px;
   font-weight: 600;
   color: var(--teal, #00e5cc);
-  letter-spacing: 0.06em;
-  line-height: 1;
   text-shadow: none;
+  line-height: 1;
+  letter-spacing: 0.06em;
 }
 
 /* Archetype heading styles live with dossier block above */
@@ -24614,7 +23338,7 @@ body.scl-realm-open .tab-bar {
   padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .setting-row:last-child { border-bottom: none; }
-.setting-label  { font-family: 'Crimson Text', serif; font-size: 14px; color: #4a4860; }
+.setting-label  { font-family: 'Crimson Text', serif; font-size: 14px; color: var(--text-mid, var(--text)); }
 .setting-val    { font-family: 'Crimson Text', serif; font-size: 14px; color: #c8c3d8; }
 .setting-val-dim { color: #2a283a; }
 .setting-freq-row {
@@ -24674,9 +23398,10 @@ body.scl-realm-open .tab-bar {
   flex-shrink: 0;
   background: none;
   border: none;
-  padding: 0;
+  padding: 11px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
-  outline: none;
 }
 .notif-toggle-btn.disabled { opacity: 0.35; cursor: default; }
 .notif-toggle-track {
@@ -24690,8 +23415,8 @@ body.scl-realm-open .tab-bar {
   transition: background 0.2s, border-color 0.2s;
 }
 .notif-toggle-btn.on .notif-toggle-track {
-  background: rgba(45,212,191,0.25);
-  border-color: rgba(45,212,191,0.5);
+  background: color-mix(in srgb, var(--teal) 25%, transparent);
+  border-color: color-mix(in srgb, var(--teal) 50%, transparent);
 }
 .notif-toggle-thumb {
   display: block;
@@ -25374,9 +24099,9 @@ body.scl-realm-open .tab-bar {
 }
 .qj-entry-meta {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.06em;
@@ -25586,15 +24311,19 @@ body.scl-realm-open .tab-bar {
 .daily-hero::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(201,168,76,0.5) 30%, rgba(201,168,76,0.5) 70%, transparent);
 }
 .daily-hero::after {
   content: '';
   position: absolute;
-  top: 0; left: 0;
-  width: 28px; height: 28px;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
   border-top: 1px solid rgba(201,168,76,0.35);
   border-left: 1px solid rgba(201,168,76,0.35);
   border-radius: 0 0 3px 0;
@@ -25743,13 +24472,13 @@ body.scl-realm-open .tab-bar {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  margin: 2px 0 4px;
   background: rgba(220, 80, 120, 0.06);
   border: 1px solid rgba(220, 80, 120, 0.15);
   border-radius: 6px;
   font-size: 10px;
   color: var(--text-mid);
   letter-spacing: 0.04em;
+  margin: 2px 0 4px;
 }
 .gq-reminder > span:first-child { color: var(--rose); font-size: 12px; }
 
@@ -25771,19 +24500,21 @@ body.scl-realm-open .tab-bar {
 /* Glass holographic box */
 .gq-panel-header-box {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
   padding: 12px 24px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
   background: linear-gradient(
     135deg,
     color-mix(in srgb, var(--teal) 8%, transparent) 0%,
     color-mix(in srgb, var(--teal) 3%, transparent) 50%,
     color-mix(in srgb, var(--teal) 5%, transparent) 100%
   );
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
   backdrop-filter: blur(12px);
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
   -webkit-backdrop-filter: blur(12px);
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.3),
@@ -25887,10 +24618,14 @@ body.scl-realm-open .tab-bar {
 .gq-reroll-btn--disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-dim);
 }
 .gq-reroll-count {
-  margin-left: 4px;
+  font-size: 8px;
   opacity: 0.7;
+  margin-left: 4px;
 }
 
 /* Premium header for Quest History */
@@ -25970,7 +24705,15 @@ body.scl-realm-open .tab-bar {
 }
 .rm-cq-more { margin-top: 4px; }
 .rm-cq-header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
-.rm-cq-title { font-family: 'Press Start 2P', monospace; font-size: 8px; color: #00e5cc; letter-spacing: 1px; flex: 1; }
+.rm-cq-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #00e5cc;
+  text-shadow: 0 0 10px rgba(0,229,204,0.4);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  flex: 1;
+}
 .rm-cq-coords { font-size: 10px; color: rgba(255,255,255,0.35); align-self: center; }
 .rm-cq-close { background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); font-size: 12px; padding: 2px 7px; cursor: pointer; }
 .rm-popup-own {
@@ -25983,36 +24726,10 @@ body.scl-realm-open .tab-bar {
   padding: 8px;
   border: 1px solid rgba(201,168,76,0.35);
 }
-.rm-map-coldstart {
-  position: absolute;
-  inset: 0;
-  z-index: 450;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 20px;
-  background: rgba(6, 8, 16, 0.72);
-  backdrop-filter: blur(2px);
-  text-align: center;
-  pointer-events: auto;
-}
-.rm-map-coldstart-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: #00e5cc;
-}
-.rm-map-coldstart-copy {
-  margin: 0;
-  max-width: 260px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.65);
-  line-height: 1.45;
-}
-.rm-map-coldstart-btn,
-.rm-map-coldstart-place { pointer-events: auto; }
+
+
+
+
 
 
 /* --- rm-coldstart.css --- */

@@ -1,7 +1,7 @@
 // firestoreprofile.jsx
 // Centralized Firestore sync for all user profile data (quests, levels, stats, etc)
 import { db } from '../../lib/firebase'
-import { doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, where, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, where, deleteDoc, limit } from 'firebase/firestore'
 
 // Path: /players/{characterId}
 const getProfileDocRef = (characterId) => doc(db, 'players', characterId)
@@ -100,22 +100,27 @@ export async function fetchUserEquipment(characterId) {
 // World map quests (player-generated quests on map - shared across all players)
 export async function createWorldQuest(questData) {
   try {
-    const questsRef = collection(db, 'worldQuests')
-    const docRef = await addDoc(questsRef, {
+    const creatorReputation = questData.uid
+      ? await fetchCreatorReputation(questData.uid)
+      : null
+    const payload = {
       ...questData,
+      ...(creatorReputation ? { creatorReputation } : {}),
       createdAt: new Date(),
-    })
-    return { id: docRef.id, ...questData }
+    }
+    const questsRef = collection(db, 'worldQuests')
+    const docRef = await addDoc(questsRef, payload)
+    return { id: docRef.id, ...payload }
   } catch (error) {
     console.error('Error creating world quest:', error)
     return null
   }
 }
 
-export async function fetchAllWorldQuests() {
+export async function fetchAllWorldQuests(maxCount = 40) {
   try {
     const questsRef = collection(db, 'worldQuests')
-    const snapshot = await getDocs(questsRef)
+    const snapshot = await getDocs(query(questsRef, limit(maxCount)))
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
   } catch (error) {
     console.error('Error fetching world quests:', error)

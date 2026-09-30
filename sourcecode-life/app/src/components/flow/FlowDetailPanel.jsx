@@ -49,7 +49,9 @@ export default function FlowDetailPanel({ open, onClose, color = '#c9a84c', titl
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 140, damping: 22 }}
+            transition={typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? { duration: 0 }
+              : { type: 'spring', stiffness: 140, damping: 22 }}
             role="dialog"
             aria-modal="true"
             aria-label={title + ' details'}

@@ -5,9 +5,10 @@
  * full-screen transition overlay that fires on ENTRY and EXIT.
  * The portal color scheme adapts to the active app theme.
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, lazy, Suspense } from 'react'
 import { createPortal } from 'react-dom'
-import SimulationMatrix from '../realm/SimulationMatrix'
+
+const SimulationMatrix = lazy(() => import('../realm/SimulationMatrix'))
 
 // ── Theme config ──────────────────────────────────────────────────────────────
 const PORTAL_RAIN = {
@@ -44,6 +45,7 @@ function useMatrixRain(canvasRef, { speed = 0.5, fontSize = 13, theme = 'scifi' 
     let frame = 0
 
     function tick() {
+      if (document.hidden) return
       ctx.fillStyle = 'rgba(0,0,0,0.05)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       const c = Math.floor(canvas.width / FS)
@@ -167,7 +169,9 @@ export default function MapTab() {
       )}
 
       {phase === 'realm' && (
-        <SimulationMatrix onExit={handleExit} inline />
+        <Suspense fallback={<p className="tab-lazy-fallback">Loading realm…</p>}>
+          <SimulationMatrix onExit={handleExit} inline />
+        </Suspense>
       )}
 
       {overlayLayer}

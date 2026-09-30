@@ -6,6 +6,17 @@ import { ROOT, COMPOUND_DESC, STRIPS, FIRST_NAME_MEANINGS } from '../../lib/data
 import { getFirstNameValue } from '../../lib/numerologyProfile'
 import FlowNode, { flowNodeTypes } from './FlowNode'
 import FlowDetailPanel from './FlowDetailPanel'
+import { resolveThemeColor } from './flowNodeConstants'
+
+const NODE_COLOR_TOKENS = {
+  so: '--purple',
+  ou: '--rose',
+  fn: '--amber',
+  ex: '--sage',
+}
+function nodeColor(nodeKey) {
+  return resolveThemeColor(NODE_COLOR_TOKENS[nodeKey])
+}
 
 const NODE_SIZE = 90
 const IDENTITY_LAYOUT = {
@@ -28,17 +39,10 @@ const NODE_META = {
   ex: { label: 'EXPRESSION', subtitle: 'Your outward signal',     icon: '▣' },
 }
 
-const NODE_COLORS = {
-  so: '#7c3aed',
-  ou: '#f472b6',
-  fn: '#f59e0b',
-  ex: '#2dd4bf',
-}
-
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
 function StripContent({ nodeKey, playerData, fnData }) {
-  const colorHex = NODE_COLORS[nodeKey] || '#c9a84c'
+  const colorHex = nodeColor(nodeKey)
 
   if (nodeKey === 'fn') {
     const { firstName, compound, root } = fnData
@@ -155,7 +159,7 @@ export default function IdentityFlow({ playerData }) {
     return Object.keys(IDENTITY_LAYOUT).map((nodeKey) => {
       const pos   = IDENTITY_LAYOUT[nodeKey]
       const meta  = NODE_META[nodeKey]
-      const color = NODE_COLORS[nodeKey] || '#c9a84c'
+      const color = nodeColor(nodeKey)
 
       let displayNum, isMaster
       if (nodeKey === 'fn') {
@@ -192,7 +196,7 @@ export default function IdentityFlow({ playerData }) {
   })), [])
 
   const selMeta  = selected ? NODE_META[selected]   : null
-  const selColor = selected ? NODE_COLORS[selected] : '#c9a84c'
+  const selColor = selected ? nodeColor(selected) : resolveThemeColor('--gold')
 
   return (
     <>

@@ -71,6 +71,7 @@ export default function NumerologySpiral() {
   const starsRef = useRef([])
   const particlesRef = useRef([])
   const animFrameRef = useRef(0)
+  const kickAnimRef = useRef(() => {})
   const bgTRef = useRef(0)
   const drawStartRef = useRef(Date.now())
   const pinchRef = useRef(null)
@@ -149,7 +150,10 @@ export default function NumerologySpiral() {
   useEffect(() => {
     const onVis = () => {
       if (document.hidden) pauseAnimRef.current = true
-      else pauseAnimRef.current = pinnedAgeRef.current !== null
+      else {
+        pauseAnimRef.current = pinnedAgeRef.current !== null
+        kickAnimRef.current()
+      }
     }
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)
@@ -158,7 +162,11 @@ export default function NumerologySpiral() {
   useEffect(() => {
     if (!hasBirth) return
     zoomTargetRef.current = 1.35
-    const t = setTimeout(() => { zoomTargetRef.current = 1 }, 900)
+    kickAnimRef.current()
+    const t = setTimeout(() => {
+      zoomTargetRef.current = 1
+      kickAnimRef.current()
+    }, 900)
     return () => clearTimeout(t)
   }, [hasBirth])
 
@@ -440,13 +448,24 @@ export default function NumerologySpiral() {
         animFrameRef.current = requestAnimationFrame(animate)
         return
       }
-      const paused = pauseAnimRef.current || document.hidden
-      // Always redraw spiral (zoom easing / pin); pause only ambient motion when hidden/popup
-      drawBg(W, H, !paused)
-      draw(W, H, radius, !paused)
+      const hidden = document.hidden
+      const ambient = !pauseAnimRef.current && !hidden
+      drawBg(W, H, ambient)
+      draw(W, H, radius, ambient)
+      const zooming = Math.abs(zoomTargetRef.current - zoomRef.current) > 0.001
+      const interacting = dragRef.current || pinchRef.current
+      if (!hidden && (zooming || interacting)) {
+        animFrameRef.current = requestAnimationFrame(animate)
+      } else {
+        animFrameRef.current = 0
+      }
+    }
+    function kick() {
+      if (!animStateRef.current || animFrameRef.current) return
       animFrameRef.current = requestAnimationFrame(animate)
     }
-    animate()
+    kickAnimRef.current = kick
+    kick()
 
     let dragDist = 0
     let clickPos = { x: 0, y: 0 }
@@ -459,6 +478,7 @@ export default function NumerologySpiral() {
       dragStartRef.current = { x: e.clientX, y: e.clientY }
       dragDist = 0
       clickPos = { x: e.clientX, y: e.clientY }
+      kick()
     }
     window.onmousemove = (e) => {
       if (scrubbingRef.current) return
@@ -502,7 +522,11 @@ export default function NumerologySpiral() {
         if (age != null) setPinnedAge(age)
       }
     }
-    canvas.onwheel = (e) => { e.preventDefault(); zoomTargetRef.current = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomTargetRef.current * (e.deltaY < 0 ? 1.08 : 0.93))) }
+    canvas.onwheel = (e) => {
+      e.preventDefault()
+      zoomTargetRef.current = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomTargetRef.current * (e.deltaY < 0 ? 1.08 : 0.93)))
+      kick()
+    }
     canvas.onmouseleave = () => { if (!scrubbingRef.current) setHoverAge(null) }
 
     canvas.ontouchstart = (e) => {
@@ -520,6 +544,7 @@ export default function NumerologySpiral() {
         dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
         tapStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
       }
+      kick()
     }
     canvas.ontouchmove = (e) => {
       if (scrubbingRef.current) return
@@ -559,6 +584,7 @@ export default function NumerologySpiral() {
 
     return () => {
       animStateRef.current = false
+      kickAnimRef.current = () => {}
       cancelAnimationFrame(animFrameRef.current)
       window.onmousemove = null; window.onmouseup = null
       canvas.onmousedown = null; canvas.onwheel = null; canvas.onmouseleave = null

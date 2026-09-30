@@ -16,6 +16,8 @@ import {
   getLQP,
 } from '../../lib/questEngine'
 import { applyQuestSkillReward } from '../../lib/skillQuestBridge'
+import { getTierObjectiveCount, isTierListComplete } from '../../lib/objectives'
+import { resolveThemeColor } from './flowNodeConstants'
 
 const LIFE_NODE_SIZE = 72
 const LIFE_NODE_HALF = LIFE_NODE_SIZE / 2
@@ -53,23 +55,11 @@ const NODE_ICONS = {
   th: '◎',
 }
 
-const COLOR_HEX = {
-  '--teal': '#00e5b4',
-  '--gold': '#c9a84c',
-  '--amber': '#ff9500',
-  '--rose': '#dc5078',
-  '--purple': '#7b61ff',
-  '--sage': '#78b464',
-  '--silver': '#c0c0c0',
+function resolveColor(colorToken) {
+  return { hex: resolveThemeColor(colorToken) }
 }
 
 const TIER_LABELS = { 1: 'APPRENTICE', 2: 'ADEPT', 3: 'MASTER' }
-
-function resolveColor(colorToken) {
-  if (!colorToken) return { hex: '#c9a84c' }
-  if (colorToken.startsWith('#')) return { hex: colorToken }
-  return { hex: COLOR_HEX[colorToken] || '#c9a84c' }
-}
 
 function LifeNode({ data }) {
   const stagesDone = data.completedCount || 0
@@ -191,10 +181,7 @@ export default function LifeQuestFlow({
 
   const onInit = useCallback((rf) => {
     rf.fitView({ padding: 0.12, duration: 0 })
-    const z = rf.getZoom()
-    setZoomLock(z)
-    rf.setMinZoom(z)
-    rf.setMaxZoom(z)
+    setZoomLock(rf.getZoom())
   }, [])
 
   const nodes = useMemo(() => {
@@ -215,7 +202,8 @@ export default function LifeQuestFlow({
       if (lqpEntry) {
         for (let t = 1; t <= 3; t++) {
           const prog = lqpEntry[t] || []
-          if (prog.length > 0 && prog.every(Boolean)) completedCount++
+          const count = getTierObjectiveCount(numObj.root, t)
+          if (isTierListComplete(prog, count)) completedCount++
           else break
         }
       }

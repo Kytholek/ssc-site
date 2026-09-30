@@ -1,7 +1,7 @@
 /**
  * AppShell — authenticated app wrapper with header, tabs, and navigation
  */
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useState, lazy, Suspense } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import Header from './Header'
 import TabBar from './TabBar'
@@ -9,10 +9,11 @@ import Toast from '../ui/Toast'
 import PremiumModal from '../ui/PremiumModal'
 import SpotlightTour from '../onboarding/SpotlightTour'
 import HomeTab   from '../tabs/home'
-import QuestsTab from '../tabs/QuestsTab'
-import MapTab    from '../tabs/MapTab'
-import SkillsTab from '../tabs/SkillsTab'
 import Profile   from '../tabs/profileTab'
+
+const QuestsTab = lazy(() => import('../tabs/QuestsTab'))
+const MapTab    = lazy(() => import('../tabs/MapTab'))
+const SkillsTab = lazy(() => import('../tabs/SkillsTab'))
 
 const TABS = ['home', 'quests', 'map', 'profile', 'config']
 
@@ -25,7 +26,7 @@ const TAB_TITLES = {
 }
 
 export default function AppShell() {
-  const { activeTab, showPremiumModal } = useAppState()
+  const { activeTab, showPremiumModal, tabSection } = useAppState()
   const dispatch = useAppDispatch()
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
@@ -51,6 +52,14 @@ export default function AppShell() {
     document.title = `${label} — Source Code: Life`
     setTabAnnouncement(`Now viewing ${label}`)
   }, [activeTab, resetTabScroll])
+
+  useEffect(() => {
+    if (activeTab !== 'home' || tabSection !== 'journal') return
+    const id = requestAnimationFrame(() => {
+      document.querySelector('[data-tour="today"]')?.scrollIntoView({ block: 'start' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [activeTab, tabSection])
 
   useEffect(() => {
     window.Native_onOpenTab = (tab, subTab) => {
@@ -116,11 +125,13 @@ export default function AppShell() {
         onTouchEnd={handleTouchEnd}
       >
         <TabPanel key={activeTab}>
-          {activeTab === 'home'     && <HomeTab    />}
-          {activeTab === 'quests'   && <QuestsTab  />}
-          {activeTab === 'map'      && <MapTab     />}
-          {activeTab === 'profile'  && <SkillsTab  />}
-          {activeTab === 'config'   && <Profile    />}
+          <Suspense fallback={<p className="tab-lazy-fallback">Loading…</p>}>
+            {activeTab === 'home'     && <HomeTab    />}
+            {activeTab === 'quests'   && <QuestsTab  />}
+            {activeTab === 'map'      && <MapTab     />}
+            {activeTab === 'profile'  && <SkillsTab  />}
+            {activeTab === 'config'   && <Profile    />}
+          </Suspense>
         </TabPanel>
       </main>
 

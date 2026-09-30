@@ -5,6 +5,17 @@ import { fmt, reduceToSimple } from '../../lib/numerology'
 import { ROOT, CALLING, COMPOUND_DESC, STRIPS, GIFTS } from '../../lib/data'
 import FlowNode, { flowNodeTypes } from './FlowNode'
 import FlowDetailPanel from './FlowDetailPanel'
+import { resolveThemeColor } from './flowNodeConstants'
+
+const NODE_COLOR_TOKENS = {
+  th: '--purple',
+  ac: '--amber',
+  dy: '--gold',
+  lp: '--teal',
+}
+function nodeColor(nodeKey) {
+  return resolveThemeColor(NODE_COLOR_TOKENS[nodeKey])
+}
 
 const NODE_SIZE = 90
 const LESSONS_LAYOUT = {
@@ -28,17 +39,10 @@ const NODE_META = {
   lp: { label: 'LIFE PATH',   subtitle: 'The road you walk',         icon: '⟶' },
 }
 
-const NODE_COLORS = {
-  th: '#7c3aed',
-  ac: '#f59e0b',
-  dy: '#c9a84c',
-  lp: '#00e5cc',
-}
-
 const MASTERS = new Set([11, 22, 33, 44, 55, 66, 77, 88, 99])
 
 function StripContent({ nodeKey, playerData }) {
-  const colorHex = NODE_COLORS[nodeKey] || '#c9a84c'
+  const colorHex = nodeColor(nodeKey)
 
   if (nodeKey === 'dy') {
     const n    = reduceToSimple(playerData.d)
@@ -152,7 +156,7 @@ export default function LessonsFlow({ playerData }) {
     return Object.keys(LESSONS_LAYOUT).map((nodeKey) => {
       const pos    = LESSONS_LAYOUT[nodeKey]
       const meta   = NODE_META[nodeKey]
-      const color  = NODE_COLORS[nodeKey] || '#c9a84c'
+      const color  = nodeColor(nodeKey)
 
       let displayNum, isMaster
       if (nodeKey === 'dy') {
@@ -190,7 +194,7 @@ export default function LessonsFlow({ playerData }) {
   })), [])
 
   const selMeta  = selected ? NODE_META[selected]   : null
-  const selColor = selected ? NODE_COLORS[selected] : '#c9a84c'
+  const selColor = selected ? nodeColor(selected) : resolveThemeColor('--gold')
 
   return (
     <>

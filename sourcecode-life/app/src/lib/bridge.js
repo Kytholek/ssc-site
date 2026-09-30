@@ -13,6 +13,8 @@
 // ── Web detection flag: true in browser, undefined in Android WebView ───────
 window.__SCL_WEB = true
 
+import { todayStr, calendarDayKey } from './numerology'
+
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -51,6 +53,48 @@ const LS_FS_BLOCKED = 'scl_firestore_blocked'
 
 function _save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)) } catch { /* intentional */ } }
 function _load(key)      { try { return JSON.parse(localStorage.getItem(key))   } catch { return null } }
+
+function _asObject(raw) {
+  if (!raw) return null
+  if (typeof raw === 'object') return raw
+  try { return JSON.parse(raw) } catch { return null }
+}
+
+function mergeLqp(localRaw, remoteRaw) {
+  const local = _asObject(localRaw) || {}
+  const remote = _asObject(remoteRaw) || {}
+  const keys = new Set([...Object.keys(local), ...Object.keys(remote)])
+  const out = {}
+  for (const key of keys) {
+    const locTiers = local[key] && typeof local[key] === 'object' ? local[key] : {}
+    const remTiers = remote[key] && typeof remote[key] === 'object' ? remote[key] : {}
+    const tierIds = new Set([...Object.keys(locTiers), ...Object.keys(remTiers)])
+    const tiers = {}
+    for (const tierId of tierIds) {
+      const a = Array.isArray(locTiers[tierId]) ? locTiers[tierId] : []
+      const b = Array.isArray(remTiers[tierId]) ? remTiers[tierId] : []
+      const len = Math.max(a.length, b.length)
+      const merged = []
+      for (let i = 0; i < len; i++) merged[i] = !!(a[i] || b[i])
+      tiers[tierId] = merged
+    }
+    out[key] = tiers
+  }
+  return out
+}
+
+function mergeGenQuests(localRaw, remoteRaw) {
+  const local = _asObject(localRaw)
+  const remote = _asObject(remoteRaw)
+  const today = todayStr()
+  const sameDay = (raw) => raw && calendarDayKey(raw.date) === today && Array.isArray(raw.quests) && raw.quests.length
+  const doneCount = (raw) => raw.quests.filter((q) => q.completed).length
+  if (sameDay(local) && sameDay(remote)) return doneCount(local) >= doneCount(remote) ? local : remote
+  if (sameDay(local)) return local
+  if (sameDay(remote)) return remote
+  if (local && Array.isArray(local.quests) && local.quests.length) return local
+  return remote
+}
 
 let _firestoreBlocked = (() => {
   try { return localStorage.getItem(LS_FS_BLOCKED) === 'true' } catch { return false }
@@ -209,16 +253,18 @@ window.NativeAuth = {
             if (d.achievements)  localStorage.setItem('scl_achievements',  typeof d.achievements === 'string'  ? d.achievements  : JSON.stringify(d.achievements))
             if (d.founder === true) localStorage.setItem('scl_founder', 'true')
             if (d.dailyStreak)   localStorage.setItem('scl_daily_streak', typeof d.dailyStreak === 'string'   ? d.dailyStreak   : JSON.stringify(d.dailyStreak))
-            if (d.lqp)           localStorage.setItem('scl_lqp',          typeof d.lqp === 'string'           ? d.lqp           : JSON.stringify(d.lqp))
+            if (d.lqp) {
+              const merged = mergeLqp(localStorage.getItem('scl_lqp'), d.lqp)
+              localStorage.setItem('scl_lqp', JSON.stringify(merged))
+            }
             if (d.irlCompleted)  localStorage.setItem('scl_irl_completed',  String(d.irlCompleted))
             if (d.questsCreated) localStorage.setItem('scl_quests_created', String(d.questsCreated))
             if (d.inviteAllies)  localStorage.setItem('scl_invite_allies',  String(d.inviteAllies))
             if (d.thirtyDayDone) localStorage.setItem('scl_30day_done',     String(d.thirtyDayDone))
             if (d.realmQuests)   localStorage.setItem('scl_realm_quests',   typeof d.realmQuests === 'string'  ? d.realmQuests   : JSON.stringify(d.realmQuests))
-            if (d.genQuests && typeof d.genQuests === 'object') {
-              localStorage.setItem('scl_gen_quests', JSON.stringify(d.genQuests))
-            } else if (typeof d.genQuests === 'string' && d.genQuests) {
-              localStorage.setItem('scl_gen_quests', d.genQuests)
+            if (d.genQuests) {
+              const merged = mergeGenQuests(localStorage.getItem('scl_gen_quests'), d.genQuests)
+              if (merged) localStorage.setItem('scl_gen_quests', JSON.stringify(merged))
             }
             if (d.classLoadout && typeof d.classLoadout === 'object') {
               localStorage.setItem('scl_class_loadout_v1', JSON.stringify(d.classLoadout))

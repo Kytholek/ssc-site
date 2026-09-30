@@ -1150,10 +1150,24 @@ html.hp-snapping .hp-scl-inner {
   align-items: center;
 }
 html.hp-snapping .hp-scl-device {
-  width: min(210px, 26vw);
+  width: min(280px, 34vw, calc(68vh * 9 / 19));
 }
 html.hp-snapping .hp-scl-device-bezel {
-  max-height: 54vh;
+  max-height: 68vh;
+}
+html.hp-snapping .hp-codex-link {
+  max-width: 360px;
+}
+html.hp-snapping .hp-codex-svg {
+  max-height: min(320px, 36vh);
+}
+html.hp-snapping .hp-use-offers,
+html.hp-snapping .hp-articles-grid {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  max-height: calc(100dvh - 260px);
+  -webkit-overflow-scrolling: touch;
 }
 html.hp-snapping .hp-scl-title {
   margin-bottom: 12px;
@@ -1303,7 +1317,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
     gap: 24px;
   }
   .hp-scl-device {
-    width: min(168px, 48vw);
+    width: min(168px, 48vw, calc(34vh * 9 / 19));
   }
   .hp-scl-device-bezel {
     max-height: 34vh;
@@ -1446,10 +1460,10 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
     gap: 16px;
   }
   html.hp-snapping .hp-scl-device {
-    width: min(150px, 44vw);
+    width: min(200px, 52vw, calc(42vh * 9 / 19));
   }
   html.hp-snapping .hp-scl-device-bezel {
-    max-height: 32vh;
+    max-height: 42vh;
   }
   html.hp-snapping .hp-scl-title {
     font-size: clamp(18px, 5vw, 24px);

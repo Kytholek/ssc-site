@@ -1404,7 +1404,7 @@ function initSclCarousel() {
   var nextBtn = root.querySelector('.hp-scl-carousel-btn.next');
   var index = 0;
   var timer = null;
-  var delay = 4000;
+  var delay = 7000;
   var liveSlides = [];
 
   function rebuildLive() {

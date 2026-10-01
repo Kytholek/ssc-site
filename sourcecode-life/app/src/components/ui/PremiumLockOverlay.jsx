@@ -24,7 +24,7 @@ export default function PremiumLockOverlay({ feature, children }) {
           <h3 className="premium-lock-title">PREMIUM FEATURE</h3>
           <p className="premium-lock-feature">{feature}</p>
           <button type="button" className="premium-lock-btn" onClick={handleUnlock}>
-            UNLOCK PREMIUM
+            UNLOCK · $4.99/MO
           </button>
           <p className="premium-lock-free-note">Free tier includes quests, stats, and daily objectives.</p>
         </div>

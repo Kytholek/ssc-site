@@ -140,6 +140,16 @@ function StripContent({ nodeKey, playerData }) {
   )
 }
 
+export function LifePathReading({ playerData }) {
+  if (!playerData?.lp) return null
+  return (
+    <div className="blueprint-life-path-preview">
+      <p className="blueprint-preview-kicker">FREE PREVIEW · LIFE PATH</p>
+      <StripContent nodeKey="lp" playerData={playerData} />
+    </div>
+  )
+}
+
 export default function LessonsFlow({ playerData }) {
   const [selected, setSelected] = useState(null)
   const [zoomLock, setZoomLock] = useState(null)

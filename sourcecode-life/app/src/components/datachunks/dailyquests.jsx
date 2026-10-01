@@ -6,6 +6,8 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useAppDispatch } from '../../context/AppContext'
+import { useGameState } from '../../state/GameContext'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import { XP_AWARDS } from '../../lib/questEngine'
 import {
@@ -23,23 +25,21 @@ import {
 } from '../../lib/numerologyQuests'
 import { todayStr } from '../../lib/numerology'
 import { BLUEPRINT_UNLOCK_LV } from '../../lib/questBlueprint'
-import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS } from '../../lib/data'
+import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS, ROOT } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
 import {
   calcPersonalDay, reduceToSimple,
 } from '../../lib/numerology'
 import { showFloatingXP, showParticleBurst } from '../effects/FloatingXP'
-import { markDayCompleted } from '../effects/StreakCalendar'
+import StreakCalendar, { markDayCompleted, hasAnyStreakCompletion } from '../effects/StreakCalendar'
 import DailyProgressRing from '../effects/DailyProgressRing'
 import DailyCountdown from '../effects/DailyCountdown'
-import StreakCalendar from '../effects/StreakCalendar'
 import {
   loadClassLoadout,
   getClassTitle,
   getLoadoutPathChips,
   getFilledSlots,
 } from '../../lib/classLoadout'
-import { useAppDispatch } from '../../context/AppContext'
 
 function getResonanceChain() {
   try {
@@ -338,7 +338,6 @@ function QuestChapters({
   onComplete,
   expandedId,
   onExpand,
-  alignmentSlot,
 }) {
   const dispatch = useAppDispatch()
   const [loadout, setLoadout] = useState(() => loadClassLoadout())
@@ -349,7 +348,7 @@ function QuestChapters({
     return () => window.removeEventListener('scl:class_loadout_updated', onL)
   }, [])
 
-  if (!genQuests && !alignmentSlot) return null
+  if (!genQuests) return null
 
   // Started multi-days live in Active Commitments — hide from chapter rows
   const active = (genQuests || []).filter(q => !q.completed && !isMultiDayCommitted(q))
@@ -390,20 +389,6 @@ function QuestChapters({
 
   return (
     <div className="qj-chapters">
-      {alignmentSlot && (
-        <section className="qj-chapter qj-chapter--alignment" aria-labelledby="qj-chapter-alignment">
-          <header className="qj-chapter-head">
-            <h3 id="qj-chapter-alignment" className="qj-chapter-label" style={{ color: 'var(--rose)' }}>
-              <span aria-hidden="true">◎</span>
-              <span>ALIGNMENT</span>
-            </h3>
-          </header>
-          <div className="qj-chapter-entries">
-            {alignmentSlot}
-          </div>
-        </section>
-      )}
-
       {JOURNAL_SOURCES.map(source => {
         const quests = grouped.get(source.id) || []
         const isClass = source.id === 'skill'
@@ -482,9 +467,55 @@ function QuestChapters({
 //  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, classSupportNote }) {
+function PersonalDayReading({ pd, meaning }) {
+  const dispatch = useAppDispatch()
+  const { user } = useGameState()
+  const dayRoot = reduceToSimple(pd.root)
+  const rootData = ROOT[pd.root] || ROOT[dayRoot] || {}
+  const watch = meaning.summary || ''
+  const isPremium = !!user?.isPremium
+
+  return (
+    <section className="daily-premium-reading" aria-label="Today's reading">
+      <div className="daily-premium-reading-kicker">TODAY’S READING · DAY {dayRoot}</div>
+      <h3 className="daily-premium-reading-theme">{meaning.theme || 'Personal day'}</h3>
+      {watch && <p className="daily-premium-reading-watch">{watch}</p>}
+      {isPremium ? (
+        <>
+          {rootData.shadow && (
+            <div className="daily-premium-reading-block">
+              <div className="daily-premium-reading-label">SHADOW</div>
+              <p>{rootData.shadow}</p>
+            </div>
+          )}
+          {rootData.integration && (
+            <div className="daily-premium-reading-block">
+              <div className="daily-premium-reading-label">INTEGRATION</div>
+              <p>{rootData.integration}</p>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="daily-premium-reading-lock">
+          <p>Shadow and integration for this number are part of Premium.</p>
+          <button
+            type="button"
+            className="premium-lock-btn"
+            onClick={() => dispatch({ type: 'OPEN_PREMIUM_MODAL' })}
+          >
+            UNLOCK · $4.99/MO
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, classSupportNote, embed = false }) {
   const [justCompleted, setJustCompleted] = useState(false)
   const cardRef = useRef(null)
+  const dispatch = useAppDispatch()
+  const { user } = useGameState()
   const { completeDailyQuest: eqComplete } = useQuestEngine()
   const doComplete = onComplete || eqComplete
 
@@ -502,6 +533,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
     const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
     const y = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
 
+    const firstDaily = !hasAnyStreakCompletion()
     doComplete(lpRoot)
     setJustCompleted(true)
 
@@ -514,6 +546,14 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
         window.dispatchEvent(new CustomEvent('scl:xp_toast', {
           detail: { msg: classSupportNote, color: 'var(--gold)' },
         }))
+      }
+      if (firstDaily && !user?.isPremium) {
+        let seen = false
+        try { seen = localStorage.getItem('scl_premium_pitch_seen') === '1' } catch { /* ignore */ }
+        if (!seen) {
+          try { localStorage.setItem('scl_premium_pitch_seen', '1') } catch { /* ignore */ }
+          dispatch({ type: 'OPEN_PREMIUM_PITCH' })
+        }
       }
     } catch (e) {
       console.warn('Visual feedback error:', e)
@@ -529,8 +569,8 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
           <span className="qj-align-seal">✓</span>
         </span>
         <div className="qj-align-body">
-          <span className="qj-align-kicker">ALIGNMENT</span>
-          <span className="qj-align-theme">{theme}</span>
+          <span className="qj-align-kicker">{embed ? 'DAILY QUEST' : 'ALIGNMENT'}</span>
+          {!embed && <span className="qj-align-theme">{theme}</span>}
         </div>
         <span className="qj-align-stamp">COMPLETE</span>
       </div>
@@ -546,8 +586,8 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
           <span className="qj-align-day">DAY {pd.dayNum}</span>
         </span>
         <div className="qj-align-copy">
-          <span className="qj-align-kicker">ALIGNMENT</span>
-          <h3 className="qj-align-theme">{theme}</h3>
+          <span className="qj-align-kicker">DAILY QUEST</span>
+          {!embed && <h3 className="qj-align-theme">{theme}</h3>}
           {isFocusMatch && (
             <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
           )}
@@ -557,7 +597,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
         </div>
       </div>
 
-      {summary && <p className="qj-align-summary">{summary}</p>}
+      {!embed && summary && <p className="qj-align-summary">{summary}</p>}
 
       <div className="qj-align-section">OBJECTIVES</div>
       <ul className="qj-align-objs">
@@ -574,6 +614,34 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
         ▶ COMPLETE DAILY QUEST
       </button>
     </article>
+  )
+}
+
+export function TodayReading({ playerData, daily, completeDailyQuest }) {
+  if (!playerData || !daily) return null
+  const pd = calcPersonalDay(playerData.m, playerData.d)
+  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
+  const colorVar = `var(${CYCLE_QUEST_COLORS.personalDay?.color || '--gold'})`
+  const daySeal = reduceToSimple(pd.root)
+  const loadoutNow = loadClassLoadout()
+  const classSupportNote = getFilledSlots(loadoutNow).some((s) => s.number === daySeal)
+    ? `Today supports your ${getClassTitle(loadoutNow)} path`
+    : null
+
+  return (
+    <div className="home-day-reading">
+      <PersonalDayReading pd={pd} meaning={meaning} />
+      <DailyQuestCard
+        daily={daily}
+        colorVar={colorVar}
+        meaning={meaning}
+        pd={pd}
+        onComplete={completeDailyQuest}
+        lpRoot={playerData.lp?.root}
+        classSupportNote={classSupportNote}
+        embed
+      />
+    </div>
   )
 }
 
@@ -780,7 +848,7 @@ export function StreakBadge({ streak, compact = false }) {
 //  BOUND JOURNAL ROOT
 // ═══════════════════════════════════════════════════════════════
 
-export default function DailySection({ playerData, daily, completeDailyQuest }) {
+export default function DailySection({ playerData, daily }) {
   const { xp } = useQuestEngine()
   const [genState, setGenState] = useState(() => getGeneratedQuests())
   const [expandedId, setExpandedId] = useState(null)
@@ -847,7 +915,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
   }, [classSupportToast, daily?.completed])
 
   if (!playerData) return null
-  const { m, d } = playerData
 
   const genQuests = genState?.quests ?? null
   const genCompleted = genQuests ? genQuests.filter(q => q.completed).length : 0
@@ -862,10 +929,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
   // Open = carveable journal rows (exclude commitments already moved to the strip)
   const openCount = (daily?.completed ? 0 : 1) + (genTotal - genCompleted - genCommitted)
 
-  const pd = calcPersonalDay(m, d)
-  const cfg = CYCLE_QUEST_COLORS.personalDay
-  const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
-  const colorVar = `var(${cfg.color})`
   const plateMeta = (() => {
     const base = allDone
       ? `${totalCompleted}/${totalQuests} complete`
@@ -875,13 +938,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
     if (genState?.cycleLabel) return `${base} · ${genState.cycleLabel}`
     return base
   })()
-
-  const daySeal = reduceToSimple(pd.root)
-  const loadoutNow = loadClassLoadout()
-  const classTitleNow = getClassTitle(loadoutNow)
-  const classSupportNote = getFilledSlots(loadoutNow).some((s) => s.number === daySeal)
-    ? `Today supports your ${classTitleNow} path`
-    : null
 
   function handleCompleteGen(questId, text) {
     return completeGeneratedQuest(questId, text)
@@ -958,17 +1014,6 @@ export default function DailySection({ playerData, daily, completeDailyQuest }) 
             onComplete={handleCompleteGen}
             expandedId={expandedId}
             onExpand={handleExpand}
-            alignmentSlot={(
-              <DailyQuestCard
-                daily={daily}
-                colorVar={colorVar}
-                meaning={meaning}
-                pd={pd}
-                onComplete={completeDailyQuest}
-                lpRoot={playerData.lp?.root}
-                classSupportNote={classSupportNote}
-              />
-            )}
           />
         </div>
       </div>

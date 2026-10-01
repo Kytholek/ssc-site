@@ -75,10 +75,10 @@ export default function CharCreateOverlay() {
     const hasNative = typeof window.NativeAuth !== 'undefined'
 
     if (isTester || !hasNative) {
-      // Browser / tester path — go to premium reveal (new flow)
+      // Browser / tester path — avatar next. Premium pitch waits for the first completed daily.
       saveLocalPlayer(playerData)
       dispatch({ type: 'CHAR_CREATED', payload: { user: currentUser || {}, playerData } })
-      dispatch({ type: 'SET_SCREEN', payload: 'premiumReveal' })
+      dispatch({ type: 'SET_SCREEN', payload: 'avatarCreate' })
       return
     }
 

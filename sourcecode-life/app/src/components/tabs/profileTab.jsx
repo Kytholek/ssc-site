@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
+import { useGameState } from '../../state/GameContext'
 import SettingsTab from '../datachunks/SettingsTab'
 import QuestCompletionChart from '../charts/QuestCompletionChart'
 import InsightsSummary from '../charts/InsightsSummary'
@@ -14,15 +15,19 @@ import PremiumLockOverlay from '../ui/PremiumLockOverlay'
 import CharacterGuidebookCta from '../ui/CharacterGuidebookCta'
 
 function InsightsSection() {
+  const { user } = useGameState()
   return (
-    <PremiumLockOverlay feature="Insights & Charts — XP trends, polarity balance, and roadmap">
-      <div className="insights-section">
-        <InsightsSummary />
-        <PolarityStatCard />
-        <QuestCompletionChart range={30} />
-        <LifeQuestRoadmap />
-      </div>
-    </PremiumLockOverlay>
+    <>
+      {!user?.isPremium && <InsightsSummary readingOnly />}
+      <PremiumLockOverlay feature="Insights & Charts — how your strongest stat sits against your Life Path, and the life-quest roadmap">
+        <div className="insights-section">
+          <InsightsSummary />
+          <PolarityStatCard />
+          <QuestCompletionChart range={30} />
+          <LifeQuestRoadmap />
+        </div>
+      </PremiumLockOverlay>
+    </>
   )
 }
 
@@ -33,6 +38,7 @@ const CONFIG_SECTIONS = [
 
 export default function ProfileTab() {
   const { tabSection } = useAppState()
+  const { user } = useGameState()
   const dispatch = useAppDispatch()
   const [section, setSection] = useState('insights')
   const [prevTabSection, setPrevTabSection] = useState(tabSection)
@@ -81,9 +87,11 @@ export default function ProfileTab() {
         ))}
       </div>
 
-      <div className="char-guidebook-cta-wrap">
-        <CharacterGuidebookCta />
-      </div>
+      {section === 'insights' && user?.isPremium && (
+        <div className="char-guidebook-cta-wrap">
+          <CharacterGuidebookCta keep />
+        </div>
+      )}
 
       {section === 'insights' && <InsightsSection />}
       {section === 'settings' && <SettingsTab />}

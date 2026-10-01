@@ -4,7 +4,7 @@
 import { useAppState } from '../../context/AppContext'
 import { buildCharacterGuidebookUrl } from '../../lib/guidebookLink'
 
-export default function CharacterGuidebookCta({ compact = false }) {
+export default function CharacterGuidebookCta({ compact = false, keep = false }) {
   const { playerData, currentUser } = useAppState()
 
   if (!playerData) return null
@@ -22,7 +22,9 @@ export default function CharacterGuidebookCta({ compact = false }) {
       <div className="char-guidebook-cta-body">
         <div className="char-guidebook-cta-title">Character Guidebook</div>
         <div className="char-guidebook-cta-desc">
-          Written decoding of your seven frequencies — uses your character data. $22 PDF.
+          {keep
+            ? 'Take this reading with you — a written PDF of your seven frequencies. $22.'
+            : 'Written decoding of your seven frequencies — uses your character data. $22 PDF.'}
         </div>
       </div>
       <span className="char-guidebook-cta-arrow" aria-hidden="true">→</span>

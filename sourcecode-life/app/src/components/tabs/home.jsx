@@ -1,7 +1,7 @@
 /**
  * HomeTab
  *
- * Daily dashboard: dossier CharCard, quest journal TODAY, Seasons cycles.
+ * Daily dashboard: character card, today's reading, then the quest journal.
  */
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
@@ -22,7 +22,7 @@ import { formatDisplayName } from '../../lib/formatters'
 import { CharacterCardPanel } from '../equipment/equipment.jsx'
 import { RPGCharacterCanvas } from '../charCreate/AvatarCreator.jsx'
 import SeasonsSection from '../datachunks/Seasons'
-import DailySection from '../datachunks/dailyquests'
+import DailySection, { TodayReading } from '../datachunks/dailyquests'
 import { useFloatingXP, useParticleBurst } from '../effects/FloatingXP'
 import { useQuestRewardToast } from '../effects/QuestRewardToast'
 import PremiumBadge from '../ui/PremiumBadge'
@@ -458,23 +458,31 @@ export default function HomeTab() {
         <GettingStartedChecklist />
         <CharCard />
 
-        <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
+        <section className="home-day-box" aria-label="Today's reading">
           {playerData && daily ? (
-            <DailySection
+            <TodayReading
               playerData={playerData}
               daily={daily}
               completeDailyQuest={completeDailyQuest}
             />
           ) : (
             <div className="home-today-loading" aria-busy="true">
-              <p className="home-today-loading-label">Loading today&apos;s quest journal…</p>
+              <p className="home-today-loading-label">Loading today&apos;s reading…</p>
             </div>
+          )}
+          {playerData && (
+            <SeasonsSection playerData={playerData} />
           )}
         </section>
 
-        {playerData && (
-          <SeasonsSection playerData={playerData} />
-        )}
+        <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
+          {playerData && daily && (
+            <DailySection
+              playerData={playerData}
+              daily={daily}
+            />
+          )}
+        </section>
       </div>
     </>
   )

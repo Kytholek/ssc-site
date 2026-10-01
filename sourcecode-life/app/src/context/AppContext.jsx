@@ -21,6 +21,8 @@ const initialState = {
   inviteBannerName: null,
   /** Show premium paywall modal */
   showPremiumModal: false,
+  /** Comparison pitch after the first completed daily */
+  showPremiumPitch: false,
 }
 
 // ── Reducer ───────────────────────────────────────────────────────────────────
@@ -54,23 +56,27 @@ function appReducer(state, action) {
     }
 
     case 'CHAR_CREATED': {
-      // New characters always go through premiumReveal first, then avatarCreate
+      // Avatar comes next. The premium comparison waits until the first completed daily.
       return {
         ...state,
         currentUser: action.payload.user,
         playerData:  action.payload.playerData,
-        screen:      'premiumReveal',
+        screen:      'avatarCreate',
       }
     }
 
-    case 'LAUNCH_APP':
+    case 'LAUNCH_APP': {
+      let openBlueprint = false
+      try { openBlueprint = sessionStorage.getItem('scl_open_blueprint') === '1' } catch { /* ignore */ }
       return {
         ...state,
         currentUser: action.payload.user,
         playerData:  action.payload.playerData,
         screen:      'app',
-        activeTab:   'home',
+        activeTab:   openBlueprint ? 'profile' : 'home',
+        tabSection:  openBlueprint ? 'blueprint' : null,
       }
+    }
 
     case 'SIGN_OUT':
       return { ...initialState, screen: 'auth' }
@@ -119,6 +125,12 @@ function appReducer(state, action) {
 
     case 'CLOSE_PREMIUM_MODAL':
       return { ...state, showPremiumModal: false }
+
+    case 'OPEN_PREMIUM_PITCH':
+      return { ...state, showPremiumPitch: true }
+
+    case 'CLOSE_PREMIUM_PITCH':
+      return { ...state, showPremiumPitch: false }
 
     default:
       return state

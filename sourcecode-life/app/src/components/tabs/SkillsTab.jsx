@@ -5,13 +5,14 @@
  */
 import { useState, useEffect } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
+import { useGameState } from '../../state/GameContext'
 import InnateSkills from '../skilltree/InnateSkills.jsx'
 import StatsTab from '../datachunks/StatsTab'
 import NumerologySpiral from '../spirals/NumerologySpiral'
 import PremiumLockOverlay from '../ui/PremiumLockOverlay'
+import LessonsFlow, { LifePathReading } from '../flow/LessonsFlow'
 import PurposeFlow from '../flow/PurposeFlow'
 import IdentityFlow from '../flow/IdentityFlow'
-import LessonsFlow from '../flow/LessonsFlow'
 import { markChecklistItem } from '../../lib/tourStorage'
 
 const PROFILE_TABS = [
@@ -27,8 +28,7 @@ const BLUEPRINT_TABS = [
   { id: 'purpose',  label: '✦ PURPOSE',  thesis: 'The road, the signal, and the call.' },
 ]
 
-function BlueprintSection() {
-  const { playerData } = useAppState()
+function BlueprintBoard({ playerData }) {
   const [subTab, setSubTab] = useState('lessons')
   const activeTab = BLUEPRINT_TABS.find((t) => t.id === subTab) || BLUEPRINT_TABS[0]
 
@@ -37,28 +37,42 @@ function BlueprintSection() {
   }, [subTab])
 
   return (
-    <PremiumLockOverlay feature="Full Blueprint — complete shadow + integration readings">
-      <div className="blueprint-section">
-        <div className="blueprint-sub-tabs">
-          {BLUEPRINT_TABS.map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`blueprint-sub-tab${subTab === tab.id ? ' active' : ''}`}
-              onClick={() => setSubTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <p className="blueprint-thesis">{activeTab.thesis}</p>
-        <div className="blueprint-stage-body">
-          {subTab === 'lessons'  && <LessonsFlow  playerData={playerData} />}
-          {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
-          {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
-        </div>
+    <div className="blueprint-section">
+      <div className="blueprint-sub-tabs">
+        {BLUEPRINT_TABS.map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`blueprint-sub-tab${subTab === tab.id ? ' active' : ''}`}
+            onClick={() => setSubTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-    </PremiumLockOverlay>
+      <p className="blueprint-thesis">{activeTab.thesis}</p>
+      <div className="blueprint-stage-body">
+        {subTab === 'lessons'  && <LessonsFlow  playerData={playerData} />}
+        {subTab === 'identity' && <IdentityFlow playerData={playerData} />}
+        {subTab === 'purpose'  && <PurposeFlow  playerData={playerData} />}
+      </div>
+    </div>
+  )
+}
+
+function BlueprintSection() {
+  const { playerData } = useAppState()
+  const { user } = useGameState()
+
+  if (user?.isPremium) return <BlueprintBoard playerData={playerData} />
+
+  return (
+    <div className="blueprint-section blueprint-section--preview">
+      <LifePathReading playerData={playerData} />
+      <PremiumLockOverlay feature="Lessons, Identity, and Purpose — shadow and integration for every number in the chart.">
+        <p className="blueprint-lock-tease">Lessons, Identity, and Purpose stay locked until Premium.</p>
+      </PremiumLockOverlay>
+    </div>
   )
 }
 

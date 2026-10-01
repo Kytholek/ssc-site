@@ -510,11 +510,16 @@ export function useAuthBridge() {
       try {
         sessionStorage.removeItem('scl_pending_purchase')
         sessionStorage.removeItem('scl_pending_session')
+        sessionStorage.setItem('scl_open_blueprint', '1')
       } catch { /* intentional */ }
       dispatch({ type: 'CLOSE_PREMIUM_MODAL' })
+      dispatch({ type: 'SET_TAB', payload: 'profile', section: 'blueprint' })
+      if (window.__sclShellReady) {
+        try { sessionStorage.removeItem('scl_open_blueprint') } catch { /* intentional */ }
+      }
       gameDispatch({
         type: ACTIONS.SET_TOAST,
-        payload: { msg: '✦ Premium unlocked! Explore Character → Spiral and Character → Blueprint.', color: 'var(--gold)' },
+        payload: { msg: '✦ Premium unlocked. Blueprint is open — Life Path was free; Lessons, Identity, and Purpose are yours.', color: 'var(--gold)' },
       })
     }
 

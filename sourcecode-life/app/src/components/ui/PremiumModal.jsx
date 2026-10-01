@@ -5,12 +5,12 @@ import { auth } from '../../lib/firebase'
 import { createSclCheckout } from '../../lib/sclBilling'
 
 const FEATURES = [
-  { glyph: '📜', title: 'Full Blueprint', desc: 'Complete shadow + integration reading for every number in your chart' },
+  { glyph: '✦', title: 'Today’s Reading', desc: 'Shadow and integration for your personal-day number, on the journal you open every day' },
+  { glyph: '📜', title: 'Full Blueprint', desc: 'Life Path stays free. Premium opens Lessons, Identity, and Purpose — shadow and integration for every number' },
   { glyph: '🌀', title: 'Spiral of Time', desc: 'Visual map of the cyclical seasons in your life; monthly, yearly, 9-year cycles and pinnacles' },
-  { glyph: '📊', title: 'Insights & Analytics', desc: 'Stat growth manager, polarity balance charts, and your Life Quest roadmap' },
+  { glyph: '📊', title: 'Insights', desc: 'How your strongest stat sits against your Life Path, plus the life-quest roadmap' },
+  { glyph: '✎', title: 'Class Title', desc: 'Rename the class title on your skill loadout' },
   { glyph: '⚔', title: 'Ally Badge', desc: 'A ✦ emblem on your name — visible to allies in the Realm' },
-  { glyph: '☁', title: 'Cloud Gear Sync', desc: 'Your character equipment synced across devices when gear launches' },
-  { glyph: '🎁', title: 'Premium Gift Codes', desc: 'Earn gift tokens by completing quests and share 3–7 day premium with allies' },
 ]
 
 const PRODUCTS = [
@@ -97,7 +97,7 @@ export default function PremiumModal({ open, onClose }) {
           <PremiumBadge size="lg" />
         </div>
         <h2 className="premium-modal-title" aria-hidden="true">UNLOCK PREMIUM</h2>
-        <p className="premium-modal-subtitle">Full decode of your numerology</p>
+        <p className="premium-modal-subtitle">Today’s number, and the rest of the chart</p>
       </div>
 
       <div className="premium-modal-features">

@@ -9,6 +9,10 @@ const STORAGE_KEY = 'scl_streak_history'
  * Get or initialize the streak history (last 14 days)
  * Each entry: { date: 'YYYY-MM-DD', completed: bool, resonant: bool }
  */
+export function hasAnyStreakCompletion() {
+  return getStreakHistory().some((h) => h.completed)
+}
+
 function getStreakHistory() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

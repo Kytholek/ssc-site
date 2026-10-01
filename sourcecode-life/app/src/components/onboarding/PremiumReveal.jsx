@@ -3,29 +3,29 @@ import NumerologyRain from '../effects/NumerologyRain'
 import OnboardingProgress from '../ui/OnboardingProgress'
 
 const FEATURES = [
-  { glyph: '📜', title: 'Full Blueprint', desc: 'Complete shadow + integration reading for every number in your chart' },
+  { glyph: '✦', title: 'Today’s Reading', desc: 'Shadow and integration for your personal-day number, on the journal you open every day' },
+  { glyph: '📜', title: 'Full Blueprint', desc: 'Life Path stays free. Premium opens Lessons, Identity, and Purpose — shadow and integration for every number' },
   { glyph: '🌀', title: 'Spiral of Time', desc: 'Visual map of the cyclical seasons in your life; monthly, yearly, 9-year cycles and pinnacles' },
-  { glyph: '📊', title: 'Insights & Analytics', desc: 'Stat growth manager, polarity balance charts, and your Life Quest roadmap' },
+  { glyph: '📊', title: 'Insights', desc: 'How your strongest stat sits against your Life Path, plus the life-quest roadmap' },
+  { glyph: '✎', title: 'Class Title', desc: 'Rename the class title on your skill loadout' },
   { glyph: '⚔', title: 'Ally Badge', desc: 'A ✦ emblem on your name — visible to allies in the Realm' },
-  { glyph: '☁', title: 'Cloud Gear Sync', desc: 'Your character equipment synced across devices when gear launches' },
-  { glyph: '🎁', title: 'Premium Gift Codes', desc: 'Earn gift tokens by completing quests and share 3–7 day premium with allies' },
 ]
 
 const FREE_VS_PREMIUM = [
   { feature: 'Daily quests & XP', free: true, premium: true },
-  { feature: 'Life Quest objectives', free: true, premium: true },
-  { feature: 'Stats & skill tree', free: true, premium: true },
-  { feature: 'Full blueprint decode', free: false, premium: true },
-  { feature: 'Time Spiral & insights', free: false, premium: true },
-  { feature: 'Ally badge in Realm', free: false, premium: true },
+  { feature: 'Life Path reading', free: true, premium: true },
+  { feature: 'Today’s shadow reading', free: false, premium: true },
+  { feature: 'Full blueprint & Time Spiral', free: false, premium: true },
+  { feature: 'Insights & class rename', free: false, premium: true },
 ]
 
-export default function PremiumReveal({ onComplete }) {
+export default function PremiumReveal({ onComplete, inApp = false }) {
   const dispatch = useAppDispatch()
   const { playerData } = useAppState()
 
   function handleUnlock() {
     dispatch({ type: 'OPEN_PREMIUM_MODAL' })
+    if (inApp && onComplete) onComplete()
   }
 
   function handleNavigate() {
@@ -44,7 +44,7 @@ export default function PremiumReveal({ onComplete }) {
     <div className="pr-overlay">
       <NumerologyRain />
       <div className="pr-content">
-        <OnboardingProgress screen="premiumReveal" />
+        {!inApp && <OnboardingProgress screen="premiumReveal" />}
         <div className="pr-card">
           <div className="pr-header">
             <div className="pr-header-icon" aria-hidden="true">✦</div>
@@ -57,8 +57,9 @@ export default function PremiumReveal({ onComplete }) {
           </div>
 
           <p className="pr-subtext">
-            The free tier gives you your core quest engine.<br />
-            Premium unlocks the full decode.
+            {inApp
+              ? <>You finished a day. The free tier keeps the quest engine and your Life Path.<br />Premium is the shadow reading for today’s number, and the rest of the chart.</>
+              : <>The free tier keeps the quest engine and your Life Path.<br />Premium is the shadow reading for today’s number, and the rest of the chart.</>}
           </p>
 
           <div className="pr-comparison">
@@ -87,10 +88,10 @@ export default function PremiumReveal({ onComplete }) {
           </div>
 
           <button type="button" className="pr-cta pr-cta--primary" onClick={handleUnlock}>
-            UNLOCK PREMIUM ✦
+            UNLOCK PREMIUM · $4.99/MO
           </button>
           <button type="button" className="pr-cta pr-cta--ghost" onClick={handleNavigate}>
-            CONTINUE WITH FREE →
+            {inApp ? 'KEEP PLAYING FREE →' : 'CONTINUE WITH FREE →'}
           </button>
         </div>
       </div>

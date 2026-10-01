@@ -6,12 +6,11 @@ const SCREEN_STEPS = {
   auth: 2,
   onboarding: 3,
   charCreate: 4,
-  premiumReveal: 5,
-  avatarCreate: 6,
-  app: 6,
+  avatarCreate: 5,
+  app: 5,
 }
 
-const TOTAL_STEPS = 6
+const TOTAL_STEPS = 5
 
 export default function OnboardingProgress({ screen }) {
   const step = SCREEN_STEPS[screen] || 1

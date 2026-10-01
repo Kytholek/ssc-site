@@ -7,6 +7,7 @@ import Header from './Header'
 import TabBar from './TabBar'
 import Toast from '../ui/Toast'
 import PremiumModal from '../ui/PremiumModal'
+import PremiumReveal from '../onboarding/PremiumReveal'
 import SpotlightTour from '../onboarding/SpotlightTour'
 import HomeTab   from '../tabs/home'
 import Profile   from '../tabs/profileTab'
@@ -26,7 +27,7 @@ const TAB_TITLES = {
 }
 
 export default function AppShell() {
-  const { activeTab, showPremiumModal, tabSection } = useAppState()
+  const { activeTab, showPremiumModal, showPremiumPitch, tabSection } = useAppState()
   const dispatch = useAppDispatch()
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
@@ -45,6 +46,17 @@ export default function AppShell() {
       window.scrollTo(0, 0)
     })
   }, [])
+
+  useEffect(() => {
+    window.__sclShellReady = true
+    let open = false
+    try { open = sessionStorage.getItem('scl_open_blueprint') === '1' } catch { /* ignore */ }
+    if (open) {
+      try { sessionStorage.removeItem('scl_open_blueprint') } catch { /* ignore */ }
+      dispatch({ type: 'SET_TAB', payload: 'profile', section: 'blueprint' })
+    }
+    return () => { window.__sclShellReady = false }
+  }, [dispatch])
 
   useEffect(() => {
     resetTabScroll()
@@ -138,6 +150,12 @@ export default function AppShell() {
       <TabBar onTabChange={switchToTab} />
       <SpotlightTour activeTab={activeTab} onTabChange={switchToTab} />
       <Toast />
+      {showPremiumPitch && (
+        <PremiumReveal
+          inApp
+          onComplete={() => dispatch({ type: 'CLOSE_PREMIUM_PITCH' })}
+        />
+      )}
       <PremiumModal open={showPremiumModal} onClose={() => dispatch({ type: 'CLOSE_PREMIUM_MODAL' })} />
     </div>
   )

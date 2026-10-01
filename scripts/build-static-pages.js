@@ -229,7 +229,7 @@ ${opts.body}
 
 ${coreScripts.join('\n')}
 ${extraScripts}
-<script defer src="/js/app.js?v=20260920-sitewide"></script>
+<script defer src="/js/app.js?v=20260930-books"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {
@@ -257,7 +257,7 @@ function buildServices() {
     jsonLd: servicesJsonLd(),
     extraJsonLd: servicesFaqJsonLd(),
     body: body,
-    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css'],
+    extraStyles: ['/css/brand-revamp.css?v=20260915-audit', '/css/modal.css?v=20260930-books'],
     bootScript: "if (typeof initServicesPage === 'function') initServicesPage();\n    if (typeof applyLanguage === 'function') applyLanguage(getLang());",
   });
 

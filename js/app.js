@@ -2381,7 +2381,9 @@ var SVC_BOOKS = {
     tag: 'Original',
     img: '/Images/truebaptism.png',
     desc: 'The Ideals of Simulation Source Code, now within Biblical Scripture. Rather than treating scripture as distant history or abstract theology, this book approaches it as a living framework, one that describes the internal condition of the individual and the process of real change and transfiguration that happens with being Baptised in the Holy Spirit.',
-    url: 'https://amzn.to/4vVM10j'
+    url: 'https://amzn.to/4vVM10j',
+    ebookLabel: 'Ebook \u2192',
+    luluId: 'b0851486-8b16-4050-8dbb-154d3406996f'
   },
   ssc: {
     title: 'Simulation Source Code',
@@ -2405,7 +2407,9 @@ var SVC_BOOKS = {
     tag: 'Original',
     img: '/Images/realitylostcovermain.png',
     desc: 'After a promising path in the Marine Corps ends in an Other Than Honorable discharge, a man is cast outside the system he once trusted and forced into confrontation with his past, his addictions, and the nature of reality itself.',
-    url: 'https://amzn.to/41nny6V'
+    url: 'https://amzn.to/41nny6V',
+    ebookLabel: 'Ebook \u2192',
+    luluId: '69a3e4dc-524a-42e3-95ab-a7731601af1f'
   },
   'out-of-place': {
     title: 'Out of Place',
@@ -2416,6 +2420,31 @@ var SVC_BOOKS = {
     url: 'https://amzn.to/4yJz24h'
   }
 };
+
+function ensureLuluBuyScript() {
+  if (document.querySelector('script[data-lulu-buy]')) return;
+  var script = document.createElement('script');
+  script.src = 'https://js.lulu.com/lulu-buy.js';
+  script.defer = true;
+  script.setAttribute('data-lulu-buy', '1');
+  document.head.appendChild(script);
+}
+
+function renderBookPrint(book) {
+  var slot = document.getElementById('book-detail-print');
+  if (!slot) return;
+  slot.replaceChildren();
+  if (!book.luluId) {
+    slot.hidden = true;
+    return;
+  }
+  ensureLuluBuyScript();
+  var widget = document.createElement('lulu-buy-button');
+  widget.setAttribute('buy-button-id', book.luluId);
+  widget.setAttribute('variant', 'product-showcase');
+  slot.appendChild(widget);
+  slot.hidden = false;
+}
 
 function openBookDetail(id) {
   var book = SVC_BOOKS[id];
@@ -2442,10 +2471,12 @@ function openBookDetail(id) {
   desc.textContent = book.desc;
   desc.style.whiteSpace = 'pre-line';
 
+  renderBookPrint(book);
+
   if (book.url) {
     cta.hidden = false;
     cta.href = book.url;
-    cta.textContent = 'View on Amazon \u2192';
+    cta.textContent = book.ebookLabel || 'View on Amazon \u2192';
     cta.removeAttribute('aria-disabled');
     cta.classList.remove('is-disabled');
     cta.target = '_blank';

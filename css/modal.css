@@ -315,7 +315,7 @@ button.svc-cta {
 }
 #book-detail-modal {
   position: relative;
-  width: min(720px, 100%);
+  width: min(860px, 100%);
   max-height: calc(100vh - 40px);
   margin: auto;
   overflow-y: auto;
@@ -409,6 +409,22 @@ button.svc-cta {
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
+  margin-top: 22px;
+}
+.book-detail-buy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+#book-detail-print {
+  flex: 1 1 280px;
+  min-width: min(100%, 260px);
+  max-width: 420px;
+}
+#book-detail-print[hidden] {
+  display: none !important;
 }
 .book-detail-cta {
   display: inline-block;

@@ -382,7 +382,7 @@
   <link rel="stylesheet" href="/css/style.css?v=20260920-sitewide">
   <link rel="stylesheet" href="/css/calculator-codex.css?v=20260920-calc">
   <link rel="stylesheet" href="/css/brand-revamp.css?v=20260915-audit">
-  <link rel="stylesheet" href="/css/modal.css">
+  <link rel="stylesheet" href="/css/modal.css?v=20260930-books">
   <style>
     body { padding-top: 64px; }
     .page { display: block !important; opacity: 1 !important; }
@@ -808,15 +808,18 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
           <h3 class="book-detail-title" id="book-detail-title"></h3>
           <div class="book-detail-author" id="book-detail-author"></div>
           <p class="book-detail-desc" id="book-detail-desc"></p>
-          <div class="book-detail-actions">
-            <a id="book-detail-cta" class="book-btn book-detail-cta" href="#" target="_blank" rel="noopener noreferrer" hidden>View on Amazon &#8594;</a>
-            <div class="book-detail-formats">
-              <button type="button" class="book-format-btn" id="book-detail-pdf" disabled aria-disabled="true">PDF — soon</button>
-              <button type="button" class="book-format-btn" id="book-detail-epub" disabled aria-disabled="true">EPUB — soon</button>
-            </div>
-            <p class="book-detail-formats-note">Direct download coming soon.</p>
-          </div>
         </div>
+      </div>
+      <div class="book-detail-actions">
+        <div class="book-detail-buy-row">
+          <a id="book-detail-cta" class="book-btn book-detail-cta" href="#" target="_blank" rel="noopener noreferrer" hidden>View on Amazon &#8594;</a>
+          <div id="book-detail-print" hidden></div>
+        </div>
+        <div class="book-detail-formats">
+          <button type="button" class="book-format-btn" id="book-detail-pdf" disabled aria-disabled="true">PDF — soon</button>
+          <button type="button" class="book-format-btn" id="book-detail-epub" disabled aria-disabled="true">EPUB — soon</button>
+        </div>
+        <p class="book-detail-formats-note">Direct download coming soon.</p>
       </div>
     </div>
   </div>
@@ -883,7 +886,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 <script type="module" src="/js/codex-data.js?v=20260915-vessel"></script>
 <script defer src="/js/calculator.js?v=20260920-calc"></script>
 
-<script defer src="/js/app.js?v=20260920-sitewide"></script>
+<script defer src="/js/app.js?v=20260930-books"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     (async function () {

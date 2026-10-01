@@ -1295,7 +1295,7 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   html.hp-snapping .hp-snap {
     justify-content: flex-start;
     padding-top: 88px;
-    padding-bottom: 12px;
+    padding-bottom: 28px;
   }
   html.hp-snapping .hp-hero,
   html.hp-snapping .hp-codex-teaser,
@@ -1303,8 +1303,8 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   html.hp-snapping .hp-articles-section,
   html.hp-snapping .hp-scl-section,
   html.hp-snapping .hp-faq-section {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
   .hp-use-section {
     padding: 56px 20px 24px;
@@ -1327,34 +1327,40 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
     text-align: center;
   }
   html.hp-snapping .hp-hero {
-    justify-content: space-between;
-    padding-bottom: 16px;
+    justify-content: space-evenly;
+    padding-bottom: 28px;
+    gap: 36px;
   }
   html.hp-snapping .hp-hero-main {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     min-height: 0;
-    overflow: hidden;
-    gap: 10px;
+    overflow: visible;
+    gap: 48px;
+    justify-content: center;
+    align-items: center;
   }
   html.hp-snapping .hp-hero-content {
     flex: 0 1 auto;
   }
   html.hp-snapping .hp-hero-eyebrow {
-    margin-bottom: 8px;
+    margin-bottom: 18px;
   }
   html.hp-snapping .hp-hero-title {
     font-size: clamp(22px, 6.4vw, 28px);
-    margin-bottom: 8px;
+    margin-bottom: 18px;
   }
   html.hp-snapping .hp-hero-sub {
-    font-size: 15px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.6;
     margin-bottom: 0;
   }
   html.hp-snapping .hp-codex-link {
-    flex: 0 1 auto;
-    max-width: 160px;
-    max-height: 22vh;
+    flex: 0 0 auto;
+    align-self: center;
+    justify-content: flex-start;
+    max-width: 156px;
+    max-height: none;
+    margin-top: 0;
   }
   html.hp-snapping .hp-codex-svg {
     width: 148px;
@@ -1362,23 +1368,33 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   }
   html.hp-snapping .hp-hero-cta-bar {
     flex: 0 0 auto;
+    margin-top: 8px;
     padding-top: 8px;
     padding-bottom: 0;
+    gap: 16px;
   }
   html.hp-snapping .hp-hero-actions {
+    flex-direction: column;
     flex-wrap: nowrap;
+    align-items: stretch;
     width: 100%;
-    gap: 8px;
+    gap: 16px;
   }
-  html.hp-snapping .hp-hero-actions a {
-    flex: 1 1 0;
+  html.hp-snapping #page-home#page-home .hp-hero-actions a.btn-primary,
+  html.hp-snapping #page-home#page-home .hp-hero-actions a.btn-secondary {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
+    box-sizing: border-box;
+    display: block;
     text-align: center;
-    padding-left: 10px;
-    padding-right: 10px;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
+    padding: 12px 12px !important;
+    font-size: 7px !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.45 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word;
   }
   html.hp-snapping .hp-codex-caption,
   html.hp-snapping .hp-hero-micro {
@@ -1391,59 +1407,147 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   html.hp-snapping .hp-scl-wrap,
   html.hp-snapping .hp-ssc {
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   html.hp-snapping .hp-main-row {
     flex-direction: column;
     justify-content: flex-start;
-    padding: 88px 20px 12px;
-    gap: 12px;
+    padding: 96px 24px 32px;
+    gap: 20px;
   }
   html.hp-snapping .hp-ssc {
-    padding: 16px 14px;
+    padding: 28px 20px 24px;
   }
   html.hp-snapping .hp-ssc-title {
     font-size: clamp(22px, 6vw, 28px);
-    margin-bottom: 8px;
+    margin-bottom: 28px;
   }
   html.hp-snapping .hp-ssc-body {
     display: none;
   }
   html.hp-snapping .hp-trinity-list {
-    margin-bottom: 12px;
-    gap: 8px;
+    margin-bottom: 28px;
+    gap: 20px;
   }
   html.hp-snapping .hp-trinity-item {
-    padding: 8px 12px;
+    padding: 18px 18px;
+    gap: 8px;
+  }
+  html.hp-snapping .hp-ssc-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 24px;
   }
   html.hp-snapping .hp-codex-teaser-inner {
-    gap: 14px;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    justify-content: space-evenly;
+    gap: 40px;
+  }
+  html.hp-snapping .hp-codex-teaser-copy {
+    flex: 0 0 auto;
+  }
+  html.hp-snapping .hp-codex-teaser-eyebrow {
+    margin-bottom: 18px;
+  }
+  html.hp-snapping .hp-codex-teaser-title {
+    margin-bottom: 20px;
   }
   html.hp-snapping .hp-codex-teaser-body {
-    font-size: 15px;
-    line-height: 1.4;
-    margin-bottom: 12px;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  html.hp-snapping .hp-codex-map {
+    width: 264px;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-right: 52px;
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 8px;
+    margin-top: 0;
+  }
+  html.hp-snapping #page-home#page-home#page-home .hp-codex-map-label {
+    font-size: 8px !important;
+    letter-spacing: 0.02em !important;
+  }
+  html.hp-snapping .hp-codex-map-cols,
+  html.hp-snapping .hp-codex-map-body {
+    gap: 8px;
+  }
+  html.hp-snapping .hp-codex-map-cols {
+    grid-template-columns: 44px repeat(3, 48px);
+  }
+  html.hp-snapping .hp-codex-map-body {
+    grid-template-columns: 44px 160px;
+  }
+  html.hp-snapping .hp-codex-map-label {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+  html.hp-snapping .hp-articles-header {
+    margin-bottom: 32px;
+  }
+  html.hp-snapping .hp-articles-eyebrow {
+    margin-bottom: 14px;
+  }
+  html.hp-snapping .hp-articles-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  html.hp-snapping .hp-view-all-link {
+    margin-top: 28px;
+  }
+  html.hp-snapping .hp-article-thumb {
+    height: 112px;
+  }
+  html.hp-snapping .hp-article-body {
+    padding: 16px 16px 18px;
+  }
+  html.hp-snapping .hp-article-title {
+    font-size: 16px;
+    line-height: 1.35;
   }
   html.hp-snapping .hp-codex-teaser-grid,
   html.hp-snapping .hp-codex-map .hp-codex-teaser-grid {
-    width: min(148px, 46vw);
+    width: 160px;
+    gap: 8px;
+    justify-self: center;
+  }
+  html.hp-snapping .hp-codex-teaser-grid span {
+    font-size: 18px;
+    border-radius: 6px;
   }
   html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-articles-section,
   html.hp-snapping .hp-scl-section {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
   html.hp-snapping .hp-use-header {
-    margin-bottom: 12px;
+    margin-bottom: 32px;
+  }
+  html.hp-snapping .hp-use-eyebrow {
+    margin-bottom: 14px;
+  }
+  html.hp-snapping .hp-use-title {
+    margin-bottom: 0;
+    line-height: 1.3;
   }
   html.hp-snapping .hp-use-offers {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 20px;
   }
   html.hp-snapping .hp-use-offer {
-    padding: 10px 14px;
+    padding: 20px 18px;
+    gap: 12px;
   }
   html.hp-snapping .hp-use-sub,
   html.hp-snapping .hp-use-offer-desc,
@@ -1452,35 +1556,48 @@ html.hp-snapping nav.hp-snap-nav:not(.breadcrumb) {
   }
   html.hp-snapping .hp-use-offer-name {
     font-size: 17px;
+    margin-top: 10px;
+  }
+  html.hp-snapping .hp-services-all,
+  html.hp-snapping .hp-use-bundle-note {
+    margin-top: 8px;
   }
   html.hp-snapping .hp-use-offer-price {
     font-size: 18px;
   }
   html.hp-snapping .hp-scl-inner {
-    gap: 16px;
+    gap: 40px;
   }
   html.hp-snapping .hp-scl-device {
-    width: min(200px, 52vw, calc(42vh * 9 / 19));
+    width: min(180px, 46vw, calc(34vh * 9 / 19));
   }
   html.hp-snapping .hp-scl-device-bezel {
-    max-height: 42vh;
+    max-height: 34vh;
+  }
+  html.hp-snapping .hp-scl-eyebrow {
+    margin-bottom: 14px;
   }
   html.hp-snapping .hp-scl-title {
     font-size: clamp(18px, 5vw, 24px);
+    margin-bottom: 18px;
   }
   html.hp-snapping .hp-scl-body,
   html.hp-snapping .hp-scl-stakes {
     display: none;
   }
   html.hp-snapping .hp-scl-note {
-    margin-bottom: 10px;
+    margin-bottom: 22px;
   }
   html.hp-snapping .hp-scl-actions {
-    margin-top: 4px;
+    margin-top: 22px;
+    gap: 16px;
   }
   html.hp-snapping .hp-faq-title {
     font-size: 24px;
-    margin-bottom: 12px;
+    margin-bottom: 28px;
+  }
+  html.hp-snapping .hp-faq-q {
+    padding: 26px 0;
   }
   html.hp-snapping .hp-faq-list {
     max-height: calc(100dvh - 160px);

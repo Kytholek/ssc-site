@@ -1,7 +1,7 @@
 /**
  * HomeTab
  *
- * Daily dashboard: character card, today's reading, then the quest journal.
+ * Daily dashboard: character card, then Overview (reading and seasons) or Quests (journal).
  */
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
@@ -32,6 +32,11 @@ import {
   getClassTitle,
   getFilledSlots,
 } from '../../lib/classLoadout'
+
+const HOME_SECTIONS = [
+  { id: 'overview', label: 'OVERVIEW' },
+  { id: 'journal', label: 'QUESTS' },
+]
 
 const HEADGEAR_MAP = {
   'Crown':   1,
@@ -445,8 +450,37 @@ function CharCard() {
 }
 
 export default function HomeTab() {
-  const { playerData } = useAppState()
+  const { playerData, tabSection } = useAppState()
+  const dispatch = useAppDispatch()
   const { daily, completeDailyQuest } = useQuestEngine()
+  const [section, setSection] = useState(() =>
+    tabSection === 'journal' ? 'journal' : 'overview'
+  )
+  const [prevTabSection, setPrevTabSection] = useState(tabSection)
+
+  if (tabSection !== prevTabSection) {
+    setPrevTabSection(tabSection)
+    if (tabSection === 'journal' || tabSection === 'overview') {
+      setSection(tabSection)
+    }
+  }
+
+  useEffect(() => {
+    if (tabSection === 'journal' || tabSection === 'overview') {
+      dispatch({ type: 'CLEAR_TAB_SECTION' })
+    }
+  }, [tabSection, dispatch])
+
+  useEffect(() => {
+    const handle = (e) => {
+      const sub = e.detail?.sub
+      if (e.detail?.main === 'home' && (sub === 'journal' || sub === 'overview')) {
+        setSection(sub)
+      }
+    }
+    window.addEventListener('scl:open-sub-tab', handle)
+    return () => window.removeEventListener('scl:open-sub-tab', handle)
+  }, [])
 
   return (
     <>
@@ -458,31 +492,59 @@ export default function HomeTab() {
         <GettingStartedChecklist />
         <CharCard />
 
-        <section className="home-day-box" aria-label="Today's reading">
-          {playerData && daily ? (
-            <TodayReading
-              playerData={playerData}
-              daily={daily}
-              completeDailyQuest={completeDailyQuest}
-            />
-          ) : (
-            <div className="home-today-loading" aria-busy="true">
-              <p className="home-today-loading-label">Loading today&apos;s reading…</p>
-            </div>
-          )}
-          {playerData && (
-            <SeasonsSection playerData={playerData} />
-          )}
-        </section>
+        <div className="home-insights-head">
+          <h2 className="home-section-heading">
+            <span className="home-section-heading-line" aria-hidden="true" />
+            <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
+            Daily Insights
+            <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
+            <span className="home-section-heading-line" aria-hidden="true" />
+          </h2>
+          <nav className="profile-navbar home-subnav" role="tablist" aria-label="Daily Insights">
+            {HOME_SECTIONS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={section === item.id}
+                className={`profile-navbar-btn${section === item.id ? ' active' : ''}`}
+                onClick={() => setSection(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </div>
 
-        <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
-          {playerData && daily && (
-            <DailySection
-              playerData={playerData}
-              daily={daily}
-            />
-          )}
-        </section>
+        {section === 'overview' && (
+          <section className="home-day-box" aria-label="Today's reading">
+            {playerData && daily ? (
+              <TodayReading
+                playerData={playerData}
+                daily={daily}
+                completeDailyQuest={completeDailyQuest}
+              />
+            ) : (
+              <div className="home-today-loading" aria-busy="true">
+                <p className="home-today-loading-label">Loading today&apos;s reading…</p>
+              </div>
+            )}
+            {playerData && (
+              <SeasonsSection playerData={playerData} />
+            )}
+          </section>
+        )}
+
+        {section === 'journal' && (
+          <section className="home-today-section home-today-section--journal" data-tour="today" aria-label="Today">
+            {playerData && daily && (
+              <DailySection
+                playerData={playerData}
+                daily={daily}
+              />
+            )}
+          </section>
+        )}
       </div>
     </>
   )

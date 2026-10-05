@@ -23196,27 +23196,56 @@ body.scl-realm-open .tab-bar {
 .home-today-section--journal {
   padding: 0;
 }
-.home-day-box {
-  margin: 8px 0 18px;
-  padding: 6px 0 4px;
-  border: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 32%, transparent);
-  border-radius: 10px;
-  background: rgba(201, 168, 76, 0.035);
+.home-insights-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.home-day-box .daily-premium-reading {
-  margin: 8px 14px 0;
-  padding: 4px 2px 8px;
+.home-dashboard .home-subnav {
+  margin: 0;
+}
+.home-day-box,
+.home-day-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
   border: 0;
   background: transparent;
 }
-.home-day-box .home-day-reading .qj-align {
-  margin: 0 14px 4px;
-  padding-top: 2px;
-  border-top: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 16%, transparent);
+.home-day-box .daily-premium-reading,
+.home-day-box .home-day-reading .qj-align,
+.home-day-box .seasons-energy-row {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--home-shell-border);
+  border-radius: var(--home-shell-radius);
+  background: var(--home-shell-bg);
 }
 .home-day-box .seasons-section {
-  margin-top: 4px;
-  border-top: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 18%, transparent);
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+.home-day-box .seasons-section--energy .seasons-header {
+  padding: 4px 2px 0;
+}
+.home-day-box .seasons-energy {
+  gap: 12px;
+  padding: 0;
+}
+.home-day-box .seasons-energy-row,
+.home-day-box .seasons-energy-row:first-child,
+.home-day-box .seasons-energy-row--accent {
+  border-top: 1px solid var(--home-shell-border);
+  padding: 16px;
+}
+.home-day-box .seasons-energy-summary,
+.home-day-box .seasons-energy-row:last-child .seasons-energy-summary {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 .home-today-loading {
   padding: 28px 18px;
@@ -23704,7 +23733,7 @@ body.scl-realm-open .tab-bar {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
 }
 
 /* Alignment page */
@@ -23899,7 +23928,7 @@ body.scl-realm-open .tab-bar {
 .qj-chapters {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
 }
 .qj-chapter {
   display: flex;
@@ -23957,7 +23986,7 @@ body.scl-realm-open .tab-bar {
   display: none;
 }
 .qj-commitments {
-  margin: 0 0 16px;
+  margin: 0;
   padding: 12px 14px;
   border: 1px solid color-mix(in srgb, var(--rose, #ff2d55) 28%, transparent);
   background: color-mix(in srgb, var(--rose, #ff2d55) 6%, transparent);

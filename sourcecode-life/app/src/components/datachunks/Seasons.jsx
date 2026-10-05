@@ -135,7 +135,7 @@ export default function SeasonsSection({ playerData }) {
   }
 
   return (
-    <section className="seasons-section seasons-section--energy home-section-shell" aria-labelledby="seasons-heading">
+    <section className="seasons-section seasons-section--energy" aria-labelledby="seasons-heading">
       <div className="seasons-header">
         <h2 id="seasons-heading" className="home-section-heading seasons-heading">
           <span className="seasons-heading-line home-section-heading-line" aria-hidden="true" />

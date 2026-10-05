@@ -128,6 +128,11 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
     if (step.tab && activeTab !== step.tab) {
       onTabChange(step.tab)
     }
+    if (step.id === 'today') {
+      window.dispatchEvent(new CustomEvent('scl:open-sub-tab', {
+        detail: { main: 'home', sub: 'journal' },
+      }))
+    }
   }, [active, step, activeTab, onTabChange])
 
   useEffect(() => {

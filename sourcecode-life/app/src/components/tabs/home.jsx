@@ -492,32 +492,33 @@ export default function HomeTab() {
         <GettingStartedChecklist />
         <CharCard />
 
-        <div className="home-insights-head">
-          <h2 className="home-section-heading">
-            <span className="home-section-heading-line" aria-hidden="true" />
-            <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
-            Daily Insights
-            <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
-            <span className="home-section-heading-line" aria-hidden="true" />
-          </h2>
+        <div className="home-insights">
+          <div className="home-insights-head">
+            <h2 className="home-section-heading">
+              <span className="home-section-heading-line" aria-hidden="true" />
+              <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
+              Daily Insights
+              <span className="home-section-heading-glyph" aria-hidden="true">◇</span>
+              <span className="home-section-heading-line" aria-hidden="true" />
+            </h2>
+          </div>
           <nav className="profile-navbar home-subnav" role="tablist" aria-label="Daily Insights">
-            {HOME_SECTIONS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={section === item.id}
-                className={`profile-navbar-btn${section === item.id ? ' active' : ''}`}
-                onClick={() => setSection(item.id)}
-              >
-                {item.label}
-              </button>
+              {HOME_SECTIONS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={section === item.id}
+                  className={`profile-navbar-btn${section === item.id ? ' active' : ''}`}
+                  onClick={() => setSection(item.id)}
+                >
+                  {item.label}
+                </button>
             ))}
           </nav>
-        </div>
 
         {section === 'overview' && (
-          <section className="home-day-box" aria-label="Today's reading">
+          <section className="home-day-box" aria-label="Overview">
             {playerData && daily ? (
               <TodayReading
                 playerData={playerData}
@@ -545,6 +546,7 @@ export default function HomeTab() {
             )}
           </section>
         )}
+        </div>
       </div>
     </>
   )

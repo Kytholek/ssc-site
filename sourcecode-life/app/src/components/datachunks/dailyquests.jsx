@@ -467,20 +467,33 @@ function QuestChapters({
 //  ALIGNMENT PAGE
 // ═══════════════════════════════════════════════════════════════
 
-function PersonalDayReading({ pd, meaning }) {
+function PersonalDayReading({ pd, meaning, part = 'all' }) {
   const dispatch = useAppDispatch()
   const { user } = useGameState()
   const dayRoot = reduceToSimple(pd.root)
   const rootData = ROOT[pd.root] || ROOT[dayRoot] || {}
   const watch = meaning.summary || ''
   const isPremium = !!user?.isPremium
+  const showGlance = part !== 'depth'
+  const showDepth = part !== 'glance'
+  const hasDepth = isPremium
+    ? !!(rootData.shadow || rootData.integration)
+    : true
+  if (part === 'depth' && !hasDepth) return null
 
   return (
-    <section className="daily-premium-reading" aria-label="Today's reading">
-      <div className="daily-premium-reading-kicker">TODAY’S READING · DAY {dayRoot}</div>
-      <h3 className="daily-premium-reading-theme">{meaning.theme || 'Personal day'}</h3>
-      {watch && <p className="daily-premium-reading-watch">{watch}</p>}
-      {isPremium ? (
+    <section
+      className={`daily-premium-reading${part === 'depth' ? ' daily-premium-reading--depth' : ''}`}
+      aria-label={part === 'depth' ? 'Shadow and integration' : "Today's reading"}
+    >
+      {showGlance && (
+        <>
+          <div className="daily-premium-reading-kicker">TODAY’S READING · DAY {pd.root}</div>
+          <h3 className="daily-premium-reading-theme">{meaning.theme || 'Personal day'}</h3>
+          {watch && <p className="daily-premium-reading-watch">{watch}</p>}
+        </>
+      )}
+      {showDepth && (isPremium ? (
         <>
           {rootData.shadow && (
             <div className="daily-premium-reading-block">
@@ -506,7 +519,7 @@ function PersonalDayReading({ pd, meaning }) {
             UNLOCK · $4.99/MO
           </button>
         </div>
-      )}
+      ))}
     </section>
   )
 }
@@ -569,7 +582,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
           <span className="qj-align-seal">✓</span>
         </span>
         <div className="qj-align-body">
-          <span className="qj-align-kicker">{embed ? 'DAILY QUEST' : 'ALIGNMENT'}</span>
+          <span className="qj-align-kicker">{embed ? `DAILY QUEST · ${pd.root}` : 'ALIGNMENT'}</span>
           {!embed && <span className="qj-align-theme">{theme}</span>}
         </div>
         <span className="qj-align-stamp">COMPLETE</span>
@@ -582,8 +595,8 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
       <div className="qj-align-head">
         <span className="qj-align-margin" aria-hidden="true">
           <span className="qj-align-seal">{icon}</span>
-          <span className="qj-align-folio">{dayRoot}</span>
-          <span className="qj-align-day">DAY {pd.dayNum}</span>
+          <span className="qj-align-folio">{pd.root}</span>
+          {!embed && <span className="qj-align-day">DAY {pd.dayNum}</span>}
         </span>
         <div className="qj-align-copy">
           <span className="qj-align-kicker">DAILY QUEST</span>
@@ -630,7 +643,7 @@ export function TodayReading({ playerData, daily, completeDailyQuest }) {
 
   return (
     <div className="home-day-reading">
-      <PersonalDayReading pd={pd} meaning={meaning} />
+      <PersonalDayReading pd={pd} meaning={meaning} part="glance" />
       <DailyQuestCard
         daily={daily}
         colorVar={colorVar}
@@ -641,6 +654,7 @@ export function TodayReading({ playerData, daily, completeDailyQuest }) {
         classSupportNote={classSupportNote}
         embed
       />
+      <PersonalDayReading pd={pd} meaning={meaning} part="depth" />
     </div>
   )
 }

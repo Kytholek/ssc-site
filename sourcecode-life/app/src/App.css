@@ -23196,6 +23196,11 @@ body.scl-realm-open .tab-bar {
 .home-today-section--journal {
   padding: 0;
 }
+.home-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 .home-insights-head {
   display: flex;
   flex-direction: column;
@@ -23203,6 +23208,24 @@ body.scl-realm-open .tab-bar {
 }
 .home-dashboard .home-subnav {
   margin: 0;
+  z-index: 30;
+  background: #0e1018;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45);
+}
+.home-day-box .daily-premium-reading--depth .daily-premium-reading-block + .daily-premium-reading-block {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--gold) 16%, transparent);
+}
+.home-day-box .seasons-heading {
+  justify-content: flex-start;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  line-height: 1.4;
+}
+.home-day-box .seasons-heading .home-section-heading-line,
+.home-day-box .seasons-heading .home-section-heading-glyph {
+  display: none;
 }
 .home-day-box,
 .home-day-reading {
@@ -23229,7 +23252,7 @@ body.scl-realm-open .tab-bar {
   background: transparent;
 }
 .home-day-box .seasons-section--energy .seasons-header {
-  padding: 4px 2px 0;
+  padding: 14px 2px 16px 16px;
 }
 .home-day-box .seasons-energy {
   gap: 12px;
@@ -23239,6 +23262,7 @@ body.scl-realm-open .tab-bar {
 .home-day-box .seasons-energy-row:first-child,
 .home-day-box .seasons-energy-row--accent {
   border-top: 1px solid var(--home-shell-border);
+  border-left: 3px solid var(--season-color, var(--gold));
   padding: 16px;
 }
 .home-day-box .seasons-energy-summary,

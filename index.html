@@ -39,7 +39,7 @@
     "name": "Simulation Source Code",
     "alternateName": "SSC Numerology",
     "url": "https://simulationsourcecode.com",
-    "description": "Numerology framework decoding seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme."
+    "description": "Decode the seven frequencies encoded in your birth date and name — Life Path, Expression, Life Calling, Soul Urge, Outer Self, Achievement, and Theme. Free numerology calculator."
   }
   </script>
 
@@ -179,16 +179,28 @@
         "position": 1,
         "item": {
           "@type": "Book",
-          "name": "Reality/Lost",
+          "name": "True Baptism",
           "author": { "@type": "Person", "name": "Kytholek" },
           "publisher": { "@type": "Organization", "name": "Simulation Source Code" },
-          "description": "A journey through simulation theory, consciousness, and the architecture of reality.",
-          "url": "https://simulationsourcecode.com/books/"
+          "description": "The Ideals of Simulation Source Code, now within Biblical Scripture.",
+          "url": "https://amzn.to/4vVM10j"
         }
       },
       {
         "@type": "ListItem",
         "position": 2,
+        "item": {
+          "@type": "Book",
+          "name": "Reality/Lost",
+          "author": { "@type": "Person", "name": "Kytholek" },
+          "publisher": { "@type": "Organization", "name": "Simulation Source Code" },
+          "description": "After a promising path in the Marine Corps ends, a man is forced into confrontation with his past, his addictions, and the nature of reality itself.",
+          "url": "https://amzn.to/41nny6V"
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
         "item": {
           "@type": "Book",
           "name": "Simulation Source Code",
@@ -200,13 +212,13 @@
       },
       {
         "@type": "ListItem",
-        "position": 3,
+        "position": 4,
         "item": {
           "@type": "Book",
           "name": "Forgetting to Remember Again",
           "author": { "@type": "Person", "name": "Kytholek" },
           "publisher": { "@type": "Organization", "name": "Simulation Source Code" },
-          "description": "Coming soon.",
+          "description": "A guide to retrieving forgotten truths about your identity and purpose.",
           "url": "https://simulationsourcecode.com/books/"
         }
       }
@@ -232,7 +244,7 @@
   <link rel="stylesheet" href="css/style.css?v=20260919-copy">
   <link rel="stylesheet" href="css/calculator-codex.css?v=20260919-copy">
   <link rel="stylesheet" href="css/brand-revamp.css?v=20260919-copy">
-  <link rel="stylesheet" href="css/home.css?v=20260930-grid2">
+  <link rel="stylesheet" href="css/home.css?v=20261005-home11">
   <!-- Quest Theme — RPG aesthetic override -->
   <link rel="stylesheet" href="css/quest-theme.css?v=20260915-reads">
   <link rel="stylesheet" href="css/chat-widget.css?v=20260915-audit" id="ssc-chat-widget-css">
@@ -296,10 +308,10 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
 
   <!-- ════ SCRIPTS ════ -->
   <!-- Core scripts needed before app init — loaded normally so initApp is ready -->
-  <script src="js/translations.js?v=20260920-sitewide"></script>
+  <script src="js/translations.js?v=20261005-home2"></script>
   <script type="module" src="js/codex-data.js?v=20260915-vessel"></script>
   <script defer src="js/calculator.js?v=20260920-calc"></script>
-  <script defer src="js/app.js?v=20260920-sitewide"></script>
+  <script defer src="js/app.js?v=20261005-home2"></script>
   <script defer src="js/chat-widget.js?v=20260726-chat" data-ssc-chat-widget="1"></script>
   <!-- Non-critical scripts — deferred, don't block rendering -->
   <script src="js/simulation.js" defer></script>
@@ -314,7 +326,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       // Critical pages — fetched immediately, app boots when these are done
       var CRITICAL = [
         { id: 'include-nav',        src: 'pages/nav.html?v=20260920-sitewide' },
-        { id: 'include-home',       src: 'pages/home.html?v=20260920-sitewide'  },
+        { id: 'include-home',       src: 'pages/home.html?v=20261005-home10'  },
         { id: 'include-calculator', src: 'pages/calculator.html?v=20260920-calc' },
         { id: 'include-footer',     src: 'pages/footer.html?v=20260920-sitewide' },
         { id: 'include-services',   src: 'pages/services.html?v=20260920-sitewide'   },
@@ -326,7 +338,7 @@ src="https://www.facebook.com/tr?id=3127826867426600&ev=PageView&noscript=1"
       // Secondary pages — fetched in background, don't block app init
       var SECONDARY = [
         { id: 'include-ssc',        src: 'pages/ssc.html'        },
-        { id: 'include-books',      src: 'pages/books.html?v=20260915-audit'      },
+        { id: 'include-books',      src: 'pages/books.html?v=20261005-books'      },
         { id: 'include-about',      src: 'pages/about.html?v=20260915-audit'      },
         { id: 'include-privacy',    src: 'pages/privacy.html?v=20260915-audit'    },
         { id: 'include-guidebook',  src: 'pages/guidebook-pdf-preview.html' },

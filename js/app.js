@@ -921,11 +921,11 @@ function initHomePage() {
     initHomeFaqAccordion();
     initHomeStickyCta();
     initHomeCtaTracking();
-    initSclCarousel();
+    initHomeCarousels();
     initSclInstallScroll();
     _homePageInited = true;
   }
-  initSclCarousel();
+  initHomeCarousels();
   initSclInstallScroll();
   enableHomeSnap();
   requestAnimationFrame(function () { enableHomeSnap(); });
@@ -1248,7 +1248,7 @@ function enableHomeSnap() {
   }
 
   function onCarouselSwipe(target, dx, dy) {
-    return !!(target && target.closest && target.closest('#hp-scl-carousel') && Math.abs(dx) > Math.abs(dy));
+    return !!(target && target.closest && target.closest('.hp-scl-device') && Math.abs(dx) > Math.abs(dy));
   }
 
   function onTouchMove(e) {
@@ -1393,8 +1393,12 @@ var PLANE_COLORS_CDX  = { mind: '#7ec8c8', body: '#e8c96b', spirit: '#a96ed4', p
 var CODEX_NODES = window.CODEX_NODES || {};
 
 
-function initSclCarousel() {
-  var root = document.getElementById('hp-scl-carousel');
+function initHomeCarousels() {
+  document.querySelectorAll('.hp-scl-device').forEach(initSclCarousel);
+}
+
+function initSclCarousel(root) {
+  if (!root || root.nodeType !== 1) root = document.getElementById('hp-scl-carousel');
   if (!root || root.dataset.ready === '1') return;
   root.dataset.ready = '1';
 

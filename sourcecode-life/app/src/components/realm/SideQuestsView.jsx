@@ -9,6 +9,9 @@ import {
   wordCount,
   readDevicePosition,
   haversineMeters,
+  loadQuestDraft,
+  saveQuestDraft,
+  clearQuestDraft,
   EVIDENCE,
 } from '../../lib/questEvidence'
 
@@ -19,10 +22,10 @@ function SideQuestCard({ quest, confirming, onComplete, onProgress, onAskAbandon
   const evidence = quest.evidence?.kind ? quest.evidence : { kind: EVIDENCE.HONOR }
   const objectives = Array.isArray(quest.objectives) ? quest.objectives : []
   const checked = new Set(quest.checkedObjectives || [])
-  const [text, setText] = useState('')
+  const qid = quest.questId || quest.id || ''
+  const [text, setText] = useState(() => loadQuestDraft(qid))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const qid = quest.questId || quest.id || ''
   const rn = quest.rewardNum || ''
   const xpAmt = rn ? 10 * parseInt(rn, 10) : 10
   const statTarget = rn ? parseInt(rn, 10) : 1
@@ -73,6 +76,7 @@ function SideQuestCard({ quest, confirming, onComplete, onProgress, onAskAbandon
     })
     setBusy(false)
     if (result && result.ok === false) setError(result.error || 'Could not complete')
+    else clearQuestDraft(qid)
   }
 
   const actionLabel = evidence.kind === EVIDENCE.LOCATION
@@ -111,7 +115,12 @@ function SideQuestCard({ quest, confirming, onComplete, onProgress, onAskAbandon
             className="rm-sq-note"
             rows={evidence.kind === EVIDENCE.PIECE ? 6 : 3}
             value={text}
-            onChange={e => { setText(e.target.value); setError('') }}
+            onChange={e => {
+              const next = e.target.value
+              setText(next)
+              saveQuestDraft(qid, next)
+              setError('')
+            }}
             placeholder={evidence.kind === EVIDENCE.PIECE ? 'Write the piece…' : 'Short note for this quest…'}
             aria-label={evidence.kind === EVIDENCE.PIECE ? 'Writing piece' : 'Quest note'}
           />
@@ -166,6 +175,7 @@ export default function SideQuestsView({ onOpenWorldMap }) {
       localStorage.setItem('scl_rated_' + qid, '1')
     }
     cancelSideQuest(qid)
+    clearQuestDraft(qid)
     setConfirmAbandon(null)
   }
 

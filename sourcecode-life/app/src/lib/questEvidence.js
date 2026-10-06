@@ -24,6 +24,27 @@ export function wordCount(text) {
   return trimmed.split(/\s+/).length
 }
 
+const DRAFT_PREFIX = 'scl_quest_draft_'
+
+export function loadQuestDraft(questId) {
+  if (!questId) return ''
+  try { return localStorage.getItem(DRAFT_PREFIX + questId) || '' } catch { return '' }
+}
+
+export function saveQuestDraft(questId, text) {
+  if (!questId) return
+  try {
+    const value = text || ''
+    if (!value) localStorage.removeItem(DRAFT_PREFIX + questId)
+    else localStorage.setItem(DRAFT_PREFIX + questId, value)
+  } catch { /* ignore */ }
+}
+
+export function clearQuestDraft(questId) {
+  if (!questId) return
+  try { localStorage.removeItem(DRAFT_PREFIX + questId) } catch { /* ignore */ }
+}
+
 export function evidenceForSkillQuest({ routeId, questText } = {}) {
   const text = questText || ''
   if (routeId === 'writing') {

@@ -46,6 +46,33 @@ const HEADGEAR_MAP = {
   'Antenna': 8,
 }
 
+const CORE_LABELS = {
+  lp: 'Life Path',
+  ex: 'Expression',
+  cl: 'Life Calling',
+  so: 'Soul',
+  ou: 'Outer',
+  ac: 'Achievement',
+  th: 'Theme',
+}
+
+function reduceUniversalDay(n) {
+  const masters = new Set([11, 22, 33])
+  while (n > 9 && !masters.has(n)) {
+    n = String(n).split('').reduce((sum, digit) => sum + Number(digit), 0)
+  }
+  return n
+}
+
+function universalDayAlignment(playerData) {
+  if (!playerData) return ''
+  const now = new Date()
+  const raw = now.getMonth() + 1 + now.getDate() + now.getFullYear()
+  const ud = reduceUniversalDay(String(raw).split('').reduce((sum, digit) => sum + Number(digit), 0))
+  const matches = Object.keys(CORE_LABELS).filter(key => playerData[key]?.root === ud).map(key => CORE_LABELS[key])
+  return matches.length ? `Universal Day ${ud} aligns with your ${matches.join(' & ')}` : ''
+}
+
 const XP_HINTS = {
   freq: 'Personal frequency — grows from daily and life quests.',
   social: 'World-map / ally quests — grows from side quests on the map.',
@@ -384,6 +411,8 @@ export default function HomeTab() {
   const [section, setSection] = useState(() =>
     tabSection === 'journal' ? 'journal' : 'overview'
   )
+  const [alignmentDismissed, setAlignmentDismissed] = useState(false)
+  const alignment = universalDayAlignment(playerData)
   const [prevTabSection, setPrevTabSection] = useState(tabSection)
 
   if (tabSection !== prevTabSection) {
@@ -417,6 +446,13 @@ export default function HomeTab() {
       <QuestRewardToastDisplay />
 
       <div className="tab-panel-content home-dashboard">
+        {alignment && !alignmentDismissed && (
+          <div className="freq-spike-banner freq-spike-banner--home" role="status">
+            <span className="freq-spike-icon" aria-hidden="true">⚡</span>
+            <span className="freq-spike-text">{alignment}</span>
+            <button type="button" className="freq-spike-close" onClick={() => setAlignmentDismissed(true)} aria-label="Dismiss frequency alert">✕</button>
+          </div>
+        )}
         <GettingStartedChecklist />
         <CharCard />
 

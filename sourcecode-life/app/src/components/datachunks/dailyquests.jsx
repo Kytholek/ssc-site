@@ -44,6 +44,9 @@ import {
   evidenceForQuest,
   evidenceSummary,
   wordCount,
+  loadQuestDraft,
+  saveQuestDraft,
+  clearQuestDraft,
   EVIDENCE,
 } from '../../lib/questEvidence'
 
@@ -100,6 +103,13 @@ function journalSource(quest) {
 
 function isKnownSource(source) {
   return JOURNAL_SOURCES.some(s => s.id === source.id)
+}
+
+function firstOpenJournalId(quests) {
+  const rank = { skill: 0, life: 1, cycle: 2 }
+  const open = (quests || []).filter(q => q && !q.completed && !isMultiDayCommitted(q))
+  open.sort((a, b) => (rank[journalSource(a).id] ?? 9) - (rank[journalSource(b).id] ?? 9))
+  return open[0]?.id || null
 }
 
 function formatJournalDate() {
@@ -215,7 +225,7 @@ function SessionTimer({ minutes, questId, onReady }) {
 
 function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
   const evidence = evidenceForQuest(quest)
-  const [text, setText] = useState('')
+  const [text, setText] = useState(() => loadQuestDraft(quest.id))
   const [error, setError] = useState('')
   const [sessionReady, setSessionReady] = useState(false)
   const rowRef = useRef(null)
@@ -260,6 +270,7 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
       setError(result.error)
       return
     }
+    clearQuestDraft(quest.id)
 
     const questColor = source.color
     const rect = rowRef.current?.getBoundingClientRect()
@@ -389,7 +400,12 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
                     ? 'What you did, when, and what changed...'
                     : 'Write down your experience...'}
               value={text}
-              onChange={e => { setText(e.target.value); setError('') }}
+              onChange={e => {
+                const next = e.target.value
+                setText(next)
+                saveQuestDraft(quest.id, next)
+                setError('')
+              }}
               rows={isPiece ? 8 : 4}
               aria-label={isPiece ? 'Writing piece' : isSession ? 'Session note' : 'Journal reflection text'}
               aria-required={!isSession}
@@ -962,7 +978,10 @@ export function StreakBadge({ streak, compact = false }) {
 export default function DailySection({ playerData, daily }) {
   const { xp } = useQuestEngine()
   const [genState, setGenState] = useState(() => getGeneratedQuests())
-  const [expandedId, setExpandedId] = useState(null)
+  const autoOpenId = firstOpenJournalId(genState?.quests)
+  const [manualId, setManualId] = useState(null)
+  const [choseRow, setChoseRow] = useState(false)
+  const expandedId = choseRow ? manualId : autoOpenId
   const [rerollError, setRerollError] = useState(null)
   const chainStreak = getResonanceChain()
   const profileReady = Boolean(playerData)
@@ -1055,7 +1074,9 @@ export default function DailySection({ playerData, daily }) {
   }
 
   function handleExpand(questId) {
-    setExpandedId(current => (current === questId ? null : questId))
+    const openNow = choseRow ? manualId : autoOpenId
+    setChoseRow(true)
+    setManualId(openNow === questId ? null : questId)
   }
 
   function handleReroll() {

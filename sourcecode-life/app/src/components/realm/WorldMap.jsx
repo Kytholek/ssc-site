@@ -2,13 +2,13 @@ import 'leaflet/dist/leaflet.css'
 import { useState, useEffect, useRef } from 'react'
 import { MapContainer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import { acceptQuest as qeAcceptQuest, getCreatorTier, getAcceptedQuests } from '../../lib/questEngine'
+import { acceptQuest as qeAcceptQuest, completeSideQuest as qeCompleteSideQuest, getCreatorTier, getAcceptedQuests } from '../../lib/questEngine'
 import { createWorldQuest, updateWorldQuest, fetchAllWorldQuests, fetchCreatorReputation } from '../auth/firestoreprofile'
 import { formatDisplayName } from '../../lib/formatters'
 import { useGameDispatch } from '../../state/GameContext'
 import { ACTIONS } from '../../state/actions'
 import { LS_MAP_QUESTS, QUEST_TYPES, SEEKER_TYPES, REWARD_NAMES, loadQuests, saveQuests, searchMapPlaces } from './sidequestHelpers'
-import { evidenceForMapType, evidenceSummary, readDevicePosition } from '../../lib/questEvidence'
+import { evidenceForMapType, evidenceSummary, readDevicePosition, haversineMeters, EVIDENCE } from '../../lib/questEvidence'
 
 // Fix Leaflet icon paths
 delete L.Icon.Default.prototype._getIconUrl
@@ -159,13 +159,56 @@ function InvalidateSizeOnMount() {
   return null
 }
 
-function QuestPopup({ quest, myUid, onAccept, onEdit }) {
+function QuestPopup({ quest, myUid, onAccept, onEdit, onCheckedIn }) {
   const [rep, setRep] = useState(null)
+  const [checkError, setCheckError] = useState('')
+  const [checking, setChecking] = useState(false)
+  const [justDone, setJustDone] = useState(false)
   const isOwn      = quest.uid === myUid
   const color      = isOwn ? '#d4a843' : (QUEST_TYPE_MAP[quest.type]?.color || '#00e5cc')
   const typeLabel  = (QUEST_TYPE_MAP[quest.type] || QUEST_TYPES[0]).label
-  const isAccepted = !!loadAccepted()[quest.id]
+  const accepted   = getAcceptedQuests()[quest.id]
+  const isDone     = justDone || accepted?.status === 'completed'
+  const inLog      = !!accepted && !isDone
+  const evidence   = accepted
+    ? (accepted.evidence?.kind ? accepted.evidence : null)
+    : (quest.evidence?.kind ? quest.evidence : null)
+  const placeLat   = Number(accepted?.lat ?? quest.lat)
+  const placeLng   = Number(accepted?.lng ?? quest.lng)
+  const canCheckIn = inLog
+    && evidence?.kind === EVIDENCE.LOCATION
+    && Number.isFinite(placeLat)
+    && Number.isFinite(placeLng)
   const seekerIcon = { solo: '◈ SOLO', partner: '⚔ PARTNER', group: '✦ GROUP' }
+
+  async function handleCheckIn() {
+    setCheckError('')
+    setChecking(true)
+    try {
+      const pos = await readDevicePosition()
+      const meters = haversineMeters(pos.lat, pos.lng, placeLat, placeLng)
+      const radius = evidence.radiusM || 150
+      if (meters > radius) {
+        setCheckError(`You're ${Math.round(meters)} m away. Get within ${radius} m.`)
+        setChecking(false)
+        return
+      }
+      const result = qeCompleteSideQuest(quest.id, {
+        verified: true,
+        checkedObjectives: accepted?.checkedObjectives || [],
+      })
+      setChecking(false)
+      if (result && result.ok === false) {
+        setCheckError(result.error || 'Could not check in')
+        return
+      }
+      setJustDone(true)
+      onCheckedIn?.()
+    } catch {
+      setChecking(false)
+      setCheckError('Allow location to check in at this quest.')
+    }
+  }
 
   useEffect(() => {
     if (quest.uid && quest.uid !== myUid) {
@@ -231,15 +274,30 @@ function QuestPopup({ quest, myUid, onAccept, onEdit }) {
           )}
         </div>
       ) : (
-        <button
-          type="button"
-          className={`rm-popup-btn${isAccepted ? ' rm-popup-btn--accepted' : ''}`}
-          style={{ borderColor: isAccepted ? 'rgba(201,168,76,0.4)' : color + '88', color: isAccepted ? '#c9a84c' : color }}
-          onClick={() => !isAccepted && onAccept(quest.id)}
-          disabled={isAccepted}
-        >
-          {isAccepted ? '✓ ALREADY IN LOG' : '▶ ACCEPT QUEST'}
-        </button>
+        <>
+          {canCheckIn ? (
+            <button
+              type="button"
+              className="rm-popup-btn"
+              style={{ borderColor: color + '88', color }}
+              onClick={handleCheckIn}
+              disabled={checking}
+            >
+              {checking ? 'LOCATING…' : '▶ CHECK IN'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`rm-popup-btn${inLog || isDone ? ' rm-popup-btn--accepted' : ''}`}
+              style={{ borderColor: (inLog || isDone) ? 'rgba(201,168,76,0.4)' : color + '88', color: (inLog || isDone) ? '#c9a84c' : color }}
+              onClick={() => !inLog && !isDone && onAccept(quest.id)}
+              disabled={inLog || isDone}
+            >
+              {isDone ? '✓ COMPLETE' : inLog ? '✓ ALREADY IN LOG' : '▶ ACCEPT QUEST'}
+            </button>
+          )}
+          {checkError && <div className="rm-popup-error" role="alert">{checkError}</div>}
+        </>
       )}
     </div>
   )
@@ -618,6 +676,15 @@ export default function WorldMapView({ playerData, onOpenSideQuests }) {
     setFlyTo([quest.lat, quest.lng])
   }
 
+  function handleCheckedIn() {
+    gameDispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
+    setToast({
+      msg: 'Checked in',
+      actionLabel: 'VIEW SIDE QUESTS',
+      onAction: onOpenSideQuests,
+    })
+  }
+
   function handleAccept(questId) {
     const q = quests.find(item => item.id === questId)
     if (!q || q.uid === myUid) return
@@ -696,7 +763,7 @@ export default function WorldMapView({ playerData, onOpenSideQuests }) {
           )}
           {quests.filter(q => q.lat && q.lng).map(q => (
             <Marker key={q.id} position={[q.lat, q.lng]} icon={questIcon(q, myUid, questReps[q.uid])}>
-              <Popup maxWidth={280}><QuestPopup quest={q} myUid={myUid} onAccept={handleAccept} onEdit={handleEdit} /></Popup>
+              <Popup maxWidth={280}><QuestPopup quest={q} myUid={myUid} onAccept={handleAccept} onEdit={handleEdit} onCheckedIn={handleCheckedIn} /></Popup>
             </Marker>
           ))}
           {pendingLL && <Marker position={[pendingLL.lat, pendingLL.lng]} icon={PLACE_ICON} />}

@@ -1002,6 +1002,10 @@ body.scl-realm-open .map-tab {
   transition: color 0.2s;
 }
 .freq-spike-close:hover { color: #c9a84c; }
+.freq-spike-banner--home {
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 10px;
+}
 
 .font-heading {
   font-family: 'Cinzel', serif;
@@ -9104,6 +9108,12 @@ body.scl-realm-open .tab-bar {
   margin: 4px 0;
   font-style: italic;
   letter-spacing: 0.3px;
+}
+.rm-popup-error {
+  margin-top: 6px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #e8a0a0;
 }
 .rm-popup-btn {
   width: 100%;

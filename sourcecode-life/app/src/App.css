@@ -23798,12 +23798,6 @@ body.scl-realm-open .tab-bar {
   font-weight: 700;
   line-height: 1;
 }
-.qj-align-day {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
-  letter-spacing: 0.1em;
-  opacity: 0.75;
-}
 .qj-align-copy { min-width: 0; flex: 1; }
 .qj-align-kicker {
   display: block;
@@ -23812,15 +23806,6 @@ body.scl-realm-open .tab-bar {
   letter-spacing: 0.14em;
   color: var(--qj-mute);
 }
-.qj-align-theme {
-  margin: 2px 0 0;
-  font-family: 'Cinzel', serif;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--align-color, var(--gold));
-  line-height: 1.25;
-}
 .qj-align-match {
   display: block;
   margin-top: 4px;
@@ -23828,14 +23813,6 @@ body.scl-realm-open .tab-bar {
   font-size: 9px;
   letter-spacing: 0.08em;
   color: var(--align-color, var(--gold));
-}
-.qj-align-summary {
-  margin: 0;
-  padding-left: 58px;
-  font-family: 'Crimson Text', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--text, #ece8f4) 92%, transparent);
 }
 .qj-align-section {
   padding-left: 58px;
@@ -23909,10 +23886,6 @@ body.scl-realm-open .tab-bar {
 .qj-align--done .qj-align-body {
   flex: 1;
   min-width: 0;
-}
-.qj-align--done .qj-align-theme {
-  font-size: 14px;
-  color: var(--text, #ece8f4);
 }
 .qj-align-stamp,
 .qj-entry-stamp {

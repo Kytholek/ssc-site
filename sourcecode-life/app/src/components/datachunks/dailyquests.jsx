@@ -524,7 +524,7 @@ function PersonalDayReading({ pd, meaning, part = 'all' }) {
   )
 }
 
-function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, classSupportNote, embed = false }) {
+function DailyQuestCard({ daily, colorVar, pd, onComplete, lpRoot, classSupportNote }) {
   const [justCompleted, setJustCompleted] = useState(false)
   const cardRef = useRef(null)
   const dispatch = useAppDispatch()
@@ -536,8 +536,6 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
   const isFocusMatch = !!(daily?.dayRootMatch)
   const awardedXP = daily?.xpAward
     ?? Math.round(XP_AWARDS.daily * (isFocusMatch ? 2 : 1.5))
-  const theme = meaning.theme || 'Daily Alignment'
-  const summary = meaning.summary || daily.body
   const objectives = getCycleObjs('personalDay', pd.root)
   const icon = CYCLE_QUEST_COLORS.personalDay?.icon || '◈'
 
@@ -582,8 +580,7 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
           <span className="qj-align-seal">✓</span>
         </span>
         <div className="qj-align-body">
-          <span className="qj-align-kicker">{embed ? `DAILY QUEST · ${pd.root}` : 'ALIGNMENT'}</span>
-          {!embed && <span className="qj-align-theme">{theme}</span>}
+          <span className="qj-align-kicker">{`DAILY QUEST · ${pd.root}`}</span>
         </div>
         <span className="qj-align-stamp">COMPLETE</span>
       </div>
@@ -596,11 +593,9 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
         <span className="qj-align-margin" aria-hidden="true">
           <span className="qj-align-seal">{icon}</span>
           <span className="qj-align-folio">{pd.root}</span>
-          {!embed && <span className="qj-align-day">DAY {pd.dayNum}</span>}
         </span>
         <div className="qj-align-copy">
           <span className="qj-align-kicker">DAILY QUEST</span>
-          {!embed && <h3 className="qj-align-theme">{theme}</h3>}
           {isFocusMatch && (
             <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
           )}
@@ -609,8 +604,6 @@ function DailyQuestCard({ daily, colorVar, meaning, pd, onComplete, lpRoot, clas
           )}
         </div>
       </div>
-
-      {!embed && summary && <p className="qj-align-summary">{summary}</p>}
 
       <div className="qj-align-section">OBJECTIVES</div>
       <ul className="qj-align-objs">
@@ -647,12 +640,10 @@ export function TodayReading({ playerData, daily, completeDailyQuest }) {
       <DailyQuestCard
         daily={daily}
         colorVar={colorVar}
-        meaning={meaning}
         pd={pd}
         onComplete={completeDailyQuest}
         lpRoot={playerData.lp?.root}
         classSupportNote={classSupportNote}
-        embed
       />
       <PersonalDayReading pd={pd} meaning={meaning} part="depth" />
     </div>
@@ -902,7 +893,7 @@ export default function DailySection({ playerData, daily }) {
     if (!existing || (!anyDone && (!hasDayQuest || lockedLife || (dayClassEquipped && !hasDaySkill)))) {
       generateDailyQuests(buildQuestUserProfile(playerData, xp?.statXP))
     }
-  }, [profileReady, playerData, xp?.statXP])
+  }, [profileReady, playerData, xp?.statXP, xp?.freqLevel])
 
   const daySealForToast = playerData
     ? reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)

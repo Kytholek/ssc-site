@@ -141,7 +141,10 @@ export default function NumerologySpiral() {
       const H = Math.max(320, wrap.clientHeight || 600)
       sizeRef.current = { W, H, radius: Math.min(W, H) * 0.46 }
     }
-    const ro = new ResizeObserver(() => updateH())
+    const ro = new ResizeObserver(() => {
+      updateH()
+      kickAnimRef.current()
+    })
     ro.observe(wrap)
     updateH()
     return () => ro.disconnect()
@@ -586,6 +589,7 @@ export default function NumerologySpiral() {
       animStateRef.current = false
       kickAnimRef.current = () => {}
       cancelAnimationFrame(animFrameRef.current)
+      animFrameRef.current = 0
       window.onmousemove = null; window.onmouseup = null
       canvas.onmousedown = null; canvas.onwheel = null; canvas.onmouseleave = null
       canvas.ontouchstart = null; canvas.ontouchmove = null; canvas.ontouchend = null

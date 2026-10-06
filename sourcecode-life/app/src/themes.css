@@ -4928,7 +4928,6 @@
 }
 [data-theme="fantasy"] .qj-plate-title,
 [data-theme="fantasy"] .qj-plate-reroll,
-[data-theme="fantasy"] .qj-align-theme,
 [data-theme="fantasy"] .qj-chapter-label,
 [data-theme="fantasy"] .qj-align-complete,
 [data-theme="fantasy"] .qj-carve-submit {
@@ -4938,7 +4937,6 @@
 [data-theme="fantasy"] .qj-plate-date,
 [data-theme="fantasy"] .qj-plate-meta,
 [data-theme="fantasy"] .qj-align-kicker,
-[data-theme="fantasy"] .qj-align-summary,
 [data-theme="fantasy"] .qj-align-objs li,
 [data-theme="fantasy"] .qj-book .qj-entry-title,
 [data-theme="fantasy"] .qj-carve-prompt,
@@ -5004,7 +5002,6 @@
   background: linear-gradient(180deg, #8a3a12 0%, #3a1808 50%, #8a3a12 100%);
 }
 [data-theme="diablo"] .qj-plate-title,
-[data-theme="diablo"] .qj-align-theme,
 [data-theme="diablo"] .qj-chapter-label {
   color: var(--gold);
   text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 35%, transparent);
@@ -5062,7 +5059,6 @@
   border-color: color-mix(in srgb, var(--purple) 55%, transparent);
 }
 [data-theme="unicorn"] .qj-plate-title,
-[data-theme="unicorn"] .qj-align-theme,
 [data-theme="unicorn"] .qj-chapter-label {
   color: var(--purple);
   text-shadow: 0 0 12px color-mix(in srgb, var(--purple) 40%, transparent);
@@ -5120,7 +5116,6 @@
   border-color: color-mix(in srgb, #00c8ff 55%, transparent);
 }
 [data-theme="scifi"] .qj-plate-title,
-[data-theme="scifi"] .qj-align-theme,
 [data-theme="scifi"] .qj-chapter-label {
   color: #00c8ff;
   text-shadow: 0 0 12px color-mix(in srgb, #00c8ff 40%, transparent);
@@ -5135,7 +5130,6 @@
   color: #00c8ff;
 }
 [data-theme="scifi"] .qj-book .qj-entry-title,
-[data-theme="scifi"] .qj-align-summary,
 [data-theme="scifi"] .qj-align-objs li,
 [data-theme="scifi"] .qj-carve-input {
   font-family: 'Share Tech Mono', monospace;

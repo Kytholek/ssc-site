@@ -687,15 +687,6 @@ export function unequipSlot(slotIndex, loadout = null) {
   return { ok: true, loadout: saveClassLoadout(next) }
 }
 
-/**
- * One-shot: clear auto-seeded loadouts so the player picks class paths themselves.
- * Does not wipe route progress. Keeps loadouts the player explicitly equipped.
- * @deprecated name kept for call-site compatibility — no longer auto-fills slots.
- */
-export function migrateLoadoutFromProgress(_playerData = null, _freqLevel = 1, _progress = null) {
-  return clearAutoSeededLoadout()
-}
-
 /** Clear loadout slots that were never explicitly chosen by the player. */
 export function clearAutoSeededLoadout() {
   const existing = loadClassLoadout()

@@ -188,7 +188,6 @@ function CharCard() {
 
   useEffect(() => {
     if (xp.freqLevel > prevFreqLevel.current) {
-      /* eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot animation flag */
       setFreqPulsing(true)
       setTimeout(() => setFreqPulsing(false), 700)
       prevFreqLevel.current = xp.freqLevel
@@ -197,7 +196,6 @@ function CharCard() {
 
   useEffect(() => {
     if (xp.charLevel > prevCharLevel.current) {
-      /* eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot animation flag */
       setCharPulsing(true)
       setTimeout(() => setCharPulsing(false), 700)
       prevCharLevel.current = xp.charLevel

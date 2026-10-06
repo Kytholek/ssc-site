@@ -99,8 +99,8 @@ function TourTooltip({
 export default function SpotlightTour({ activeTab, onTabChange }) {
   const [active, setActive] = useState(() => !isSpotlightTourComplete())
   const [stepIndex, setStepIndex] = useState(0)
-  const [announcement, setAnnouncement] = useState('')
   const [useCenteredFallback, setUseCenteredFallback] = useState(false)
+  const [fallbackStep, setFallbackStep] = useState(stepIndex)
 
   const step = TOUR_STEPS[stepIndex]
   const wantsTarget = Boolean(step?.target)
@@ -135,15 +135,17 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
     }
   }, [active, step, activeTab, onTabChange])
 
-  useEffect(() => {
-    if (!active || !step) return
-    setAnnouncement(`Tour step ${stepIndex + 1} of ${TOUR_STEP_COUNT}: ${step.title}`)
-  }, [active, step, stepIndex])
-
-  // Reset centered fallback when the step changes
-  useEffect(() => {
+  if (fallbackStep !== stepIndex) {
+    setFallbackStep(stepIndex)
     setUseCenteredFallback(false)
-  }, [stepIndex])
+  }
+  if (active && useCenteredFallback && wantsTarget && rect && !missing) {
+    setUseCenteredFallback(false)
+  }
+
+  const announcement = active && step
+    ? `Tour step ${stepIndex + 1} of ${TOUR_STEP_COUNT}: ${step.title}`
+    : ''
 
   // If target stays missing, show the same copy centered — never auto-advance
   useEffect(() => {
@@ -153,12 +155,6 @@ export default function SpotlightTour({ activeTab, onTabChange }) {
     }, MISSING_FALLBACK_MS)
     return () => clearTimeout(t)
   }, [active, wantsTarget, missing, useCenteredFallback, stepIndex])
-
-  // Target appeared after fallback — restore hole spotlight
-  useEffect(() => {
-    if (!active || !useCenteredFallback || !wantsTarget) return
-    if (rect && !missing) setUseCenteredFallback(false)
-  }, [active, useCenteredFallback, wantsTarget, rect, missing])
 
   if (!active || !step) return null
 

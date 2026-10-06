@@ -33,3 +33,23 @@ export function saveQuests(quests) {
     /* quota exceeded */
   }
 }
+
+/** Nominatim place search for the map quest maker. */
+export async function searchMapPlaces(query) {
+  const q = (query || '').trim()
+  if (q.length < 3) return []
+  const res = await fetch(
+    'https://nominatim.openstreetmap.org/search?q='
+      + encodeURIComponent(q)
+      + '&format=json&limit=5&accept-language=en',
+    { headers: { Accept: 'application/json' } },
+  )
+  if (!res.ok) return []
+  const data = await res.json()
+  if (!Array.isArray(data)) return []
+  return data.map((row) => ({
+    label: row.display_name,
+    lat: parseFloat(row.lat),
+    lng: parseFloat(row.lon),
+  })).filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng))
+}

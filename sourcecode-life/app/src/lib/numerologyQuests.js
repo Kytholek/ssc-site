@@ -41,6 +41,13 @@ import { getTieredObjectiveTexts, getCycleObjectives } from './objectives.js'
 import { resolveBlueprintNode, BLUEPRINT_UNLOCK_LV } from './questBlueprint.js'
 import { calcPersonalDay, calcPersonalMonth, calcPersonalYear, reduceToSimple, todayStr, calendarDayKey } from './numerology.js'
 import { statState } from './achievements.js'
+import {
+  evidenceForSkillQuest,
+  evidenceForQuest,
+  validateQuestEvidence,
+  saveWritingPiece,
+  EVIDENCE,
+} from './questEvidence.js'
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 const LS_GEN_QUESTS  = 'scl_gen_quests'
@@ -468,6 +475,7 @@ export function generateDailyQuests(user) {
       ...resolveSkillMeta({ root: q.number, stageIdx: q.stageIdx, questKind: 'skill' }),
       preferredRouteId: q.routeId,
     },
+    evidence:    evidenceForSkillQuest({ routeId: q.routeId, questText: q.questText, stage: q.stage }),
     completed:   false,
     isNew:       true,
     isRepeated:  false,
@@ -548,6 +556,7 @@ export function generateDailyQuests(user) {
         ...resolveSkillMeta({ root: c.root, tier: c.tier, questKind: 'life' }),
         preferredRouteId: equippedRoute?.routeId || null,
       },
+      evidence:  { kind: 'journal', minChars: 30 },
       completed: false,
       isNew:     false,
       isRepeated:false,
@@ -621,6 +630,7 @@ export function generateDailyQuests(user) {
         preferredRouteId: equippedRoute?.routeId || null,
       },
       supportsClass: !!equippedRoute,
+      evidence:    { kind: 'journal', minChars: 30 },
       completed:   false,
       isNew:       false,
       isRepeated:  false,
@@ -656,6 +666,7 @@ export function generateDailyQuests(user) {
       type:        'skilltree',
       difficulty:  q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard',
       rewardXP:    (() => { const base = q.stage === 1 ? 5 : q.stage === 2 ? 10 : 20; const diff = q.stage === 1 ? 'easy' : q.stage === 2 ? 'medium' : 'hard'; return Math.round(base * (DIFFICULTY_MULTIPLIER[diff] || 1.0)) })(),
+      evidence:    evidenceForSkillQuest({ routeId: q.routeId, questText: q.questText, stage: q.stage }),
       completed:   false,
       isNew:       true,
       isRepeated:  false,
@@ -852,14 +863,12 @@ export function saveGenReflection(questId, text, meta) {
 
 // ── Complete a single-day quest ───────────────────────────────────────────────
 /**
- * Requires journalText (≥ 30 chars).
+ * Completes a generated quest using its evidence rule.
+ * Journal stays the default (30 characters). Piece, session, and location
+ * pass through the same reward path.
  * Returns { ok, xpAwarded?, error? }
  */
-export function completeGeneratedQuest(questId, journalText) {
-  const trimmed = (journalText || '').trim()
-  if (trimmed.length < 30) {
-    return { ok: false, error: `Write at least 30 characters (${trimmed.length}/30)` }
-  }
+export function completeGeneratedQuest(questId, journalText, options = {}) {
   try {
     const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
     if (!raw || !isStampToday(raw.date)) return { ok: false, error: 'No active quests for today' }
@@ -867,6 +876,29 @@ export function completeGeneratedQuest(questId, journalText) {
     const quest = raw.quests.find(q => q.id === questId)
     if (!quest)          return { ok: false, error: 'Quest not found' }
     if (quest.completed) return { ok: false, error: 'Already completed' }
+
+    const evidence = evidenceForQuest(quest)
+    const check = validateQuestEvidence(evidence, {
+      text: journalText,
+      sessionComplete: options.sessionComplete,
+      verified: options.verified,
+    })
+    if (!check.ok) return { ok: false, error: check.error }
+
+    const trimmed = (check.text || '').trim()
+      || (evidence.kind === EVIDENCE.SESSION
+        ? `Completed a ${evidence.minutes || 20}-minute session.`
+        : '')
+    quest.evidence = evidence
+
+    if (evidence.kind === EVIDENCE.PIECE && trimmed) {
+      saveWritingPiece({
+        questId,
+        title: quest.title,
+        text: trimmed,
+        routeId: quest.routeId,
+      })
+    }
 
     if (quest.multiDay) {
       const active = getActiveMultiDayQuests()
@@ -1247,10 +1279,22 @@ export function rerollGeneratedQuests(userOrPlayerData) {
   } catch {}
 
   const completed = gen.quests.filter(q => q.completed)
+  const pinned = gen.quests.filter(q => q.pinned && !q.completed)
   const newQuests = generateDailyQuests(user)
   if (!newQuests) return { ok: false, error: 'Failed to generate new quests' }
 
-  const finalQuests = [...completed, ...newQuests]
+  let skillDrops = pinned.filter(q => q.source === 'skill' || q.type === 'skilltree').length
+  const fresh = []
+  for (const quest of newQuests) {
+    if (pinned.some(p => p.id === quest.id) || completed.some(c => c.id === quest.id)) continue
+    const isSkill = quest.source === 'skill' || quest.type === 'skilltree'
+    if (skillDrops > 0 && isSkill) {
+      skillDrops -= 1
+      continue
+    }
+    fresh.push(quest)
+  }
+  const finalQuests = [...completed, ...pinned, ...fresh]
 
   const raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || '{}')
   raw.quests = finalQuests
@@ -1322,6 +1366,84 @@ export function buildQuestUserProfile(playerData, statXP = {}) {
     freqLevel,
     blueprintKey: resolveBlueprintNode(playerData, pd, pm, freqLevel),
   }
+}
+
+/**
+ * Pin a skill-route line into today's journal, replacing an open class slot.
+ * The pinned quest completes through the same daily reward path.
+ */
+export function pinSkillQuestToToday(spec, playerData) {
+  if (!spec?.questText || spec.number == null || !spec.routeId) {
+    return { ok: false, error: 'Missing quest' }
+  }
+  const today = todayStr()
+  let raw = null
+  try {
+    raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
+  } catch {
+    raw = null
+  }
+  if (!raw || !isStampToday(raw.date) || !Array.isArray(raw.quests) || !raw.quests.length) {
+    if (playerData) ensureDailyQuests(playerData)
+    try {
+      raw = JSON.parse(localStorage.getItem(LS_GEN_QUESTS) || 'null')
+    } catch {
+      raw = null
+    }
+  }
+  if (!raw || !isStampToday(raw.date) || !Array.isArray(raw.quests)) {
+    return { ok: false, error: 'Open today’s journal once, then pin again' }
+  }
+
+  const stage = spec.stage || (spec.stageIdx != null ? spec.stageIdx + 1 : 1)
+  const questIdx = spec.questIdx || 0
+  const id = `skill-${spec.number}-${spec.routeId}-${stage}-${questIdx}-${today}`
+  if (raw.quests.some(q => q.id === id)) {
+    return { ok: true, already: true }
+  }
+
+  const difficulty = stage === 1 ? 'easy' : stage === 2 ? 'medium' : 'hard'
+  const base = stage === 1 ? 5 : stage === 2 ? 10 : 20
+  const quest = {
+    id,
+    title: spec.questText,
+    number: spec.number,
+    numberLabel: spec.numberLabel || '',
+    stage,
+    stageIdx: spec.stageIdx ?? stage - 1,
+    stageName: spec.stageName || '',
+    routeId: spec.routeId,
+    routeName: spec.routeName || '',
+    classNoun: spec.classNoun || spec.routeName || '',
+    category: categoryForQuest(spec.number, id),
+    source: 'skill',
+    type: 'skilltree',
+    difficulty,
+    rewardXP: Math.round(base * (DIFFICULTY_MULTIPLIER[difficulty] || 1)),
+    skillMeta: {
+      ...resolveSkillMeta({ root: spec.number, stageIdx: spec.stageIdx ?? stage - 1, questKind: 'skill' }),
+      preferredRouteId: spec.routeId,
+    },
+    evidence: evidenceForSkillQuest({
+      routeId: spec.routeId,
+      questText: spec.questText,
+      stage,
+    }),
+    pinned: true,
+    completed: false,
+    isNew: true,
+    isRepeated: false,
+  }
+
+  const replaceAt = raw.quests.findIndex(
+    (q) => (q.source === 'skill' || q.type === 'skilltree') && !q.completed && !q.pinned,
+  )
+  if (replaceAt >= 0) raw.quests[replaceAt] = quest
+  else raw.quests.unshift(quest)
+
+  persistGenQuests(raw)
+  dispatch('scl:gen_quests_updated', { quests: raw.quests, pinned: id })
+  return { ok: true, quest }
 }
 
 /** Generate today's quests if not already present. */

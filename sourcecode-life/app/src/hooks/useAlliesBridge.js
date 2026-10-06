@@ -6,7 +6,7 @@
  *
  * NOTE: NativeAllies_onPlayerName is registered in useAuthBridge (invite banner).
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 export function useAlliesBridge() {
   const [allies,           setAllies]       = useState([])
@@ -14,6 +14,10 @@ export function useAlliesBridge() {
   // null = not yet searched, false = search returned no result, {uid,name,...} = found
   const [searchResult,     setSearchResult] = useState(null)
   const [searchLoading,    setSearchLoading] = useState(false)
+  const [emailSuggestions, setEmailSuggestions] = useState([])
+  const [suggesting,       setSuggesting]   = useState(false)
+  const [answeredFor,      setAnsweredFor]  = useState('')
+  const askedPrefix = useRef('')
   const [sendStatus,       setSendStatus]   = useState('') // '' | 'sending' | 'sent' | error string
   const [loadingAllies,    setLoadingAllies] = useState(false)
 
@@ -22,6 +26,12 @@ export function useAlliesBridge() {
     window.NativeAllies_onSearchResult = (found, uid, name, lp, cl, ex) => {
       setSearchLoading(false)
       setSearchResult(found ? { uid, name, lp, cl, ex } : false)
+    }
+
+    window.NativeAllies_onEmailSuggestions = (json) => {
+      setSuggesting(false)
+      setAnsweredFor(askedPrefix.current)
+      try { setEmailSuggestions(JSON.parse(json)) } catch { setEmailSuggestions([]) }
     }
 
     window.NativeAllies_onRequestSent = (success, error) => {
@@ -58,12 +68,28 @@ export function useAlliesBridge() {
     return () => {
       if (loadTimer) clearTimeout(loadTimer)
       delete window.NativeAllies_onSearchResult
+      delete window.NativeAllies_onEmailSuggestions
       delete window.NativeAllies_onRequestSent
       delete window.NativeAllies_onRequestResponded
       delete window.NativeAllies_onAlliesLoaded
       delete window.NativeAllies_onRequestsLoaded
       delete window.NativeAllies_onAllyRemoved
     }
+  }, [])
+
+  const suggestEmails = useCallback((prefix) => {
+    const q = String(prefix || '').trim()
+    if (q.length < 2) {
+      askedPrefix.current = ''
+      setEmailSuggestions([])
+      setSuggesting(false)
+      setAnsweredFor('')
+      return
+    }
+    askedPrefix.current = q.toLowerCase()
+    setEmailSuggestions([])
+    setSuggesting(true)
+    window.NativeAllies?.suggestByEmail(q)
   }, [])
 
   const searchByEmail = useCallback((email) => {
@@ -102,6 +128,7 @@ export function useAlliesBridge() {
 
   return {
     allies, pendingRequests, searchResult, searchLoading, sendStatus, loadingAllies,
+    emailSuggestions, suggesting, answeredFor, suggestEmails,
     searchByEmail, sendRequest, respondRequest, removeAlly, clearSearch, setSendStatus,
   }
 }

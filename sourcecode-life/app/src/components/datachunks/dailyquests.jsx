@@ -4,7 +4,7 @@
  * One book surface for today's alignment and daily quests.
  * Titles stay visible; the carve field expands on the entry being completed.
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppDispatch } from '../../context/AppContext'
 import { useGameState } from '../../state/GameContext'
@@ -40,6 +40,12 @@ import {
   getLoadoutPathChips,
   getFilledSlots,
 } from '../../lib/classLoadout'
+import {
+  evidenceForQuest,
+  evidenceSummary,
+  wordCount,
+  EVIDENCE,
+} from '../../lib/questEvidence'
 
 function getResonanceChain() {
   try {
@@ -154,31 +160,102 @@ function isMultiDayCommitted(quest) {
 //  RULED ENTRY — title visible, carve expands in place
 // ═══════════════════════════════════════════════════════════════
 
+function SessionTimer({ minutes, questId, onReady }) {
+  const total = Math.max(1, minutes) * 60
+  const storageKey = `scl_session_${questId}`
+  const [startedAt, setStartedAt] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem(storageKey)
+      return raw ? Number(raw) : null
+    } catch {
+      return null
+    }
+  })
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    if (!startedAt) return undefined
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [startedAt])
+
+  const elapsed = startedAt ? Math.floor((now - startedAt) / 1000) : 0
+  const left = Math.max(0, total - elapsed)
+  const ready = Boolean(startedAt) && left === 0
+
+  useEffect(() => {
+    if (ready) onReady()
+  }, [ready, onReady])
+
+  function start() {
+    const stamp = Date.now()
+    setStartedAt(stamp)
+    try { sessionStorage.setItem(storageKey, String(stamp)) } catch { /* ignore */ }
+  }
+
+  const mm = String(Math.floor(left / 60)).padStart(2, '0')
+  const ss = String(left % 60).padStart(2, '0')
+
+  return (
+    <div className="qj-session">
+      <div className="qj-session-clock" aria-live="polite">{mm}:{ss}</div>
+      <p className="qj-session-note">
+        {ready
+          ? 'Session complete. Add a note if you want, then seal the quest.'
+          : 'The clock keeps running if you leave this page.'}
+      </p>
+      {!startedAt && (
+        <button type="button" className="qj-carve-submit" onClick={start}>
+          ▶ START {minutes} MIN
+        </button>
+      )}
+    </div>
+  )
+}
+
 function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
+  const evidence = evidenceForQuest(quest)
   const [text, setText] = useState('')
   const [error, setError] = useState('')
+  const [sessionReady, setSessionReady] = useState(false)
   const rowRef = useRef(null)
   const inputRef = useRef(null)
   const diffMeta = getDifficultyMeta(quest.difficulty)
   const prompt = getJournalPrompt(quest.number, quest.type, quest.id)
   const count = (text || '').trim().length
+  const words = wordCount(text)
   const multiDay = questMultiDay(quest)
   const multiDays = multiDay?.totalDays || 0
+  const isPiece = evidence.kind === EVIDENCE.PIECE
+  const isSession = evidence.kind === EVIDENCE.SESSION
+  const wordTarget = evidence.wordTarget || 300
+  const minChars = evidence.minChars || 30
+  const markSessionReady = useCallback(() => setSessionReady(true), [])
 
   useEffect(() => {
-    if (!expanded) return
+    if (!expanded || isSession) return
     const id = requestAnimationFrame(() => inputRef.current?.focus())
     return () => cancelAnimationFrame(id)
-  }, [expanded])
+  }, [expanded, isSession])
 
   function handleSubmit() {
     const trimmed = (text || '').trim()
-    if (trimmed.length < 30) {
-      setError(`Need 30 chars (${trimmed.length}/30)`)
+    if (!isSession && !isPiece && trimmed.length < minChars) {
+      setError(`Need ${minChars} chars (${trimmed.length}/${minChars})`)
+      return
+    }
+    if (isPiece && words < wordTarget) {
+      setError(`Need ${wordTarget} words (${words}/${wordTarget})`)
+      return
+    }
+    if (isSession && !sessionReady) {
+      setError('Finish the session timer first')
       return
     }
 
-    const result = onComplete(quest.id, trimmed)
+    const result = onComplete(quest.id, trimmed, {
+      sessionComplete: isSession && sessionReady,
+    })
     if (result && result.ok === false) {
       setError(result.error)
       return
@@ -276,6 +353,7 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
             <span className="qj-entry-diff" style={{ color: diffMeta.color }}>
               {diffMeta.icon} {diffMeta.label}
             </span>
+            <span className="qj-entry-evidence">{evidenceSummary(evidence)}</span>
             <span className="qj-entry-xp">+{quest.rewardXP} XP</span>
             {quest.isResonant && quest.matchesBlueprint && (
               <span className="qj-entry-bp">×2</span>
@@ -292,32 +370,60 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
               Starts a {multiDays}-day commitment · check in daily for XP · full reward on finish
             </p>
           )}
-          <p className="qj-carve-prompt" id={`qj-prompt-${quest.id}`}>{prompt}</p>
-          <textarea
-            ref={inputRef}
-            className="qj-carve-input"
-            placeholder={quest.source === 'life' || quest.type === 'objective'
-              ? 'What you did, when, and what changed...'
-              : 'Write down your experience...'}
-            value={text}
-            onChange={e => { setText(e.target.value); setError('') }}
-            rows={4}
-            aria-label="Journal reflection text"
-            aria-required="true"
-            aria-describedby={error ? `qj-error-${quest.id}` : `qj-prompt-${quest.id}`}
-            onKeyDown={e => { if (e.key === 'Escape') onToggle() }}
-          />
+          {isSession ? (
+            <SessionTimer minutes={evidence.minutes || 20} questId={quest.id} onReady={markSessionReady} />
+          ) : (
+            <p className="qj-carve-prompt" id={`qj-prompt-${quest.id}`}>
+              {isPiece ? `Write the piece. ${wordTarget} words seals it.` : prompt}
+            </p>
+          )}
+          {(!isSession || sessionReady) && (
+            <textarea
+              ref={inputRef}
+              className="qj-carve-input"
+              placeholder={isPiece
+                ? 'Draft the piece here...'
+                : isSession
+                  ? 'Optional note about the session...'
+                  : quest.source === 'life' || quest.type === 'objective'
+                    ? 'What you did, when, and what changed...'
+                    : 'Write down your experience...'}
+              value={text}
+              onChange={e => { setText(e.target.value); setError('') }}
+              rows={isPiece ? 8 : 4}
+              aria-label={isPiece ? 'Writing piece' : isSession ? 'Session note' : 'Journal reflection text'}
+              aria-required={!isSession}
+              aria-describedby={error ? `qj-error-${quest.id}` : `qj-prompt-${quest.id}`}
+              onKeyDown={e => { if (e.key === 'Escape') onToggle() }}
+            />
+          )}
           <div className="qj-carve-foot">
-            <span className={`qj-carve-count${count >= 30 ? ' qj-carve-count--ready' : ''}`}>
-              {count}/30
-            </span>
+            {isPiece ? (
+              <span className={`qj-carve-count${words >= wordTarget ? ' qj-carve-count--ready' : ''}`}>
+                {words}/{wordTarget} words
+              </span>
+            ) : isSession ? (
+              <span className={`qj-carve-count${sessionReady ? ' qj-carve-count--ready' : ''}`}>
+                {sessionReady ? 'READY' : `${evidence.minutes || 20} MIN`}
+              </span>
+            ) : (
+              <span className={`qj-carve-count${count >= minChars ? ' qj-carve-count--ready' : ''}`}>
+                {count}/{minChars}
+              </span>
+            )}
             {multiDays > 0 ? (
               <span className="qj-carve-xp">XP on finish</span>
             ) : (
               <span className="qj-carve-xp" style={{ color: diffMeta.color }}>+{quest.rewardXP} XP</span>
             )}
             <button type="button" className="qj-carve-submit" onClick={handleSubmit}>
-              {multiDays > 0 ? `▶ BEGIN ${multiDays}-DAY` : '▶ CARVE & COMPLETE'}
+              {multiDays > 0
+                ? `▶ BEGIN ${multiDays}-DAY`
+                : isPiece
+                  ? '▶ SAVE PIECE'
+                  : isSession
+                    ? '▶ COMPLETE SESSION'
+                    : '▶ CARVE & COMPLETE'}
             </button>
           </div>
           {error && (
@@ -580,7 +686,7 @@ function DailyQuestCard({ daily, colorVar, pd, onComplete, lpRoot, classSupportN
           <span className="qj-align-seal">✓</span>
         </span>
         <div className="qj-align-body">
-          <span className="qj-align-kicker">{`DAILY QUEST · ${pd.root}`}</span>
+          <span className="qj-align-kicker">{`BLUEPRINT DAILY · ${pd.root}`}</span>
         </div>
         <span className="qj-align-stamp">COMPLETE</span>
       </div>
@@ -595,7 +701,7 @@ function DailyQuestCard({ daily, colorVar, pd, onComplete, lpRoot, classSupportN
           <span className="qj-align-folio">{pd.root}</span>
         </span>
         <div className="qj-align-copy">
-          <span className="qj-align-kicker">DAILY QUEST</span>
+          <span className="qj-align-kicker">BLUEPRINT DAILY</span>
           {isFocusMatch && (
             <span className="qj-align-match">BLUEPRINT MATCH · ×2 XP</span>
           )}
@@ -944,8 +1050,8 @@ export default function DailySection({ playerData, daily }) {
     return base
   })()
 
-  function handleCompleteGen(questId, text) {
-    return completeGeneratedQuest(questId, text)
+  function handleCompleteGen(questId, text, options) {
+    return completeGeneratedQuest(questId, text, options)
   }
 
   function handleExpand(questId) {
@@ -971,6 +1077,7 @@ export default function DailySection({ playerData, daily }) {
         <header className="qj-plate">
           <div className="qj-plate-copy">
             <h2 className="qj-plate-title">QUEST JOURNAL</h2>
+            <p className="qj-plate-role">Class, life, and cycle work</p>
             <p className="qj-plate-date">{formatJournalDate()}</p>
             <p className="qj-plate-meta">{plateMeta}</p>
           </div>

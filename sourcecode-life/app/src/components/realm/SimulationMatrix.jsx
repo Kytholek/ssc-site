@@ -16,7 +16,21 @@ import SideQuestsView from './SideQuestsView'
 import PlayerProfileModal from './PlayerProfileModal'
 import { fetchLeaderboard } from '../../lib/leaderboard'
 import { formatDisplayName } from '../../lib/formatters'
-import PremiumBadge from '../ui/PremiumBadge'
+import CharacterDossier from '../character/CharacterDossier'
+import { usePublicProfile } from '../../hooks/usePublicProfile'
+
+function AllyDossier({ seed, actions, onOpen }) {
+  const { profile } = usePublicProfile(seed)
+  return (
+    <CharacterDossier
+      shell
+      compact
+      profile={profile}
+      actions={actions}
+      onClick={onOpen ? () => onOpen(profile) : undefined}
+    />
+  )
+}
 
 // ── SOCIAL: Allies ─────────────────────────────────────────────────────────────
 function AlliesView({ playerData, onSelectPlayer }) {
@@ -24,9 +38,47 @@ function AlliesView({ playerData, onSelectPlayer }) {
   const inviteLink = uid ? `${window.location.origin}${window.location.pathname}?ref=${uid}` : window.location.href
   const [copied, setCopied] = useState(false)
   const [searchEmail, setSearchEmail] = useState('')
+  const [suggestOpen, setSuggestOpen] = useState(false)
+  const [suggestIndex, setSuggestIndex] = useState(0)
   const [showRemove, setShowRemove] = useState(null)
-  const { allies, pendingRequests, searchResult, searchLoading, sendStatus, loadingAllies, searchByEmail, sendRequest, respondRequest, removeAlly, clearSearch } = useAlliesBridge()
+  const { allies, pendingRequests, searchResult, searchLoading, sendStatus, loadingAllies, emailSuggestions, suggesting, answeredFor, suggestEmails, searchByEmail, sendRequest, respondRequest, removeAlly, clearSearch } = useAlliesBridge()
   const color = '#00e5cc'
+
+  useEffect(() => {
+    const q = searchEmail.trim()
+    if (q.length < 2) return undefined
+    const id = setTimeout(() => suggestEmails(q), 280)
+    return () => clearTimeout(id)
+  }, [searchEmail, suggestEmails])
+
+  const suggestPending = searchEmail.trim().length >= 2
+    && (suggesting || answeredFor !== searchEmail.trim().toLowerCase())
+
+  const activeSuggest = emailSuggestions.length
+    ? Math.min(suggestIndex, emailSuggestions.length - 1)
+    : -1
+
+  function pickSuggestion(row) {
+    setSearchEmail(row.email)
+    setSuggestOpen(false)
+    searchByEmail(row.email)
+  }
+
+  function onSearchKeyDown(e) {
+    if (!suggestOpen) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSuggestIndex(i => Math.min(i + 1, Math.max(emailSuggestions.length - 1, 0)))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSuggestIndex(i => Math.max(i - 1, 0))
+    } else if (e.key === 'Escape') {
+      setSuggestOpen(false)
+    } else if (e.key === 'Enter' && emailSuggestions[activeSuggest]) {
+      e.preventDefault()
+      pickSuggestion(emailSuggestions[activeSuggest])
+    }
+  }
 
   function copyLink() {
     navigator.clipboard?.writeText(inviteLink)
@@ -45,30 +97,80 @@ function AlliesView({ playerData, onSelectPlayer }) {
               {copied ? '✓ COPIED' : 'COPY LINK'}
             </button>
           </div>
-          <p className="rm-invite-hint">Share this link. When a seeker follows it and logs in, you'll be linked as allies.</p>
+          <p className="rm-invite-hint">Share this link. When a seeker follows it and finishes their character, you'll get an ally request.</p>
         </div>
       </div>
       <div className="rm-panel">
         <div className="rm-panel-label" style={{ color }}>◇ FIND SEEKER</div>
         <div className="rm-panel-body">
-          <form className="rm-search-row" onSubmit={e => { e.preventDefault(); searchByEmail(searchEmail) }}>
-            <input className="rm-search-input" type="email" placeholder="ally@email.com" value={searchEmail}
-              onChange={e => { setSearchEmail(e.target.value); clearSearch() }} />
+          <form className="rm-search-row" onSubmit={e => { e.preventDefault(); setSuggestOpen(false); searchByEmail(searchEmail) }}>
+            <div className="rm-search-field">
+              <input
+                className="rm-search-input"
+                type="email"
+                placeholder="ally@email.com"
+                value={searchEmail}
+                autoComplete="off"
+                role="combobox"
+                aria-expanded={suggestOpen}
+                aria-controls="rm-email-suggest"
+                aria-autocomplete="list"
+                onChange={e => {
+                  const next = e.target.value
+                  setSearchEmail(next)
+                  setSuggestIndex(0)
+                  setSuggestOpen(next.trim().length >= 2)
+                  clearSearch()
+                }}
+                onFocus={() => { if (searchEmail.trim().length >= 2) setSuggestOpen(true) }}
+                onBlur={() => { setTimeout(() => setSuggestOpen(false), 160) }}
+                onKeyDown={onSearchKeyDown}
+              />
+              {suggestOpen && (
+                <ul id="rm-email-suggest" className="rm-email-suggest" role="listbox">
+                  {suggestPending && emailSuggestions.length === 0 && (
+                    <li className="rm-email-suggest-status">Searching emails…</li>
+                  )}
+                  {!suggestPending && emailSuggestions.length === 0 && (
+                    <li className="rm-email-suggest-status">No matching emails</li>
+                  )}
+                  {emailSuggestions.map((row, i) => (
+                    <li key={row.uid}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={i === activeSuggest}
+                        className={`rm-email-suggest-opt${i === activeSuggest ? ' active' : ''}`}
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => pickSuggestion(row)}
+                      >
+                        <span className="rm-email-suggest-email">{row.email}</span>
+                        {row.name && <span className="rm-email-suggest-name">{formatDisplayName(row.name)}</span>}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <button className="rm-search-btn" type="submit" disabled={searchLoading} style={{ color, borderColor: color+'55' }}>
               {searchLoading ? '…' : 'FIND'}
             </button>
           </form>
           {searchResult === false && <div className="rm-search-empty">No seeker found.</div>}
           {searchResult?.uid && (
-            <div className="rm-found-card">
-              <div className="rm-found-name">{formatDisplayName(searchResult.name) || 'Unknown Seeker'}</div>
-              <div className="rm-found-nums" style={{ color }}>
-                {searchResult.cl && <span>CL {searchResult.cl}</span>}
-                {searchResult.lp && <span>LP {searchResult.lp}</span>}
-              </div>
-              {sendStatus === 'sent' ? <div className="rm-send-ok">✓ Request sent!</div> : sendStatus && sendStatus !== 'sending' ? <div className="rm-send-err">{sendStatus}</div> : null}
-              {sendStatus !== 'sent' && <button className="rm-send-btn" disabled={sendStatus === 'sending'} style={{ color, borderColor: color+'55' }} onClick={() => sendRequest(searchResult.uid)}>{sendStatus === 'sending' ? '…SENDING' : '⚔ SEND ALLY REQUEST'}</button>}
-            </div>
+            <AllyDossier
+              seed={searchResult}
+              actions={(
+                <>
+                  {sendStatus === 'sent' ? <div className="rm-send-ok">✓ Request sent!</div> : sendStatus && sendStatus !== 'sending' ? <div className="rm-send-err">{sendStatus}</div> : null}
+                  {sendStatus !== 'sent' && (
+                    <button className="rm-send-btn" disabled={sendStatus === 'sending'} style={{ color, borderColor: color + '55' }} onClick={() => sendRequest(searchResult.uid)}>
+                      {sendStatus === 'sending' ? '…SENDING' : '⚔ SEND ALLY REQUEST'}
+                    </button>
+                  )}
+                </>
+              )}
+            />
           )}
         </div>
       </div>
@@ -77,13 +179,16 @@ function AlliesView({ playerData, onSelectPlayer }) {
           <div className="rm-panel-label" style={{ color: '#f0c060' }}>⏳ PENDING ({pendingRequests.length})</div>
           <div className="rm-panel-body">
             {pendingRequests.map(r => (
-              <div key={r.uid} className="rm-ally-card">
-                <div className="rm-ally-name">{formatDisplayName(r.name) || 'Unknown'}</div>
-                <div className="rm-ally-actions">
-                  <button className="rm-ally-accept" style={{ color }} onClick={() => respondRequest(r.uid, true)}>✓ ACCEPT</button>
-                  <button className="rm-ally-decline" onClick={() => respondRequest(r.uid, false)}>✕ DECLINE</button>
-                </div>
-              </div>
+              <AllyDossier
+                key={r.uid}
+                seed={r}
+                actions={(
+                  <div className="rm-ally-actions">
+                    <button className="rm-ally-accept" style={{ color }} onClick={() => respondRequest(r.uid, true)}>✓ ACCEPT</button>
+                    <button className="rm-ally-decline" onClick={() => respondRequest(r.uid, false)}>✕ DECLINE</button>
+                  </div>
+                )}
+              />
             ))}
           </div>
         </div>
@@ -94,38 +199,20 @@ function AlliesView({ playerData, onSelectPlayer }) {
           {loadingAllies && <div className="rm-empty">Loading…</div>}
           {!loadingAllies && allies.length === 0 && <div className="rm-empty">No allies yet.</div>}
           {allies.map(a => (
-            <div key={a.uid} className="rm-ally-card" onClick={() => onSelectPlayer(a)} style={{ cursor: 'pointer' }}>
-              <div className="rm-ally-top">
-                <div className="rm-ally-name">
-                  {formatDisplayName(a.name) || 'Unknown'}
-                  {a.isPremium && <PremiumBadge size="sm" />}
+            <AllyDossier
+              key={a.uid}
+              seed={a}
+              onOpen={onSelectPlayer}
+              actions={showRemove === a.uid ? (
+                <div className="rm-remove-confirm">
+                  <span>Remove?</span>
+                  <button type="button" onClick={() => { removeAlly(a.uid); setShowRemove(null) }}>YES</button>
+                  <button type="button" onClick={() => setShowRemove(null)}>NO</button>
                 </div>
-                {showRemove !== a.uid
-                  ? <button className="rm-ally-remove" onClick={() => setShowRemove(a.uid)}>✕</button>
-                  : <div className="rm-remove-confirm">
-                      <span>Remove?</span>
-                      <button onClick={() => { removeAlly(a.uid); setShowRemove(null) }}>YES</button>
-                      <button onClick={() => setShowRemove(null)}>NO</button>
-                    </div>
-                }
-              </div>
-              <div className="rm-ally-nums" style={{ color }}>
-                {a.cl && <span>CL {a.cl}</span>}
-                {a.lp && <span>LP {a.lp}</span>}
-                {a.ex && <span>EX {a.ex}</span>}
-              </div>
-              {a.reputation && a.reputation.ratingCount > 0 && (
-                <div className="rm-ally-rep">
-                  ⭐ {(a.reputation.totalRating / a.reputation.ratingCount).toFixed(1)}
-                  <span className="rm-ally-rep-count"> ({a.reputation.ratingCount})</span>
-                </div>
+              ) : (
+                <button type="button" className="rm-ally-remove" onClick={() => setShowRemove(a.uid)}>REMOVE</button>
               )}
-              {a.takerReputation && a.takerReputation.ratingCount > 0 && (
-                <div className="rm-ally-rep rm-ally-rep--taker">
-                  ⭐ {(a.takerReputation.totalRating / a.takerReputation.ratingCount).toFixed(1)} seeker
-                </div>
-              )}
-            </div>
+            />
           ))}
         </div>
       </div>
@@ -186,7 +273,7 @@ function LeaderboardView({ playerData, onSelectPlayer }) {
             <div className="rm-empty" style={{ fontSize: 12, padding: '16px 0' }}>No ranked players yet.</div>
           ) : (
             <div className="rm-leaderboard-rows">
-              {leaderboard.slice(0, 10).map((p, i) => (
+              {leaderboard.slice(0, 10).map((p) => (
                 <div
                   key={p.uid}
                   className="rm-leaderboard-row"

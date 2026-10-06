@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import NumerologyRain from '../effects/NumerologyRain'
 import OnboardingProgress from '../ui/OnboardingProgress'
+import CharacterDossier from '../character/CharacterDossier'
 
 const TESTER_EMAIL = 'tester@sourcecode.life'
 const AUTH_UNAVAILABLE_MSG = '⚠ Auth service unavailable. Refresh the page and try again.'
@@ -22,16 +23,16 @@ function setLoadingField(dispatch, field, value) {
   dispatch({ type: 'SET_AUTH_LOADING', payload: { field, value } })
 }
 
-function InviteBanner({ name, onDismiss }) {
+function InviteBanner({ profile, onDismiss }) {
+  const card = profile && typeof profile === 'object' ? profile : { name: profile || 'An ally' }
   return (
-    <div className="fixed top-0 left-0 right-0 z-9999 flex items-center gap-3 px-4 py-3"
-         style={{ background: 'var(--color-rpg-surface)', borderBottom: '2px solid var(--color-rpg-gold)', fontFamily: 'monospace', fontSize: '11px', color: 'var(--color-rpg-gold)', lineHeight: '1.7' }}>
-      <span style={{ fontSize: 18, flexShrink: 0 }} aria-hidden="true">✦</span>
-      <span style={{ flex: 1 }}>
-        <strong>{name}</strong> invited you.<br />
-        Complete your character to connect as allies.
-      </span>
-      <button type="button" onClick={onDismiss} className="bg-transparent border-none text-lg cursor-pointer leading-none px-2 min-w-[44px] min-h-[44px]" style={{ color: 'var(--color-rpg-muted)' }} aria-label="Dismiss invite banner">✕</button>
+    <div className="invite-banner">
+      <div className="invite-banner-body">
+        <div className="invite-banner-kicker">ALLY INVITATION</div>
+        <CharacterDossier shell compact profile={card} />
+        <p className="invite-banner-note">Finish your character to send them an ally request.</p>
+      </div>
+      <button type="button" onClick={onDismiss} className="invite-banner-dismiss" aria-label="Dismiss invite banner">✕</button>
     </div>
   )
 }
@@ -208,7 +209,7 @@ export default function AuthOverlay() {
     <>
       {inviteBannerName && (
         <InviteBanner
-          name={inviteBannerName}
+          profile={inviteBannerName}
           onDismiss={() => dispatch({ type: 'DISMISS_INVITE_BANNER' })}
         />
       )}

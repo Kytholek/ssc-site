@@ -23,6 +23,7 @@ import {
   applyQuestSkillReward,
   sanitizeSkillTreeProgress,
 } from './skillQuestBridge'
+import { validateQuestEvidence, saveWritingPiece, EVIDENCE } from './questEvidence'
 
 /* ── GameContext dispatch adapter ───────────────────────────── */
 let _gameDispatch = null
@@ -929,12 +930,61 @@ export function cancelSideQuest(questId) {
   } catch { /* intentional */ }
 }
 
-export function completeSideQuest(questId) {
+export function updateSideQuestProgress(questId, patch) {
   try {
     const all = getAcceptedQuests();
-    if (!all[questId]) return;
+    if (!all[questId] || all[questId].status === 'completed') return { ok: false };
+    const allowed = {};
+    if (Array.isArray(patch?.checkedObjectives)) allowed.checkedObjectives = patch.checkedObjectives;
+    if (patch?.locationVerifiedAt) allowed.locationVerifiedAt = patch.locationVerifiedAt;
+    if (typeof patch?.completionNote === 'string') allowed.completionNote = patch.completionNote;
+    all[questId] = { ...all[questId], ...allowed };
+    localStorage.setItem(LS_ACCEPTED, JSON.stringify(all));
+    _dispatch('scl:sidequests_updated', { quests: all });
+    return { ok: true, quest: all[questId] };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+export function completeSideQuest(questId, proof = {}) {
+  try {
+    const all = getAcceptedQuests();
+    if (!all[questId]) return { ok: false, error: 'Quest not in your log' };
+    if (all[questId].status === 'completed') return { ok: false, error: 'Already completed' };
+
+    const quest = all[questId];
+    const evidence = quest.evidence?.kind ? quest.evidence : { kind: 'honor' };
+    const objectives = Array.isArray(quest.objectives) ? quest.objectives : [];
+    const checked = Array.isArray(proof.checkedObjectives)
+      ? proof.checkedObjectives
+      : (quest.checkedObjectives || []);
+    if (objectives.length && checked.length < objectives.length) {
+      return { ok: false, error: 'Check off each objective first' };
+    }
+    const check = validateQuestEvidence(evidence, {
+      text: proof.text || quest.completionNote || '',
+      sessionComplete: proof.sessionComplete,
+      verified: !!(proof.verified || quest.locationVerifiedAt),
+    });
+    if (!check.ok) return { ok: false, error: check.error };
+
     all[questId].status      = 'completed';
     all[questId].completedAt = Date.now();
+    all[questId].evidence    = evidence;
+    all[questId].checkedObjectives = checked;
+    if (check.text) all[questId].completionNote = check.text;
+    if (evidence.kind === 'location') {
+      all[questId].locationVerifiedAt = quest.locationVerifiedAt || Date.now();
+    }
+    if (evidence.kind === EVIDENCE.PIECE && check.text) {
+      saveWritingPiece({
+        questId,
+        title: quest.name || quest.title,
+        text: check.text,
+        routeId: 'writing',
+      });
+    }
     localStorage.setItem(LS_ACCEPTED, JSON.stringify(all));
 
     const rn       = parseInt(all[questId].rewardNum || 1);
@@ -958,7 +1008,11 @@ export function completeSideQuest(questId) {
     } catch { /* intentional */ }
 
     _dispatch('scl:sidequests_updated', { quests: getAcceptedQuests() });
-  } catch (e) { console.error('completeSideQuest:', e); }
+    return { ok: true };
+  } catch (e) {
+    console.error('completeSideQuest:', e);
+    return { ok: false, error: String(e) };
+  }
 }
 
 /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

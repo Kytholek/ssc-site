@@ -210,7 +210,7 @@ export function useAuthBridge() {
         const refUid = window._pendingInviterUid
         if (refUid) {
           window._pendingInviterUid = null
-          if (typeof window.NativeAllies !== 'undefined') window.NativeAllies.sendRequest(refUid)
+          if (typeof window.NativeAllies !== 'undefined') window.NativeAllies.sendRequest(refUid, { viaInvite: true })
         }
         if (typeof window.NativeAuth !== 'undefined') window.NativeAuth.loadPlayer()
       } else {
@@ -247,7 +247,7 @@ export function useAuthBridge() {
           if (pendingUid && pendingUid !== uid && typeof window.NativeAllies !== 'undefined') {
             localStorage.removeItem('scl_pending_inviter')
             window._pendingInviterUid = null
-            window.NativeAllies.sendRequest(pendingUid)
+            window.NativeAllies.sendRequest(pendingUid, { viaInvite: true })
           }
         } catch { /* intentional */ }
         if (window._newCharacterCreated) {
@@ -326,11 +326,15 @@ export function useAuthBridge() {
       if (typeof window.NativeAllies !== 'undefined') {
         window.NativeAllies.getPlayerName(inviterUid)
       } else {
-        dispatch({ type: 'SET_INVITE_BANNER', payload: 'An ally' })
+        dispatch({ type: 'SET_INVITE_BANNER', payload: { name: 'An ally' } })
       }
     }
     window.NativeAllies_onPlayerName = (name) => {
-      dispatch({ type: 'SET_INVITE_BANNER', payload: name || 'An ally' })
+      if (name && typeof name === 'object') {
+        dispatch({ type: 'SET_INVITE_BANNER', payload: { ...name, name: name.name || 'An ally' } })
+        return
+      }
+      dispatch({ type: 'SET_INVITE_BANNER', payload: { name: name || 'An ally' } })
     }
 
     // ── NativeQuest.onXPLoaded — merge into questEngine + GameContext ─────────

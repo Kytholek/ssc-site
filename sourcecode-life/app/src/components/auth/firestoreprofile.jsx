@@ -117,6 +117,21 @@ export async function createWorldQuest(questData) {
   }
 }
 
+export async function updateWorldQuest(questId, fields) {
+  try {
+    const ref = doc(db, 'worldQuests', questId)
+    const payload = { ...fields }
+    delete payload.id
+    delete payload.createdAt
+    delete payload._dist
+    await updateDoc(ref, payload)
+    return { id: questId, ...fields }
+  } catch (error) {
+    console.error('Error updating world quest:', error)
+    return null
+  }
+}
+
 export async function fetchAllWorldQuests(maxCount = 40) {
   try {
     const questsRef = collection(db, 'worldQuests')

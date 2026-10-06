@@ -24,6 +24,7 @@ import {
   migrateProgressToV3,
   resolveRouteStageQuests,
 } from '../../lib/skillRoutes'
+import { pinSkillQuestToToday } from '../../lib/numerologyQuests'
 import {
   loadClassLoadout,
   getClassTitle,
@@ -223,6 +224,40 @@ function SkillsInspector({ open, color, title, subtitle, icon, onClose, children
         </motion.aside>
       )}
     </AnimatePresence>
+  )
+}
+
+function pinRouteQuest(spec, playerData) {
+  const result = pinSkillQuestToToday(spec, playerData)
+  const msg = result.ok
+    ? (result.already ? 'Already in today’s journal' : 'Pinned to today’s journal')
+    : (result.error || 'Could not pin quest')
+  try {
+    window.dispatchEvent(new CustomEvent('scl:xp_toast', {
+      detail: { msg, color: result.ok ? 'var(--teal)' : 'var(--rose)' },
+    }))
+  } catch { /* intentional */ }
+  return result
+}
+
+function RouteQuestItems({ quests, done, canPin, specBase, playerData }) {
+  return (
+    <ul className="skills-detail-quests">
+      {quests.map((q, qi) => (
+        <li key={qi} className={done ? 'is-done' : 'skills-quest-line'}>
+          <span>{q}</span>
+          {canPin && !done && (
+            <button
+              type="button"
+              className="skills-pin-today"
+              onClick={() => pinRouteQuest({ ...specBase, questIdx: qi, questText: q }, playerData)}
+            >
+              Do this today
+            </button>
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -842,11 +877,22 @@ export default function SkillTree({
                       {done ? 'done' : !active ? 'locked' : unlocked ? s.name : 'locked'}
                     </span>
                   </div>
-                  <ul className="skills-detail-quests">
-                    {resolveRouteStageQuests(expanded.id, route.id, i, s.quests || []).map((q, qi) => (
-                      <li key={qi} className={done ? 'is-done' : ''}>{q}</li>
-                    ))}
-                  </ul>
+                  <RouteQuestItems
+                    quests={resolveRouteStageQuests(expanded.id, route.id, i, s.quests || [])}
+                    done={done}
+                    canPin={active && unlocked && !done}
+                    playerData={playerData}
+                    specBase={{
+                      number: Number(expanded.id),
+                      numberLabel: expanded.label,
+                      routeId: route.id,
+                      routeName: route.name,
+                      classNoun: route.classNoun,
+                      stage: s.stage,
+                      stageIdx: i,
+                      stageName: s.name,
+                    }}
+                  />
                 </div>
               )
             })}
@@ -898,13 +944,24 @@ export default function SkillTree({
               <p className="skills-detail-lead">Next up — complete these in the world.</p>
             )}
             <p className="skills-detail-kicker">Quests</p>
-            <ul className="skills-detail-quests">
-              {resolveRouteStageQuests(expanded.id, route.id, focus.stageIdx, stage.quests || []).map((q, i) => (
-                <li key={i} className={isDone ? 'is-done' : ''}>{q}</li>
-              ))}
-            </ul>
+            <RouteQuestItems
+              quests={resolveRouteStageQuests(expanded.id, route.id, focus.stageIdx, stage.quests || [])}
+              done={isDone}
+              canPin={unlocked && !isDone}
+              playerData={playerData}
+              specBase={{
+                number: Number(expanded.id),
+                numberLabel: expanded.label,
+                routeId: route.id,
+                routeName: route.name,
+                classNoun: route.classNoun,
+                stage: stage.stage,
+                stageIdx: focus.stageIdx,
+                stageName: stage.name,
+              }}
+            />
             <p className="skills-detail-note">
-              Matching class / daily quests fill this tier automatically.
+              Pin a line to today’s journal. Matching class quests still fill this tier.
             </p>
           </>
         ),

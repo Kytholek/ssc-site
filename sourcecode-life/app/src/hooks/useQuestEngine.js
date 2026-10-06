@@ -15,7 +15,7 @@ import {
   QuestEngine_completeFreqQuest,
   QuestEngine_submitReflection,
   QuestEngine_start30Day, QuestEngine_checkin30Day, QuestEngine_complete30Day,
-  acceptQuest, cancelSideQuest, completeSideQuest,
+  acceptQuest, cancelSideQuest, completeSideQuest, updateSideQuestProgress,
   isFreqDone,
 } from '../lib/questEngine.js'
 import {
@@ -94,8 +94,9 @@ export function useQuestEngine() {
     dispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
   }, [dispatch])
 
-  const completeSideQuestCb = useCallback((id) => {
-    completeSideQuest(id)
+  const completeSideQuestCb = useCallback((id, proof) => {
+    const result = completeSideQuest(id, proof)
+    if (!result?.ok) return result || { ok: false, error: 'Could not complete quest' }
     const updated = getAcceptedQuests()
     dispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: updated })
 
@@ -109,6 +110,13 @@ export function useQuestEngine() {
         color: 'gold'
       }})
     }
+    return result
+  }, [dispatch])
+
+  const updateSideQuestProgressCb = useCallback((id, patch) => {
+    const result = updateSideQuestProgress(id, patch)
+    dispatch({ type: ACTIONS.REFRESH_SIDE_QUESTS, payload: getAcceptedQuests() })
+    return result
   }, [dispatch])
 
   const checkinMultiDayCb = useCallback((questId) => {
@@ -160,6 +168,7 @@ export function useQuestEngine() {
     acceptQuest:       acceptQuestCb,
     cancelSideQuest:   cancelSideQuestCb,
     completeSideQuest: completeSideQuestCb,
+    updateSideQuestProgress: updateSideQuestProgressCb,
     checkinMultiDay:   checkinMultiDayCb,
     completeMultiDay:  completeMultiDayCb,
     completeGeneratedQuest: completeGeneratedQuestCb,

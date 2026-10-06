@@ -14,6 +14,8 @@
 window.__SCL_WEB = true
 
 import { todayStr, calendarDayKey } from './numerology'
+import { profileFromPlayerDoc } from './publicProfile'
+import { checkAndAwardAchievements } from './achievements'
 
 import {
   signInWithEmailAndPassword,
@@ -41,6 +43,7 @@ import {
   orderBy,
   limit,
   writeBatch,
+  increment,
 } from 'firebase/firestore'
 
 import { auth, db } from './firebase'
@@ -655,10 +658,50 @@ window.NativeAllies = {
       .catch(() => window.NativeAllies_onSearchResult?.(false, '', '', '', '', ''))
   },
 
-  sendRequest(targetUid) {
+  /** Prefix matches for the ally email field. Emails are stored lowercase. */
+  suggestByEmail(prefix) {
+    const q = String(prefix || '').trim().toLowerCase()
+    if (q.length < 2) {
+      window.NativeAllies_onEmailSuggestions?.('[]')
+      return
+    }
+    const me = auth.currentUser?.uid || ''
+    window._emailSuggestToken = q
+    getDocs(query(
+      collection(db, 'players'),
+      where('email', '>=', q),
+      where('email', '<=', q + '\uf8ff'),
+      orderBy('email'),
+      limit(8)
+    ))
+      .then(snap => {
+        if (window._emailSuggestToken !== q) return
+        const rows = snap.docs
+          .filter(d => d.id !== me && d.data().email)
+          .slice(0, 6)
+          .map(d => {
+            const data = d.data()
+            return {
+              uid: d.id,
+              email: data.email,
+              name: data.name || '',
+              lp: data.lp || '?',
+              cl: data.cl || '?',
+              ex: data.ex || '?',
+            }
+          })
+        window.NativeAllies_onEmailSuggestions?.(JSON.stringify(rows))
+      })
+      .catch(() => {
+        if (window._emailSuggestToken === q) window.NativeAllies_onEmailSuggestions?.('[]')
+      })
+  },
+
+  sendRequest(targetUid, options) {
     const user = auth.currentUser
     if (!user) { window.NativeAllies_onRequestSent?.(false, 'Not signed in.'); return }
     const myUid = user.uid
+    const viaInvite = Boolean(options && options.viaInvite)
     if (myUid === targetUid) { window.NativeAllies_onRequestSent?.(false, 'Cannot add yourself.'); return }
     // Check for existing outgoing request
     getDocs(query(collection(db, 'ally_requests'),
@@ -672,6 +715,7 @@ window.NativeAllies = {
             if (!revSnap.empty) {
               return updateDoc(revSnap.docs[0].ref, { status: 'accepted' })
                 .then(() => _linkAllies(myUid, targetUid))
+                .then(() => (viaInvite ? _creditInviteAlly(targetUid) : null))
                 .then(() => window.NativeAllies_onRequestSent?.(true, ''))
             }
             return getDoc(doc(db, 'players', myUid)).then(mySnap => {
@@ -679,6 +723,7 @@ window.NativeAllies = {
               return addDoc(collection(db, 'ally_requests'), {
                 from: myUid, to: targetUid,
                 fromName: me.name || '', fromLp: me.lp || '?', fromCl: me.cl || '?', fromEx: me.ex || '?',
+                viaInvite,
                 status: 'pending', ts: Date.now(),
               }).then(() => window.NativeAllies_onRequestSent?.(true, ''))
             })
@@ -696,12 +741,14 @@ window.NativeAllies = {
       .then(snap => {
         if (snap.empty) { window.NativeAllies_onRequestResponded?.(senderUid, false); return }
         const ref = snap.docs[0].ref
+        const request = snap.docs[0].data() || {}
         if (!accept) {
           return updateDoc(ref, { status: 'declined' })
             .then(() => window.NativeAllies_onRequestResponded?.(senderUid, false))
         }
         return updateDoc(ref, { status: 'accepted' })
           .then(() => _linkAllies(myUid, senderUid))
+          .then(() => (request.viaInvite ? _creditInviteAlly(myUid) : null))
           .then(() => window.NativeAllies_onRequestResponded?.(senderUid, true))
       })
       .catch(() => window.NativeAllies_onRequestResponded?.(senderUid, false))
@@ -755,8 +802,15 @@ window.NativeAllies = {
 
   getPlayerName(uid) {
     getDoc(doc(db, 'players', uid))
-      .then(snap => window.NativeAllies_onPlayerName?.(snap.exists() ? (snap.data().name || 'An ally') : 'An ally'))
-      .catch(() => window.NativeAllies_onPlayerName?.('An ally'))
+      .then(snap => {
+        if (!snap.exists()) {
+          window.NativeAllies_onPlayerName?.({ name: 'An ally' })
+          return
+        }
+        const profile = profileFromPlayerDoc(uid, snap.data())
+        window.NativeAllies_onPlayerName?.({ ...profile, name: profile.name || 'An ally' })
+      })
+      .catch(() => window.NativeAllies_onPlayerName?.({ name: 'An ally' }))
   },
 
   startQuestNotifListener() {},
@@ -815,6 +869,28 @@ function _isPremiumFromEntitlements(entitlements) {
   const i = timed.indexOf(':')
   if (i < 0) return false
   return new Date(timed.slice(i + 1)) > new Date()
+}
+
+function _creditInviteAlly(inviterUid) {
+  if (!inviterUid) return Promise.resolve()
+  const isMe = auth.currentUser?.uid === inviterUid
+  let next = null
+  if (isMe) {
+    try {
+      next = (parseInt(localStorage.getItem('scl_invite_allies') || '0', 10) || 0) + 1
+      localStorage.setItem('scl_invite_allies', String(next))
+    } catch { /* intentional */ }
+  }
+  const write = isMe && next != null
+    ? setDoc(doc(db, 'players', inviterUid), { inviteAllies: next }, { merge: true })
+    : setDoc(doc(db, 'players', inviterUid), { inviteAllies: increment(1) }, { merge: true })
+  return write
+    .catch(() => {})
+    .then(() => {
+      if (!isMe) return
+      try { checkAndAwardAchievements({}) } catch { /* intentional */ }
+      try { window.NativeAuth?.saveAchievements?.() } catch { /* intentional */ }
+    })
 }
 
 function _linkAllies(uidA, uidB) {

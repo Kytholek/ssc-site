@@ -10,7 +10,6 @@ import { ACTIONS } from '../../state/actions'
 import { QUEST_TYPES, loadQuests, saveQuests } from './sidequestHelpers'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const LS_ALLIES          = 'scl_allies'
 const LS_ACCEPTED_QUESTS = 'scl_accepted_quests'
 
 const QUEST_TYPE_MAP = Object.fromEntries(QUEST_TYPES.map(t => [t.key, t]))
@@ -62,7 +61,6 @@ const REALM_REGIONS = [
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function loadAllies()   { try { return JSON.parse(localStorage.getItem(LS_ALLIES)           || '[]') } catch { return [] } }
 function loadAccepted() { try { return JSON.parse(localStorage.getItem(LS_ACCEPTED_QUESTS) || '{}') } catch { return {} } }
 
 function hashIndex(seed, modulo) {
@@ -76,10 +74,6 @@ function regionForWorldQuest(quest) {
   const direct = REALM_REGIONS.find(r => r.questTypes.includes(quest.type))
   if (direct) return direct.id
   return REALM_REGIONS[hashIndex(quest.id || quest.name, REALM_REGIONS.length)].id
-}
-
-function regionForAlly(ally, index) {
-  return REALM_REGIONS[hashIndex(ally?.uid || ally?.name || index, REALM_REGIONS.length)].id
 }
 
 function regionForPersonalQuest(quest) {
@@ -163,7 +157,6 @@ export default function DigitalMapView({ playerData }) {
   const gameDispatch = useGameDispatch()
   const [quests, setQuests] = useState(() => loadQuests())
   const [personalDrops, setPersonalDrops] = useState(() => buildPersonalDrops(playerData))
-  const [allies] = useState(() => loadAllies())
   const [loading, setLoading] = useState(true)
   const [selectedRegion, setSelectedRegion] = useState('guildhall')
   const myUid = playerData?.uid || playerData?.name || 'me'
@@ -229,12 +222,6 @@ export default function DigitalMapView({ playerData }) {
     if (withQuests) setSelectedRegion(withQuests.id)
   }, [loading, questsByRegion, selectedRegion])
 
-  const alliesByRegion = useMemo(() => {
-    const acc = REALM_REGIONS.reduce((a, r) => { a[r.id] = []; return a }, {})
-    allies.forEach((ally, i) => { acc[regionForAlly(ally, i)].push(ally) })
-    return acc
-  }, [allies])
-
   function handleAccept(questId) {
     const quest = quests.find(q => q.id === questId) || { id: questId }
     const result = qeAcceptQuest(quest)
@@ -250,7 +237,6 @@ export default function DigitalMapView({ playerData }) {
 
   const activeRegion   = REALM_REGIONS.find(r => r.id === selectedRegion) || REALM_REGIONS[0]
   const regionQuests   = questsByRegion[activeRegion.id] || []
-  const regionAllies   = alliesByRegion[activeRegion.id] || []
   const acceptedQuests = loadAccepted()
   const worldCount     = quests.length
   const personalCount  = personalDrops.length
@@ -268,7 +254,6 @@ export default function DigitalMapView({ playerData }) {
         <div className="rm-realm-counts">
           <div className="rm-realm-count-pill">WORLD {worldCount}</div>
           <div className="rm-realm-count-pill">TODAY {personalCount}</div>
-          <div className="rm-realm-count-pill">ALLIES {allies.length}</div>
         </div>
       </div>
 
@@ -383,13 +368,6 @@ export default function DigitalMapView({ playerData }) {
               })}
             </div>
 
-            {regionAllies.length > 0 && (
-              <div className="rm-realm-ally-row">
-                {regionAllies.map((ally, i) => (
-                  <div key={ally.uid || ally.name || i} className="rm-realm-ally-chip">⚔ {formatDisplayName(ally.name) || 'Unknown Seeker'}</div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 

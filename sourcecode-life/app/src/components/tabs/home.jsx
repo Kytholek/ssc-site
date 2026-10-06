@@ -8,9 +8,7 @@ import { createPortal } from 'react-dom'
 import { useAppState, useAppDispatch } from '../../context/AppContext'
 import { useGameState } from '../../state/GameContext'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
-import { fmt } from '../../lib/numerology'
-import { CALLING } from '../../lib/data'
-import { loadAvatar, AURA_COLORS } from '../../lib/avatarParts'
+import { loadAvatar } from '../../lib/avatarParts'
 import {
   fetchUserAvatar,
   fetchUserEquipment,
@@ -20,12 +18,11 @@ import {
 import { getDisplayName, setDisplayName } from '../../lib/storage'
 import { formatDisplayName } from '../../lib/formatters'
 import { CharacterCardPanel } from '../equipment/equipment.jsx'
-import { RPGCharacterCanvas } from '../charCreate/AvatarCreator.jsx'
+import CharacterDossier from '../character/CharacterDossier'
 import SeasonsSection from '../datachunks/Seasons'
 import DailySection, { TodayReading } from '../datachunks/dailyquests'
 import { useFloatingXP, useParticleBurst } from '../effects/FloatingXP'
 import { useQuestRewardToast } from '../effects/QuestRewardToast'
-import PremiumBadge from '../ui/PremiumBadge'
 import GettingStartedChecklist from '../ui/GettingStartedChecklist'
 import {
   loadClassLoadout,
@@ -52,16 +49,6 @@ const HEADGEAR_MAP = {
 const XP_HINTS = {
   freq: 'Personal frequency — grows from daily and life quests.',
   social: 'World-map / ally quests — grows from side quests on the map.',
-}
-
-function AvatarPreview({ config }) {
-  const auraColor = AURA_COLORS[config.aura]?.color || 'transparent'
-  const bg = auraColor !== 'transparent' ? auraColor : '#0a1520'
-  return (
-    <div style={{ position: 'absolute', inset: 0, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '10px' }}>
-      <RPGCharacterCanvas config={config} size={80} auraColor={auraColor} />
-    </div>
-  )
 }
 
 function DisplayNameModal({ open, draft, onDraftChange, onClose, onSave }) {
@@ -258,18 +245,11 @@ function CharCard() {
   const { cl, name } = playerData
   const displayName = getDisplayName() || name || ''
   const displayNameUpper = formatDisplayName(displayName).toUpperCase()
-  const callingName = (CALLING[cl.root]?.name || 'Unknown').toUpperCase()
-  const callingTitle = CALLING[cl.root]?.essence || CALLING[cl.root]?.summary || 'Life calling'
   const classTitle = getClassTitle(classLoadout)
   const hasClass = getFilledSlots(classLoadout).length > 0
 
   const makerEmpty = !ownRep || ownRep.ratingCount === 0
   const seekerEmpty = !takerRep || takerRep.ratingCount === 0
-  const makerAvg = !makerEmpty ? (ownRep.totalRating / ownRep.ratingCount).toFixed(1) : null
-  const makerTotal = !makerEmpty ? (ownRep.completions + ownRep.noShows) : 0
-  const makerPct = makerTotal > 0
-    ? Math.round(ownRep.completions / makerTotal * 100)
-    : null
   const showCustomize = !avatarLoading && !avatarConfig
 
   return (
@@ -277,105 +257,55 @@ function CharCard() {
       <span className="char-card-spine" aria-hidden="true" />
       <span className="char-card-grain" aria-hidden="true" />
 
-      <div className="char-card-identity">
-        <button
-          type="button"
-          className="char-card-portrait char-card-portrait--opens-card"
-          onClick={openCharacterCard}
-          aria-label={showCustomize ? 'Customize avatar' : 'Open character card'}
-        >
-          {avatarLoading ? (
-            <span className="char-card-portrait-skeleton" aria-hidden="true" />
-          ) : avatarConfig ? (
-            <AvatarPreview config={avatarConfig} />
-          ) : (
-            <span className="char-card-portrait-placeholder">
-              <span className="char-card-portrait-placeholder-icon" aria-hidden="true">+</span>
-              <span className="char-card-portrait-placeholder-label">Customize</span>
-            </span>
-          )}
-          <span className="char-card-portrait-shimmer" />
-        </button>
-
-        <div className="char-card-id-text">
-          <div className="char-card-name-row">
-            <button
-              type="button"
-              className="char-card-name char-card-name--editable"
-              id="char-display-name"
-              onClick={() => {
-                setNameDraft(displayName)
-                setNameEditOpen(true)
-              }}
-              aria-label="Edit display name"
-              title="Tap to edit name"
-            >
-              {displayNameUpper || 'SET NAME'}
-            </button>
-            {user?.isPremium && <PremiumBadge size="sm" />}
-            <span
-              className="char-card-calling"
-              title={callingTitle}
-              aria-label={callingTitle}
-            >
-              <span className="char-card-calling-num">{fmt(cl.root, cl.compound)}</span>
-            </span>
-          </div>
-
-          <div className="char-card-calling-archetype" title={callingTitle}>
-            <span className="char-card-calling-archetype-name">{callingName}</span>
-          </div>
-
-          <div className="char-card-class" aria-label="Class">
-            <span className="char-card-class-kicker">CLASS</span>
-            {hasClass ? (
-              <button
-                type="button"
-                className="char-card-class-title"
-                onClick={openSkills}
-                title="Open Skills to change class"
-              >
-                {classTitle}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="char-card-class-empty"
-                onClick={openSkills}
-              >
-                Choose a class in Skills
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {(makerEmpty && seekerEmpty) ? null : (
-        <div className="char-card-rep-section" aria-label="Maker and seeker reputation">
-          <div className={`char-card-rep${makerEmpty ? ' char-card-rep--empty' : ''}`}>
-            <span className="char-card-rep-label">MAKER</span>
-            {!makerEmpty ? (
-              <div className="char-card-rep-body">
-                <span className="char-card-rep-stars">⭐ {makerAvg}</span>
-                <span className="char-card-rep-sub">{makerPct}% · {ownRep.ratingCount} quests</span>
-              </div>
-            ) : (
-              <span className="char-card-rep-none">No ratings yet</span>
-            )}
-          </div>
-          <div className={`char-card-rep${seekerEmpty ? ' char-card-rep--empty' : ''}`}>
-            <span className="char-card-rep-label">SEEKER</span>
-            {!seekerEmpty ? (
-              <div className="char-card-rep-body">
-                <span className="char-card-rep-stars">⭐ {(takerRep.totalRating / takerRep.ratingCount).toFixed(1)}</span>
-                <span className="char-card-rep-sub">{takerRep.ratingCount} rated</span>
-              </div>
-            ) : (
-              <span className="char-card-rep-none">No ratings yet</span>
-            )}
-          </div>
-        </div>
-      )}
+      <CharacterDossier
+        profile={{
+          name: displayName,
+          cl,
+          lp: playerData.lp,
+          ex: playerData.ex,
+          classTitle: hasClass ? classTitle : '',
+          avatarConfig,
+          avatarLoading,
+          isPremium: user?.isPremium,
+          reputation: ownRep,
+          takerReputation: takerRep,
+        }}
+        onPortraitClick={openCharacterCard}
+        portraitLabel={showCustomize ? 'Customize avatar' : 'Open character card'}
+        nameNode={(
+          <button
+            type="button"
+            className="char-card-name char-card-name--editable"
+            id="char-display-name"
+            onClick={() => {
+              setNameDraft(displayName)
+              setNameEditOpen(true)
+            }}
+            aria-label="Edit display name"
+            title="Tap to edit name"
+          >
+            {displayNameUpper || 'SET NAME'}
+          </button>
+        )}
+        classNode={hasClass ? (
+          <button
+            type="button"
+            className="char-card-class-title"
+            onClick={openSkills}
+            title="Open Skills to change class"
+          >
+            {classTitle}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="char-card-class-empty"
+            onClick={openSkills}
+          >
+            Choose a class in Skills
+          </button>
+        )}
+      />
 
       <div className="char-card-xp-mirror" aria-label="Experience">
         <div className="char-card-xp-side char-card-xp-side--freq" title={XP_HINTS.freq}>

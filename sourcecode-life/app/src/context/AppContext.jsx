@@ -7,7 +7,7 @@ const initialState = {
   currentUser: null,
   /** Computed numerology object from computeAll() or null */
   playerData: null,
-  /** Which top-level overlay is shown: 'boot' | 'auth' | 'charCreate' | 'avatarCreate' | 'app' */
+  /** Which top-level overlay is shown: 'boot' | 'auth' | 'charCreate' | 'avatarCreate' | 'classAptitude' | 'app' */
   screen: 'boot',
   /** Active main tab: 'home' | 'quests' | 'map' | 'profile' | 'config' */
   activeTab: 'home',

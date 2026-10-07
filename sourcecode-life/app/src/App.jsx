@@ -13,6 +13,7 @@ import OnboardingFlow from './components/onboarding/OnboardingFlow'
 import CharCreateOverlay from './components/charCreate/CharCreateOverlay'
 import PremiumReveal from './components/onboarding/PremiumReveal'
 import AvatarCreator     from './components/charCreate/AvatarCreator'
+import ClassAptitude from './components/onboarding/ClassAptitude'
 import AppShell from './components/shell/AppShell'
 import { ensureDailyQuests, hydrateGenQuestsFromCloud } from './lib/numerologyQuests'
 import { hydrateSeasonStateFromCloud } from './lib/seasonEngine'
@@ -120,6 +121,7 @@ function AppRoot() {
       {screen === 'charCreate'   && <CharCreateOverlay />}
       {screen === 'premiumReveal' && <PremiumReveal onComplete={() => dispatch({ type: 'SET_SCREEN', payload: 'avatarCreate' })} />}
       {screen === 'avatarCreate' && <AvatarCreator />}
+      {screen === 'classAptitude' && <ClassAptitude />}
       {screen === 'app'        && <AppShell />}
     </div>
   )

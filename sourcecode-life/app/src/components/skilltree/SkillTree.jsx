@@ -21,6 +21,7 @@ import {
   isRouteStageUnlocked,
   getTrainingProgress,
   getNextTierAction,
+  getRouteDef,
   migrateProgressToV3,
   resolveRouteStageQuests,
 } from '../../lib/skillRoutes'
@@ -64,9 +65,9 @@ function buildBranchLayout(numDef, expandedRouteId) {
   const routes = numDef.routes || []
   const cx = 240
   const rootY = 40
-  const routeY = 155
-  const tierStartY = 275
-  const tierGapY = 100
+  const routeY = 170
+  const tierStartY = 320
+  const tierGapY = 136
   const routeSpread = 160
   const startX = cx - ((routes.length - 1) * routeSpread) / 2
 
@@ -169,6 +170,7 @@ function BranchFlowNode({ data }) {
       {data.caption && (
         <span className="skills-route-caption" aria-hidden="true">
           {data.caption}
+          {data.tag ? <span className="skills-route-tier"> · {data.tag}</span> : null}
         </span>
       )}
     </div>
@@ -524,6 +526,7 @@ export default function SkillTree({
 
     if (payload.type === 'root') {
       setFocus(null)
+      setExpandedRouteId(null)
       return
     }
 
@@ -575,6 +578,8 @@ export default function SkillTree({
       id: 'root',
       type: 'branch',
       position: { x: rootPos.x - ROOT_HALF, y: rootPos.y - ROOT_HALF },
+      width: ROOT_SIZE,
+      height: ROOT_SIZE,
       draggable: false,
       selectable: false,
       data: {
@@ -617,6 +622,8 @@ export default function SkillTree({
         id: nodeId,
         type: 'branch',
         position: { x: routePos.x - ROUTE_HALF, y: routePos.y - ROUTE_HALF },
+        width: ROUTE_SIZE,
+        height: ROUTE_SIZE,
         draggable: false,
         selectable: false,
         data: {
@@ -679,6 +686,8 @@ export default function SkillTree({
           id: tierId,
           type: 'branch',
           position: { x: tierPos.x - TIER_HALF, y: tierPos.y - TIER_HALF },
+          width: TIER_SIZE,
+          height: TIER_SIZE,
           draggable: false,
           selectable: false,
           data: {
@@ -686,7 +695,8 @@ export default function SkillTree({
             icon: isDone ? '\u2713' : String(stage.stage),
             displayNum: '',
             label: '',
-            caption: tierLabel,
+            caption: stage.name,
+            tag: tierLabel,
             size: TIER_SIZE,
             isSelected: selectedId === tierId,
             locked: tierLocked && !isNextTier,
@@ -696,7 +706,7 @@ export default function SkillTree({
             showBadge: false,
             showProgressArc: isDone,
             isNextAction: isNextTier,
-            ariaLabel: `${route.name} ${tierLabel}`,
+            ariaLabel: `${route.name} ${stage.name}, ${tierLabel}`,
             onClick: () => onBranchNode({ type: 'tier', routeId, stageIdx: si }),
           },
         })
@@ -738,17 +748,50 @@ export default function SkillTree({
 
   useEffect(() => {
     if (!expanded || !rfRef.current) return
+    const rf = rfRef.current
     const t = requestAnimationFrame(() => {
-      rfRef.current?.fitView?.({ padding: 0.22, duration: 280, includeHiddenNodes: false })
+      rf.setMinZoom(0.15)
+      rf.setMaxZoom(1.6)
+      rf.fitView({ padding: 0.2, duration: 0, includeHiddenNodes: false })
     })
     return () => cancelAnimationFrame(t)
-  }, [expanded?.id, tiersRouteId])
+  }, [expanded?.id, tiersRouteId, focus?.type])
 
   const inspector = useMemo(() => {
     if (!expanded || !focus || !numProgress) return null
-    if (focus.type === 'root') return null
 
     const sealEligible = isSealEligible(expanded.id, playerData, freqLevel)
+
+    if (focus.type === 'root') {
+      return {
+        color: expanded.color,
+        title: expanded.label,
+        subtitle: expanded.subtitle,
+        icon: expanded.icon,
+        body: (
+          <>
+            <p className="skills-detail-lead">
+              {expanded.subtitle}. Three paths — equip one as your class.
+            </p>
+            {expanded.routes.map((route) => (
+              <div key={route.id} className="skills-route-tier-preview">
+                <button
+                  type="button"
+                  className="skills-cross-train-link"
+                  onClick={() => {
+                    setExpandedRouteId(route.id)
+                    setFocus({ type: 'route', routeId: route.id, numId: expanded.id })
+                  }}
+                >
+                  {route.name}{route.classNoun ? ` · ${route.classNoun}` : ''}
+                </button>
+                {route.blurb && <p className="skills-detail-note">{route.blurb}</p>}
+              </div>
+            ))}
+          </>
+        ),
+      }
+    }
 
     if (focus.type === 'route') {
       const route = expanded.routes.find((r) => r.id === focus.routeId)
@@ -761,13 +804,11 @@ export default function SkillTree({
       return {
         color: expanded.color,
         title: route.name,
-        subtitle: route.classNoun
-          ? `${route.classNoun} · ${route.thesis}`
-          : route.thesis,
+        subtitle: route.blurb || route.name,
         icon: equipped ? '\u265A' : '\u25C8',
         body: (
           <>
-            <p className="skills-detail-lead">
+            <p className="skills-detail-note">
               {equipped
                 ? `Equipped class path · ${stages.filter(Boolean).length}/3 tiers`
                 : active
@@ -801,19 +842,25 @@ export default function SkillTree({
             {replacePicker?.routeId === route.id && (
               <div className="skills-replace-picker" role="group" aria-label="Replace class slot">
                 <p className="skills-detail-kicker">Replace which path?</p>
-                {loadout.slots.map((slot, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="skills-replace-slot"
-                    onClick={() => tryEquipRoute(route.id, i)}
-                  >
-                    Slot {i === 0 ? 'A' : 'B'}
-                    {slot
-                      ? ` — ${NUMBERS.find((n) => Number(n.id) === slot.number)?.label || slot.number} · ${slot.routeId}`
-                      : ' (empty)'}
-                  </button>
-                ))}
+                {loadout.slots.map((slot, i) => {
+                  const slotSeal = slot
+                    ? NUMBERS.find((n) => Number(n.id) === slot.number)
+                    : null
+                  const slotRoute = slot ? getRouteDef(slot.number, slot.routeId) : null
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      className="skills-replace-slot"
+                      onClick={() => tryEquipRoute(route.id, i)}
+                    >
+                      Slot {i === 0 ? 'A' : 'B'}
+                      {slot
+                        ? ` — ${slotSeal?.label || slot.number} · ${slotRoute?.name || 'Path'}`
+                        : ' (empty)'}
+                    </button>
+                  )
+                })}
                 <button
                   type="button"
                   className="skills-detail-cta skills-detail-cta--ghost"
@@ -838,6 +885,30 @@ export default function SkillTree({
             {!gate.ok && (
               <p className="skills-detail-gate" role="status">{gate.reason}</p>
             )}
+            <p className="skills-detail-kicker">Stages</p>
+            {(() => {
+              const nextIdx = route.stages.findIndex((_, i) => (
+                !stages[i] && active && isRouteStageUnlocked(
+                  expanded.id, route.id, i, numProgress, statValues, seeds,
+                )
+              ))
+              return route.stages.map((s, i) => {
+              const done = !!stages[i]
+              const state = done ? 'done' : i === nextIdx ? 'next' : 'locked'
+              return (
+                <button
+                  key={s.stage}
+                  type="button"
+                  className={`skills-stage-step skills-stage-step--${state}`}
+                  onClick={() => onBranchNode({ type: 'tier', routeId: route.id, stageIdx: i })}
+                >
+                  <span className="skills-stage-step-name">{s.name}</span>
+                  <span className="skills-stage-step-state">{state}</span>
+                  {s.blurb && <span className="skills-stage-step-blurb">{s.blurb}</span>}
+                </button>
+              )
+              })
+            })()}
             {Array.isArray(route.relatedRoutes) && route.relatedRoutes.length > 0 && (
               <div className="skills-cross-train" role="group" aria-label="Cross-train paths">
                 <p className="skills-detail-kicker">Cross-train</p>
@@ -863,39 +934,6 @@ export default function SkillTree({
                 })}
               </div>
             )}
-            <p className="skills-detail-kicker">Tiers &amp; quests</p>
-            {route.stages.map((s, i) => {
-              const done = !!stages[i]
-              const unlocked = active && isRouteStageUnlocked(
-                expanded.id, route.id, i, numProgress, statValues, seeds,
-              )
-              return (
-                <div key={s.stage} className="skills-route-tier-preview">
-                  <div className="skills-route-tier-preview-head">
-                    <strong>T{s.stage} {TIER_LABELS[s.stage].label}</strong>
-                    <span>
-                      {done ? 'done' : !active ? 'locked' : unlocked ? s.name : 'locked'}
-                    </span>
-                  </div>
-                  <RouteQuestItems
-                    quests={resolveRouteStageQuests(expanded.id, route.id, i, s.quests || [])}
-                    done={done}
-                    canPin={active && unlocked && !done}
-                    playerData={playerData}
-                    specBase={{
-                      number: Number(expanded.id),
-                      numberLabel: expanded.label,
-                      routeId: route.id,
-                      routeName: route.name,
-                      classNoun: route.classNoun,
-                      stage: s.stage,
-                      stageIdx: i,
-                      stageName: s.name,
-                    }}
-                  />
-                </div>
-              )
-            })}
           </>
         ),
       }
@@ -921,27 +959,28 @@ export default function SkillTree({
       const lockParts = []
       if (!isActive) lockParts.push('Start or equip this route first')
       if (focus.stageIdx > 0 && !stages[focus.stageIdx - 1]) {
-        lockParts.push(`Complete ${TIER_LABELS[focus.stageIdx].label}`)
+        const prevName = route.stages[focus.stageIdx - 1]?.name
+        lockParts.push(prevName ? `Finish ${prevName} first` : 'Finish the previous stage first')
       }
       if (threshold && !innateStages[focus.stageIdx] && statVal < threshold) {
-        lockParts.push(`Stat ${statVal}/${threshold}`)
+        lockParts.push(`Stat ${statVal} of ${threshold}`)
       }
-      const tier = TIER_LABELS[stage.stage]
       return {
         color: unlocked || isDone ? TIER_COLORS[stage.stage] : expanded.color,
         title: stage.name,
-        subtitle: `${route.name} · ${tier.label}`,
+        subtitle: route.name,
         icon: isDone ? '\u2713' : String(stage.stage),
         body: (
           <>
+            {stage.blurb && <p className="skills-detail-lead">{stage.blurb}</p>}
             {!unlocked && (
               <p className="skills-detail-gate" role="status">
                 {lockParts.join(' · ') || 'Locked'}
               </p>
             )}
-            {isDone && <p className="skills-detail-lead">Tier complete.</p>}
+            {isDone && <p className="skills-detail-note">Tier complete.</p>}
             {unlocked && !isDone && (
-              <p className="skills-detail-lead">Next up — complete these in the world.</p>
+              <p className="skills-detail-note">Next up — complete these in the world.</p>
             )}
             <p className="skills-detail-kicker">Quests</p>
             <RouteQuestItems
@@ -972,7 +1011,7 @@ export default function SkillTree({
   }, [
     expanded, focus, numProgress, seeds, statValues, tryStartRoute,
     tryEquipRoute, tryUnequip, loadout, replacePicker, playerData, freqLevel,
-    openSeal,
+    openSeal, onBranchNode,
   ])
 
   const thesis = !expanded
@@ -982,14 +1021,43 @@ export default function SkillTree({
     : !isSealEligible(expanded.id, playerData, freqLevel)
       ? `${expanded.label} — not in your blueprint.`
       : tiersRouteId
-        ? `${expanded.label} · ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'} tiers`
-        : `${expanded.label} — equip a route as your class path.`
+        ? `${expanded.label.charAt(0)}${expanded.label.slice(1).toLowerCase()} — ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'}`
+        : `${expanded.label.charAt(0)}${expanded.label.slice(1).toLowerCase()} — pick a path.`
 
-  const nextStepHint = nextAction
-    ? nextAction.kind === 'tier'
-      ? `Next: ${TIER_LABELS[nextAction.stageIdx + 1]?.label || 'tier'} on this path`
-      : 'Next: open or equip a route'
+  const focusedStageName = focus?.type === 'tier'
+    ? expanded?.routes.find((r) => r.id === focus.routeId)?.stages?.[focus.stageIdx]?.name
     : null
+  const nextStageName = nextAction?.kind === 'tier'
+    ? expanded?.routes.find((r) => r.id === nextAction.routeId)?.stages?.[nextAction.stageIdx]?.name
+    : null
+  const statGate = (() => {
+    if (!expanded || !tiersRouteId || focusedStageName || nextAction?.kind === 'tier') return null
+    const route = expanded.routes.find((r) => r.id === tiersRouteId)
+    if (!route) return null
+    const stages = getRouteStages(numProgress, expanded.id, tiersRouteId)
+    const innate = seeds?.[expanded.id] || [false, false, false]
+    const statVal = statValues?.[expanded.id] || 0
+    for (let i = 0; i < route.stages.length; i++) {
+      if (stages[i]) continue
+      if (isRouteStageUnlocked(expanded.id, tiersRouteId, i, numProgress, statValues, seeds)) return null
+      const threshold = i === 1 ? THRESHOLDS.stage2 : i === 2 ? THRESHOLDS.stage3 : null
+      const prevDone = i === 0 || !!stages[i - 1]
+      if (threshold && prevDone && !innate[i] && statVal < threshold) {
+        return { name: route.stages[i].name, threshold }
+      }
+      return null
+    }
+    return null
+  })()
+  const nextStepHint = focusedStageName
+    ? focusedStageName
+    : nextAction?.kind === 'tier'
+      ? `Next: ${nextStageName || 'stage'}`
+      : statGate
+        ? `${statGate.name} needs stat ${statGate.threshold}`
+        : nextAction
+          ? 'Next: open or equip a route'
+          : null
 
   return (
     <div className="skills-stage" aria-label="Numerology Skill Tree">
@@ -1167,18 +1235,6 @@ export default function SkillTree({
               {nextStepHint && (
                 <span className="skills-branch-next">{nextStepHint}</span>
               )}
-              {tiersRouteId && (
-                <button
-                  type="button"
-                  className="skills-branch-collapse"
-                  onClick={() => {
-                    setExpandedRouteId(null)
-                    setFocus(null)
-                  }}
-                >
-                  Collapse route
-                </button>
-              )}
             </div>
             {gateMsg && (
               <p className="skills-branch-gate" role="status">{gateMsg}</p>
@@ -1199,7 +1255,7 @@ export default function SkillTree({
                 zoomOnPinch
                 panOnDrag
                 preventScrolling={false}
-                minZoom={zoomLock ? Math.max(0.25, zoomLock * 0.7) : 0.25}
+                minZoom={tiersRouteId ? 0.15 : (zoomLock ? Math.max(0.25, zoomLock * 0.7) : 0.25)}
                 maxZoom={zoomLock ? Math.min(1.6, zoomLock * 1.25) : 1.6}
                 proOptions={{ hideAttribution: true }}
                 fitView

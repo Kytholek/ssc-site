@@ -112,7 +112,7 @@ export const CLASS_FLAVOR = {
       'Draft a message that completes something this day number opened.',
     ],
   },
-  Disciple: {
+  Practitioner: {
     life: [
       'Keep one Life Path discipline today even when mood votes no.',
       'Show up to the practice your blueprint requires — inspired or not.',
@@ -196,7 +196,7 @@ export const CLASS_FLAVOR = {
       'Check on someone the personal day keeps bringing to mind.',
     ],
   },
-  Kinkeeper: {
+  Kin: {
     life: [
       'Strengthen family or chosen-family ties that hold your Life Path.',
       'Keep a belonging ritual (meal, call, story) alive this week.',
@@ -208,7 +208,7 @@ export const CLASS_FLAVOR = {
       'Host or plan a small belonging moment before the week ends.',
     ],
   },
-  Server: {
+  Steward: {
     life: [
       'Serve a need connected to your Life Path without collecting applause.',
       'Do the unglamorous task that advances the mission.',

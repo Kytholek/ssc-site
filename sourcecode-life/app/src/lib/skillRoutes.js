@@ -28,11 +28,13 @@ export const SKILL_TREE = {
         id: 'leadership',
         name: 'Leadership',
         classNoun: 'Leader',
+        blurb: 'Train the presence and decisions that let other people follow you.',
         thesis: 'Presence -> Direction -> Leadership',
         relatedRoutes: [{ number: 8, routeId: 'achievement' }, { number: 3, routeId: 'voice' }],
         stages: [
           {
             stage: 1, name: 'Presence',
+            blurb: 'Be fully here, and say the thing without hedging.',
             quests: [
               'Show up on time to one commitment and stay fully present.',
               'Speak first in a meeting or group once this week.',
@@ -41,6 +43,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Direction',
+            blurb: 'Point the group at one goal and follow it through.',
             quests: [
               'Set a clear goal for a shared project and say it out loud.',
               'Assign one task with a deadline and follow up once.',
@@ -49,6 +52,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Leadership',
+            blurb: 'Carry a piece of work from start to handoff, and raise someone else while you do it.',
             quests: [
               'Lead a session or project from start to handoff.',
               'Give feedback that raises the standard for the team.',
@@ -61,10 +65,12 @@ export const SKILL_TREE = {
         id: 'entrepreneurship',
         name: 'Entrepreneurship',
         classNoun: 'Founder',
+        blurb: 'Train seeing a real problem and shipping something people will pay for.',
         thesis: 'Opportunity -> Execution -> Enterprise',
         stages: [
           {
             stage: 1, name: 'Opportunity',
+            blurb: 'Name a problem worth solving and who feels it.',
             quests: [
               'Write down one problem you personally want solved this month.',
               'Talk to three people about that problem and note what they share.',
@@ -73,6 +79,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Execution',
+            blurb: 'Put a small offer in front of a real person and learn from the answer.',
             quests: [
               'Ship a minimum version to one real person and collect feedback.',
               'Price something and ask for payment or a clear yes/no.',
@@ -81,6 +88,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Enterprise',
+            blurb: 'Make the work repeatable so it does not depend on you alone.',
             quests: [
               'Document a repeatable process so someone else could run it.',
               'Set a weekly revenue or impact target and track it for four weeks.',
@@ -93,10 +101,12 @@ export const SKILL_TREE = {
         id: 'physical',
         name: 'Physical Agency',
         classNoun: 'Athlete',
+        blurb: 'Train a body that can carry the life you are building.',
         thesis: 'Movement -> Strength -> Physical Mastery',
         stages: [
           {
             stage: 1, name: 'Movement',
+            blurb: 'Move on purpose, without a screen in the way.',
             quests: [
               'Move your body for 20 minutes today with no phone.',
               'Take a walk outside and note how your energy shifts afterward.',
@@ -105,6 +115,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Strength',
+            blurb: 'Add load, and keep a record so the work gets harder.',
             quests: [
               'Complete three strength sessions this week and log each one.',
               'Add progressive overload to one lift or movement for two weeks.',
@@ -113,6 +124,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Physical Mastery',
+            blurb: 'Follow a plan long enough that a hard goal becomes ordinary.',
             quests: [
               'Follow a written training plan for four consecutive weeks.',
               'Recover deliberately: sleep, food, and rest days for one full cycle.',
@@ -128,13 +140,15 @@ export const SKILL_TREE = {
     routes: [
       {
         id: 'relationships',
-        name: 'Relationships',
+        name: 'Bond',
         classNoun: 'Partner',
+        blurb: 'Train closeness: telling the truth, and staying when it gets specific.',
         thesis: 'Connection -> Intimacy -> Partnership',
         relatedRoutes: [{"number":6,"routeId":"care"},{"number":3,"routeId":"voice"}],
         stages: [
           {
             stage: 1, name: 'Connection',
+            blurb: 'Reach someone with no agenda and actually listen.',
             quests: [
               'Reach out to someone you care about with no agenda.',
               'Ask one genuine question and listen without planning your reply.',
@@ -143,6 +157,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Intimacy',
+            blurb: 'Name a need, and repair a small tension instead of hinting.',
             quests: [
               'Name a need clearly instead of hinting.',
               'Repair a small tension with honesty and care.',
@@ -151,6 +166,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Partnership',
+            blurb: 'Keep a shared agreement, and carry your half.',
             quests: [
               'Make a shared agreement and keep it for two weeks.',
               'Plan something together and carry your half without reminders.',
@@ -163,10 +179,12 @@ export const SKILL_TREE = {
         id: 'empathy',
         name: 'Empathy',
         classNoun: 'Empath',
+        blurb: 'Train noticing what someone feels, and responding without taking over.',
         thesis: 'Awareness -> Understanding -> Compassion',
         stages: [
           {
             stage: 1, name: 'Awareness',
+            blurb: 'Catch the emotion in the room, including your own.',
             quests: [
               'In one conversation, name the other person’s emotion out loud once.',
               'Sit with someone’s story without offering advice for five minutes.',
@@ -175,6 +193,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Understanding',
+            blurb: 'Ask until they say you heard them.',
             quests: [
               'Ask three clarifying questions before giving your opinion.',
               'Reflect back what you heard until the other person says “yes, that’s it.”',
@@ -183,6 +202,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Compassion',
+            blurb: 'Offer real help, and give yourself the same care.',
             quests: [
               'Offer concrete help once without being asked — then follow through.',
               'Repair a strained connection with an honest, kind check-in.',
@@ -195,10 +215,12 @@ export const SKILL_TREE = {
         id: 'social',
         name: 'Social Intelligence',
         classNoun: 'Connector',
+        blurb: 'Train reading a room and moving through a group without forcing it.',
         thesis: 'Reading People -> Navigating Groups -> Social Mastery',
         stages: [
           {
             stage: 1, name: 'Reading People',
+            blurb: 'Notice who is in, who is out, and what is unsaid.',
             quests: [
               'In a group, note who speaks most and who is left out — adjust once.',
               'Guess someone’s mood from tone and posture, then gently verify.',
@@ -207,6 +229,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Navigating Groups',
+            blurb: 'Include someone, and steer a conversation without dominating it.',
             quests: [
               'Host or help run a small gathering of three or more people.',
               'Defuse one awkward moment with a light redirect or inclusive question.',
@@ -215,6 +238,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Social Mastery',
+            blurb: 'Bring people together and leave the room better than you found it.',
             quests: [
               'Facilitate a meeting or circle so every voice gets heard once.',
               'Build a recurring social ritual (weekly call, dinner, or hang) for a month.',
@@ -232,11 +256,13 @@ export const SKILL_TREE = {
         id: 'voice',
         name: 'Voice',
         classNoun: 'Orator',
-        thesis: 'Speak -> Present -> Influence',
+        blurb: 'Train speaking so people hear you and leave ready to act.',
+        thesis: 'Find Your Voice -> Command Attention -> Move Others',
         relatedRoutes: [{"number":7,"routeId":"contemplation"},{"number":9,"routeId":"teaching"}],
         stages: [
           {
             stage: 1, name: 'Find Your Voice',
+            blurb: 'Say what you mean, out loud, to a real person.',
             quests: [
               'Speak your opinion once without rehearsing.',
               'Record yourself talking for two minutes and listen back once.',
@@ -245,6 +271,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Command Attention',
+            blurb: 'Hold a room long enough to finish the point.',
             quests: [
               'Give a 3-5 minute talk to at least one other person.',
               'Open a meeting or circle with a clear spoken frame.',
@@ -253,6 +280,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Move Others',
+            blurb: 'Speak so someone changes what they do.',
             quests: [
               'Deliver a presentation to an audience.',
               'Persuade a group toward a decision with spoken clarity.',
@@ -265,10 +293,12 @@ export const SKILL_TREE = {
         id: 'creation',
         name: 'Creation',
         classNoun: 'Maker',
-        thesis: 'Create -> Develop Style -> Create Meaning',
+        blurb: 'Train making things until the work has a voice of its own.',
+        thesis: 'Create Freely -> Develop Style -> Create Meaning',
         stages: [
           {
             stage: 1, name: 'Create Freely',
+            blurb: 'Make something without waiting to be good at it.',
             quests: [
               'Make something without judging it.',
               'Finish a rough draft or sketch in one sitting.',
@@ -277,6 +307,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Develop Style',
+            blurb: 'Repeat the work until a recognizable way of making appears.',
             quests: [
               'Produce 10 pieces using a consistent aesthetic.',
               'Name three traits of your style in writing.',
@@ -285,6 +316,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Create Meaning',
+            blurb: 'Finish a piece that says something you stand behind.',
             quests: [
               'Produce a finished body of work you are willing to share.',
               'Explain what the work is trying to say in one paragraph.',
@@ -297,10 +329,12 @@ export const SKILL_TREE = {
         id: 'writing',
         name: 'Writing',
         classNoun: 'Scribe',
-        thesis: 'Write -> Storytelling -> Publishing',
+        blurb: 'Train writing that is true, specific, and strong enough to move someone.',
+        thesis: 'Write Honestly -> Develop Voice -> Move Through Words',
         stages: [
           {
             stage: 1, name: 'Write Honestly',
+            blurb: 'Put the real sentence on the page.',
             quests: [
               'Write 500 words without editing.',
               'Journal one true page about today.',
@@ -309,6 +343,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Develop Voice',
+            blurb: 'Shape the writing so it sounds like you and still lands.',
             quests: [
               'Publish 10 pieces (blog, journal, or social - your call).',
               'Write the same idea three ways and keep the strongest.',
@@ -317,6 +352,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Move Through Words',
+            blurb: 'Finish a piece someone else can follow.',
             quests: [
               'Complete an essay, story, or short book draft.',
               'Edit until you would put your name on it publicly.',
@@ -333,12 +369,14 @@ export const SKILL_TREE = {
       {
         id: 'discipline',
         name: 'Discipline',
-        classNoun: 'Disciple',
+        classNoun: 'Practitioner',
+        blurb: 'Train showing up on the days you do not feel like it.',
         thesis: 'Routine -> Consistency -> Self-Mastery',
         relatedRoutes: [{"number":8,"routeId":"achievement"},{"number":1,"routeId":"leadership"}],
         stages: [
           {
             stage: 1, name: 'Routine',
+            blurb: 'Put the practice on the calendar and do it once.',
             quests: [
               'Do one non-negotiable habit at the same time for three days.',
               'Prepare tomorrow tonight — clothes, tools, or first task.',
@@ -347,6 +385,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Consistency',
+            blurb: 'Keep the practice long enough that skipping feels strange.',
             quests: [
               'Keep a streak of seven days on one chosen practice.',
               'Track your habit in writing and review it once this week.',
@@ -355,6 +394,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Self-Mastery',
+            blurb: 'Hold the standard when no one is watching.',
             quests: [
               'Hold a 30-day practice without missing more than one day.',
               'Remove one temptation that breaks your routine.',
@@ -367,10 +407,12 @@ export const SKILL_TREE = {
         id: 'organization',
         name: 'Organization',
         classNoun: 'Architect',
+        blurb: 'Train turning a mess into a plan you can actually follow.',
         thesis: 'Order -> Planning -> Optimization',
         stages: [
           {
             stage: 1, name: 'Order',
+            blurb: 'Put one area of life where you can find things.',
             quests: [
               'Clear one physical or digital space completely today.',
               'Write a single inbox-zero pass for email or messages.',
@@ -379,6 +421,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Planning',
+            blurb: 'Name the steps, the owner, and the date.',
             quests: [
               'Plan tomorrow night before — three priorities only.',
               'Break one large project into dated milestones on a calendar.',
@@ -387,6 +430,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Optimization',
+            blurb: 'Remove a step that wastes time every week.',
             quests: [
               'Remove one recurring friction from your week for good.',
               'Template a process you do often so it takes half the time.',
@@ -399,10 +443,12 @@ export const SKILL_TREE = {
         id: 'systems',
         name: 'Systems',
         classNoun: 'Engineer',
+        blurb: 'Train building a process that keeps working when you step away.',
         thesis: 'Process -> Automation -> Architecture',
         stages: [
           {
             stage: 1, name: 'Process',
+            blurb: 'Write down how a repeating task actually gets done.',
             quests: [
               'Write the steps of one recurring task as a checklist.',
               'Time one process end-to-end and note every handoff.',
@@ -411,6 +457,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Automation',
+            blurb: 'Hand a step to a tool, a template, or another person.',
             quests: [
               'Automate or batch one repetitive chore this week.',
               'Build a simple tool, template, or script that saves ten minutes.',
@@ -419,6 +466,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Architecture',
+            blurb: 'Design the system so a failure has a next step.',
             quests: [
               'Map how three systems connect (work, home, money, or health).',
               'Redesign one bottleneck so it cannot silently fail.',
@@ -436,11 +484,13 @@ export const SKILL_TREE = {
         id: 'exploration',
         name: 'Exploration',
         classNoun: 'Explorer',
+        blurb: 'Train following a curiosity until it changes a decision.',
         thesis: 'Curiosity -> Experimentation -> Discovery',
         relatedRoutes: [{"number":7,"routeId":"research"},{"number":1,"routeId":"leadership"}],
         stages: [
           {
             stage: 1, name: 'Curiosity',
+            blurb: 'Ask the question you usually skip, and spend time on it.',
             quests: [
               'Ask three questions about a topic you usually skip.',
               'Visit a place, page, or field you have never tried.',
@@ -449,6 +499,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Experimentation',
+            blurb: 'Test one idea against a result you can see.',
             quests: [
               'Run a one-week experiment with a clear success metric.',
               'Try a method that contradicts your usual approach.',
@@ -457,6 +508,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Discovery',
+            blurb: 'Use what you found, and name the next question.',
             quests: [
               'Share a discovery that changed how you see something.',
               'Apply the finding to a real decision this month.',
@@ -469,10 +521,12 @@ export const SKILL_TREE = {
         id: 'adventure',
         name: 'Adventure',
         classNoun: 'Adventurer',
+        blurb: 'Train leaving the familiar and coming back with a story you led.',
         thesis: 'Departure -> Challenge -> Expedition',
         stages: [
           {
             stage: 1, name: 'Departure',
+            blurb: 'Go somewhere new with a light plan.',
             quests: [
               'Go somewhere you have never been within an hour of home.',
               'Say yes to one invitation you would normally decline.',
@@ -481,6 +535,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Challenge',
+            blurb: 'Finish something that scares you a little.',
             quests: [
               'Do one activity that scares you a little and finish it.',
               'Travel or explore overnight without over-planning every hour.',
@@ -489,6 +544,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Expedition',
+            blurb: 'Lead a longer outing from the first step to the last.',
             quests: [
               'Plan and complete a multi-day trip or expedition of your own design.',
               'Document the journey so someone else could follow your path.',
@@ -501,10 +557,12 @@ export const SKILL_TREE = {
         id: 'innovation',
         name: 'Innovation',
         classNoun: 'Innovator',
+        blurb: 'Train replacing an old way with one you have actually tested.',
         thesis: 'Question -> Experiment -> Reinvent',
         stages: [
           {
             stage: 1, name: 'Question',
+            blurb: 'Name the assumption, and ask someone who solved it differently.',
             quests: [
               'Write five “why do we still do it this way?” questions about your life or work.',
               'Interview someone who solved a problem you have not.',
@@ -513,14 +571,16 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Experiment',
+            blurb: 'Try the new way for a few days, then keep it or kill it.',
             quests: [
-              'Run a one-week experiment with a clear success metric.',
+              'Pick one old method and try a different one for three days, with one number that says it worked.',
               'Prototype a better way to do a daily task and try it for three days.',
               'Kill an idea quickly after a fair test — and note what you learned.',
             ],
           },
           {
             stage: 3, name: 'Reinvent',
+            blurb: 'Live with the better version long enough that the old one is gone.',
             quests: [
               'Replace an old habit or system with your improved version for 30 days.',
               'Share the innovation with others and invite them to improve it.',
@@ -538,11 +598,13 @@ export const SKILL_TREE = {
         id: 'care',
         name: 'Care',
         classNoun: 'Caregiver',
+        blurb: 'Train help that continues when you are tired.',
         thesis: 'Support -> Nurture -> Stewardship',
         relatedRoutes: [{"number":2,"routeId":"relationships"},{"number":9,"routeId":"contribution"}],
         stages: [
           {
             stage: 1, name: 'Support',
+            blurb: 'Do one useful thing for someone today.',
             quests: [
               'Offer practical help to one person today.',
               'Check in on someone who might be struggling.',
@@ -551,6 +613,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Nurture',
+            blurb: 'Keep a care act going, and include yourself.',
             quests: [
               'Keep a recurring care act for two weeks.',
               'Listen fully before offering solutions.',
@@ -559,6 +622,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Stewardship',
+            blurb: 'Take responsibility for a person or a place, and make the care transferable.',
             quests: [
               'Take ongoing responsibility for someone’s wellbeing or a shared space.',
               'Build a system so care continues when you are tired.',
@@ -570,11 +634,13 @@ export const SKILL_TREE = {
       {
         id: 'family',
         name: 'Family',
-        classNoun: 'Kinkeeper',
+        classNoun: 'Kin',
+        blurb: 'Train being present for the people who are your home.',
         thesis: 'Presence -> Commitment -> Foundation',
         stages: [
           {
             stage: 1, name: 'Presence',
+            blurb: 'Give them an hour with your attention actually there.',
             quests: [
               'Spend one uninterrupted hour with family or chosen family today.',
               'Call or visit someone you have been meaning to reconnect with.',
@@ -583,6 +649,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Commitment',
+            blurb: 'Keep a family promise and carry a recurring duty.',
             quests: [
               'Keep one family promise on time without reminders.',
               'Take on a recurring household or care responsibility for two weeks.',
@@ -591,6 +658,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Foundation',
+            blurb: 'Build a ritual or a record the group can keep.',
             quests: [
               'Create or update a family ritual that can outlast this month.',
               'Document something important (history, values, or logistics) for the group.',
@@ -602,11 +670,13 @@ export const SKILL_TREE = {
       {
         id: 'service',
         name: 'Service',
-        classNoun: 'Server',
+        classNoun: 'Steward',
+        blurb: 'Train useful work that does not need an audience.',
         thesis: 'Help -> Serve -> Lead Through Service',
         stages: [
           {
             stage: 1, name: 'Help',
+            blurb: 'Ask what would help, and do that.',
             quests: [
               'Do one useful favor today without announcing it.',
               'Ask “what would help most?” and do that exact thing.',
@@ -615,6 +685,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Serve',
+            blurb: 'Show up on a schedule, and teach someone to need you less.',
             quests: [
               'Commit to a recurring service slot for four weeks.',
               'Meet a need before it becomes a crisis for someone in your circle.',
@@ -623,6 +694,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Lead Through Service',
+            blurb: 'Organize the help, then step out of the center.',
             quests: [
               'Organize a service effort others can join — then step back from the spotlight.',
               'Build a system so help continues when you are not there.',
@@ -640,11 +712,13 @@ export const SKILL_TREE = {
         id: 'contemplation',
         name: 'Contemplation',
         classNoun: 'Seer',
+        blurb: 'Train quiet attention until a true next step appears.',
         thesis: 'Stillness -> Observation -> Insight',
         relatedRoutes: [{"number":3,"routeId":"voice"},{"number":9,"routeId":"contribution"}],
         stages: [
           {
             stage: 1, name: 'Stillness',
+            blurb: 'Sit without input long enough to hear yourself.',
             quests: [
               'Sit in silence for ten minutes with no media.',
               'Take three conscious breaths before reacting once today.',
@@ -653,6 +727,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Observation',
+            blurb: 'Watch a pattern for a week without rushing to fix it.',
             quests: [
               'Journal what you notice in body and mind for seven days.',
               'Watch a pattern without fixing it for one full day.',
@@ -661,6 +736,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Insight',
+            blurb: 'Write what you saw, and change one habit because of it.',
             quests: [
               'Write one clear insight and how you will live it this week.',
               'Share the insight with a trusted person for reflection.',
@@ -673,10 +749,12 @@ export const SKILL_TREE = {
         id: 'research',
         name: 'Research',
         classNoun: 'Scholar',
+        blurb: 'Train asking a precise question and answering it with evidence.',
         thesis: 'Question -> Investigate -> Understand',
         stages: [
           {
             stage: 1, name: 'Question',
+            blurb: 'Write the question, and go to a source instead of a summary.',
             quests: [
               'Write one precise research question you actually want answered.',
               'List three sources you trust and one you will challenge.',
@@ -685,6 +763,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Investigate',
+            blurb: 'Gather notes, a person, and a test of the claim.',
             quests: [
               'Collect notes from five sources into one organized brief.',
               'Talk to one person with lived experience on the topic.',
@@ -693,6 +772,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Understand',
+            blurb: 'Explain the conclusion in your own words, and let it change a decision.',
             quests: [
               'Write a one-page synthesis with your own conclusion.',
               'Explain the topic clearly to someone who knows less than you.',
@@ -703,20 +783,23 @@ export const SKILL_TREE = {
       },
       {
         id: 'consciousness',
-        name: 'Consciousness',
+        name: 'Inner Work',
         classNoun: 'Mystic',
+        blurb: 'Train seeing your own patterns and choosing a different response.',
         thesis: 'Self-Observation -> Pattern Recognition -> Integration',
         stages: [
           {
             stage: 1, name: 'Self-Observation',
+            blurb: 'Name what you feel, and where it sits in the body.',
             quests: [
               'Pause three times today and name what you feel without fixing it.',
               'Journal one trigger and what happened in your body.',
-              'Sit in silence for ten minutes with no media.',
+              'Once today, stop mid-task and write the sentence you were about to act on.',
             ],
           },
           {
             stage: 2, name: 'Pattern Recognition',
+            blurb: 'Track the repeating story long enough to recognize it.',
             quests: [
               'Track a recurring mood or habit for seven days.',
               'Name the story you tell yourself when stressed — write it down.',
@@ -725,6 +808,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Integration',
+            blurb: 'Practice a new response to an old trigger.',
             quests: [
               'Choose a new response to an old trigger and practice it three times.',
               'Share an insight with a trusted person and ask for reflection.',
@@ -742,11 +826,13 @@ export const SKILL_TREE = {
         id: 'achievement',
         name: 'Achievement',
         classNoun: 'Achiever',
+        blurb: 'Train setting a bar and hitting it in public.',
         thesis: 'Goal -> Performance -> Excellence',
         relatedRoutes: [{"number":1,"routeId":"leadership"},{"number":4,"routeId":"discipline"}],
         stages: [
           {
             stage: 1, name: 'Goal',
+            blurb: 'Write a measurable aim and take the first step today.',
             quests: [
               'Write one measurable goal for this week.',
               'Break it into three concrete actions and do the first today.',
@@ -755,6 +841,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Performance',
+            blurb: 'Keep a scoreboard, and raise one deliverable.',
             quests: [
               'Hit the weekly goal or honestly review why you missed.',
               'Raise the bar on one deliverable and ship it.',
@@ -763,6 +850,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Excellence',
+            blurb: 'Finish a stretch that used to feel too big, and help someone else do the same.',
             quests: [
               'Complete a stretch goal that once felt ambitious.',
               'Refine your craft until the result feels worthy of your name.',
@@ -775,10 +863,12 @@ export const SKILL_TREE = {
         id: 'wealth',
         name: 'Wealth',
         classNoun: 'Magnate',
+        blurb: 'Train knowing what you are worth and building a surplus on purpose.',
         thesis: 'Value -> Resource -> Wealth Creation',
         stages: [
           {
             stage: 1, name: 'Value',
+            blurb: 'Say what you create for others, and watch the money for a week.',
             quests: [
               'Write what value you create for others in one clear sentence.',
               'Track every dollar in and out for seven days.',
@@ -787,6 +877,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Resource',
+            blurb: 'Hold a budget, and ask for a better rate.',
             quests: [
               'Build or update a simple budget and stick to it for two weeks.',
               'Negotiate or ask for one better rate, raise, or deal.',
@@ -795,6 +886,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Wealth Creation',
+            blurb: 'Grow one income stream and review it every week.',
             quests: [
               'Launch or grow one income stream with a weekly review habit.',
               'Invest time or money where compound returns are real.',
@@ -805,12 +897,14 @@ export const SKILL_TREE = {
       },
       {
         id: 'command',
-        name: 'Leadership',
+        name: 'Command',
         classNoun: 'Commander',
+        blurb: 'Train holding a standard, owning the outcome, and developing someone under you.',
         thesis: 'Authority -> Responsibility -> Command',
         stages: [
           {
             stage: 1, name: 'Authority',
+            blurb: 'Make the call, keep the standard yourself, and say the feedback.',
             quests: [
               'Make one clear decision for a group and own the outcome.',
               'Set a standard out loud and keep it yourself first.',
@@ -819,6 +913,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Responsibility',
+            blurb: 'Own a miss, delegate once, and clear a blocker for someone else.',
             quests: [
               'Own a miss publicly and present the fix.',
               'Delegate a task with a deadline and check in once — then trust.',
@@ -827,6 +922,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Command',
+            blurb: 'Lead from brief to delivery, and leave someone able to run a piece alone.',
             quests: [
               'Lead a project from brief to delivery with a visible scoreboard.',
               'Develop one person under you until they can run a piece alone.',
@@ -844,11 +940,13 @@ export const SKILL_TREE = {
         id: 'contribution',
         name: 'Contribution',
         classNoun: 'Giver',
+        blurb: 'Train giving something that outlasts the gesture.',
         thesis: 'Give -> Serve -> Legacy',
         relatedRoutes: [{"number":7,"routeId":"contemplation"},{"number":6,"routeId":"care"}],
         stages: [
           {
             stage: 1, name: 'Give',
+            blurb: 'Offer time, knowledge, or care with nothing required back.',
             quests: [
               'Give something useful with no expectation of return.',
               'Share knowledge, time, or resources with someone who needs it.',
@@ -857,14 +955,16 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Serve',
+            blurb: 'Keep showing up, quietly, on a rhythm.',
             quests: [
-              'Commit to a recurring act of service for four weeks.',
-              'Meet a need before it becomes a crisis.',
+              'Return to the same act of giving once a week for a month.',
+              'Notice a need early and meet it before anyone has to ask.',
               'Serve without announcing it — then note how it felt.',
             ],
           },
           {
             stage: 3, name: 'Legacy',
+            blurb: 'Finish something others can continue without you.',
             quests: [
               'Build or finish something that outlasts this month.',
               'Document how others can continue the contribution.',
@@ -877,10 +977,12 @@ export const SKILL_TREE = {
         id: 'teaching',
         name: 'Teaching',
         classNoun: 'Mentor',
+        blurb: 'Train learning a thing well enough to hand it to someone else.',
         thesis: 'Learn -> Teach -> Mentor',
         stages: [
           {
             stage: 1, name: 'Learn',
+            blurb: 'Know it well enough to explain without notes.',
             quests: [
               'Master one concept well enough to explain it without notes.',
               'Take notes as if you will teach them tomorrow.',
@@ -889,6 +991,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Teach',
+            blurb: 'Run a short lesson, then improve it from what they missed.',
             quests: [
               'Teach one person a skill in a 20-minute session.',
               'Write or record a short lesson someone else can follow alone.',
@@ -897,6 +1000,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Mentor',
+            blurb: 'Stay with someone until they hit a goal, then let them teach it.',
             quests: [
               'Mentor someone across multiple sessions until they hit a goal.',
               'Build a simple curriculum or checklist for future learners.',
@@ -907,12 +1011,14 @@ export const SKILL_TREE = {
       },
       {
         id: 'creation',
-        name: 'Creation',
+        name: 'Legacy',
         classNoun: 'Artisan',
+        blurb: 'Train building a body of work you are willing to put your name on.',
         thesis: 'Build -> Share -> Leave Something Behind',
         stages: [
           {
             stage: 1, name: 'Build',
+            blurb: 'Start a durable piece and ship a rough version.',
             quests: [
               'Start a durable project that will still matter in a year.',
               'Ship a first rough version this week — imperfect is fine.',
@@ -921,6 +1027,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 2, name: 'Share',
+            blurb: 'Put it in front of people and listen to what they see.',
             quests: [
               'Show the work to three people and take notes on their reactions.',
               'Publish or gift a finished piece into the world.',
@@ -929,6 +1036,7 @@ export const SKILL_TREE = {
           },
           {
             stage: 3, name: 'Leave Something Behind',
+            blurb: 'Finish it, document how it was made, and pass it on.',
             quests: [
               'Finish a body of work you are willing to put your name on.',
               'Document how it was made so others can continue it.',

@@ -15,6 +15,8 @@ import {
   deriveDefaultAvatar, saveAvatar,
 } from '../../lib/avatarParts'
 import OnboardingProgress from '../ui/OnboardingProgress'
+import { getFilledSlots, loadClassLoadout } from '../../lib/classLoadout'
+import { aptitudeSettled, buildAptitudeQuestions } from '../../lib/classAptitude'
 
 const PREVIEW_SIZE = 320
 const THUMB_SIZE = 54
@@ -365,7 +367,13 @@ export default function AvatarCreator() {
 
   const handleEnter = () => {
     saveAvatar(config, playerData)
-    dispatch({ type: 'LAUNCH_APP', payload: { user: currentUser || {}, playerData } })
+    const needsTest = !getFilledSlots(loadClassLoadout()).length
+      && !aptitudeSettled()
+      && buildAptitudeQuestions(playerData).length > 0
+    dispatch({
+      type: needsTest ? 'SET_SCREEN' : 'LAUNCH_APP',
+      payload: needsTest ? 'classAptitude' : { user: currentUser || {}, playerData },
+    })
   }
 
   // ── Part panel for current category ──────────────────────────────────────

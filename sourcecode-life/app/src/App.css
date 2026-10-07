@@ -377,6 +377,81 @@
   line-height: 1.7;
   margin: 0;
 }
+.apt-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: min(440px, 100%);
+}
+.apt-kicker {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: #c9a84c;
+  text-align: center;
+}
+.apt-role {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8d88a8;
+  text-align: center;
+}
+.apt-prompt {
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+}
+.apt-path,
+.apt-alt {
+  margin: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  text-align: center;
+  color: #cfc8b4;
+}
+.apt-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.apt-choice,
+.apt-secondary {
+  font-family: 'Crimson Text', serif;
+  font-size: 16px;
+  line-height: 1.35;
+  text-align: left;
+  color: #e8dfc8;
+  background: rgba(201, 168, 76, 0.06);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.apt-choice:hover,
+.apt-secondary:hover {
+  border-color: rgba(201, 168, 76, 0.7);
+}
+.apt-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.apt-secondary {
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+}
+.apt-error {
+  margin: 0;
+  text-align: center;
+  color: #e8a0a0;
+  font-size: 13px;
+}
 .ob-perms-container {
   display: flex;
   flex-direction: column;
@@ -2075,7 +2150,16 @@ body.scl-realm-open .tab-bar {
   flex: 1;
   min-height: 0;
   position: relative;
-  transition: padding-bottom 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  transition: padding-bottom 0.22s ease, padding-right 0.22s ease;
+}
+.skills-branch-canvas .react-flow {
+  flex: 1;
+  min-height: 0;
+  height: auto;
 }
 .skills-branch-canvas .react-flow,
 .skills-branch-canvas .react-flow__renderer,
@@ -2099,25 +2183,28 @@ body.scl-realm-open .tab-bar {
 .skills-route-caption {
   position: absolute;
   left: 50%;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   transform: translateX(-50%);
   width: max-content;
-  max-width: 108px;
+  max-width: 168px;
   box-sizing: border-box;
-  padding: 2px 6px 2px calc(6px + 0.08em);
+  padding: 0;
   text-align: center;
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: 'Crimson Text', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--text, #e8dfc8);
-  line-height: 1.2;
+  line-height: 1.25;
   pointer-events: none;
   white-space: normal;
-  background: color-mix(in srgb, var(--bg-panel, #0d0b18) 88%, transparent);
-  border: 1px solid color-mix(in srgb, var(--gold, #c9a84c) 35%, transparent);
-  border-radius: 999px;
+  background: none;
+  border: none;
+}
+.skills-route-tier {
+  font-weight: 400;
+  color: var(--text-dim, rgba(232, 223, 200, 0.62));
 }
 
 /* Skill seals and branch nodes: one centered type stack, readable on the dark medallion in every theme. */
@@ -2221,7 +2308,48 @@ body.scl-realm-open .tab-bar {
 }
 [data-theme="fantasy"] .skills-route-caption {
   color: var(--text);
-  background: color-mix(in srgb, var(--bg-panel) 92%, white);
+  background: none;
+}
+.skills-stage-step {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "name state"
+    "blurb blurb";
+  gap: 2px 8px;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+  color: var(--text, #e8dfc8);
+  cursor: pointer;
+}
+.skills-stage-step--next {
+  border-color: color-mix(in srgb, var(--skill-color, var(--gold, #c9a84c)) 65%, transparent);
+}
+.skills-stage-step-name {
+  grid-area: name;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+}
+.skills-stage-step-state {
+  grid-area: state;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: var(--text-dim, rgba(232, 223, 200, 0.72));
+}
+.skills-stage-step--done .skills-stage-step-state {
+  color: var(--gold, #c9a84c);
+}
+.skills-stage-step-blurb {
+  grid-area: blurb;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--text-dim, rgba(232, 223, 200, 0.72));
 }
 
 .skills-route-tier-preview {
@@ -2479,7 +2607,7 @@ body.scl-realm-open .tab-bar {
 
 @media (min-width: 900px) {
   .skills-branch-wrap--inspect .skills-branch-canvas {
-    padding-bottom: 0;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     padding-right: min(340px, 38%);
   }
   .skills-inspector {

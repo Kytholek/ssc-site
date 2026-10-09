@@ -259,7 +259,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.scl.stake2' : { en: 'Choose a path inside a skill', es: 'Elige un camino dentro de una habilidad' },
   'home.revamp.scl.stake3' : { en: 'Take the quest for this Personal Day', es: 'Toma la misión de este Día Personal' },
   'home.revamp.scl.stake4' : { en: 'Level up on a live map', es: 'Sube de nivel en un mapa en vivo' },
-  'home.revamp.scl.title' : { en: 'Take your Blueprint and make Life the game it always was.', es: 'Toma tu Blueprint y haz de la Vida el juego que siempre fue.' },
+  'home.revamp.scl.title' : { en: 'Your Blueprint, brought to life.', es: 'Tu Blueprint, cobrado vida.' },
   'home.revamp.services.all' : { en: 'View All Services →', es: 'Ver Todos los Servicios →' },
   'home.revamp.services.consult' : { en: 'Personal Consultation', es: 'Consulta Personal' },
   'home.revamp.services.consult.cadence' : { en: '1 hour · video call', es: '1 hora · videollamada' },

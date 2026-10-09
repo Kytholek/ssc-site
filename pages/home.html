@@ -454,18 +454,19 @@
 }
 .hp-calc-section .hp-scl-inner,
 html.hp-snapping .hp-calc-section .hp-scl-inner {
-  gap: 40px;
+  gap: 140px;
   align-items: center;
   justify-content: center;
   width: 100%;
 }
 .hp-calc-device.hp-scl-device,
 html.hp-snapping .hp-calc-device.hp-scl-device {
-  width: min(616px, 100%);
-  max-width: 616px;
+  width: min(308px, 100%);
+  max-width: 308px;
 }
+.hp-calc-device.hp-calc-still .hp-scl-stage,
 .hp-calc-device .hp-scl-stage {
-  padding: 0 48px;
+  padding: 0;
   box-sizing: border-box;
 }
 .hp-calc-device .hp-scl-stage .hp-scl-carousel-btn.prev {
@@ -478,21 +479,28 @@ html.hp-snapping .hp-calc-device.hp-scl-device {
   transform: translateY(-50%);
 }
 .hp-calc-section .hp-scl-img {
-  flex: 0 1 616px;
+  flex: 0 1 308px;
   min-width: 0;
   display: flex;
   justify-content: center;
 }
 .hp-calc-device .hp-scl-device-bezel {
-  aspect-ratio: 3 / 2;
+  aspect-ratio: auto;
   width: 100%;
-  max-height: 58vh;
+  max-height: none;
   border-radius: 12px;
   padding: 0;
   overflow: hidden;
   background: #07070e;
   border: 1px solid rgba(201, 168, 76, 0.32);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.hp-calc-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  flex: 0 0 auto;
+  max-height: none;
 }
 .hp-calc-device .hp-scl-device-bezel::before {
   content: '';
@@ -506,14 +514,15 @@ html.hp-snapping .hp-calc-device.hp-scl-device {
   pointer-events: none;
 }
 html.hp-snapping .hp-calc-device .hp-scl-device-bezel {
-  max-height: 68vh;
+  max-height: none;
 }
 .hp-calc-device .hp-scl-device-bezel::after {
   display: none;
 }
-.hp-calc-device .hp-scl-slide img {
-  object-fit: cover;
-  object-position: center center;
+.hp-calc-device .hp-scl-slide img,
+.hp-calc-shot {
+  object-fit: contain;
+  object-position: top center;
   background: #07070e;
 }
 .hp-calc-section {
@@ -1282,9 +1291,9 @@ a.hp-trinity-item:hover {
   .hp-calc-section .hp-scl-inner,
   html.hp-snapping .hp-calc-section .hp-scl-inner { align-items: center; }
   .hp-scl-device { width: min(200px, 56vw, calc(42vh * 9 / 19)); }
-  .hp-calc-section .hp-scl-img { flex: 0 1 616px; width: 100%; }
+  .hp-calc-section .hp-scl-img { flex: 0 1 308px; width: 100%; }
   .hp-calc-device.hp-scl-device,
-  html.hp-snapping .hp-calc-device.hp-scl-device { width: min(616px, 100%); max-width: 616px; }
+  html.hp-snapping .hp-calc-device.hp-scl-device { width: min(308px, 100%); max-width: 308px; }
   html.hp-snapping .hp-calc-section { padding-top: 68px; padding-bottom: 8px; }
   .hp-calc-copy { max-width: none; text-align: center; }
   html.hp-snapping .hp-calc-copy .hp-use-sub { font-size: 15px; line-height: 1.45; margin-top: 8px; }
@@ -1294,7 +1303,7 @@ a.hp-trinity-item:hover {
   .hp-calc-copy .btn-primary { margin-left: auto; margin-right: auto; }
   .hp-calc-device .hp-scl-device-bezel,
   html.hp-snapping .hp-calc-device .hp-scl-device-bezel {
-    max-height: 42vh;
+    max-height: none;
   }
   .hp-scl-device-bezel { max-height: 42vh; }
   .hp-scl-actions { padding: 0 4px; flex-direction: column; align-items: stretch; }
@@ -1456,31 +1465,18 @@ html.hp-snapping .hp-hero-codex-arrow {
 
 <section class="hp-calc-section hp-reveal hp-snap" data-snap-label="Decode">
   <div class="hp-scl-inner">
+    <div class="hp-scl-img">
+      <div class="hp-scl-device hp-calc-device hp-calc-still">
+        <div class="hp-scl-device-bezel hp-calc-shot-frame">
+          <img class="hp-calc-shot" src="/Images/carousel/calc-results.png?v=20261009-chart2" alt="A sample frequency diagram — Life Path 5, Expression 6, Life Calling 11" width="673" height="721" loading="lazy" decoding="async">
+        </div>
+      </div>
+    </div>
     <div class="hp-calc-copy">
       <div class="hp-use-eyebrow" data-i18n="home.revamp.calc.eyebrow">The free decode</div>
-      <h2 class="hp-use-title" data-i18n="home.revamp.calc.title">The seven frequencies, named.</h2>
+      <h2 class="hp-use-title" data-i18n="home.revamp.calc.title">The Holographic Blueprint for Life.</h2>
       <p class="hp-use-sub" data-i18n="home.revamp.calc.body">Enter the name you were given and the date you arrived. The date holds three frequencies — Life Path, Achievement, and Theme — the curriculum you came to learn. The name holds three more — Soul Urge, Outer Self, and Expression — what you want, the face the world meets first, and the way you move.</p>
       <a href="/calculator/" class="btn-primary hp-cta-gold js-track-cta" data-cta="calc_section_decode" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint</a>
-    </div>
-    <div class="hp-scl-img">
-      <div class="hp-scl-device hp-calc-device" id="hp-calc-carousel">
-        <div class="hp-scl-stage">
-          <div class="hp-scl-device-bezel">
-            <div class="hp-scl-carousel-track">
-              <figure class="hp-scl-slide is-active" data-caption-key="home.revamp.carousel.calc.form">
-                <img src="/Images/carousel/calc-form.png" alt="The free decode — name and birth date" width="728" height="466" loading="lazy" decoding="async">
-              </figure>
-              <figure class="hp-scl-slide" data-caption-key="home.revamp.carousel.calc.reading">
-                <img src="/Images/carousel/calc-results.png" alt="A sample reading — Life Path 5, Expression 6, Life Calling 11" width="1084" height="719" loading="lazy" decoding="async">
-              </figure>
-            </div>
-            <span class="hp-scl-index" aria-hidden="true">01 / 02</span>
-          </div>
-          <button type="button" class="hp-scl-carousel-btn prev" aria-label="Previous screenshot">&#8249;</button>
-          <button type="button" class="hp-scl-carousel-btn next" aria-label="Next screenshot">&#8250;</button>
-        </div>
-        <div class="hp-scl-carousel-names" role="tablist" aria-label="Calculator screenshots"></div>
-      </div>
     </div>
   </div>
 </section>

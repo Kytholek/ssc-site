@@ -1394,7 +1394,10 @@ var CODEX_NODES = window.CODEX_NODES || {};
 
 
 function initHomeCarousels() {
-  document.querySelectorAll('.hp-scl-device').forEach(initSclCarousel);
+  document.querySelectorAll('.hp-scl-device').forEach(function (root) {
+    if (root.classList.contains('hp-calc-still')) return;
+    initSclCarousel(root);
+  });
 }
 
 function initSclCarousel(root) {

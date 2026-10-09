@@ -209,7 +209,7 @@ var SSC_TRANSLATIONS = {
   'home.revamp.calc.point1' : { en: '<strong>Date</strong> Life Path, Achievement, Theme', es: '<strong>Fecha</strong> Camino de Vida, Logro, Tema' },
   'home.revamp.calc.point2' : { en: '<strong>Name</strong> Soul Urge, Outer Self, Expression', es: '<strong>Nombre</strong> Anhelo del Alma, Yo Exterior, Expresión' },
   'home.revamp.calc.point3' : { en: '<strong>Together</strong> Life Calling', es: '<strong>Juntas</strong> Llamado de Vida' },
-  'home.revamp.calc.title' : { en: 'The seven frequencies, named.', es: 'Las siete frecuencias, nombradas.' },
+  'home.revamp.calc.title' : { en: 'The Holographic Blueprint for Life.', es: 'El plano holográfico de la vida.' },
   'home.revamp.codex.caption' : { en: 'The Codex · after you have your numbers', es: 'El Códice · después de tener tus números' },
   'home.revamp.faq.a1' : { en: 'Your seven frequencies from birth date and name — Life Path, Achievement, Theme, Soul Urge, Outer Self, Expression, and Life Calling. No account. About sixty seconds.', es: 'Tus siete frecuencias a partir de tu fecha y nombre de nacimiento — Camino de Vida, Logro, Tema, Anhelo del Alma, Yo Exterior, Expresión y Llamado de Vida. Sin cuenta. Unos sesenta segundos.' },
   'home.revamp.faq.a2' : { en: 'The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A Personal Consultation is if you want to walk them with someone.', es: 'La decodificación gratis nombra tus siete frecuencias. La Guía de $22 es la integración escrita que conservas — compuestos, sombras y cómo se relacionan las siete. Una Consulta Personal es si quieres recorrerlas con alguien.' },

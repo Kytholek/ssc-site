@@ -1785,6 +1785,8 @@ footer {
 
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
   .footer-brand { grid-column: 1/-1; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .footer-copy { white-space: normal; letter-spacing: .08em; }
 
   .calc-container { padding: 14px 16px 64px; }
   .form-card { padding: 26px 20px; }

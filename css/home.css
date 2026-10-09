@@ -1452,10 +1452,10 @@ html.hp-snapping .hp-use-section,
     gap: 20px;
   }
   html.hp-snapping .hp-hero-main {
-    flex: 0 1 auto;
+    flex: 0 0 auto;
     min-height: 0;
     overflow: visible;
-    gap: 22px;
+    gap: 32px;
     justify-content: center;
     align-items: center;
   }
@@ -1488,8 +1488,8 @@ html.hp-snapping .hp-use-section,
   }
   html.hp-snapping .hp-hero-cta-bar {
     flex: 0 0 auto;
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 20px;
+    padding-top: 0;
     padding-bottom: 0;
     gap: 16px;
   }
@@ -1548,19 +1548,19 @@ html.hp-snapping .hp-use-section,
     padding: 28px 20px 24px;
   }
   html.hp-snapping .hp-ssc-title {
-    font-size: clamp(22px, 6vw, 28px);
-    margin-bottom: 28px;
+    font-size: clamp(20px, 5.6vw, 26px);
+    margin-bottom: 16px;
   }
   html.hp-snapping .hp-ssc-body {
     display: block;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.5;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
   }
   html.hp-snapping .hp-trinity-list,
   .hp-trinity-list {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
     padding-top: 0;
   }
   html.hp-snapping .hp-trinity-list > li::after,
@@ -1571,8 +1571,13 @@ html.hp-snapping .hp-use-section,
     margin-bottom: 16px;
   }
   html.hp-snapping .hp-trinity-item {
-    padding: 12px 14px;
-    gap: 4px;
+    padding: 14px 16px;
+    gap: 6px;
+  }
+  html.hp-snapping .hp-circuit-chip {
+    letter-spacing: 0.04em;
+    padding: 3px 6px;
+    font-size: 7px;
   }
   html.hp-snapping .hp-ssc-links {
     flex-direction: column;
@@ -1581,46 +1586,75 @@ html.hp-snapping .hp-use-section,
     margin-top: 24px;
   }
   html.hp-snapping .hp-circuit .hp-ssc-title {
-    margin-bottom: 8px;
+    margin-bottom: 14px;
   }
   html.hp-snapping .hp-circuit .hp-ssc-links {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    margin-top: 12px;
+    margin-top: 18px;
+    gap: 12px 18px;
   }
   html.hp-snapping .hp-codex-teaser-inner {
     flex: 1 1 auto;
     width: 100%;
     min-height: 0;
+    height: 100%;
     justify-content: space-evenly;
     gap: 40px;
   }
   html.hp-snapping .hp-codex-teaser-copy {
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   html.hp-snapping .hp-codex-teaser-eyebrow {
-    margin-bottom: 18px;
+    margin-bottom: 22px;
   }
   html.hp-snapping .hp-codex-teaser-title {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   html.hp-snapping .hp-codex-teaser-body {
-    font-size: 16px;
-    line-height: 1.7;
-    margin-bottom: 32px;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
   }
   html.hp-snapping .hp-codex-map {
-    width: min(100%, 340px);
+    position: relative;
+    width: min(168px, 48vw);
     max-width: 100%;
     box-sizing: border-box;
     padding-right: 0;
     align-self: center;
     margin-left: auto;
     margin-right: auto;
-    gap: 8px;
+    display: block;
+    gap: 0;
     margin-top: 0;
+    overflow: visible;
+  }
+  html.hp-snapping .hp-codex-map-body {
+    display: block;
+  }
+  html.hp-snapping .hp-codex-map-corner {
+    display: none;
+  }
+  html.hp-snapping .hp-codex-map-cols {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 12px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html.hp-snapping .hp-codex-map-rows {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(100% + 8px);
+    width: 52px;
+    min-height: 0;
   }
   html.hp-snapping #page-home#page-home#page-home .hp-codex-map-label {
     font-size: 11px !important;
@@ -1629,12 +1663,6 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-codex-map-cols,
   html.hp-snapping .hp-codex-map-body {
     gap: 8px;
-  }
-  html.hp-snapping .hp-codex-map-cols {
-    grid-template-columns: 52px repeat(3, minmax(0, 1fr));
-  }
-  html.hp-snapping .hp-codex-map-body {
-    grid-template-columns: 52px minmax(0, 1fr);
   }
   html.hp-snapping .hp-codex-map-label {
     font-size: 9px;
@@ -1648,7 +1676,7 @@ html.hp-snapping .hp-use-section,
   }
   html.hp-snapping .hp-articles-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 14px;
   }
   html.hp-snapping .hp-article-card {
     flex-direction: row;
@@ -1673,12 +1701,12 @@ html.hp-snapping .hp-use-section,
     line-height: 1.35;
   }
   html.hp-snapping .hp-articles-header {
-    margin-bottom: 16px;
+    margin-bottom: 22px;
   }
   html.hp-snapping .hp-codex-teaser-grid,
   html.hp-snapping .hp-codex-map .hp-codex-teaser-grid {
     width: 100%;
-    gap: 8px;
+    gap: 12px;
     justify-self: stretch;
   }
   html.hp-snapping .hp-codex-teaser-grid span {
@@ -1728,44 +1756,46 @@ html.hp-snapping .hp-use-section,
     font-size: 18px;
   }
   html.hp-snapping .hp-scl-inner {
-    gap: 40px;
+    gap: 28px;
   }
   html.hp-snapping .hp-scl-device {
-    width: min(180px, 46vw, calc(34vh * 9 / 19));
+    width: min(128px, 36vw);
   }
   html.hp-snapping .hp-scl-device-bezel {
-    max-height: 34vh;
+    max-height: min(160px, 22vh);
   }
   html.hp-snapping .hp-scl-eyebrow {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   html.hp-snapping .hp-scl-title {
-    font-size: clamp(18px, 5vw, 24px);
-    margin-bottom: 18px;
+    font-size: clamp(20px, 5.4vw, 26px);
+    margin-bottom: 14px;
   }
   html.hp-snapping .hp-scl-body {
     display: block;
     font-size: 15px;
-    line-height: 1.45;
+    line-height: 1.5;
     text-align: center;
-    margin: 0 0 10px;
+    margin: 0 0 16px;
   }
   html.hp-snapping .hp-scl-stakes {
     display: none;
   }
   html.hp-snapping .hp-scl-note {
-    margin-bottom: 22px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.45;
   }
   html.hp-snapping .hp-scl-actions {
-    margin-top: 12px;
+    margin-top: 8px;
     gap: 12px;
   }
   html.hp-snapping .hp-faq-title {
     font-size: 24px;
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
   html.hp-snapping .hp-faq-q {
-    padding: 26px 0;
+    padding: 18px 0;
   }
   html.hp-snapping .hp-faq-list {
     max-height: calc(100dvh - 160px);
@@ -1779,6 +1809,42 @@ html.hp-snapping .hp-use-section,
     width: 7px;
     height: 7px;
   }
+  html.hp-snapping #page-home > #include-footer .footer-tagline span,
+  #include-footer .footer-tagline span,
+  footer .footer-tagline span {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 860px) and (min-height: 780px) {
+  html.hp-snapping .hp-scl-device-bezel { max-height: 210px; }
+  html.hp-snapping .hp-codex-map { width: min(200px, 52vw); }
+}
+@media (max-width: 860px) and (max-height: 700px) {
+  html.hp-snapping .hp-trinity-item { padding: 8px 12px; gap: 4px; }
+  html.hp-snapping .hp-trinity-list { gap: 8px; margin-bottom: 8px; }
+  html.hp-snapping .hp-ssc-body { margin-bottom: 10px; }
+  html.hp-snapping .hp-ssc-title,
+  html.hp-snapping .hp-circuit .hp-ssc-title { margin-bottom: 10px; }
+  html.hp-snapping .hp-circuit .hp-ssc-links { margin-top: 12px; }
+  html.hp-snapping .hp-scl-inner { gap: 20px; }
+  html.hp-snapping .hp-scl-title { margin-bottom: 10px; }
+  html.hp-snapping .hp-scl-body { margin-bottom: 12px; }
+  html.hp-snapping .hp-scl-note { margin-bottom: 12px; }
+  html.hp-snapping .hp-scl-device-bezel { max-height: 132px; }
+  html.hp-snapping .hp-codex-teaser-inner { gap: 28px; }
+  html.hp-snapping .hp-codex-teaser-title { margin-bottom: 16px; }
+  html.hp-snapping .hp-codex-teaser-body { margin-bottom: 20px; }
+  html.hp-snapping .hp-article-thumb {
+    width: 72px;
+    min-height: 64px;
+    flex-basis: 72px;
+  }
+  html.hp-snapping .hp-article-title { font-size: 14px; }
+  html.hp-snapping .hp-articles-header { margin-bottom: 10px; }
+}
+@media (max-width: 860px) and (max-height: 720px) {
+  html.hp-snapping .hp-scl-carousel-names { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

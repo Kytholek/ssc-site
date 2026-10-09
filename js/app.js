@@ -1403,13 +1403,37 @@ function initSclCarousel(root) {
   root.dataset.ready = '1';
 
   var slides = Array.prototype.slice.call(root.querySelectorAll('.hp-scl-slide'));
-  var dotsHost = root.querySelector('.hp-scl-carousel-dots');
+  var namesHost = root.querySelector('.hp-scl-carousel-names');
+  var indexEl = root.querySelector('.hp-scl-index');
   var prevBtn = root.querySelector('.hp-scl-carousel-btn.prev');
   var nextBtn = root.querySelector('.hp-scl-carousel-btn.next');
   var index = 0;
   var timer = null;
   var delay = 7000;
   var liveSlides = [];
+
+  function captionFor(slide) {
+    var key = slide.getAttribute('data-caption-key');
+    var lang = document.documentElement.lang === 'es' ? 'es' : 'en';
+    if (key && window.SSC_TRANSLATIONS && SSC_TRANSLATIONS[key]) {
+      return SSC_TRANSLATIONS[key][lang] || SSC_TRANSLATIONS[key].en || '';
+    }
+    return slide.getAttribute('data-caption') || '';
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function paintChrome() {
+    if (indexEl && liveSlides.length) {
+      indexEl.textContent = pad(index + 1) + ' / ' + pad(liveSlides.length);
+    }
+    if (namesHost) {
+      Array.prototype.forEach.call(namesHost.children, function (d, di) {
+        d.classList.toggle('is-active', di === index);
+        d.setAttribute('aria-selected', di === index ? 'true' : 'false');
+      });
+    }
+  }
 
   function rebuildLive() {
     liveSlides = slides.filter(function (s) { return !s.classList.contains('is-broken'); });
@@ -1418,37 +1442,58 @@ function initSclCarousel(root) {
       return false;
     }
     root.classList.remove('is-empty');
-    if (dotsHost) {
-      dotsHost.innerHTML = '';
-      liveSlides.forEach(function (_, i) {
+    if (namesHost) {
+      namesHost.innerHTML = '';
+      liveSlides.forEach(function (slide, i) {
         var b = document.createElement('button');
         b.type = 'button';
-        b.className = 'hp-scl-carousel-dot' + (i === 0 ? ' is-active' : '');
-        b.setAttribute('aria-label', 'Show screenshot ' + (i + 1));
+        b.className = 'hp-scl-carousel-name' + (i === 0 ? ' is-active' : '');
+        b.setAttribute('role', 'tab');
+        var key = slide.getAttribute('data-caption-key');
+        if (key) b.setAttribute('data-i18n', key);
+        b.textContent = captionFor(slide);
         b.addEventListener('click', function () { goTo(i); restart(); });
-        dotsHost.appendChild(b);
+        namesHost.appendChild(b);
       });
     }
     index = 0;
-    show(0);
+    show(0, 0);
     return true;
   }
 
-  function show(i) {
+  function show(i, dir) {
     if (!liveSlides.length) return;
-    index = ((i % liveSlides.length) + liveSlides.length) % liveSlides.length;
-    slides.forEach(function (s) { s.classList.remove('is-active'); });
-    liveSlides[index].classList.add('is-active');
-    if (dotsHost) {
-      Array.prototype.forEach.call(dotsHost.children, function (d, di) {
-        d.classList.toggle('is-active', di === index);
-      });
+    var nextIndex = ((i % liveSlides.length) + liveSlides.length) % liveSlides.length;
+    var current = liveSlides[index];
+    var incoming = liveSlides[nextIndex];
+    function clearMotion(s) {
+      s.classList.remove('is-active', 'is-exit-next', 'is-exit-prev', 'is-prep-next', 'is-prep-prev', 'is-instant');
     }
+    if (dir && current && current !== incoming) {
+      slides.forEach(function (s) { if (s !== current) clearMotion(s); });
+      current.classList.remove('is-prep-next', 'is-prep-prev', 'is-instant');
+      current.classList.add(dir > 0 ? 'is-exit-next' : 'is-exit-prev');
+      incoming.classList.add('is-active', dir > 0 ? 'is-prep-next' : 'is-prep-prev');
+      void incoming.offsetWidth;
+      incoming.classList.remove('is-prep-next', 'is-prep-prev');
+      var leaving = current;
+      setTimeout(function () { clearMotion(leaving); }, 480);
+    } else {
+      slides.forEach(clearMotion);
+      incoming.classList.add('is-active', 'is-instant');
+      void incoming.offsetWidth;
+      incoming.classList.remove('is-instant');
+    }
+    index = nextIndex;
+    paintChrome();
   }
 
-  function goTo(i) { show(i); }
-  function next() { show(index + 1); }
-  function prev() { show(index - 1); }
+  function goTo(i) {
+    var dir = i === index ? 0 : (i > index ? 1 : -1);
+    show(i, dir);
+  }
+  function next() { show(index + 1, 1); }
+  function prev() { show(index - 1, -1); }
 
   function restart() {
     clearInterval(timer);

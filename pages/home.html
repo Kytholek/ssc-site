@@ -91,19 +91,46 @@
   justify-content: center;
 }
 
-/* â”€â”€ Primary CTA â€” gold dominant â”€â”€ */
-.hp-cta-gold {
+/* Homepage actions — Cinzel, above the quest-theme pixel button */
+#page-home#page-home a.btn-primary.js-track-cta,
+#page-home#page-home a.hp-scl-cta {
+  font-family: 'Cinzel', serif !important;
+  font-size: 12px !important;
+  font-weight: 600;
+  letter-spacing: 0.16em !important;
+  line-height: 1.4 !important;
+  text-transform: uppercase !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  border: 1px solid var(--gold, #c9a84c) !important;
+  border-radius: 2px !important;
+  color: var(--gold, #c9a84c) !important;
+  box-shadow: none !important;
+  padding: 14px 22px !important;
+}
+#page-home#page-home a.btn-primary.js-track-cta:hover,
+#page-home#page-home a.hp-scl-cta:hover {
+  background: rgba(201, 168, 76, 0.1) !important;
+  border-color: var(--gold, #c9a84c) !important;
+  color: var(--gold, #c9a84c) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+#page-home#page-home a.btn-primary.hp-cta-gold {
   background: linear-gradient(135deg, var(--gold), #b8943a) !important;
-  border-color: var(--gold) !important;
-  color: var(--deep) !important;
+  border: 2px solid var(--gold) !important;
+  color: var(--deep, #0a0810) !important;
+  box-shadow: none !important;
   font-weight: 600;
   position: relative;
   z-index: 1;
 }
-.hp-cta-gold:hover {
+#page-home#page-home a.btn-primary.hp-cta-gold:hover {
   background: linear-gradient(135deg, #dab456, var(--gold)) !important;
+  border-color: var(--gold) !important;
+  color: var(--deep, #0a0810) !important;
   box-shadow: 0 4px 32px rgba(201,168,76,0.35) !important;
-  transform: none;
+  transform: none !important;
 }
 
 /* â”€â”€ Secondary CTA â€” text link style â”€â”€ */
@@ -429,29 +456,63 @@
 html.hp-snapping .hp-calc-section .hp-scl-inner {
   gap: 40px;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 .hp-calc-device.hp-scl-device,
 html.hp-snapping .hp-calc-device.hp-scl-device {
-  width: 100%;
-  max-width: none;
+  width: min(616px, 100%);
+  max-width: 616px;
+}
+.hp-calc-device .hp-scl-stage {
+  padding: 0 48px;
+  box-sizing: border-box;
+}
+.hp-calc-device .hp-scl-stage .hp-scl-carousel-btn.prev {
+  left: 6px;
+  transform: translateY(-50%);
+}
+.hp-calc-device .hp-scl-stage .hp-scl-carousel-btn.next {
+  right: 6px;
+  left: auto;
+  transform: translateY(-50%);
 }
 .hp-calc-section .hp-scl-img {
-  flex: 1.7 1 0;
+  flex: 0 1 616px;
   min-width: 0;
+  display: flex;
+  justify-content: center;
 }
-.hp-calc-device .hp-scl-device-bezel,
-html.hp-snapping .hp-calc-device .hp-scl-device-bezel {
+.hp-calc-device .hp-scl-device-bezel {
   aspect-ratio: 3 / 2;
   width: 100%;
-  max-height: min(74vh, calc(100svh - 168px));
-  border-radius: 18px;
-  padding: 8px;
+  max-height: 58vh;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  background: #07070e;
+  border: 1px solid rgba(201, 168, 76, 0.32);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.hp-calc-device .hp-scl-device-bezel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.95), transparent);
+  z-index: 6;
+  pointer-events: none;
+}
+html.hp-snapping .hp-calc-device .hp-scl-device-bezel {
+  max-height: 68vh;
 }
 .hp-calc-device .hp-scl-device-bezel::after {
   display: none;
 }
 .hp-calc-device .hp-scl-slide img {
-  object-fit: contain;
+  object-fit: cover;
   object-position: center center;
   background: #07070e;
 }
@@ -477,31 +538,18 @@ html.hp-snapping .hp-calc-section {
   margin-top: 22px;
   display: inline-flex;
 }
-.hp-calc-points {
-  list-style: none;
-  margin: 18px 0 0;
-  padding: 0;
+.hp-calc-scroll {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.hp-calc-points li {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 18px;
-  line-height: 1.45;
-  color: var(--text);
-}
-.hp-calc-points strong {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-right: 8px;
+  align-items: stretch;
+  gap: 36px;
+  min-height: 0;
 }
 .hp-scl-device-bezel {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   aspect-ratio: 9 / 19;
   max-height: 58vh;
@@ -529,11 +577,16 @@ html.hp-snapping .hp-calc-section {
 .hp-scl-device.is-empty {
   display: none;
 }
+.hp-scl-stage {
+  position: relative;
+  width: 100%;
+}
 .hp-scl-carousel-track {
   position: relative;
   z-index: 1;
+  flex: 1 1 auto;
   width: 100%;
-  height: 100%;
+  height: auto;
   min-height: 0;
   background: #050508;
   border-radius: 24px;
@@ -545,19 +598,37 @@ html.hp-snapping .hp-calc-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .45s ease, visibility .45s ease;
   margin: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  opacity: 1;
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: none;
+  z-index: 0;
 }
 .hp-scl-slide.is-active {
-  opacity: 1;
   visibility: visible;
-  z-index: 1;
+  transform: translateX(0);
+  z-index: 2;
+  transition: transform 0.45s ease;
 }
+.hp-scl-slide.is-active.is-instant { transition: none; }
+.hp-scl-slide.is-active.is-prep-next,
+.hp-scl-slide.is-active.is-prep-prev {
+  z-index: 2;
+  transition: none;
+}
+.hp-scl-slide.is-active.is-prep-next { transform: translateX(100%); }
+.hp-scl-slide.is-active.is-prep-prev { transform: translateX(-100%); }
+.hp-scl-slide.is-active.is-exit-next,
+.hp-scl-slide.is-active.is-exit-prev {
+  z-index: 1;
+  transition: transform 0.45s ease;
+}
+.hp-scl-slide.is-active.is-exit-next { transform: translateX(-100%); }
+.hp-scl-slide.is-active.is-exit-prev { transform: translateX(100%); }
 .hp-scl-slide.is-broken {
   display: none !important;
 }
@@ -572,13 +643,81 @@ html.hp-snapping .hp-calc-section {
   background: #050508;
   pointer-events: none;
 }
-.hp-scl-carousel-nav {
+.hp-scl-stage .hp-scl-carousel-btn {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  margin: 0;
+}
+.hp-scl-stage .hp-scl-carousel-btn.prev {
+  left: 0;
+  transform: translate(calc(-100% - 12px), -50%);
+}
+.hp-scl-stage .hp-scl-carousel-btn.next {
+  right: 0;
+  transform: translate(calc(100% + 12px), -50%);
+}
+.hp-scl-index {
+  position: static;
+  flex: 0 0 22px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: flex-end;
   width: 100%;
-  margin-top: 14px;
+  box-sizing: border-box;
+  z-index: 5;
+  pointer-events: none;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--gold, #c9a84c);
+  background: #07070e;
+  border: none;
+  border-top: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: 0;
+  padding: 0 12px;
+  line-height: 1;
+}
+.hp-scl-device:not(.hp-calc-device) .hp-scl-index {
+  margin: 4px 0 0;
+  border-top-color: rgba(0, 229, 204, 0.22);
+  background: transparent;
+  color: rgba(0, 229, 204, 0.85);
+}
+.hp-scl-carousel-names {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  width: 100%;
+  margin-top: 12px;
+}
+.hp-scl-carousel-name {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted, #9b9080);
+}
+.hp-scl-carousel-name.is-active {
+  color: var(--gold, #c9a84c);
+  border-bottom-color: var(--gold, #c9a84c);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hp-scl-slide,
+  .hp-scl-slide.is-active,
+  .hp-scl-slide.is-active.is-exit-next,
+  .hp-scl-slide.is-active.is-exit-prev,
+  .hp-scl-slide.is-active.is-prep-next,
+  .hp-scl-slide.is-active.is-prep-prev {
+    transition: none;
+  }
 }
 .hp-scl-carousel-btn {
   position: static;
@@ -600,6 +739,15 @@ html.hp-snapping .hp-calc-section {
 .hp-scl-carousel-btn:hover {
   background: rgba(0,229,204,0.12);
   border-color: rgba(0,229,204,0.6);
+}
+.hp-calc-device .hp-scl-carousel-btn {
+  border-color: rgba(201, 168, 76, 0.45);
+  background: rgba(7, 7, 14, 0.92);
+  color: var(--gold, #c9a84c);
+}
+.hp-calc-device .hp-scl-carousel-btn:hover {
+  background: rgba(201, 168, 76, 0.14);
+  border-color: rgba(201, 168, 76, 0.8);
 }
 .hp-scl-carousel-dots {
   display: flex;
@@ -745,7 +893,7 @@ html.hp-snapping .hp-calc-section {
 .hp-hero-codex-arrow {
   flex-shrink: 0;
   align-self: center;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -1132,24 +1280,21 @@ a.hp-trinity-item:hover {
   .hp-main-row { flex-direction: column; padding: 56px 40px 40px; }
   .hp-scl-inner { flex-direction: column; }
   .hp-calc-section .hp-scl-inner,
-  html.hp-snapping .hp-calc-section .hp-scl-inner { align-items: stretch; }
+  html.hp-snapping .hp-calc-section .hp-scl-inner { align-items: center; }
   .hp-scl-device { width: min(200px, 56vw, calc(42vh * 9 / 19)); }
-  .hp-calc-section .hp-scl-img { flex: 0 0 auto; width: 100%; }
+  .hp-calc-section .hp-scl-img { flex: 0 1 616px; width: 100%; }
   .hp-calc-device.hp-scl-device,
-  html.hp-snapping .hp-calc-device.hp-scl-device { width: 100%; max-width: none; }
+  html.hp-snapping .hp-calc-device.hp-scl-device { width: min(616px, 100%); max-width: 616px; }
   html.hp-snapping .hp-calc-section { padding-top: 68px; padding-bottom: 8px; }
-  html.hp-snapping .hp-calc-points { margin-top: 10px; gap: 4px; }
   .hp-calc-copy { max-width: none; text-align: center; }
   html.hp-snapping .hp-calc-copy .hp-use-sub { font-size: 15px; line-height: 1.45; margin-top: 8px; }
   .hp-calc-section .hp-scl-carousel-nav { margin-top: 8px; }
   .hp-calc-copy .hp-use-title,
   .hp-calc-copy .hp-use-sub { text-align: center; }
-  .hp-calc-points li { text-align: center; }
   .hp-calc-copy .btn-primary { margin-left: auto; margin-right: auto; }
-  html.hp-snapping .hp-calc-copy .hp-use-sub + .hp-use-sub { display: none; }
   .hp-calc-device .hp-scl-device-bezel,
   html.hp-snapping .hp-calc-device .hp-scl-device-bezel {
-    max-height: max(168px, calc(100svh - 590px));
+    max-height: 42vh;
   }
   .hp-scl-device-bezel { max-height: 42vh; }
   .hp-scl-actions { padding: 0 4px; flex-direction: column; align-items: stretch; }
@@ -1242,7 +1387,7 @@ html.hp-snapping .hp-hero-codex-arrow {
 <section class="hp-hero hp-snap" data-snap-label="Intro">
   <div class="hp-hero-main">
   <div class="hp-hero-content">
-    <div class="hp-hero-eyebrow" data-i18n="home.revamp.hero.eyebrow">// Simulation Source Code</div>
+    <div class="hp-hero-eyebrow" data-i18n="home.revamp.hero.eyebrow">Simulation Source Code</div>
     <h1 class="hp-hero-title" data-i18n="home.revamp.hero.title">The Map of Your Inner World —<br><span>and How to Give Life Direction</span></h1>
     <p class="hp-hero-sub hp-hero-sub--full" data-i18n="home.revamp.hero.sub.full">Your birth date and name already hold seven frequencies. Decode them and you have a map — the lessons you came to learn, how you move, and the calling those two make together.</p>
     <p class="hp-hero-sub hp-hero-sub--short" data-i18n="home.revamp.hero.sub.short">Seven frequencies from date and name. Then you have a map.</p>
@@ -1298,7 +1443,7 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div><!-- /hp-hero-main -->
   <div class="hp-hero-cta-bar">
     <div class="hp-hero-actions hp-hero-actions--balanced">
-      <a href="/calculator/" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode your Blueprint</a>
+      <a href="/calculator/" class="btn-primary hp-cta-gold js-track-cta" data-cta="hero_decode_blueprint" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint</a>
     </div>
     <p class="hp-hero-micro" data-i18n="home.revamp.hero.micro">Free decode in 60 seconds</p>
     <div class="hp-scroll-hint">
@@ -1309,41 +1454,36 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
 </section>
 
-<div class="hp-main-row hp-reveal hp-snap" data-snap-label="Blueprint">
-  <div class="hp-ssc">
-    <h2 class="hp-ssc-title" data-i18n="home.revamp.ssc.title">Your Seven-Frequency Blueprint</h2>
-    <p class="hp-ssc-body" data-i18n="home.revamp.ssc.body">Date gives you three lessons. Name gives you three ways you move. Together they name a Life Calling — seven frequencies, three circuits.</p>
-
-    <ul class="hp-trinity-list">
-      <li>
-        <a class="hp-trinity-item" href="/blog/trinity-of-lessons-numerology/">
-          <strong data-i18n="home.revamp.trinity.lessons">Lessons</strong>
-          <span data-i18n="home.revamp.trinity.lessons.desc">Life Path, Achievement, Theme — the curriculum your date set.</span>
-        </a>
-      </li>
-      <li>
-        <a class="hp-trinity-item" href="/blog/trinity-of-expression-numerology/">
-          <strong data-i18n="home.revamp.trinity.expression">Expression</strong>
-          <span data-i18n="home.revamp.trinity.expression.desc">Soul Urge, Expression, Outer Self — what you want, how you move, what people meet first.</span>
-        </a>
-      </li>
-      <li>
-        <a class="hp-trinity-item" href="/blog/trinity-of-purpose-numerology/">
-          <strong data-i18n="home.revamp.trinity.purpose">Purpose</strong>
-          <span data-i18n="home.revamp.trinity.purpose.desc">Life Path + Expression become Life Calling — the work those two make together.</span>
-        </a>
-      </li>
-    </ul>
-
-    <div class="hp-ssc-actions hp-ssc-actions--single">
-      <a href="/calculator/" class="btn-primary js-track-cta" data-cta="ssc_calculator" data-i18n="home.revamp.ssc.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Find Your Blueprint</a>
+<section class="hp-calc-section hp-reveal hp-snap" data-snap-label="Decode">
+  <div class="hp-scl-inner">
+    <div class="hp-calc-copy">
+      <div class="hp-use-eyebrow" data-i18n="home.revamp.calc.eyebrow">The free decode</div>
+      <h2 class="hp-use-title" data-i18n="home.revamp.calc.title">The seven frequencies, named.</h2>
+      <p class="hp-use-sub" data-i18n="home.revamp.calc.body">Enter the name you were given and the date you arrived. The date holds three frequencies — Life Path, Achievement, and Theme — the curriculum you came to learn. The name holds three more — Soul Urge, Outer Self, and Expression — what you want, the face the world meets first, and the way you move.</p>
+      <a href="/calculator/" class="btn-primary hp-cta-gold js-track-cta" data-cta="calc_section_decode" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint</a>
     </div>
-    <div class="hp-ssc-links">
-      <a href="/blog/how-to-read-numerology-blueprint/" class="hp-ssc-text-link js-track-cta" data-cta="ssc_how_to_read" data-i18n="home.revamp.ssc.cta.read">How to read your Blueprint &#8594;</a>
-      <a href="/blueprint/" class="hp-ssc-text-link js-track-cta" data-cta="ssc_blueprint" data-i18n="home.revamp.ssc.cta.framework">See the framework &#8594;</a>
+    <div class="hp-scl-img">
+      <div class="hp-scl-device hp-calc-device" id="hp-calc-carousel">
+        <div class="hp-scl-stage">
+          <div class="hp-scl-device-bezel">
+            <div class="hp-scl-carousel-track">
+              <figure class="hp-scl-slide is-active" data-caption-key="home.revamp.carousel.calc.form">
+                <img src="/Images/carousel/calc-form.png" alt="The free decode — name and birth date" width="728" height="466" loading="lazy" decoding="async">
+              </figure>
+              <figure class="hp-scl-slide" data-caption-key="home.revamp.carousel.calc.reading">
+                <img src="/Images/carousel/calc-results.png" alt="A sample reading — Life Path 5, Expression 6, Life Calling 11" width="1084" height="719" loading="lazy" decoding="async">
+              </figure>
+            </div>
+            <span class="hp-scl-index" aria-hidden="true">01 / 02</span>
+          </div>
+          <button type="button" class="hp-scl-carousel-btn prev" aria-label="Previous screenshot">&#8249;</button>
+          <button type="button" class="hp-scl-carousel-btn next" aria-label="Next screenshot">&#8250;</button>
+        </div>
+        <div class="hp-scl-carousel-names" role="tablist" aria-label="Calculator screenshots"></div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
 <section class="hp-codex-teaser hp-reveal hp-snap" data-snap-label="Codex">
   <div class="hp-section-flow" aria-hidden="true">
@@ -1380,38 +1520,53 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
 </section>
 
-<section class="hp-calc-section hp-reveal hp-snap" data-snap-label="Decode">
-  <div class="hp-scl-inner">
-    <div class="hp-calc-copy">
-      <div class="hp-use-eyebrow" data-i18n="home.revamp.calc.eyebrow">// THE FREE DECODE</div>
-      <h2 class="hp-use-title" data-i18n="home.revamp.calc.title">The seven frequencies, named.</h2>
-      <p class="hp-use-sub" data-i18n="home.revamp.calc.body">Enter the name you were given and the date you arrived. The date holds three frequencies — Life Path, Achievement, and Theme — the curriculum you came to learn. The name holds three more — Soul Urge, Outer Self, and Expression — what you want, the face the world meets first, and the way you move.</p>
-      <p class="hp-use-sub" data-i18n="home.revamp.calc.body2">Where those two meet, a seventh appears: Life Calling. That is the map. No account. About sixty seconds. The reading stays on the page. Compounds, shadow, and how the seven relate are the written Guidebook, when you want to keep them.</p>
-      <ul class="hp-calc-points">
-        <li data-i18n="home.revamp.calc.point1"><strong>Date</strong> Life Path, Achievement, Theme</li>
-        <li data-i18n="home.revamp.calc.point2"><strong>Name</strong> Soul Urge, Outer Self, Expression</li>
-        <li data-i18n="home.revamp.calc.point3"><strong>Together</strong> Life Calling</li>
-      </ul>
-      <a href="/calculator/" class="btn-primary js-track-cta" data-cta="calc_section_decode" data-i18n="home.revamp.hero.cta.primary" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">&#9654;&nbsp;Decode your Blueprint</a>
-    </div>
-    <div class="hp-scl-img">
-      <div class="hp-scl-device hp-calc-device" id="hp-calc-carousel">
-        <div class="hp-scl-device-bezel">
-          <div class="hp-scl-carousel-track">
-            <figure class="hp-scl-slide is-active">
-              <img src="/Images/carousel/calc-form.png" alt="The free decode — name and birth date" width="728" height="466" loading="lazy" decoding="async">
-            </figure>
-            <figure class="hp-scl-slide">
-              <img src="/Images/carousel/calc-results.png" alt="A sample reading — Life Path 5, Expression 6, Life Calling 11" width="1084" height="719" loading="lazy" decoding="async">
-            </figure>
-          </div>
-        </div>
-        <div class="hp-scl-carousel-nav">
-          <button type="button" class="hp-scl-carousel-btn prev" aria-label="Previous screenshot">&#8249;</button>
-          <div class="hp-scl-carousel-dots"></div>
-          <button type="button" class="hp-scl-carousel-btn next" aria-label="Next screenshot">&#8250;</button>
-        </div>
-      </div>
+<section class="hp-blueprint-section hp-reveal hp-snap" data-snap-label="Blueprint">
+  <div class="hp-circuit">
+    <h2 class="hp-ssc-title" data-i18n="home.revamp.ssc.title">Your Seven-Frequency Blueprint</h2>
+    <p class="hp-ssc-body" data-i18n="home.revamp.ssc.body">Date gives you three lessons. Name gives you three ways you move. Together they name a Life Calling — seven frequencies, three circuits.</p>
+    <ul class="hp-trinity-list">
+      <li>
+        <a class="hp-trinity-item" href="/blog/trinity-of-lessons-numerology/">
+          <span class="hp-circuit-source" data-i18n="home.revamp.circuit.date">From the date</span>
+          <strong data-i18n="home.revamp.trinity.lessons">Lessons</strong>
+          <span class="hp-circuit-chips">
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.lifepath">Life Path</span>
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.achievement">Achievement</span>
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.theme">Theme</span>
+          </span>
+          <span class="hp-circuit-line" data-i18n="home.revamp.trinity.lessons.desc">The curriculum your date set.</span>
+        </a>
+      </li>
+      <li>
+        <a class="hp-trinity-item" href="/blog/trinity-of-expression-numerology/">
+          <span class="hp-circuit-source" data-i18n="home.revamp.circuit.name">From the name</span>
+          <strong data-i18n="home.revamp.trinity.expression">Expression</strong>
+          <span class="hp-circuit-chips">
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.soul">Soul Urge</span>
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.outer">Outer Self</span>
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.expression">Expression</span>
+          </span>
+          <span class="hp-circuit-line" data-i18n="home.revamp.trinity.expression.desc">What you want, how you move, what people meet first.</span>
+        </a>
+      </li>
+      <li>
+        <a class="hp-trinity-item hp-trinity-item--purpose" href="/blog/trinity-of-purpose-numerology/">
+          <span class="hp-circuit-source" data-i18n="home.revamp.circuit.meet">Where they meet</span>
+          <strong data-i18n="home.revamp.trinity.purpose">Purpose</strong>
+          <span class="hp-circuit-eq">
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.lifepath">Life Path</span>
+            <span class="hp-circuit-op" aria-hidden="true">+</span>
+            <span class="hp-circuit-chip" data-i18n="home.revamp.freq.expression">Expression</span>
+            <span class="hp-circuit-op" aria-hidden="true">&#8594;</span>
+            <span class="hp-circuit-chip hp-circuit-chip--result" data-i18n="home.freq.07.name">Life Calling</span>
+          </span>
+          <span class="hp-circuit-line" data-i18n="home.revamp.trinity.purpose.desc">The work those two make together.</span>
+        </a>
+      </li>
+    </ul>
+    <div class="hp-ssc-links">
+      <a href="/blog/how-to-read-numerology-blueprint/" class="hp-ssc-text-link js-track-cta" data-cta="ssc_how_to_read" data-i18n="home.revamp.ssc.cta.read">How to read your Blueprint &#8594;</a>
+      <a href="/blueprint/" class="hp-ssc-text-link js-track-cta" data-cta="ssc_blueprint" data-i18n="home.revamp.ssc.cta.framework">See the framework &#8594;</a>
     </div>
   </div>
 </section>
@@ -1421,31 +1576,32 @@ html.hp-snapping .hp-hero-codex-arrow {
     <div class="hp-scl-inner">
       <div class="hp-scl-img">
         <div class="hp-scl-device" id="hp-scl-carousel">
-          <div class="hp-scl-device-bezel">
-            <div class="hp-scl-carousel-track">
-              <figure class="hp-scl-slide is-active">
-                <img src="/Images/carousel/app-journal.png" alt="Quest Journal — daily progress and commitments" width="390" height="844" loading="lazy" decoding="async">
-              </figure>
-              <figure class="hp-scl-slide">
-                <img src="/Images/carousel/app-class.png" alt="Skills — equipped class paths" width="390" height="844" loading="lazy" decoding="async">
-              </figure>
-              <figure class="hp-scl-slide">
-                <img src="/Images/carousel/app-seasons.png" alt="Current cycles — theme, pinnacle, year, and month" width="390" height="844" loading="lazy" decoding="async">
-              </figure>
-              <figure class="hp-scl-slide">
-                <img src="/Images/carousel/app-profile.png" alt="Character gifts — day, soul, outer, and name" width="390" height="844" loading="lazy" decoding="async">
-              </figure>
+          <div class="hp-scl-stage">
+            <div class="hp-scl-device-bezel">
+              <div class="hp-scl-carousel-track">
+                <figure class="hp-scl-slide is-active" data-caption-key="home.revamp.carousel.app.journal">
+                  <img src="/Images/carousel/app-journal.png" alt="Quest Journal — daily progress and commitments" width="390" height="844" loading="lazy" decoding="async">
+                </figure>
+                <figure class="hp-scl-slide" data-caption-key="home.revamp.carousel.app.skills">
+                  <img src="/Images/carousel/app-class.png" alt="Skills — equipped class paths" width="390" height="844" loading="lazy" decoding="async">
+                </figure>
+                <figure class="hp-scl-slide" data-caption-key="home.revamp.carousel.app.cycles">
+                  <img src="/Images/carousel/app-seasons.png" alt="Current cycles — theme, pinnacle, year, and month" width="390" height="844" loading="lazy" decoding="async">
+                </figure>
+                <figure class="hp-scl-slide" data-caption-key="home.revamp.carousel.app.gifts">
+                  <img src="/Images/carousel/app-profile.png" alt="Character gifts — day, soul, outer, and name" width="390" height="844" loading="lazy" decoding="async">
+                </figure>
+              </div>
+              <span class="hp-scl-index" aria-hidden="true">01 / 04</span>
             </div>
-          </div>
-          <div class="hp-scl-carousel-nav">
             <button type="button" class="hp-scl-carousel-btn prev" aria-label="Previous screenshot">&#8249;</button>
-            <div class="hp-scl-carousel-dots"></div>
             <button type="button" class="hp-scl-carousel-btn next" aria-label="Next screenshot">&#8250;</button>
           </div>
+          <div class="hp-scl-carousel-names" role="tablist" aria-label="App screenshots"></div>
         </div>
       </div>
       <div class="hp-scl-content">
-        <div class="hp-scl-eyebrow" data-i18n="home.revamp.scl.eyebrow">◈ THE INTERFACE</div>
+        <div class="hp-scl-eyebrow" data-i18n="home.revamp.scl.eyebrow">The interface</div>
         <h2 class="hp-scl-title" data-i18n="home.revamp.scl.title">Your life is the game. This is the interface.</h2>
         <p class="hp-scl-body" data-i18n="home.revamp.scl.body">The calculator named your class. Source Code: Life is where you choose a path, take real-world quests, and level the skills you were born with.</p>
         <ul class="hp-scl-stakes">
@@ -1456,7 +1612,7 @@ html.hp-snapping .hp-hero-codex-arrow {
         </ul>
         <p class="hp-scl-note" data-i18n="home.revamp.scl.note">The character was always there. Now you can play it.</p>
         <div class="hp-scl-actions">
-          <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_enter" data-i18n="home.revamp.scl.prototype">▶ ENTER THE SIMULATION</a>
+          <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_enter" data-i18n="home.revamp.scl.prototype">Enter the Simulation</a>
           <details class="hp-scl-install-details">
             <summary class="hp-scl-install-summary" data-i18n="home.revamp.install.summary">Android beta</summary>
             <div class="hp-scl-install">
@@ -1478,50 +1634,10 @@ html.hp-snapping .hp-hero-codex-arrow {
   </div>
 </section>
 
-<section class="hp-faq-section hp-reveal hp-snap" aria-labelledby="hp-faq-heading" data-snap-label="FAQ">
-  <div class="hp-faq-inner">
-    <h2 class="hp-faq-title" id="hp-faq-heading" data-i18n="home.revamp.faq.title">FAQs</h2>
-    <div class="hp-faq-list">
-      <details class="hp-faq-item">
-        <summary class="hp-faq-q">
-          <span data-i18n="home.revamp.faq.q1">What do I get from the free decode?</span>
-          <span class="hp-faq-icon" aria-hidden="true"></span>
-        </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a1">Your seven frequencies from birth date and name — Life Path, Achievement, Theme, Soul Urge, Outer Self, Expression, and Life Calling. No account. About sixty seconds.</p>
-        <p class="faq-more"><a href="/calculator/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint &#8594;</a></p>
-      </details>
-      <details class="hp-faq-item">
-        <summary class="hp-faq-q">
-          <span data-i18n="home.revamp.faq.q_codex">What is the difference between Blueprint and Codex?</span>
-          <span class="hp-faq-icon" aria-hidden="true"></span>
-        </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a_codex">Blueprint is personal — your seven frequencies. Codex is not. It is the 3×3 map of creation: energy management, reality, and light dynamics across Mind, Body, Spirit and Witness, Actor, Sage.</p>
-        <p class="faq-more"><a href="/codex/" onclick="navigateCodex('matrix', event)">Explore the Codex &#8594;</a></p>
-      </details>
-      <details class="hp-faq-item">
-        <summary class="hp-faq-q">
-          <span data-i18n="home.revamp.faq.q2">Do I need a reading after the calculator?</span>
-          <span class="hp-faq-icon" aria-hidden="true"></span>
-        </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A Personal Consultation is if you want to walk them with someone.</p>
-        <p class="faq-more"><a href="/services/#guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof openCalculatorModal==='function'){openCalculatorModal('guidebook');}else{showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#guidebook');if(typeof scrollServicesHash==='function')scrollServicesHash();}}">Get the $22 Guidebook &#8594;</a></p>
-      </details>
-      <details class="hp-faq-item">
-        <summary class="hp-faq-q">
-          <span data-i18n="home.revamp.faq.q3">How do I get the app?</span>
-          <span class="hp-faq-icon" aria-hidden="true"></span>
-        </summary>
-        <p class="hp-faq-a" data-i18n="home.revamp.faq.a3">Open it in the browser. Or join the Android beta from the app section.</p>
-        <p class="faq-more"><a href="https://portal.simulationsourcecode.com">Enter the Simulation &#8594;</a></p>
-      </details>
-    </div>
-  </div>
-</section>
-
 <section class="hp-articles-section hp-reveal hp-snap" aria-labelledby="hp-articles-heading" data-snap-label="Reads">
   <div class="hp-articles-inner">
     <div class="hp-articles-header">
-      <div class="hp-articles-eyebrow" data-i18n="home.revamp.articles.eyebrow">// THE WRITTEN SYSTEM</div>
+      <div class="hp-articles-eyebrow" data-i18n="home.revamp.articles.eyebrow">The written system</div>
       <h2 class="hp-articles-heading" id="hp-articles-heading" data-i18n="home.revamp.articles.title">Pillar Reads</h2>
     </div>
     <div class="hp-articles-grid">
@@ -1563,6 +1679,47 @@ html.hp-snapping .hp-hero-codex-arrow {
       </a>
     </div>
     <a href="/blog/" class="hp-view-all-link js-track-cta" data-cta="articles_view_all" data-i18n="home.revamp.articles.all">View All Articles &#8594;</a>
+  </div>
+</section>
+
+<section class="hp-faq-section hp-reveal hp-snap" aria-labelledby="hp-faq-heading" data-snap-label="FAQ">
+  <div class="hp-faq-inner">
+    <div class="hp-faq-eyebrow" data-i18n="home.revamp.faq.eyebrow">Common questions</div>
+    <h2 class="hp-faq-title" id="hp-faq-heading" data-i18n="home.revamp.faq.title">FAQs</h2>
+    <div class="hp-faq-list">
+      <details class="hp-faq-item">
+        <summary class="hp-faq-q">
+          <span data-i18n="home.revamp.faq.q1">What do I get from the free decode?</span>
+          <span class="hp-faq-icon" aria-hidden="true"></span>
+        </summary>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a1">Your seven frequencies from birth date and name — Life Path, Achievement, Theme, Soul Urge, Outer Self, Expression, and Life Calling. No account. About sixty seconds.</p>
+        <p class="faq-more"><a href="/calculator/" onclick="if(document.getElementById('page-home')){event.preventDefault();showPage('calculator');}">Decode your Blueprint &#8594;</a></p>
+      </details>
+      <details class="hp-faq-item">
+        <summary class="hp-faq-q">
+          <span data-i18n="home.revamp.faq.q_codex">What is the difference between Blueprint and Codex?</span>
+          <span class="hp-faq-icon" aria-hidden="true"></span>
+        </summary>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a_codex">Blueprint is personal — your seven frequencies. Codex is not. It is the 3×3 map of creation: energy management, reality, and light dynamics across Mind, Body, Spirit and Witness, Actor, Sage.</p>
+        <p class="faq-more"><a href="/codex/" onclick="navigateCodex('matrix', event)">Explore the Codex &#8594;</a></p>
+      </details>
+      <details class="hp-faq-item">
+        <summary class="hp-faq-q">
+          <span data-i18n="home.revamp.faq.q2">Do I need a reading after the calculator?</span>
+          <span class="hp-faq-icon" aria-hidden="true"></span>
+        </summary>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a2">The free decode names your seven frequencies. The $22 Guidebook is the written integration you keep — compounds, shadows, and how the seven relate. A Personal Consultation is if you want to walk them with someone.</p>
+        <p class="faq-more"><a href="/services/#guidebook" onclick="if(document.getElementById('page-home')){event.preventDefault();if(typeof openCalculatorModal==='function'){openCalculatorModal('guidebook');}else{showPage('services');history.replaceState({page:'services',post:null},document.title,'/services/#guidebook');if(typeof scrollServicesHash==='function')scrollServicesHash();}}">Get the $22 Guidebook &#8594;</a></p>
+      </details>
+      <details class="hp-faq-item">
+        <summary class="hp-faq-q">
+          <span data-i18n="home.revamp.faq.q3">How do I get the app?</span>
+          <span class="hp-faq-icon" aria-hidden="true"></span>
+        </summary>
+        <p class="hp-faq-a" data-i18n="home.revamp.faq.a3">Open it in the browser. Or join the Android beta from the app section.</p>
+        <p class="faq-more"><a href="https://portal.simulationsourcecode.com">Enter the Simulation &#8594;</a></p>
+      </details>
+    </div>
   </div>
 </section>
 

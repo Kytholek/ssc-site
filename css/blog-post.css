@@ -12,6 +12,12 @@ body.post-page {
   z-index: 1;
 }
 
+html:not([data-theme='light']) .post-wrap {
+  background: var(--deep);
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
 .post-hero {
   text-align: center;
   padding: 56px 24px 40px;
@@ -57,38 +63,55 @@ body.post-page {
 
 .post-body h2 {
   font-family: 'Cinzel', serif;
-  font-size: 13px;
-  letter-spacing: 0.2em;
+  font-size: 24px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--gold-light);
   margin: 44px 0 16px;
   padding-top: 8px;
   border-top: 1px solid var(--border-dim);
+  line-height: 1.35;
 }
 
 .post-body h3 {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 0.15em;
+  font-size: 18px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--teal-light);
   margin: 28px 0 12px;
+  line-height: 1.4;
 }
 
 .post-body h4 {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: 16px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin: 20px 0 10px;
+  line-height: 1.45;
 }
 
 .post-body p {
-  font-size: 18px;
-  line-height: 1.9;
+  font-size: 20px;
+  line-height: 1.75;
   color: var(--text-dim);
   margin-bottom: 20px;
+}
+
+.post-body p a,
+.post-body li a,
+.post-body blockquote a {
+  color: var(--gold-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.post-body p a:hover,
+.post-body li a:hover,
+.post-body blockquote a:hover {
+  color: var(--gold);
 }
 
 .post-body p strong {
@@ -220,7 +243,9 @@ body.post-page {
 .post-faq summary::-webkit-details-marker { display: none; }
 .post-faq details p {
   margin: 12px 0 4px;
-  font-size: 17px;
+  font-size: 20px;
+  line-height: 1.75;
+  color: var(--text-dim);
 }
 
 .post-body ul {
@@ -230,7 +255,7 @@ body.post-page {
 }
 
 .post-body ul li {
-  font-size: 17px;
+  font-size: 20px;
   line-height: 1.75;
   color: var(--text-dim);
   padding: 10px 0 10px 22px;
@@ -459,13 +484,17 @@ html:not([data-theme='light']) .post-body ul li {
 }
 
 html:not([data-theme='light']) .post-body h4 {
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 @media (max-width: 679px) {
   html:not([data-theme='light']) .post-body p,
-  html:not([data-theme='light']) .post-body ul li {
-    font-size: max(17px, 1.05rem);
-    line-height: 1.82;
+  html:not([data-theme='light']) .post-body ul li,
+  html:not([data-theme='light']) .post-faq details p {
+    font-size: 19px;
+    line-height: 1.75;
   }
+
+  .post-body h2 { font-size: 20px; }
+  .post-body h3 { font-size: 17px; }
 }

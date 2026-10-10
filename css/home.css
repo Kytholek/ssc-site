@@ -1230,7 +1230,7 @@ html.hp-snapping .hp-use-offer {
 }
 html.hp-snapping .hp-scl-section {
   overflow: hidden;
-  justify-content: flex-start;
+  justify-content: center;
 }
 html.hp-snapping .hp-calc-scroll {
   overflow-x: hidden;
@@ -1248,10 +1248,10 @@ html.hp-snapping .hp-scl-wrap {
   overflow-y: auto;
   overscroll-behavior: contain;
   min-height: 0;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   max-height: 100%;
-  padding-bottom: 112px;
-  scroll-padding-bottom: 112px;
+  padding-bottom: 0;
+  scroll-padding-bottom: 24px;
   -webkit-overflow-scrolling: touch;
 }
 html.hp-snapping .hp-scl-install-step:last-child {
@@ -1288,8 +1288,8 @@ html.hp-snapping .hp-scl-body {
   margin-bottom: 12px;
 }
 html.hp-snapping .hp-scl-stakes {
-  margin-bottom: 12px;
-  gap: 6px;
+  margin-bottom: 16px;
+  gap: 12px;
 }
 html.hp-snapping .hp-faq-list {
   overflow: auto;
@@ -1424,7 +1424,7 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-scl-section,
   html.hp-snapping .hp-faq-section {
     padding-left: 24px;
-    padding-right: 24px;
+    padding-right: 36px;
   }
   .hp-use-section {
     padding: 56px 20px 24px;
@@ -1719,7 +1719,7 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-articles-section,
   html.hp-snapping .hp-scl-section {
     padding-left: 24px;
-    padding-right: 24px;
+    padding-right: 36px;
   }
   html.hp-snapping .hp-use-header {
     margin-bottom: 32px;
@@ -1755,17 +1755,60 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-use-offer-price {
     font-size: 18px;
   }
+  html.hp-snapping .hp-scl-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   html.hp-snapping .hp-scl-inner {
     gap: 28px;
+    width: 100%;
+    min-height: 0;
+    max-height: 100%;
+  }
+  html.hp-snapping .hp-scl-img {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   html.hp-snapping .hp-scl-device {
-    width: min(128px, 36vw);
+    width: min(210px, 58vw);
+    max-height: 100%;
   }
-  html.hp-snapping .hp-scl-device-bezel {
-    max-height: min(160px, 22vh);
+  html.hp-snapping .hp-scl-section .hp-scl-device-bezel {
+    aspect-ratio: 9 / 14;
+    width: 100%;
+    max-height: min(300px, calc(100svh - 420px));
+  }
+  .hp-scl-section .hp-app-still {
+    display: block;
+    position: absolute;
+    top: 9px;
+    right: 8px;
+    bottom: 11px;
+    left: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 20px);
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+    object-position: center 18%;
+    border-radius: 22px;
+    z-index: 2;
+    background: #050508;
+  }
+  .hp-scl-section .hp-scl-carousel-track,
+  .hp-scl-section .hp-scl-carousel-btn,
+  .hp-scl-section .hp-scl-carousel-names,
+  .hp-scl-section .hp-scl-index {
+    display: none !important;
   }
   html.hp-snapping .hp-scl-eyebrow {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
   html.hp-snapping .hp-scl-title {
     font-size: clamp(20px, 5.4vw, 26px);
@@ -1774,21 +1817,13 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-scl-body {
     display: block;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.6;
     text-align: center;
-    margin: 0 0 16px;
-  }
-  html.hp-snapping .hp-scl-stakes {
-    display: none;
-  }
-  html.hp-snapping .hp-scl-note {
-    margin-bottom: 18px;
-    font-size: 14px;
-    line-height: 1.45;
+    margin: 0 0 20px;
   }
   html.hp-snapping .hp-scl-actions {
-    margin-top: 8px;
-    gap: 12px;
+    margin-top: 0;
+    gap: 10px;
   }
   html.hp-snapping .hp-faq-title {
     font-size: 24px;
@@ -1817,7 +1852,7 @@ html.hp-snapping .hp-use-section,
 }
 
 @media (max-width: 860px) and (min-height: 780px) {
-  html.hp-snapping .hp-scl-device-bezel { max-height: 210px; }
+  html.hp-snapping .hp-scl-section .hp-scl-device-bezel { max-height: min(320px, calc(100svh - 400px)); }
   html.hp-snapping .hp-codex-map { width: min(200px, 52vw); }
 }
 @media (max-width: 860px) and (max-height: 700px) {
@@ -1830,8 +1865,10 @@ html.hp-snapping .hp-use-section,
   html.hp-snapping .hp-scl-inner { gap: 20px; }
   html.hp-snapping .hp-scl-title { margin-bottom: 10px; }
   html.hp-snapping .hp-scl-body { margin-bottom: 12px; }
-  html.hp-snapping .hp-scl-note { margin-bottom: 12px; }
-  html.hp-snapping .hp-scl-device-bezel { max-height: 132px; }
+  html.hp-snapping .hp-scl-section .hp-scl-device-bezel { max-height: min(200px, calc(100svh - 440px)); }
+  html.hp-snapping .hp-scl-section .hp-app-still { object-position: center 5%; }
+  html.hp-snapping .hp-articles-section { padding-bottom: 40px; }
+  html.hp-snapping .hp-articles-grid { gap: 8px; margin-bottom: 8px; }
   html.hp-snapping .hp-codex-teaser-inner { gap: 28px; }
   html.hp-snapping .hp-codex-teaser-title { margin-bottom: 16px; }
   html.hp-snapping .hp-codex-teaser-body { margin-bottom: 20px; }

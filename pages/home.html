@@ -419,20 +419,50 @@
 }
 .hp-scl-stakes {
   list-style: none;
-  margin: 0 0 16px;
+  margin: 4px 0 20px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 .hp-scl-stakes li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid rgba(0, 229, 204, 0.18);
+  border-radius: 10px;
+  background: rgba(0, 229, 204, 0.045);
+}
+.hp-scl-stake-num {
+  flex: 0 0 auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #d4a843;
+  padding-top: 4px;
+}
+.hp-scl-stake-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.hp-scl-stake-copy strong {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f4f7ff;
+}
+.hp-scl-stake-copy span {
   font-family: 'Share Tech Mono', monospace;
   font-size: 13px;
-  letter-spacing: 0.03em;
   line-height: 1.45;
+  letter-spacing: 0.01em;
   color: #c8d8f0;
-  padding: 0 0 0 12px;
-  border-left: 2px solid #00e5cc;
 }
 .hp-scl-note {
   font-family: 'Share Tech Mono', monospace;
@@ -651,6 +681,9 @@ html.hp-snapping .hp-calc-section {
   display: block;
   background: #050508;
   pointer-events: none;
+}
+.hp-app-still {
+  display: none;
 }
 .hp-scl-stage .hp-scl-carousel-btn {
   position: absolute;
@@ -1291,9 +1324,9 @@ a.hp-trinity-item:hover {
   .hp-calc-section .hp-scl-inner,
   html.hp-snapping .hp-calc-section .hp-scl-inner { align-items: center; gap: 32px; }
   .hp-scl-device { width: min(200px, 56vw, calc(42vh * 9 / 19)); }
-  .hp-calc-section .hp-scl-img { flex: 0 1 176px; width: 100%; }
+  .hp-calc-section .hp-scl-img { flex: 0 1 200px; width: 100%; }
   .hp-calc-device.hp-scl-device,
-  html.hp-snapping .hp-calc-device.hp-scl-device { width: min(176px, 58%); max-width: 176px; }
+  html.hp-snapping .hp-calc-device.hp-scl-device { width: min(200px, 64%); max-width: 200px; }
   html.hp-snapping .hp-calc-section { padding-top: 88px; padding-bottom: 12px; }
   .hp-calc-copy { max-width: none; text-align: center; }
   html.hp-snapping .hp-calc-copy .hp-use-eyebrow { margin-bottom: 14px; }
@@ -1590,6 +1623,7 @@ html.hp-snapping .hp-hero-codex-arrow {
         <div class="hp-scl-device" id="hp-scl-carousel">
           <div class="hp-scl-stage">
             <div class="hp-scl-device-bezel">
+              <img class="hp-app-still" src="/Images/carousel/app-journal.png?v=20261009-app1" alt="Quest Journal — character card and daily quests" width="390" height="844" loading="lazy" decoding="async">
               <div class="hp-scl-carousel-track">
                 <figure class="hp-scl-slide is-active" data-caption-key="home.revamp.carousel.app.journal">
                   <img src="/Images/carousel/app-journal.png" alt="Quest Journal — daily progress and commitments" width="390" height="844" loading="lazy" decoding="async">
@@ -1615,14 +1649,7 @@ html.hp-snapping .hp-hero-codex-arrow {
       <div class="hp-scl-content">
         <div class="hp-scl-eyebrow" data-i18n="home.revamp.scl.eyebrow">Source Code: Life</div>
         <h2 class="hp-scl-title" data-i18n="home.revamp.scl.title">Your Blueprint, brought to life.</h2>
-        <p class="hp-scl-body" data-i18n="home.revamp.scl.body">The decode hands you the character. Here you choose a path, take a real quest each Personal Day, and level the skills you were born with.</p>
-        <ul class="hp-scl-stakes">
-          <li data-i18n="home.revamp.scl.stake1">See the attributes you started with</li>
-          <li data-i18n="home.revamp.scl.stake2">Choose a path inside a skill</li>
-          <li data-i18n="home.revamp.scl.stake3">Take the quest for this Personal Day</li>
-          <li data-i18n="home.revamp.scl.stake4">Level up on a live map</li>
-        </ul>
-        <p class="hp-scl-note" data-i18n="home.revamp.scl.note">You were already playing. Now you can see the board.</p>
+        <p class="hp-scl-body" data-i18n="home.revamp.scl.body">The decode hands you the character — the gifts you arrived with. Choose a path, take the quest this Personal Day offers, and live it until the skill levels up.</p>
         <div class="hp-scl-actions">
           <a href="https://portal.simulationsourcecode.com" class="hp-scl-cta js-track-cta" data-cta="scl_enter" data-i18n="home.revamp.scl.prototype">Enter the Simulation</a>
           <details class="hp-scl-install-details">

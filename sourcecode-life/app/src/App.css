@@ -1967,20 +1967,36 @@ body.scl-realm-open .tab-bar {
   display: flex;
   flex-direction: column;
 }
-.skills-grid {
-  width: 100%;
+.skills-board {
   flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+.skills-grid {
+  grid-column: 1 / -1;
+  width: 100%;
   height: auto;
   min-height: 0;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: auto repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: subgrid;
+  grid-template-rows: auto repeat(3, minmax(0, 1fr));
   place-items: center;
-  gap: 6px 8px;
-  padding: 8px 12px 12px;
+  gap: 18px 12px;
+  padding: 8px 12px 4px;
   transition: transform 0.22s ease;
   z-index: 1;
+}
+.skills-masters-band {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: 0 0 8px;
+  row-gap: 2px;
 }
 .skills-codex-corner {
   width: 2.6em;
@@ -2023,15 +2039,43 @@ body.scl-realm-open .tab-bar {
   min-width: 0;
   min-height: 0;
 }
+.skills-masters-rule {
+  grid-column: 2 / span 3;
+  justify-self: stretch;
+  align-self: end;
+  width: auto;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 7% 2px;
+  pointer-events: none;
+}
+.skills-masters-rule::before,
+.skills-masters-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.skills-masters-rule::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.skills-masters-rule span {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
 .skills-masters-row {
   grid-column: 3;
-  grid-row: 5;
   justify-self: center;
-  align-self: center;
+  align-self: start;
   display: flex;
   justify-content: center;
   width: max-content;
-  padding: 0;
+  padding: 2px 0 0;
   z-index: 2;
 }
 .skills-masters-seal {
@@ -2376,6 +2420,30 @@ body.scl-realm-open .tab-bar {
 .skills-stage .skills-grid-cell--equipped .flow-node-base--active,
 .skills-stage .skills-grid-cell--equipped .flow-node-base--innate {
   box-shadow: 0 0 0 1px #c9a84c;
+}
+.skills-stage .skills-masters-seal .flow-node-base--default,
+.skills-stage .skills-masters-seal .flow-node-base--active,
+.skills-stage .skills-masters-seal .flow-node-base--innate {
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--gold) 28%, transparent),
+    0 0 18px color-mix(in srgb, var(--gold) 35%, transparent);
+}
+.skills-stage .skills-masters-seal .flow-node-ring-outer {
+  border-color: var(--gold);
+}
+.skills-stage .skills-masters-seal .flow-node-label {
+  color: var(--gold) !important;
+}
+.skills-stage .skills-branch-node--rare .flow-node-base--default,
+.skills-stage .skills-branch-node--rare .flow-node-base--active,
+.skills-stage .skills-branch-node--rare .flow-node-base--innate {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 24%, transparent);
+}
+.skills-stage .skills-branch-node--rare .flow-node-base--locked {
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  border-style: dashed;
 }
 .skills-stage .flow-node-glow--complete,
 .skills-stage .flow-node-glow--partial,

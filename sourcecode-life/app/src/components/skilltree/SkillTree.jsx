@@ -191,6 +191,7 @@ function BranchFlowNode({ data }) {
       className={[
         'skills-branch-node',
         data.caption ? 'skills-branch-node--captioned' : '',
+        data.rare ? 'skills-branch-node--rare' : '',
         entering ? 'skills-branch-node--enter' : '',
       ].filter(Boolean).join(' ')}
       style={{
@@ -573,12 +574,18 @@ export default function SkillTree({
       const w = el.clientWidth || 0
       const h = el.clientHeight || 0
       if (w < 40 || h < 40) return
-      const pad = 12
-      const gap = 8
-      const cellW = (w - pad * 2 - gap * 2) / 3
-      const mastersReserve = 92
-      const cellH = (h - pad * 2 - gap * 2 - mastersReserve) / 3
-      const next = Math.max(64, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)))
+      const grid = el.querySelector('.skills-grid')
+      const gw = grid?.clientWidth || w
+      const gh = grid?.clientHeight || h
+      const label = 46
+      const padX = 24
+      const padY = 12
+      const gapX = 12
+      const gapY = 18
+      const header = 18
+      const cellW = (gw - label - padX - gapX * 2) / 3
+      const cellH = (gh - header - padY - gapY * 2) / 3
+      const next = Math.max(68, Math.min(108, Math.floor(Math.min(cellW, cellH) * 0.78)))
       setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next))
     }
 
@@ -590,6 +597,8 @@ export default function SkillTree({
     measure()
     const ro = new ResizeObserver(schedule)
     ro.observe(el)
+    const grid = el.querySelector('.skills-grid')
+    if (grid) ro.observe(grid)
     return () => {
       ro.disconnect()
       if (measureRaf.current) cancelAnimationFrame(measureRaf.current)
@@ -706,6 +715,7 @@ export default function SkillTree({
         showBadge: true,
         showProgressArc: true,
         ariaLabel: `${expanded.label} root`,
+        rare: !!expanded.trainableOnly,
         onClick: () => onBranchNode({ type: 'root' }),
       },
     })
@@ -752,6 +762,7 @@ export default function SkillTree({
             : gated
               ? `${route.name} route, locked`
               : `${route.name} route`,
+          rare: !!expanded.trainableOnly,
           onClick: () => onBranchNode({ type: 'route', routeId }),
         },
       })
@@ -1332,6 +1343,7 @@ export default function SkillTree({
                 Blueprint seals open — locked seals are outside your destiny kit.
               </p>
             )}
+            <div className="skills-board">
             <div className="skills-grid" aria-label="Skill Tree">
               <span className="skills-codex-corner" aria-hidden="true" />
               {CODEX_AXES.map((axis) => (
@@ -1362,6 +1374,11 @@ export default function SkillTree({
                   </Fragment>
                 )
               })}
+            </div>
+            <div className="skills-masters-band">
+              <div className="skills-masters-rule" aria-hidden="true">
+                <span>✦</span>
+              </div>
               <div className="skills-masters-row">
                 <div className="skills-masters-seal">
                   <SkillSeal
@@ -1370,7 +1387,7 @@ export default function SkillTree({
                     active={false}
                     seeds={seeds}
                     statValues={statValues}
-                    size={Math.min(sealSize, 84)}
+                    size={Math.min(sealSize, 68)}
                     onSelect={openSeal}
                     eligible={!playerData || heldMasters.size > 0}
                     equipped={false}
@@ -1381,6 +1398,7 @@ export default function SkillTree({
                   )}
                 </div>
               </div>
+            </div>
             </div>
             <SkillsInspector
               open={!!lockSheet}

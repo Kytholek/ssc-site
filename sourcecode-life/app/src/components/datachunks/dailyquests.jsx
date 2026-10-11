@@ -23,12 +23,12 @@ import {
   getDifficultyMeta,
   buildQuestUserProfile,
 } from '../../lib/numerologyQuests'
-import { todayStr } from '../../lib/numerology'
+import { getMonthSeasonState } from '../../lib/seasonEngine'
 import { BLUEPRINT_UNLOCK_LV } from '../../lib/questBlueprint'
 import { CYCLE_QUEST_COLORS, CYCLE_MEANINGS, ROOT } from '../../lib/data'
 import { getCycleObjectives } from '../../lib/objectives'
 import {
-  calcPersonalDay, reduceToSimple,
+  calcPersonalDay, reduceToSimple, todayStr,
 } from '../../lib/numerology'
 import { showFloatingXP, showParticleBurst } from '../effects/FloatingXP'
 import StreakCalendar, { markDayCompleted, hasAnyStreakCompletion } from '../effects/StreakCalendar'
@@ -164,6 +164,54 @@ function isMultiDayCommitted(quest) {
   } catch {
     return false
   }
+}
+
+function ensureTodayJournal(playerData, freqLevel = 1, statXP) {
+  if (!playerData?.m || !playerData?.d) return
+  const existing = getGeneratedQuests()
+  const dayRoot = reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)
+  const quests = existing?.quests || []
+  const hasDayQuest = quests.some(
+    (q) => q.cycleType === 'personalDay' && reduceToSimple(q.number) === dayRoot,
+  )
+  const level = freqLevel || 1
+  const lockedLife = quests.some((q) => {
+    const key = q.lqpMeta?.questKey
+    if (q.source !== 'life' || !key) return false
+    return level < (BLUEPRINT_UNLOCK_LV[key] ?? 0)
+  })
+  const dayClassEquipped = getFilledSlots(loadClassLoadout()).some(
+    (s) => reduceToSimple(s.number) === dayRoot,
+  )
+  const hasDaySkill = quests.some(
+    (q) => (q.source === 'skill' || q.type === 'skilltree') && reduceToSimple(q.number) === dayRoot,
+  )
+  const anyDone = quests.some((q) => q.completed)
+  if (!existing || (!anyDone && (!hasDayQuest || lockedLife || (dayClassEquipped && !hasDaySkill)))) {
+    generateDailyQuests(buildQuestUserProfile(playerData, statXP))
+  }
+}
+
+function countJournalOpen(daily) {
+  const quests = getGeneratedQuests()?.quests || []
+  const genCompleted = quests.filter((q) => q.completed).length
+  const genCommitted = quests.filter((q) => !q.completed && isMultiDayCommitted(q)).length
+  return (daily?.completed ? 0 : 1) + (quests.length - genCompleted - genCommitted)
+}
+
+function describeMonthCheckin(playerData, freqLevel) {
+  const { lp, m, d } = playerData || {}
+  if (!lp?.root || !m || !d) return null
+  const state = getMonthSeasonState(lp.root, m, d, freqLevel, playerData)
+  if (!state) return null
+  const tierDays = state.tierDays || 7
+  const checkinCount = state.checkins?.length || 0
+  const today = todayStr()
+  const checkedInToday = (state.checkins || []).some((c) => c.date === today)
+  if (state.completed) return { label: 'Month complete', done: true }
+  if (checkedInToday) return { label: 'Checked in', done: true }
+  if (checkinCount < tierDays) return { label: 'Check-in due', done: false }
+  return { label: 'Month ready', done: false }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -592,6 +640,7 @@ function QuestChapters({
 function PersonalDayReading({ pd, meaning, part = 'all' }) {
   const dispatch = useAppDispatch()
   const { user } = useGameState()
+  const [depthOpen, setDepthOpen] = useState(false)
   const dayRoot = reduceToSimple(pd.root)
   const rootData = ROOT[pd.root] || ROOT[dayRoot] || {}
   const watch = meaning.summary || ''
@@ -602,6 +651,34 @@ function PersonalDayReading({ pd, meaning, part = 'all' }) {
     ? !!(rootData.shadow || rootData.integration)
     : true
   if (part === 'depth' && !hasDepth) return null
+
+  const depthBody = isPremium ? (
+    <>
+      {rootData.shadow && (
+        <div className="daily-premium-reading-block">
+          <div className="daily-premium-reading-label">SHADOW</div>
+          <p>{rootData.shadow}</p>
+        </div>
+      )}
+      {rootData.integration && (
+        <div className="daily-premium-reading-block">
+          <div className="daily-premium-reading-label">INTEGRATION</div>
+          <p>{rootData.integration}</p>
+        </div>
+      )}
+    </>
+  ) : (
+    <div className="daily-premium-reading-lock">
+      <p>Shadow and integration for this number are part of Premium.</p>
+      <button
+        type="button"
+        className="premium-lock-btn"
+        onClick={() => dispatch({ type: 'OPEN_PREMIUM_MODAL' })}
+      >
+        UNLOCK · $4.99/MO
+      </button>
+    </div>
+  )
 
   return (
     <section
@@ -615,33 +692,21 @@ function PersonalDayReading({ pd, meaning, part = 'all' }) {
           {watch && <p className="daily-premium-reading-watch">{watch}</p>}
         </>
       )}
-      {showDepth && (isPremium ? (
+      {showDepth && part === 'depth' && (
         <>
-          {rootData.shadow && (
-            <div className="daily-premium-reading-block">
-              <div className="daily-premium-reading-label">SHADOW</div>
-              <p>{rootData.shadow}</p>
-            </div>
-          )}
-          {rootData.integration && (
-            <div className="daily-premium-reading-block">
-              <div className="daily-premium-reading-label">INTEGRATION</div>
-              <p>{rootData.integration}</p>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="daily-premium-reading-lock">
-          <p>Shadow and integration for this number are part of Premium.</p>
           <button
             type="button"
-            className="premium-lock-btn"
-            onClick={() => dispatch({ type: 'OPEN_PREMIUM_MODAL' })}
+            className="daily-premium-reading-toggle"
+            aria-expanded={depthOpen}
+            onClick={() => setDepthOpen((open) => !open)}
           >
-            UNLOCK · $4.99/MO
+            <span>{isPremium ? 'Shadow & integration' : 'Shadow & integration · Premium'}</span>
+            <span className="daily-premium-reading-toggle-state">{depthOpen ? 'Hide' : 'Show'}</span>
           </button>
-        </div>
-      ))}
+          {depthOpen && depthBody}
+        </>
+      )}
+      {showDepth && part !== 'depth' && depthBody}
     </section>
   )
 }
@@ -745,7 +810,53 @@ function DailyQuestCard({ daily, colorVar, pd, onComplete, lpRoot, classSupportN
   )
 }
 
-export function TodayReading({ playerData, daily, completeDailyQuest }) {
+function TodayStatus({ playerData, daily, onOpenJournal }) {
+  const { xp } = useQuestEngine()
+  const freqLevel = xp?.freqLevel
+  const statXP = xp?.statXP
+  const [, bumpStatus] = useState(0)
+
+  useEffect(() => {
+    ensureTodayJournal(playerData, freqLevel, statXP)
+  }, [playerData, freqLevel, statXP])
+
+  useEffect(() => {
+    const bump = () => bumpStatus((n) => n + 1)
+    window.addEventListener('scl:gen_quests_updated', bump)
+    window.addEventListener('scl:streak_updated', bump)
+    window.addEventListener('scl:month_season_updated', bump)
+    return () => {
+      window.removeEventListener('scl:gen_quests_updated', bump)
+      window.removeEventListener('scl:streak_updated', bump)
+      window.removeEventListener('scl:month_season_updated', bump)
+    }
+  }, [])
+
+  const streak = getResonanceChain()
+  const openCount = countJournalOpen(daily)
+  const month = describeMonthCheckin(playerData, freqLevel || 1)
+
+  return (
+    <div className="home-today-status" aria-label="Today's status">
+      <StreakBadge streak={streak} compact />
+      <button
+        type="button"
+        className="home-pulse-chip"
+        onClick={onOpenJournal}
+        aria-label={`Open journal, ${openCount} open`}
+      >
+        Journal · {openCount} open
+      </button>
+      {month && (
+        <span className={`home-pulse-chip${month.done ? ' home-pulse-chip--done' : ''}`}>
+          {month.label}
+        </span>
+      )}
+    </div>
+  )
+}
+
+export function TodayReading({ playerData, daily, completeDailyQuest, onOpenJournal }) {
   if (!playerData || !daily) return null
   const pd = calcPersonalDay(playerData.m, playerData.d)
   const meaning = CYCLE_MEANINGS.personalDay?.[pd.root] || {}
@@ -758,7 +869,11 @@ export function TodayReading({ playerData, daily, completeDailyQuest }) {
 
   return (
     <div className="home-day-reading">
-      <PersonalDayReading pd={pd} meaning={meaning} part="glance" />
+      <TodayStatus
+        playerData={playerData}
+        daily={daily}
+        onOpenJournal={onOpenJournal}
+      />
       <DailyQuestCard
         daily={daily}
         colorVar={colorVar}
@@ -767,6 +882,7 @@ export function TodayReading({ playerData, daily, completeDailyQuest }) {
         lpRoot={playerData.lp?.root}
         classSupportNote={classSupportNote}
       />
+      <PersonalDayReading pd={pd} meaning={meaning} part="glance" />
       <PersonalDayReading pd={pd} meaning={meaning} part="depth" />
     </div>
   )
@@ -994,31 +1110,13 @@ export default function DailySection({ playerData, daily }) {
     return () => window.removeEventListener('scl:gen_quests_updated', onUpdate)
   }, [])
 
+  const freqLevel = xp?.freqLevel
+  const statXP = xp?.statXP
+
   useEffect(() => {
-    if (!profileReady || !playerData) return
-    const existing = getGeneratedQuests()
-    const dayRoot = reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)
-    const quests = existing?.quests || []
-    const hasDayQuest = quests.some(
-      (q) => q.cycleType === 'personalDay' && reduceToSimple(q.number) === dayRoot,
-    )
-    const freqLevel = xp?.freqLevel || 1
-    const lockedLife = quests.some((q) => {
-      const key = q.lqpMeta?.questKey
-      if (q.source !== 'life' || !key) return false
-      return freqLevel < (BLUEPRINT_UNLOCK_LV[key] ?? 0)
-    })
-    const dayClassEquipped = getFilledSlots(loadClassLoadout()).some(
-      (s) => reduceToSimple(s.number) === dayRoot,
-    )
-    const hasDaySkill = quests.some(
-      (q) => (q.source === 'skill' || q.type === 'skilltree') && reduceToSimple(q.number) === dayRoot,
-    )
-    const anyDone = quests.some((q) => q.completed)
-    if (!existing || (!anyDone && (!hasDayQuest || lockedLife || (dayClassEquipped && !hasDaySkill)))) {
-      generateDailyQuests(buildQuestUserProfile(playerData, xp?.statXP))
-    }
-  }, [profileReady, playerData, xp?.statXP, xp?.freqLevel])
+    if (!profileReady) return
+    ensureTodayJournal(playerData, freqLevel, statXP)
+  }, [profileReady, playerData, freqLevel, statXP])
 
   const daySealForToast = playerData
     ? reduceToSimple(calcPersonalDay(playerData.m, playerData.d).root)

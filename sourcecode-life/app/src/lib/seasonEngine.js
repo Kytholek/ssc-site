@@ -70,6 +70,12 @@ function writeSeasonState(key, state) {
   persistSeasonBundle({ [key]: state })
 }
 
+function notifyMonthSeasonUpdated() {
+  try {
+    window.dispatchEvent(new CustomEvent('scl:month_season_updated'))
+  } catch { /* intentional */ }
+}
+
 /** Hydrate season LS keys from cloud — never empty over non-empty. */
 export function hydrateSeasonStateFromCloud(cb) {
   const apply = (remoteRaw) => {
@@ -280,6 +286,7 @@ export function addMonthCheckin(lpRoot, m, d, journal, objectiveIdx) {
   const streak = multiDay?.multiDay?.streak || state.checkins.length
   const canComplete = state.checkins.length >= tierDays && streak >= tierDays
 
+  notifyMonthSeasonUpdated()
   return { ok: true, checkinCount: state.checkins.length, daysActive, canComplete, tierDays, streak }
 }
 
@@ -339,6 +346,7 @@ export function completeMonthSeason(lpRoot, m, d) {
     }, earnStatXP, (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail: detail || null })))
   }
 
+  notifyMonthSeasonUpdated()
   return { ok: true }
 }
 

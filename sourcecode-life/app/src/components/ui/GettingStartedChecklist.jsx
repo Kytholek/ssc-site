@@ -2,7 +2,7 @@
  * GettingStartedChecklist — collapsible first-time user guide on Home tab.
  * Items complete from real signals (daily quest done, Life Quests visited, Blueprint opened).
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAppDispatch } from '../../context/AppContext'
 import { useQuestEngine } from '../../hooks/useQuestEngine'
 import {
@@ -39,18 +39,21 @@ export default function GettingStartedChecklist() {
   const doneCount = ITEMS.filter((i) => done[i.id]).length
   const [expanded, setExpanded] = useState(() => {
     try {
-      if (localStorage.getItem(LS_COLLAPSED) === '1') return false
       const parsed = loadChecklistDone()
-      return !ITEMS.some((i) => parsed[i.id])
+      if (ITEMS.every((i) => parsed[i.id])) return false
+      return localStorage.getItem(LS_COLLAPSED) !== '1'
     } catch { return true }
   })
+  const allDone = ITEMS.every((i) => done[i.id])
+  const wasAllDone = useRef(allDone)
 
   useEffect(() => {
-    if (doneCount > 0 && expanded) {
+    if (allDone && !wasAllDone.current) {
       try { localStorage.setItem(LS_COLLAPSED, '1') } catch { /* ignore */ }
       setExpanded(false)
     }
-  }, [doneCount, expanded])
+    wasAllDone.current = allDone
+  }, [allDone])
 
   const [tourDone, setTourDone] = useState(() => isSpotlightTourComplete())
 
@@ -113,8 +116,6 @@ export default function GettingStartedChecklist() {
     // Do not mark complete on navigate — wait for real signals
   }
 
-  const allDone = ITEMS.every((i) => done[i.id])
-
   return (
     <div className="home-onboarding getting-started-checklist" role="region" aria-label="Getting started">
       <div className="getting-started-header">
@@ -131,21 +132,19 @@ export default function GettingStartedChecklist() {
         <button type="button" className="getting-started-dismiss" onClick={dismiss} aria-label="Dismiss checklist">✕</button>
       </div>
       {expanded && (
-        <>
-          <ul className="getting-started-list">
-            {ITEMS.map((item) => (
-              <li key={item.id} className={`getting-started-item${done[item.id] ? ' getting-started-item--done' : ''}`}>
-                <button type="button" className="getting-started-link" onClick={() => navigate(item)}>
-                  <span className="getting-started-check" aria-hidden="true">{done[item.id] ? '✓' : '○'}</span>
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-          {allDone && (
-            <p className="getting-started-complete" role="status">You're all set — keep questing!</p>
-          )}
-        </>
+        <ul className="getting-started-list">
+          {ITEMS.map((item) => (
+            <li key={item.id} className={`getting-started-item${done[item.id] ? ' getting-started-item--done' : ''}`}>
+              <button type="button" className="getting-started-link" onClick={() => navigate(item)}>
+                <span className="getting-started-check" aria-hidden="true">{done[item.id] ? '✓' : '○'}</span>
+                {item.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {allDone && (
+        <p className="getting-started-complete" role="status">You're all set — keep questing!</p>
       )}
     </div>
   )

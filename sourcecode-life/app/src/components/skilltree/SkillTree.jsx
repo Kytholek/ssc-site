@@ -4,7 +4,7 @@
  * Class loadout: equip up to 2 blueprint-eligible routes.
  * Compact docked inspector. Equip / Start CTA.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import ReactFlow, { MarkerType } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -48,6 +48,37 @@ export { NUMBERS }
 const ROOT_SIZE = 78
 const ROUTE_SIZE = 68
 const TIER_SIZE = 52
+
+const CODEX_AXES = [
+  { id: 'mind', label: 'Mind' },
+  { id: 'body', label: 'Body' },
+  { id: 'spirit', label: 'Spirit' },
+]
+
+/** Muted fills for the skill board only. Neon SKILL_TREE colors stay for the rest of the app. */
+const CODEX_COLORS = {
+  1: '#7d9a62',
+  2: '#c4a888',
+  3: '#8aab8e',
+  4: '#b88888',
+  5: '#c4a15a',
+  6: '#b88888',
+  7: '#8aab8e',
+  8: '#c4a888',
+  9: '#8b78b0',
+}
+
+function codexColor(id) {
+  return CODEX_COLORS[Number(id)] || '#c4a15a'
+}
+
+function CodexLabel({ axis, edge }) {
+  return (
+    <span className={`skills-codex-label skills-codex-label--${edge} skills-codex-label--${axis.id}`}>
+      {axis.label}
+    </span>
+  )
+}
 const ROOT_HALF = ROOT_SIZE / 2
 const ROUTE_HALF = ROUTE_SIZE / 2
 const TIER_HALF = TIER_SIZE / 2
@@ -109,9 +140,12 @@ function SkillSeal({
   }))
 
   return (
-    <div className={`skills-grid-cell${equipped ? ' skills-grid-cell--equipped' : ''}${locked ? ' skills-grid-cell--locked' : ''}`}>
+    <div
+      className={`skills-grid-cell${equipped ? ' skills-grid-cell--equipped' : ''}${locked ? ' skills-grid-cell--locked' : ''}`}
+      style={equipped ? { '--seal-size': `${size}px` } : undefined}
+    >
       <FlowProgressNode
-        color={number.color}
+        color={codexColor(number.id)}
         icon={number.icon}
         displayNum={number.id}
         label={number.label}
@@ -354,14 +388,15 @@ export default function SkillTree({
     if (opts.locked) {
       setLockSheet({
         label: number.label,
-        color: number.color,
+        color: codexColor(number.id),
+        subtitle: number.subtitle,
         reason: opts.lockedReason || 'Not in your blueprint',
       })
       return
     }
     setLockSheet(null)
     setGateMsg(null)
-    setFocus(null)
+    setFocus({ type: 'root', numId: number.id })
     setExpandedRouteId(null)
     setReplacePicker(null)
     setActiveNode(number)
@@ -565,6 +600,7 @@ export default function SkillTree({
   const { nodes, edges } = useMemo(() => {
     if (!expanded || !layout || !numProgress) return { nodes: [], edges: [] }
 
+    const sealColor = codexColor(expanded.id)
     const equippedRoute = getEquippedRouteId(expanded.id, loadout)
     const sealDone = getSealProgress(numProgress, expanded.id, equippedRoute)
     const sealStages = sealDone.filter(Boolean).length
@@ -583,7 +619,7 @@ export default function SkillTree({
       draggable: false,
       selectable: false,
       data: {
-        color: expanded.color,
+        color: sealColor,
         icon: expanded.icon,
         displayNum: expanded.id,
         label: expanded.label,
@@ -627,7 +663,7 @@ export default function SkillTree({
         draggable: false,
         selectable: false,
         data: {
-          color: gated ? '#666680' : expanded.color,
+          color: gated ? '#666680' : sealColor,
           icon: ROUTE_ICONS[ri % ROUTE_ICONS.length],
           displayNum: '',
           label: '',
@@ -654,14 +690,14 @@ export default function SkillTree({
         type: 'smoothstep',
         animated: false,
         style: {
-          stroke: isActive ? `${expanded.color}99` : 'rgba(255,255,255,0.18)',
+          stroke: isActive ? `${sealColor}99` : 'rgba(255,255,255,0.18)',
           strokeWidth: isActive ? 2 : 1.25,
         },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 14,
           height: 14,
-          color: isActive ? expanded.color : 'rgba(255,255,255,0.25)',
+          color: isActive ? sealColor : 'rgba(255,255,255,0.25)',
         },
       })
 
@@ -691,7 +727,7 @@ export default function SkillTree({
           draggable: false,
           selectable: false,
           data: {
-            color: isNextTier ? expanded.color : tierColor,
+            color: isNextTier ? sealColor : tierColor,
             icon: isDone ? '\u2713' : String(stage.stage),
             displayNum: '',
             label: '',
@@ -722,7 +758,7 @@ export default function SkillTree({
             stroke: isDone
               ? `${tierColor}aa`
               : isNextTier
-                ? `${expanded.color}88`
+                ? `${sealColor}88`
                 : (isActive ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.1)'),
             strokeWidth: isDone || isNextTier ? 1.75 : 1.1,
             strokeDasharray: unlocked || isDone ? undefined : '4 4',
@@ -760,11 +796,12 @@ export default function SkillTree({
   const inspector = useMemo(() => {
     if (!expanded || !focus || !numProgress) return null
 
+    const sealColor = codexColor(expanded.id)
     const sealEligible = isSealEligible(expanded.id, playerData, freqLevel)
 
     if (focus.type === 'root') {
       return {
-        color: expanded.color,
+        color: sealColor,
         title: expanded.label,
         subtitle: expanded.subtitle,
         icon: expanded.icon,
@@ -802,7 +839,7 @@ export default function SkillTree({
       const equipped = isRouteEquipped(expanded.id, route.id, loadout)
       const equipSlotIdx = findLoadoutSlotIndex(expanded.id, route.id, loadout)
       return {
-        color: expanded.color,
+        color: sealColor,
         title: route.name,
         subtitle: route.blurb || route.name,
         icon: equipped ? '\u265A' : '\u25C8',
@@ -966,7 +1003,7 @@ export default function SkillTree({
         lockParts.push(`Stat ${statVal} of ${threshold}`)
       }
       return {
-        color: unlocked || isDone ? TIER_COLORS[stage.stage] : expanded.color,
+        color: unlocked || isDone ? TIER_COLORS[stage.stage] : sealColor,
         title: stage.name,
         subtitle: route.name,
         icon: isDone ? '\u2713' : String(stage.stage),
@@ -1131,7 +1168,7 @@ export default function SkillTree({
                   key={`${chip.number}-${chip.routeId}`}
                   type="button"
                   className="skills-loadout-chip"
-                  style={{ '--chip-color': chip.color }}
+                  style={{ '--chip-color': codexColor(chip.number) }}
                   onClick={() => {
                     const num = NUMBERS.find((n) => Number(n.id) === chip.number)
                     if (num) {
@@ -1178,12 +1215,15 @@ export default function SkillTree({
               </p>
             )}
             <div className="skills-grid" aria-label="Skill Tree">
-              {NUMBERS.map((num) => {
+              <span className="skills-codex-corner" aria-hidden="true" />
+              {CODEX_AXES.map((axis) => (
+                <CodexLabel key={`col-${axis.id}`} axis={axis} edge="col" />
+              ))}
+              {NUMBERS.map((num, i) => {
                 const eligible = !playerData || eligibleSeals.has(Number(num.id))
                 const equippedRoute = getEquippedRouteId(num.id, loadout)
-                return (
+                const seal = (
                   <SkillSeal
-                    key={num.id}
                     number={num}
                     completed={getSealProgress(progress[num.id], num.id, equippedRoute)}
                     active={false}
@@ -1196,6 +1236,13 @@ export default function SkillTree({
                     lockedReason="Not in your blueprint"
                   />
                 )
+                if (i % 3 !== 0) return <Fragment key={num.id}>{seal}</Fragment>
+                return (
+                  <Fragment key={num.id}>
+                    <CodexLabel axis={CODEX_AXES[Math.floor(i / 3)]} edge="row" />
+                    {seal}
+                  </Fragment>
+                )
               })}
             </div>
             <SkillsInspector
@@ -1203,7 +1250,7 @@ export default function SkillTree({
               slim
               color={lockSheet?.color || 'var(--gold)'}
               title={lockSheet?.label || 'Seal'}
-              subtitle="Not in blueprint"
+              subtitle={lockSheet?.subtitle || 'Not in blueprint'}
               icon="◇"
               onClose={() => setLockSheet(null)}
             >
@@ -1220,7 +1267,7 @@ export default function SkillTree({
         {expanded && (
           <div
             className={`skills-branch-wrap${inspector ? ' skills-branch-wrap--inspect' : ''}`}
-            style={{ '--skill-color': expanded.color, '--flow-color': expanded.color }}
+            style={{ '--skill-color': codexColor(expanded.id), '--flow-color': codexColor(expanded.id) }}
           >
             <div className="skills-branch-toolbar">
               <button type="button" className="skills-branch-back" onClick={collapse}>
@@ -1265,7 +1312,7 @@ export default function SkillTree({
 
             <SkillsInspector
               open={!!inspector}
-              color={inspector?.color || expanded.color}
+              color={inspector?.color || codexColor(expanded.id)}
               title={inspector?.title || ''}
               subtitle={inspector?.subtitle || ''}
               icon={inspector?.icon || '\u2726'}

@@ -1,7 +1,7 @@
 /**
  * HomeTab
  *
- * Daily dashboard: character card, then Overview (reading and seasons) or Quests (journal).
+ * Daily dashboard: character card, then Overview (today's quest and seasons) or Journal.
  */
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
@@ -32,8 +32,25 @@ import {
 
 const HOME_SECTIONS = [
   { id: 'overview', label: 'OVERVIEW' },
-  { id: 'journal', label: 'QUESTS' },
+  { id: 'journal', label: 'JOURNAL' },
 ]
+
+const ALIGNMENT_DISMISS_KEY = 'scl_home_alignment_dismissed'
+
+function localDayKey(date = new Date()) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function alignmentDismissedToday() {
+  try {
+    return localStorage.getItem(ALIGNMENT_DISMISS_KEY) === localDayKey()
+  } catch {
+    return false
+  }
+}
 
 const HEADGEAR_MAP = {
   'Crown':   1,
@@ -314,22 +331,18 @@ function CharCard() {
             {displayNameUpper || 'SET NAME'}
           </button>
         )}
-        classNode={hasClass ? (
+        classNode={(
           <button
             type="button"
-            className="char-card-class-title"
+            className="char-card-class"
             onClick={openSkills}
-            title="Open Skills to change class"
+            title={hasClass ? 'Open Skills to change class' : 'Choose a class in Skills'}
+            aria-label={hasClass ? `Class: ${classTitle}` : 'Class: Choose one'}
           >
-            {classTitle}
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="char-card-class-empty"
-            onClick={openSkills}
-          >
-            Choose a class in Skills
+            <span className="char-card-class-kicker">Class:</span>
+            <span className={hasClass ? 'char-card-class-title' : 'char-card-class-empty'}>
+              {hasClass ? classTitle : 'Choose one'}
+            </span>
           </button>
         )}
       />
@@ -337,7 +350,10 @@ function CharCard() {
       <div className="char-card-xp-mirror" aria-label="Experience">
         <div className="char-card-xp-side char-card-xp-side--freq" title={XP_HINTS.freq}>
           <div className="char-card-xp-side-head">
-            <span className="char-card-xp-side-label">FREQ</span>
+            <span className="char-card-xp-side-id">
+              <span className="char-card-xp-side-label">FREQ</span>
+              <span className="char-card-xp-side-hint">Daily & life</span>
+            </span>
             <span className="char-card-xp-side-lv">LV {xp.freqLevel}</span>
           </div>
           <div className="char-card-xp-track char-card-xp-track--freq">
@@ -353,7 +369,10 @@ function CharCard() {
 
         <div className="char-card-xp-side char-card-xp-side--social" title={XP_HINTS.social}>
           <div className="char-card-xp-side-head">
-            <span className="char-card-xp-side-label">SOCIAL</span>
+            <span className="char-card-xp-side-id">
+              <span className="char-card-xp-side-label">SOCIAL</span>
+              <span className="char-card-xp-side-hint">Map & allies</span>
+            </span>
             <span className="char-card-xp-side-lv">LV {xp.charLevel}</span>
           </div>
           <div className="char-card-xp-track char-card-xp-track--social">
@@ -411,7 +430,7 @@ export default function HomeTab() {
   const [section, setSection] = useState(() =>
     tabSection === 'journal' ? 'journal' : 'overview'
   )
-  const [alignmentDismissed, setAlignmentDismissed] = useState(false)
+  const [alignmentDismissed, setAlignmentDismissed] = useState(alignmentDismissedToday)
   const alignment = universalDayAlignment(playerData)
   const [prevTabSection, setPrevTabSection] = useState(tabSection)
 
@@ -450,7 +469,17 @@ export default function HomeTab() {
           <div className="freq-spike-banner freq-spike-banner--home" role="status">
             <span className="freq-spike-icon" aria-hidden="true">⚡</span>
             <span className="freq-spike-text">{alignment}</span>
-            <button type="button" className="freq-spike-close" onClick={() => setAlignmentDismissed(true)} aria-label="Dismiss frequency alert">✕</button>
+            <button
+              type="button"
+              className="freq-spike-close"
+              onClick={() => {
+                try { localStorage.setItem(ALIGNMENT_DISMISS_KEY, localDayKey()) } catch { /* ignore */ }
+                setAlignmentDismissed(true)
+              }}
+              aria-label="Dismiss frequency alert"
+            >
+              ✕
+            </button>
           </div>
         )}
         <GettingStartedChecklist />
@@ -488,6 +517,7 @@ export default function HomeTab() {
                 playerData={playerData}
                 daily={daily}
                 completeDailyQuest={completeDailyQuest}
+                onOpenJournal={() => setSection('journal')}
               />
             ) : (
               <div className="home-today-loading" aria-busy="true">

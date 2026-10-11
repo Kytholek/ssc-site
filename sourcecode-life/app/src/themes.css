@@ -3470,18 +3470,18 @@
   background: transparent !important;
   border: none;
 }
-/* Ink lines and arrowheads on parchment */
-[data-theme="fantasy"] .react-flow__edge-path,
-[data-theme="fantasy"] .react-flow__connection-path {
+/* Ink lines and arrowheads on parchment charts. Skill-branch edges keep their own stroke. */
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__edge-path,
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__connection-path {
   stroke: var(--gold) !important;
   stroke-width: 2.25 !important;
 }
-[data-theme="fantasy"] .react-flow__edge-animated-path {
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__edge-animated-path {
   stroke: var(--gold-bright) !important;
 }
-[data-theme="fantasy"] .react-flow__arrowhead polyline,
-[data-theme="fantasy"] .react-flow__arrowhead path,
-[data-theme="fantasy"] .react-flow marker path {
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__arrowhead polyline,
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow__arrowhead path,
+[data-theme="fantasy"] .lqt-flow-wrap .react-flow marker path {
   fill: var(--gold) !important;
   stroke: var(--gold) !important;
 }

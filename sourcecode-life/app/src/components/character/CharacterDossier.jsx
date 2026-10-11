@@ -120,10 +120,12 @@ export default function CharacterDossier({
           )}
 
           {(classNode || classTitle) && (
-            <div className="char-card-class" aria-label="Class">
-              <span className="char-card-class-kicker">CLASS</span>
-              {classNode || <span className="char-card-class-title">{classTitle}</span>}
-            </div>
+            classNode || (
+              <div className="char-card-class" aria-label="Class">
+                <span className="char-card-class-kicker">Class:</span>
+                <span className="char-card-class-title">{classTitle}</span>
+              </div>
+            )
           )}
         </div>
       </div>

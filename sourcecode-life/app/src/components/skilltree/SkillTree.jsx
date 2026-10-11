@@ -12,6 +12,7 @@ import FlowProgressNode from '../flow/FlowProgressNode'
 import { FLOW_NODE_SIZE } from '../flow/flowNodeConstants'
 import {
   NUMBERS,
+  MASTERS_SEAL,
   TIER_LABELS,
   THRESHOLDS,
   getSealProgress,
@@ -22,9 +23,11 @@ import {
   getTrainingProgress,
   getNextTierAction,
   getRouteDef,
+  getNumberDef,
   migrateProgressToV3,
   resolveRouteStageQuests,
 } from '../../lib/skillRoutes'
+import { getHeldMasterRoots } from '../../lib/numerologyProfile'
 import { pinSkillQuestToToday } from '../../lib/numerologyQuests'
 import {
   loadClassLoadout,
@@ -72,6 +75,11 @@ function codexColor(id) {
   return CODEX_COLORS[Number(id)] || '#c4a15a'
 }
 
+function routeOnChart(route, heldMasters, trainableOnly) {
+  if (!trainableOnly || !route?.masterRoot) return true
+  return heldMasters.has(Number(route.masterRoot))
+}
+
 function CodexLabel({ axis, edge }) {
   return (
     <span className={`skills-codex-label skills-codex-label--${edge} skills-codex-label--${axis.id}`}>
@@ -99,7 +107,7 @@ function buildBranchLayout(numDef, expandedRouteId) {
   const routeY = 170
   const tierStartY = 320
   const tierGapY = 136
-  const routeSpread = 160
+  const routeSpread = routes.length > 3 ? 118 : 160
   const startX = cx - ((routes.length - 1) * routeSpread) / 2
 
   const positions = { root: { x: cx, y: rootY } }
@@ -124,14 +132,19 @@ function SkillSeal({
   const innateStages = seeds?.[number.id] || [false, false, false]
   const isInnate = innateStages[0]
   const statVal = statValues?.[number.id] || 0
-  const fullyAligned = stagesDone === 3 && statVal >= THRESHOLDS.stage3
+  const trainableOnly = !!number.trainableOnly
+  const fullyAligned = trainableOnly
+    ? stagesDone === 3
+    : stagesDone === 3 && statVal >= THRESHOLDS.stage3
   const locked = !eligible
 
-  const eligiblePips = [
-    true,
-    innateStages[1] || statVal >= THRESHOLDS.stage2,
-    innateStages[2] || statVal >= THRESHOLDS.stage3,
-  ]
+  const eligiblePips = trainableOnly
+    ? [true, true, true]
+    : [
+      true,
+      innateStages[1] || statVal >= THRESHOLDS.stage2,
+      innateStages[2] || statVal >= THRESHOLDS.stage3,
+    ]
 
   const pipStates = [0, 1, 2].map((i) => ({
     done: completed[i],
@@ -147,9 +160,9 @@ function SkillSeal({
       <FlowProgressNode
         color={codexColor(number.id)}
         icon={number.icon}
-        displayNum={number.id}
+        displayNum={number.displayNum != null ? number.displayNum : number.id}
         label={number.label}
-        subtitle={locked ? 'Not in blueprint' : number.subtitle}
+        subtitle={locked ? (lockedReason || 'Not in blueprint') : number.subtitle}
         isSelected={active || equipped}
         locked={locked}
         progressPct={locked ? 0 : progressPct}
@@ -161,7 +174,7 @@ function SkillSeal({
         showBadge={!locked}
         size={size}
         onClick={() => onSelect(number, { locked, lockedReason })}
-        ariaLabel={`${number.label}${equipped ? ', equipped' : ''}${locked ? ', not in blueprint' : ''}${active ? ', selected' : ''}`}
+        ariaLabel={`${number.label}${equipped ? ', equipped' : ''}${locked ? `, ${lockedReason || 'not in blueprint'}` : ''}${active ? ', selected' : ''}`}
         ariaPressed={active}
       />
       {equipped && !locked && (
@@ -365,9 +378,7 @@ export default function SkillTree({
   const rfRef = useRef(null)
 
   const progress = migrateProgressToV3(completed || {})
-  const expanded = activeNode
-    ? NUMBERS.find((n) => n.id === activeNode.id) || null
-    : null
+  const expanded = activeNode ? getNumberDef(activeNode.id) : null
   const numProgress = expanded
     ? progress[expanded.id] || { activeRoutes: [], routes: {} }
     : null
@@ -376,6 +387,10 @@ export default function SkillTree({
   const eligibleSeals = useMemo(
     () => getEligibleSeals(playerData, freqLevel),
     [playerData, freqLevel],
+  )
+  const heldMasters = useMemo(
+    () => getHeldMasterRoots(playerData),
+    [playerData],
   )
   const filledSlots = getFilledSlots(loadout)
   const classTitle = getClassTitle(loadout)
@@ -407,6 +422,7 @@ export default function SkillTree({
       if (next) return { kind: 'tier', ...next }
     }
     for (const route of expanded.routes) {
+      if (!routeOnChart(route, heldMasters, expanded.trainableOnly)) continue
       const active = (numProgress.activeRoutes || []).includes(route.id)
       if (!active) continue
       const next = getNextTierAction(expanded.id, route.id, numProgress, statValues, seeds)
@@ -416,13 +432,14 @@ export default function SkillTree({
       }
     }
     for (const route of expanded.routes) {
+      if (!routeOnChart(route, heldMasters, expanded.trainableOnly)) continue
       const gate = canStartRoute(numProgress, expanded.id, route.id)
       if (gate.ok && gate.reason !== 'active') {
         return { kind: 'route', routeId: route.id }
       }
     }
     return null
-  }, [expanded, numProgress, tiersRouteId, seeds, statValues])
+  }, [expanded, numProgress, tiersRouteId, seeds, statValues, heldMasters])
 
   const openSeal = useCallback((number, opts = {}) => {
     if (opts.locked) {
@@ -559,7 +576,8 @@ export default function SkillTree({
       const pad = 12
       const gap = 8
       const cellW = (w - pad * 2 - gap * 2) / 3
-      const cellH = (h - pad * 2 - gap * 2) / 3
+      const mastersReserve = 92
+      const cellH = (h - pad * 2 - gap * 2 - mastersReserve) / 3
       const next = Math.max(64, Math.min(100, Math.floor(Math.min(cellW, cellH) * 0.82)))
       setSealSize((prev) => (Math.abs(prev - next) < 2 ? prev : next))
     }
@@ -580,6 +598,10 @@ export default function SkillTree({
 
   const tryStartRoute = useCallback((routeId) => {
     if (!expanded || !setCompleted) return { ok: false, error: 'Unavailable' }
+    const route = expanded.routes.find((r) => r.id === routeId)
+    if (route && !routeOnChart(route, heldMasters, expanded.trainableOnly)) {
+      return { ok: false, error: `${route.masterRoot} is not on your chart` }
+    }
     const gate = canStartRoute(numProgress, expanded.id, routeId)
     if (!gate.ok) return { ok: false, error: gate.reason }
     if (gate.reason === 'active') {
@@ -593,7 +615,7 @@ export default function SkillTree({
     setExpandedRouteId(routeId)
     setGateMsg(null)
     return { ok: true }
-  }, [expanded, numProgress, progress, setCompleted])
+  }, [expanded, numProgress, progress, setCompleted, heldMasters])
 
   const onBranchNode = useCallback((payload) => {
     if (!expanded) return
@@ -661,7 +683,7 @@ export default function SkillTree({
       data: {
         color: sealColor,
         icon: expanded.icon,
-        displayNum: expanded.id,
+        displayNum: expanded.displayNum != null ? expanded.displayNum : expanded.id,
         label: expanded.label,
         caption: '',
         size: ROOT_SIZE,
@@ -670,11 +692,16 @@ export default function SkillTree({
         stagesDone: sealStages,
         pipStates: [0, 1, 2].map((i) => ({
           done: sealDone[i],
-          eligible: i === 0 || innateStages[i] || statVal >= (i === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3),
+          eligible: expanded.trainableOnly
+            || i === 0
+            || innateStages[i]
+            || statVal >= (i === 1 ? THRESHOLDS.stage2 : THRESHOLDS.stage3),
           innate: innateStages[i],
         })),
         innateGlow: !!innateStages[0],
-        fullyAligned: sealStages === 3 && statVal >= THRESHOLDS.stage3,
+        fullyAligned: expanded.trainableOnly
+          ? sealStages === 3
+          : sealStages === 3 && statVal >= THRESHOLDS.stage3,
         showPips: true,
         showBadge: true,
         showProgressArc: true,
@@ -688,8 +715,9 @@ export default function SkillTree({
       const stages = getRouteStages(numProgress, expanded.id, routeId)
       const done = stages.filter(Boolean).length
       const isActive = (numProgress.activeRoutes || []).includes(routeId)
+      const chartLocked = !routeOnChart(route, heldMasters, expanded.trainableOnly)
       const gate = canStartRoute(numProgress, expanded.id, routeId)
-      const gated = !isActive && !gate.ok
+      const gated = chartLocked || (!isActive && !gate.ok)
       const routePos = layout[`route:${routeId}`]
       const nodeId = `route:${routeId}`
       const isNextRoute = nextAction?.kind === 'route' && nextAction.routeId === routeId
@@ -711,7 +739,7 @@ export default function SkillTree({
           size: ROUTE_SIZE,
           shape: 'square',
           isSelected: selectedId === nodeId || expandedRouteId === routeId,
-          locked: false,
+          locked: chartLocked,
           progressPct: (done / 3) * 100,
           stagesDone: done,
           showPips: false,
@@ -719,7 +747,11 @@ export default function SkillTree({
           showProgressArc: !gated && done > 0,
           isNextAction: isNextRoute,
           enterDelay: reduceMotion ? undefined : (ri + 1) * 90,
-          ariaLabel: gated ? `${route.name} route, locked` : `${route.name} route`,
+          ariaLabel: chartLocked
+            ? `${route.name} route, ${route.masterRoot} is not on your chart`
+            : gated
+              ? `${route.name} route, locked`
+              : `${route.name} route`,
           onClick: () => onBranchNode({ type: 'route', routeId }),
         },
       })
@@ -773,7 +805,7 @@ export default function SkillTree({
             displayNum: '',
             label: '',
             caption: stage.name,
-            tag: tierLabel,
+            tag: expanded.trainableOnly ? '' : tierLabel,
             size: TIER_SIZE,
             isSelected: selectedId === tierId,
             locked: tierLocked && !isNextTier,
@@ -814,6 +846,7 @@ export default function SkillTree({
   }, [
     expanded, layout, numProgress, selectedId, seeds, statValues,
     onBranchNode, tiersRouteId, expandedRouteId, nextAction, loadout, reduceMotion,
+    heldMasters,
   ])
 
   const onInit = useCallback((rf) => {
@@ -849,7 +882,9 @@ export default function SkillTree({
         body: (
           <>
             <p className="skills-detail-lead">
-              {expanded.subtitle}. Three paths — equip one as your class.
+              {expanded.trainableOnly
+                ? 'Four master paths. Train the ones on your chart. This branch does not take a class slot.'
+                : `${expanded.subtitle}. Three paths — equip one as your class.`}
             </p>
             {expanded.routes.map((route) => (
               <div key={route.id} className="skills-route-tier-preview">
@@ -861,7 +896,10 @@ export default function SkillTree({
                     setFocus({ type: 'route', routeId: route.id, numId: expanded.id })
                   }}
                 >
-                  {route.name}{route.classNoun ? ` · ${route.classNoun}` : ''}
+                  {route.name}
+                  {expanded.trainableOnly && route.masterRoot
+                    ? (routeOnChart(route, heldMasters, true) ? ` · ${route.masterRoot}` : ` · ${route.masterRoot} locked`)
+                    : (route.classNoun ? ` · ${route.classNoun}` : '')}
                 </button>
                 {route.blurb && <p className="skills-detail-note">{route.blurb}</p>}
               </div>
@@ -876,6 +914,7 @@ export default function SkillTree({
       if (!route) return null
       const stages = getRouteStages(numProgress, expanded.id, route.id)
       const active = (numProgress.activeRoutes || []).includes(route.id)
+      const chartLocked = !routeOnChart(route, heldMasters, expanded.trainableOnly)
       const gate = canStartRoute(numProgress, expanded.id, route.id)
       const equipped = isRouteEquipped(expanded.id, route.id, loadout)
       const equipSlotIdx = findLoadoutSlotIndex(expanded.id, route.id, loadout)
@@ -887,16 +926,25 @@ export default function SkillTree({
         body: (
           <>
             <p className="skills-detail-note">
-              {equipped
-                ? `Equipped class path · ${stages.filter(Boolean).length}/3 tiers`
-                : active
-                  ? `Training · ${stages.filter(Boolean).length}/3 tiers — equip to focus dailies`
-                  : 'Preview the path, then equip it as a class specialization.'}
+              {expanded.trainableOnly
+                ? (chartLocked
+                  ? `${route.masterRoot} is not on your chart.`
+                  : active
+                    ? `Training · ${stages.filter(Boolean).length}/3 stages. This path does not take a class slot.`
+                    : 'Train this path. It does not take a class slot.')
+                : equipped
+                  ? `Equipped class path · ${stages.filter(Boolean).length}/3 tiers`
+                  : active
+                    ? `Training · ${stages.filter(Boolean).length}/3 tiers — equip to focus dailies`
+                    : 'Preview the path, then equip it as a class specialization.'}
             </p>
-            {!sealEligible && (
+            {!expanded.trainableOnly && !sealEligible && (
               <p className="skills-detail-gate" role="status">Not in your blueprint</p>
             )}
-            {sealEligible && !equipped && (
+            {chartLocked && (
+              <p className="skills-detail-gate" role="status">{route.masterRoot} is not on your chart</p>
+            )}
+            {!expanded.trainableOnly && sealEligible && !equipped && (
               <button
                 type="button"
                 className="skills-detail-cta"
@@ -948,7 +996,19 @@ export default function SkillTree({
                 </button>
               </div>
             )}
-            {!active && gate.ok && sealEligible && (
+            {expanded.trainableOnly && !chartLocked && !active && gate.ok && (
+              <button
+                type="button"
+                className="skills-detail-cta"
+                onClick={() => {
+                  const res = tryStartRoute(route.id)
+                  if (!res.ok) setGateMsg(res.error)
+                }}
+              >
+                Start training
+              </button>
+            )}
+            {!expanded.trainableOnly && !active && gate.ok && sealEligible && (
               <button
                 type="button"
                 className="skills-detail-start-link"
@@ -1040,7 +1100,7 @@ export default function SkillTree({
         const prevName = route.stages[focus.stageIdx - 1]?.name
         lockParts.push(prevName ? `Finish ${prevName} first` : 'Finish the previous stage first')
       }
-      if (threshold && !innateStages[focus.stageIdx] && statVal < threshold) {
+      if (!expanded.trainableOnly && threshold && !innateStages[focus.stageIdx] && statVal < threshold) {
         lockParts.push(`Stat ${statVal} of ${threshold}`)
       }
       return {
@@ -1067,7 +1127,7 @@ export default function SkillTree({
               canPin={unlocked && !isDone}
               playerData={playerData}
               specBase={{
-                number: Number(expanded.id),
+                number: expanded.trainableOnly ? expanded.id : Number(expanded.id),
                 numberLabel: expanded.label,
                 routeId: route.id,
                 routeName: route.name,
@@ -1078,7 +1138,9 @@ export default function SkillTree({
               }}
             />
             <p className="skills-detail-note">
-              Pin a line to today’s journal. Matching class quests still fill this tier.
+              {expanded.trainableOnly
+                ? 'Pin a line to today’s journal. Completing it fills this stage.'
+                : 'Pin a line to today’s journal. Matching class quests still fill this tier.'}
             </p>
           </>
         ),
@@ -1089,14 +1151,20 @@ export default function SkillTree({
   }, [
     expanded, focus, numProgress, seeds, statValues, tryStartRoute,
     tryEquipRoute, tryUnequip, loadout, replacePicker, playerData, freqLevel,
-    openSeal, onBranchNode,
+    openSeal, onBranchNode, heldMasters,
   ])
 
   const thesis = !expanded
     ? (filledSlots.length
       ? `${classTitle} — select a seal to train.`
       : 'Equip up to two blueprint paths as your class.')
-    : !isSealEligible(expanded.id, playerData, freqLevel)
+    : expanded.trainableOnly
+      ? (heldMasters.size
+        ? (tiersRouteId
+          ? `Masters — ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'}`
+          : 'Masters — train a path on your chart.')
+        : 'Masters — no master number on your chart.')
+      : !isSealEligible(expanded.id, playerData, freqLevel)
       ? `${expanded.label} — not in your blueprint.`
       : tiersRouteId
         ? `${expanded.label.charAt(0)}${expanded.label.slice(1).toLowerCase()} — ${expanded.routes.find((r) => r.id === tiersRouteId)?.name || 'path'}`
@@ -1294,6 +1362,25 @@ export default function SkillTree({
                   </Fragment>
                 )
               })}
+              <div className="skills-masters-row">
+                <div className="skills-masters-seal">
+                  <SkillSeal
+                    number={MASTERS_SEAL}
+                    completed={getSealProgress(progress.masters, 'masters', null)}
+                    active={false}
+                    seeds={seeds}
+                    statValues={statValues}
+                    size={Math.min(sealSize, 84)}
+                    onSelect={openSeal}
+                    eligible={!playerData || heldMasters.size > 0}
+                    equipped={false}
+                    lockedReason="No master number on your chart"
+                  />
+                  {(!playerData || heldMasters.size === 0) && (
+                    <span className="skills-masters-caption">No master number on your chart</span>
+                  )}
+                </div>
+              </div>
             </div>
             <SkillsInspector
               open={!!lockSheet}

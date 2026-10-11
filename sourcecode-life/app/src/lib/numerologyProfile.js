@@ -38,6 +38,39 @@ export function getDigitCounts(playerData) {
   return combined
 }
 
+/** Core frequencies that stay master numbers (not digit tallies). */
+export const MASTER_ROOTS = [11, 22, 33, 44]
+
+const BLUEPRINT_POSITIONS = [
+  ['lp', 'LP'],
+  ['ex', 'EX'],
+  ['cl', 'CL'],
+  ['so', 'SO'],
+  ['ou', 'OU'],
+  ['ac', 'AC'],
+  ['th', 'TH'],
+]
+
+/**
+ * Which blueprint positions actually hold 11, 22, 33, or 44.
+ * @returns {{ 11: string[], 22: string[], 33: string[], 44: string[] }}
+ */
+export function getMasterPositions(playerData) {
+  const out = { 11: [], 22: [], 33: [], 44: [] }
+  if (!playerData) return out
+  for (const [key, tag] of BLUEPRINT_POSITIONS) {
+    const root = Number(playerData[key]?.root)
+    if (out[root]) out[root].push(tag)
+  }
+  return out
+}
+
+/** Set of master roots present on any of the seven blueprint positions. */
+export function getHeldMasterRoots(playerData) {
+  const positions = getMasterPositions(playerData)
+  return new Set(MASTER_ROOTS.filter((n) => positions[n].length > 0))
+}
+
 // ── Stat values (1–9 only, for skill tree) ────────────────────────────────────
 /**
  * Returns { "1": n, "2": n, ... "9": n } — innate digit counts from chart.

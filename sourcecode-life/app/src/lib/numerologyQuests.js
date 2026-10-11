@@ -1420,10 +1420,16 @@ export function pinSkillQuestToToday(spec, playerData) {
     type: 'skilltree',
     difficulty,
     rewardXP: Math.round(base * (DIFFICULTY_MULTIPLIER[difficulty] || 1)),
-    skillMeta: {
-      ...resolveSkillMeta({ root: spec.number, stageIdx: spec.stageIdx ?? stage - 1, questKind: 'skill' }),
-      preferredRouteId: spec.routeId,
-    },
+    skillMeta: String(spec.number) === 'masters'
+      ? {
+          number: 'masters',
+          stageIdx: spec.stageIdx ?? stage - 1,
+          preferredRouteId: spec.routeId,
+        }
+      : {
+          ...resolveSkillMeta({ root: spec.number, stageIdx: spec.stageIdx ?? stage - 1, questKind: 'skill' }),
+          preferredRouteId: spec.routeId,
+        },
     evidence: evidenceForSkillQuest({
       routeId: spec.routeId,
       questText: spec.questText,

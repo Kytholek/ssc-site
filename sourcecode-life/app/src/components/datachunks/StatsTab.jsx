@@ -4,12 +4,14 @@
 import { useState } from 'react'
 import { GiftCards } from '../skilltree/InnateSkills.jsx'
 import { reduceToSimple } from '../../lib/numerology.js'
-import { getDigitCounts, getPolarity, getPolarityMix } from '../../lib/numerologyProfile.js'
+import { getDigitCounts, getPolarity, getPolarityMix, getMasterPositions, MASTER_ROOTS } from '../../lib/numerologyProfile.js'
 import {
-  STAT_NAMES, POLARITY_COLORS, POLARITY_CONFIGS,
+  STAT_NAMES, POLARITY_COLORS, POLARITY_CONFIGS, ROOT,
 } from '../../lib/data.js'
 
 // ── Compute chart data from playerData ───────────────────────────────────────
+const MASTER_ROOT_SET = new Set(MASTER_ROOTS)
+
 function buildChartData(playerData) {
   const { lp, ex, cl } = playerData
   const combined  = getDigitCounts(playerData)
@@ -18,12 +20,15 @@ function buildChartData(playerData) {
   const primaryLabels = {}
   ;[['cl', cl], ['lp', lp], ['ex', ex]].forEach(([tag, obj]) => {
     if (!obj?.root) return
-    const k = normalize(obj.root)
+    const root = Number(obj.root)
+    if (MASTER_ROOT_SET.has(root)) return
+    const k = normalize(root)
     if (!primaryLabels[k]) primaryLabels[k] = tag.toUpperCase()
     else primaryLabels[k] += '/' + tag.toUpperCase()
   })
   const statMeta = playerData.stats || {}
-  return { combined, maxTot, primaryLabels, statMeta }
+  const masterPositions = getMasterPositions(playerData)
+  return { combined, maxTot, primaryLabels, statMeta, masterPositions }
 }
 
 // ── Single stat row ───────────────────────────────────────────────────────────
@@ -55,6 +60,53 @@ function StatRow({ i, combined, maxTot, primaryLabels, statMeta }) {
       <div className="stat-col-box stat-col-total" style={{ color: base > 0 ? accent : undefined }}>
         {base || '—'}
       </div>
+    </div>
+  )
+}
+
+function masterDisplayName(n) {
+  const raw = ROOT[n]?.name || String(n)
+  return raw.replace(/^The\s+/i, '')
+}
+
+function MasterRow({ n, positions }) {
+  const present = positions.length > 0
+  return (
+    <div className={`stat-chart-row stat-chart-row--master${present ? ' stat-row-primary' : ' stat-row-empty'}`}>
+      <div className="stat-col-num" style={{ color: 'var(--gold)' }}>{n}</div>
+      <div className="stat-col-name">
+        <div className="stat-name-text" title={masterDisplayName(n)}>
+          {masterDisplayName(n)}
+          {present
+            ? positions.map((tag) => (
+              <span key={tag} className="stat-primary-pip" style={{ color: 'var(--gold)' }}>{tag}</span>
+            ))
+            : <span className="stat-master-absent">Absent</span>}
+        </div>
+        <div className="stat-fill-bar">
+          <div
+            className="stat-fill-inner"
+            style={{ width: present ? '100%' : '0%', background: 'var(--gold)' }}
+          />
+        </div>
+      </div>
+      <div className="stat-col-box stat-col-total" style={{ color: present ? 'var(--gold)' : undefined }}>
+        {present ? positions.length : '—'}
+      </div>
+    </div>
+  )
+}
+
+function MastersGroup({ masterPositions }) {
+  return (
+    <div className="stat-polarity-group">
+      <div className="stat-group-header" style={{ color: 'var(--gold)' }}>
+        <span className="stat-group-icon">✦</span>
+        <span>MASTERS</span>
+      </div>
+      {MASTER_ROOTS.map((n) => (
+        <MasterRow key={n} n={n} positions={masterPositions?.[n] || []} />
+      ))}
     </div>
   )
 }
@@ -161,6 +213,7 @@ function FrequencyChart({ playerData }) {
       <PolarityGroup polarity="electric" nums={[1,3,5,7]} chartData={chartData} />
       <PolarityGroup polarity="magnetic" nums={[2,4,6,8]} chartData={chartData} />
       <PolarityGroup polarity="aether"   nums={[0,9]}     chartData={chartData} />
+      <MastersGroup masterPositions={chartData.masterPositions} />
       <p className="stat-chart-legend">Ascended = stat exceeds pre-ascension limit</p>
     </div>
   )

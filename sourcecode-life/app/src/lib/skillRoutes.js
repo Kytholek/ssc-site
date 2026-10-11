@@ -5,6 +5,8 @@
  */
 
 import { resolveRouteStageQuests } from './routeQuestPools'
+import { getTieredObjectiveTexts } from './objectives'
+import { ROOT } from './data'
 
 export { resolveRouteStageQuests } from './routeQuestPools'
 
@@ -1049,10 +1051,47 @@ export const SKILL_TREE = {
   },
 }
 
-/** Array form for seal grid (stable order 1-9) */
+/** Array form for seal grid (stable order 1-9). Masters is a separate seal. */
 export const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => SKILL_TREE[n])
 
+const MASTER_STAGE_NAMES = ['Apprentice', 'Adept', 'Master']
+
+function masterRoute({ id, masterRoot, name, classNoun }) {
+  return {
+    id,
+    name,
+    classNoun,
+    masterRoot,
+    blurb: ROOT[masterRoot]?.essence || '',
+    stages: [1, 2, 3].map((tier) => ({
+      stage: tier,
+      name: MASTER_STAGE_NAMES[tier - 1],
+      blurb: '',
+      quests: getTieredObjectiveTexts(masterRoot, tier),
+    })),
+  }
+}
+
+/** Trainable branch under the 3x3. Not a class seal. */
+export const MASTERS_SEAL = {
+  id: 'masters',
+  label: 'MASTERS',
+  subtitle: '11 · 22 · 33 · 44',
+  icon: '\u2726',
+  displayNum: '',
+  color: '#c4a15a',
+  glow: '#c4a15a66',
+  trainableOnly: true,
+  routes: [
+    masterRoute({ id: 'channel', masterRoot: 11, name: 'Channel', classNoun: 'Channel' }),
+    masterRoute({ id: 'builder', masterRoot: 22, name: 'Builder', classNoun: 'Builder' }),
+    masterRoute({ id: 'teacher', masterRoot: 33, name: 'Teacher', classNoun: 'Teacher' }),
+    masterRoute({ id: 'architect', masterRoot: 44, name: 'Architect', classNoun: 'Architect' }),
+  ],
+}
+
 export function getNumberDef(numId) {
+  if (String(numId) === 'masters') return MASTERS_SEAL
   return SKILL_TREE[String(numId)] || SKILL_TREE[Number(numId)] || null
 }
 
@@ -1106,6 +1145,18 @@ export function migrateProgressToV3(raw) {
     node.routes[rid] = arr.slice(0, 3)
     if (arr.some(Boolean)) node.activeRoutes = [rid]
     out[key] = node
+  }
+  const mastersEntry = src.masters
+  if (isV3Entry(mastersEntry)) {
+    const base = emptyRouteProgress('masters')
+    out.masters = {
+      activeRoutes: Array.isArray(mastersEntry.activeRoutes) ? [...mastersEntry.activeRoutes] : [],
+      routes: { ...base.routes, ...(mastersEntry.routes || {}) },
+    }
+    Object.keys(base.routes).forEach((rid) => {
+      if (!Array.isArray(out.masters.routes[rid])) out.masters.routes[rid] = [false, false, false]
+      while (out.masters.routes[rid].length < 3) out.masters.routes[rid].push(false)
+    })
   }
   return out
 }
@@ -1234,6 +1285,7 @@ export function isRouteStageUnlocked(numId, routeId, stageIdx, numProgress, stat
   if (stageIdx === 0) return true
   const stages = getRouteStages(numProgress, numId, routeId)
   if (!stages[stageIdx - 1]) return false
+  if (String(numId) === 'masters') return true
   const innate = seeds?.[numId] || seeds?.[String(numId)] || [false, false, false]
   if (innate[stageIdx]) return true
   const statVal = statValues?.[numId] || statValues?.[String(numId)] || 0

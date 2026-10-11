@@ -1975,7 +1975,7 @@ body.scl-realm-open .tab-bar {
   box-sizing: border-box;
   display: grid;
   grid-template-columns: auto repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto repeat(3, minmax(0, 1fr)) auto;
   place-items: center;
   gap: 6px 8px;
   padding: 8px 12px 12px;
@@ -2022,6 +2022,37 @@ body.scl-realm-open .tab-bar {
   height: 100%;
   min-width: 0;
   min-height: 0;
+}
+.skills-masters-row {
+  grid-column: 3;
+  grid-row: 5;
+  justify-self: center;
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  padding: 0;
+  z-index: 2;
+}
+.skills-masters-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.skills-masters-seal .skills-grid-cell {
+  width: auto;
+  height: auto;
+}
+.skills-masters-caption {
+  max-width: 220px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.72;
 }
 .skills-idle-hint {
   position: static;
@@ -3839,6 +3870,15 @@ button.char-card-class:focus-visible {
 .stat-row-empty { opacity: 0.28; }
 .stat-row-primary { background: rgba(201,168,76,0.035); }
 .stat-row-primary:hover { background: rgba(201,168,76,0.06); }
+.stat-chart-row--master .stat-col-num { font-size: 12px; }
+.stat-chart-row--master .stat-name-text { letter-spacing: 0.04em; }
+.stat-master-absent {
+  margin-left: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 .stat-col-num {
   font-family: 'Cinzel', serif;

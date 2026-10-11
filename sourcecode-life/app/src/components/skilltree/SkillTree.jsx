@@ -5,7 +5,7 @@
  * Compact docked inspector. Equip / Start CTA.
  */
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import ReactFlow, { MarkerType } from 'reactflow'
 import 'reactflow/dist/style.css'
 import FlowProgressNode from '../flow/FlowProgressNode'
@@ -172,10 +172,19 @@ function SkillSeal({
 }
 
 function BranchFlowNode({ data }) {
+  const entering = typeof data.enterDelay === 'number'
   return (
     <div
-      className={`skills-branch-node${data.caption ? ' skills-branch-node--captioned' : ''}`}
-      style={{ width: data.size, height: data.size }}
+      className={[
+        'skills-branch-node',
+        data.caption ? 'skills-branch-node--captioned' : '',
+        entering ? 'skills-branch-node--enter' : '',
+      ].filter(Boolean).join(' ')}
+      style={{
+        width: data.size,
+        height: data.size,
+        ...(entering ? { '--enter-delay': `${data.enterDelay}ms` } : null),
+      }}
     >
       <FlowProgressNode
         color={data.color}
@@ -231,7 +240,13 @@ function parseNodeId(id) {
   return null
 }
 
-function SkillsInspector({ open, color, title, subtitle, icon, onClose, children, slim = false }) {
+function SkillsInspector({
+  open, color, title, subtitle, icon, onClose, children, slim = false, contentKey = 'sheet',
+}) {
+  const reduceMotion = useReducedMotion()
+  const swap = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.18, ease: 'easeOut' }
   return (
     <AnimatePresence>
       {open && (
@@ -241,22 +256,46 @@ function SkillsInspector({ open, color, title, subtitle, icon, onClose, children
           initial={{ y: '100%', opacity: 0.6 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '100%', opacity: 0 }}
-          transition={{ type: 'tween', duration: 0.22, ease: 'easeOut' }}
+          transition={{ type: 'tween', duration: reduceMotion ? 0 : 0.22, ease: 'easeOut' }}
           role="dialog"
           aria-label={title}
         >
           <div className="skills-inspector-handle" aria-hidden="true" />
           <div className="skills-inspector-header">
-            <span className="skills-inspector-icon" aria-hidden="true">{icon}</span>
-            <div className="skills-inspector-meta">
-              <div className="skills-inspector-title">{title}</div>
-              {subtitle && <div className="skills-inspector-sub">{subtitle}</div>}
-            </div>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={contentKey}
+                className="skills-inspector-heading"
+                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -4 }}
+                transition={swap}
+              >
+                <span className="skills-inspector-icon" aria-hidden="true">{icon}</span>
+                <div className="skills-inspector-meta">
+                  <div className="skills-inspector-title">{title}</div>
+                  {subtitle && <div className="skills-inspector-sub">{subtitle}</div>}
+                </div>
+              </motion.div>
+            </AnimatePresence>
             <button type="button" className="skills-inspector-close" onClick={onClose} aria-label="Close">
               {'\u2715'}
             </button>
           </div>
-          <div className="skills-inspector-body">{children}</div>
+          <div className="skills-inspector-body">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={contentKey}
+                className="skills-inspector-body-swap"
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduceMotion ? { opacity: 1 } : { opacity: 0, y: -6 }}
+                transition={swap}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </motion.aside>
       )}
     </AnimatePresence>
@@ -308,12 +347,13 @@ export default function SkillTree({
   freqLevel = 1,
 }) {
   const wrapRef = useRef(null)
+  const reduceMotion = !!useReducedMotion()
   const [sealSize, setSealSize] = useState(FLOW_NODE_SIZE)
   const measureRaf = useRef(0)
   const [expandedRouteId, setExpandedRouteId] = useState(null)
   const [focus, setFocus] = useState(null)
   const [gateMsg, setGateMsg] = useState(null)
-  const [zoomLock, setZoomLock] = useState(null)
+  const [flowReady, setFlowReady] = useState(0)
   const [loadout, setLoadout] = useState(() => loadClassLoadout())
   const [renameOpen, setRenameOpen] = useState(false)
   const [renameDraft, setRenameDraft] = useState('')
@@ -396,7 +436,7 @@ export default function SkillTree({
     }
     setLockSheet(null)
     setGateMsg(null)
-    setFocus({ type: 'root', numId: number.id })
+    setFocus(null)
     setExpandedRouteId(null)
     setReplacePicker(null)
     setActiveNode(number)
@@ -678,6 +718,7 @@ export default function SkillTree({
           showBadge: false,
           showProgressArc: !gated && done > 0,
           isNextAction: isNextRoute,
+          enterDelay: reduceMotion ? undefined : (ri + 1) * 90,
           ariaLabel: gated ? `${route.name} route, locked` : `${route.name} route`,
           onClick: () => onBranchNode({ type: 'route', routeId }),
         },
@@ -688,7 +729,7 @@ export default function SkillTree({
         source: 'root',
         target: nodeId,
         type: 'smoothstep',
-        animated: false,
+        animated: isNextRoute && !reduceMotion,
         style: {
           stroke: isActive ? `${sealColor}99` : 'rgba(255,255,255,0.18)',
           strokeWidth: isActive ? 2 : 1.25,
@@ -742,18 +783,20 @@ export default function SkillTree({
             showBadge: false,
             showProgressArc: isDone,
             isNextAction: isNextTier,
+            enterDelay: reduceMotion ? undefined : si * 70,
             ariaLabel: `${route.name} ${stage.name}, ${tierLabel}`,
             onClick: () => onBranchNode({ type: 'tier', routeId, stageIdx: si }),
           },
         })
 
         const prevId = si === 0 ? nodeId : `tier:${routeId}:${si - 1}`
+        const flowToNext = isNextTier && !reduceMotion
         edgesOut.push({
           id: `e-${prevId}-${tierId}`,
           source: prevId,
           target: tierId,
           type: 'smoothstep',
-          animated: false,
+          animated: flowToNext,
           style: {
             stroke: isDone
               ? `${tierColor}aa`
@@ -761,7 +804,7 @@ export default function SkillTree({
                 ? `${sealColor}88`
                 : (isActive ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.1)'),
             strokeWidth: isDone || isNextTier ? 1.75 : 1.1,
-            strokeDasharray: unlocked || isDone ? undefined : '4 4',
+            strokeDasharray: flowToNext || unlocked || isDone ? undefined : '4 4',
           },
         })
       })
@@ -770,28 +813,26 @@ export default function SkillTree({
     return { nodes: nodesOut, edges: edgesOut }
   }, [
     expanded, layout, numProgress, selectedId, seeds, statValues,
-    onBranchNode, tiersRouteId, expandedRouteId, nextAction, loadout,
+    onBranchNode, tiersRouteId, expandedRouteId, nextAction, loadout, reduceMotion,
   ])
 
   const onInit = useCallback((rf) => {
     rfRef.current = rf
-    rf.fitView({ padding: 0.2, duration: 200 })
-    const z = rf.getZoom()
-    setZoomLock(z)
-    rf.setMinZoom(Math.max(0.25, z * 0.7))
-    rf.setMaxZoom(Math.min(1.6, z * 1.25))
+    setFlowReady((n) => n + 1)
   }, [])
 
+  const expandedId = expanded?.id ?? null
   useEffect(() => {
-    if (!expanded || !rfRef.current) return
+    if (!expandedId || !rfRef.current) return
     const rf = rfRef.current
+    const duration = reduceMotion ? 0 : 480
     const t = requestAnimationFrame(() => {
       rf.setMinZoom(0.15)
       rf.setMaxZoom(1.6)
-      rf.fitView({ padding: 0.2, duration: 0, includeHiddenNodes: false })
+      rf.fitView({ padding: 0.2, duration, includeHiddenNodes: false })
     })
     return () => cancelAnimationFrame(t)
-  }, [expanded?.id, tiersRouteId, focus?.type])
+  }, [expandedId, tiersRouteId, reduceMotion, flowReady])
 
   const inspector = useMemo(() => {
     if (!expanded || !focus || !numProgress) return null
@@ -1207,8 +1248,17 @@ export default function SkillTree({
       </header>
 
       <div className="skills-stage-body">
-        {!expanded && (
-          <div ref={wrapRef} className="skills-flow-wrap">
+        <AnimatePresence initial={false}>
+        {!expanded ? (
+          <motion.div
+            key="seals"
+            ref={wrapRef}
+            className="skills-flow-wrap"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.94, pointerEvents: 'none' }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+          >
             {filledSlots.length > 0 && (
               <p className="skills-idle-hint" aria-hidden="true">
                 Blueprint seals open — locked seals are outside your destiny kit.
@@ -1261,13 +1311,16 @@ export default function SkillTree({
                 Class paths equip only from seals on your destiny chart.
               </p>
             </SkillsInspector>
-          </div>
-        )}
-
-        {expanded && (
-          <div
+          </motion.div>
+        ) : (
+          <motion.div
+            key="branch"
             className={`skills-branch-wrap${inspector ? ' skills-branch-wrap--inspect' : ''}`}
             style={{ '--skill-color': codexColor(expanded.id), '--flow-color': codexColor(expanded.id) }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12, pointerEvents: 'none' }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="skills-branch-toolbar">
               <button type="button" className="skills-branch-back" onClick={collapse}>
@@ -1302,16 +1355,15 @@ export default function SkillTree({
                 zoomOnPinch
                 panOnDrag
                 preventScrolling={false}
-                minZoom={tiersRouteId ? 0.15 : (zoomLock ? Math.max(0.25, zoomLock * 0.7) : 0.25)}
-                maxZoom={zoomLock ? Math.min(1.6, zoomLock * 1.25) : 1.6}
+                minZoom={tiersRouteId ? 0.15 : 0.25}
+                maxZoom={1.6}
                 proOptions={{ hideAttribution: true }}
-                fitView
-                fitViewOptions={{ padding: 0.2 }}
               />
             </div>
 
             <SkillsInspector
               open={!!inspector}
+              contentKey={focusKey(focus) || 'sheet'}
               color={inspector?.color || codexColor(expanded.id)}
               title={inspector?.title || ''}
               subtitle={inspector?.subtitle || ''}
@@ -1320,8 +1372,9 @@ export default function SkillTree({
             >
               {inspector?.body}
             </SkillsInspector>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   )

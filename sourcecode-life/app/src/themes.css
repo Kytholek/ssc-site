@@ -3506,6 +3506,36 @@
     0 0 0 1px rgba(255, 244, 220, 0.55),
     0 0 10px var(--flow-color-glow-dim, rgba(108, 60, 8, 0.28));
 }
+/* Quest squares sit on parchment. Circles stay dark for contrast. */
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-base--default,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-base--active,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-base--innate,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-base--locked,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-base--default,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-base--active,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-base--innate,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-base--locked {
+  background: linear-gradient(165deg, #f7f0e2 0%, #e6d3a8 100%) !important;
+  border-color: color-mix(in srgb, var(--gold, #c9a84c) 70%, #6c3c08) !important;
+  box-shadow:
+    0 6px 14px rgba(42, 24, 8, 0.16),
+    0 0 0 1px rgba(255, 244, 220, 0.7);
+}
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-label,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-number,
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-icon,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-label,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-number,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-icon {
+  color: #4a3010 !important;
+  text-shadow: none;
+}
+[data-theme="fantasy"] .lqt-flow-wrap .flow-node-interactive--square .flow-node-lock-overlay,
+[data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-lock-overlay {
+  background: rgba(74, 48, 16, 0.12);
+  backdrop-filter: none;
+  border-radius: 8px;
+}
 
 /* -- DIABLO: ember-tinted cards -------------------------------- */
 [data-theme="diablo"] .innate-gift-card {

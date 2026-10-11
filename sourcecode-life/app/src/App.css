@@ -2198,12 +2198,24 @@ body.scl-realm-open .tab-bar {
 .skills-branch-canvas .react-flow__viewport {
   overflow: visible;
 }
+.skills-branch-canvas .react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 6 5;
+  animation: skilltree-edge-flow 1.1s linear infinite;
+}
 
 .skills-branch-node {
   position: relative;
 }
 .skills-branch-node--captioned {
   overflow: visible;
+}
+@keyframes skills-tier-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.skills-branch-node--enter {
+  animation: skills-tier-enter 0.32s ease-out both;
+  animation-delay: var(--enter-delay, 0ms);
 }
 .skills-route-caption {
   position: absolute;
@@ -2416,16 +2428,30 @@ body.scl-realm-open .tab-bar {
   font-weight: 600;
 }
 
-/* Next-action marker — pulse stays off so the board stays quiet */
+/* Next-action marker — one slow pulse so the next step stays findable */
 .skills-node--next {
   position: relative;
   border-radius: 12px;
-  animation: none;
-  filter: none;
+  animation: skills-next-pulse 2.4s ease-in-out infinite;
 }
 @keyframes skills-next-pulse {
   0%, 100% { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--skill-color, #c9a84c) 35%, transparent)); }
   50% { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--skill-color, #c9a84c) 70%, transparent)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skills-branch-node--enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .skills-node--next {
+    animation: none;
+    filter: none;
+  }
+  .skills-branch-canvas .react-flow__edge.animated .react-flow__edge-path {
+    animation: none;
+    stroke-dasharray: none;
+  }
 }
 
 /* Docked inspector — tree stays visible */
@@ -2463,6 +2489,19 @@ body.scl-realm-open .tab-bar {
   gap: 10px;
   padding: 10px 14px 8px;
   flex-shrink: 0;
+}
+.skills-inspector-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.skills-inspector-body-swap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 .skills-inspector-icon {
   font-size: 18px;

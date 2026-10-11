@@ -90,10 +90,10 @@ function PolarityMixBars({ playerData }) {
         <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.25))' }} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <span style={{ fontSize: 11, color: 'rgba(201,168,76,0.4)', lineHeight: 1 }}>{cfg.icon}</span>
-          <span style={{ fontFamily: "'Cinzel', serif", fontSize: 10, fontWeight: 700, letterSpacing: '0.22em', color: '#c9a84c', textShadow: '0 0 12px rgba(201,168,76,0.3)' }}>
+          <span className="polarity-mix-title">
             POLARITY MIX
           </span>
-          <span style={{ fontSize: 8, letterSpacing: '0.15em', color: 'rgba(255,255,255,0.2)' }}>
+          <span className="polarity-mix-sub">
             ELECTRIC · MAGNETIC · AETHER
           </span>
         </div>
@@ -112,7 +112,7 @@ function PolarityMixBars({ playerData }) {
           <span style={{ fontFamily: "'Cinzel', serif", fontSize: 10, letterSpacing: '0.12em', color: cfg.color }}>
             {cfg.label} DOMINANT
           </span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{open ? '▲' : '▼'}</span>
+          <span className="polarity-mix-chevron">{open ? '▲' : '▼'}</span>
         </div>
         <div style={{ width: '60%', height: 6, borderRadius: 3, overflow: 'hidden', display: 'flex', gap: 1 }}>
           {poles.map(key => (
@@ -140,7 +140,7 @@ function PolarityMixBars({ playerData }) {
           marginTop: 8, padding: '10px 12px', borderRadius: 6,
           border: `1px solid ${cfg.color}44`, background: `${cfg.color}0d`,
         }}>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>
+          <div className="polarity-mix-desc">
             {cfg.desc}
           </div>
         </div>

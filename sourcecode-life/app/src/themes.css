@@ -3517,6 +3517,7 @@
 [data-theme="fantasy"] .tf-wrap .flow-node-interactive--square .flow-node-base--locked {
   background: linear-gradient(165deg, #f7f0e2 0%, #e6d3a8 100%) !important;
   border-color: color-mix(in srgb, var(--gold, #c9a84c) 70%, #6c3c08) !important;
+  opacity: 1;
   box-shadow:
     0 6px 14px rgba(42, 24, 8, 0.16),
     0 0 0 1px rgba(255, 244, 220, 0.7);
@@ -4977,7 +4978,10 @@
 [data-theme="fantasy"] .qj-align-complete,
 [data-theme="fantasy"] .qj-carve-submit {
   border-color: color-mix(in srgb, #6c3c08 45%, transparent);
-  background: color-mix(in srgb, #6c3c08 8%, transparent);
+  background: color-mix(in srgb, #6c3c08 10%, #fbf2df);
+}
+[data-theme="fantasy"] .qj-carve-foot {
+  background: linear-gradient(to top, #f3e2bf 72%, transparent);
 }
 [data-theme="fantasy"] .qj-carve-input {
   color: #3a2e1c;

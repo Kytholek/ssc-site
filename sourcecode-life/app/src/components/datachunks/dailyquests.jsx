@@ -409,7 +409,7 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
           )}
           <span className="qj-entry-meta">
             {multiDays > 0 && <MultiDayPips totalDays={multiDays} />}
-            <span className="qj-entry-diff" style={{ color: diffMeta.color }}>
+            <span className="qj-entry-diff" style={{ color: diffMeta.shortColor }}>
               {diffMeta.icon} {diffMeta.label}
             </span>
             <span className="qj-entry-evidence">{evidenceSummary(evidence)}</span>
@@ -478,7 +478,7 @@ function JournalQuestRow({ quest, source, expanded, onToggle, onComplete }) {
             {multiDays > 0 ? (
               <span className="qj-carve-xp">XP on finish</span>
             ) : (
-              <span className="qj-carve-xp" style={{ color: diffMeta.color }}>+{quest.rewardXP} XP</span>
+              <span className="qj-carve-xp" style={{ color: diffMeta.shortColor }}>+{quest.rewardXP} XP</span>
             )}
             <button type="button" className="qj-carve-submit" onClick={handleSubmit}>
               {multiDays > 0

@@ -14953,17 +14953,18 @@ button.char-card-class:focus-visible {
    OBJECTIVE GLYPHS â€” Theme Overrides
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 [data-theme="fantasy"] .obj-glyph {
-  background: linear-gradient(160deg, rgba(26, 20, 14, 0.75) 0%, rgba(16, 12, 8, 0.85) 100%);
-  border-color: color-mix(in srgb, var(--gold) 18%, transparent);
+  background: linear-gradient(165deg, #fbf2df 0%, #f3e2bf 100%);
+  border-color: color-mix(in srgb, var(--gold) 28%, transparent);
+  color: var(--text);
 }
 [data-theme="fantasy"] .obj-glyph:hover {
-  border-color: color-mix(in srgb, var(--gold) 40%, transparent);
-  background: linear-gradient(160deg, rgba(26, 20, 14, 0.9) 0%, rgba(16, 12, 8, 0.95) 100%);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 8px color-mix(in srgb, var(--gold) 15%, transparent);
+  border-color: color-mix(in srgb, var(--gold) 48%, transparent);
+  background: linear-gradient(165deg, #fff6e4 0%, #f7e6c4 100%);
+  box-shadow: 0 4px 14px rgba(78, 38, 0, 0.16);
 }
 [data-theme="fantasy"] .obj-glyph--life {
-  border-color: color-mix(in srgb, var(--gold) 35%, transparent);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--gold) 8%, transparent) 0%, color-mix(in srgb, var(--gold) 3%, transparent) 100%);
+  border-color: color-mix(in srgb, var(--gold) 42%, transparent);
+  background: linear-gradient(165deg, #fff8ea 0%, #f6e4bc 100%);
 }
 [data-theme="fantasy"] .obj-glyph--life:hover {
   border-color: color-mix(in srgb, var(--gold) 55%, transparent);
@@ -22178,7 +22179,7 @@ button.char-card-class:focus-visible {
 
 [data-theme="fantasy"] .setting-val,
 [data-theme="fantasy"] .setting-freq-val {
-  color: #1f1004;
+  color: #1f1004 !important;
 }
 
 [data-theme="fantasy"] .setting-val-dim,
@@ -22927,13 +22928,13 @@ button.char-card-class:focus-visible {
       color-mix(in srgb, var(--gold) 3%, transparent) 50%,
       color-mix(in srgb, var(--gold) 5%, transparent) 100%
     ),
-    linear-gradient(180deg, rgba(14,16,24,0.95) 0%, rgba(10,10,18,0.98) 100%);
+    linear-gradient(180deg, #fbf2df 0%, #f3e2bf 100%);
   border-top-color: color-mix(in srgb, var(--gold) 35%, transparent);
   color: var(--text);
   box-shadow:
-    0 -8px 32px rgba(0, 0, 0, 0.4),
+    0 -8px 28px rgba(78, 38, 0, 0.18),
     0 0 1px color-mix(in srgb, var(--gold) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 [data-theme="fantasy"] .char-card-panel::before {
   background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--gold) 50%, transparent) 50%, transparent 100%);
@@ -25478,4 +25479,95 @@ button.char-card-class:focus-visible {
   cursor: pointer;
 }
 .invite-banner .char-dossier--compact { margin-bottom: 0; }
+
+/* Fantasy ink is dark brown. These shells paint a near-black gradient
+   with the background shorthand, so a background-color override never shows.
+   Replace the fill itself so the ink sits on parchment. */
+[data-theme="fantasy"] .home-dashboard {
+  --home-shell-bg:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--gold) 8%, transparent) 0%,
+      color-mix(in srgb, var(--gold) 3%, transparent) 55%,
+      color-mix(in srgb, var(--gold) 6%, transparent) 100%
+    ),
+    linear-gradient(180deg, #fbf2df 0%, #f3e2bf 100%);
+  --home-shell-border: color-mix(in srgb, var(--gold) 34%, transparent);
+}
+[data-theme="fantasy"] .home-dashboard .home-subnav {
+  background: linear-gradient(180deg, #f7edd8 0%, #ead8b4 100%);
+  box-shadow: 0 8px 16px rgba(78, 38, 0, 0.12);
+  border-color: rgba(78, 38, 0, 0.28);
+}
+[data-theme="fantasy"] .tab-portal-caption {
+  color: #fff1c8;
+  text-shadow: 0 1px 2px rgba(20, 10, 0, 0.7);
+}
+.polarity-mix-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #c9a84c;
+  text-shadow: 0 0 12px rgba(201,168,76,0.3);
+}
+.polarity-mix-sub {
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.2);
+}
+.polarity-mix-chevron {
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
+}
+.polarity-mix-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+}
+[data-theme="fantasy"] .polarity-mix-title {
+  color: var(--gold);
+  text-shadow: none;
+}
+[data-theme="fantasy"] .polarity-mix-sub,
+[data-theme="fantasy"] .polarity-mix-chevron {
+  color: var(--text-dim);
+}
+[data-theme="fantasy"] .polarity-mix-desc {
+  color: var(--text);
+}
+[data-theme="fantasy"] .skills-codex-label--mind { color: #243e62; }
+[data-theme="fantasy"] .skills-codex-label--body { color: #6e2c24; }
+[data-theme="fantasy"] .skills-codex-label--spirit { color: #43305f; }
+[data-theme="fantasy"] .skills-stage .flow-node-base--locked .flow-node-icon,
+[data-theme="fantasy"] .skills-stage .flow-node-base--locked .flow-node-number {
+  color: #f3e2bf;
+}
+[data-theme="fantasy"] .blueprint-section .flow-node-seal-caption,
+[data-theme="fantasy"] .blueprint-idle-prompt {
+  color: #4e3218;
+}
+[data-theme="fantasy"] .blueprint-section .flow-node-seal--selected .flow-node-seal-caption {
+  color: #4e2600;
+}
+[data-theme="fantasy"] .quest-hub-hero,
+[data-theme="fantasy"] .quest-hub-card,
+[data-theme="fantasy"] .quest-hub-card--gold,
+[data-theme="fantasy"] .quest-hub-card--teal,
+[data-theme="fantasy"] .quest-hub-card--rose,
+[data-theme="fantasy"] .quest-hub-card--main,
+[data-theme="fantasy"] .quest-hub-card--journal,
+[data-theme="fantasy"] .quest-hub-card--calm,
+[data-theme="fantasy"] .quest-hub-life-item,
+[data-theme="fantasy"] .side-quest-card {
+  background: linear-gradient(165deg, #fbf2df 0%, #f3e2bf 100%);
+  border-color: rgba(94, 55, 10, 0.32);
+  color: var(--text);
+  box-shadow: 0 3px 12px rgba(78, 38, 0, 0.12);
+}
+[data-theme="fantasy"] .quest-hub-life-item:hover,
+[data-theme="fantasy"] .quest-hub-card:hover,
+[data-theme="fantasy"] .side-quest-card:hover {
+  background: linear-gradient(165deg, #fff6e4 0%, #f7e6c4 100%);
+  border-color: rgba(78, 38, 0, 0.46);
+}
 

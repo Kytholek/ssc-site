@@ -23280,7 +23280,7 @@ button.char-card-class:focus-visible {
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--text, #ece8f4) 42%, transparent);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   transition: color 0.15s;
   position: relative;
   z-index: 1;
